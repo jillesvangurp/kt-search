@@ -103,7 +103,7 @@ suspend fun main(vararg args: String) {
   esClient.use {
     val customSerde = JacksonModelReaderAndWriter(Recipe::class, objectMapper)
     val recipeRepository =
-      esClient.asyncIndexRepository<Recipe>(
+      esClient.asyncIndexRepository(
         index = "recipes",
         // we override the default because we want to reuse the objectMapper
         // and reuse our snake case setup
@@ -317,7 +317,6 @@ private fun createServer(
 ): NettyApplicationEngine {
   return embeddedServer(Netty, port = 8080) {
     // this will allow us to serialize data objects to json
-    install(DataConversion)
     install(ContentNegotiation) {
       // lets reuse our mapper for this
       register(ContentType.Application.Json, JacksonConverter(objectMapper))

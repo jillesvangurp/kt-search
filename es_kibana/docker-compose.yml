@@ -2,7 +2,7 @@ version: "2.3"
 # simple docker compose to play with Elasticsearch & Kibana locally
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
     environment:
       discovery.type: single-node
       cluster.name: docker-cluster
@@ -23,7 +23,7 @@ services:
     volumes:
       - data:/usr/share/elasticsearch/data
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.15.0
+    image: docker.elastic.co/kibana/kibana:7.16.1
     environment:
       SERVER_NAME: localhost
       ELASTICSEARCH_URL: http://elasticsearch:9200

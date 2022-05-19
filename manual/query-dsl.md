@@ -148,55 +148,6 @@ in schema-less mode allows you to work around this and you can of course mix bot
 However, if you need something added to the DSL it is really easy to do this yourself. For example 
 this is the implementation of the match we use above: 
 
-```kotlin
-enum class MatchOperator { AND, OR }
-
-@Suppress("EnumEntryName")
-enum class ZeroTermsQuery { all, none }
-
-@SearchDSLMarker
-class MatchQueryConfig : MapBackedProperties() {
-  var query by property<String>()
-  var boost by property<Double>()
-  var analyzer by property<String>()
-  var autoGenerateSynonymsPhraseQuery by property<Boolean>()
-  var fuzziness by property<String>()
-  var maxExpansions by property<Int>()
-  var prefixLength by property<Int>()
-  var transpositions by property<Boolean>()
-  var fuzzyRewrite by property<String>()
-  var lenient by property<Boolean>()
-  var operator by property<MatchOperator>()
-  var minimumShouldMatch by property<String>()
-  var zeroTermsQuery by property<ZeroTermsQuery>()
-}
-
-@SearchDSLMarker
-class MatchQuery(
-  field: String,
-  query: String,
-  matchQueryConfig: MatchQueryConfig = MatchQueryConfig(),
-  block: (MatchQueryConfig.() -> Unit)? = null
-) : ESQuery(name = "match") {
-  // The map is empty until we assign something
-  init {
-    putNoSnakeCase(field, matchQueryConfig)
-    matchQueryConfig.query = query
-    block?.invoke(matchQueryConfig)
-  }
-}
-
-fun SearchDSL.match(
-  field: KProperty<*>,
-  query: String, block: (MatchQueryConfig.() -> Unit)? = null
-) = MatchQuery(field.name, query, block = block)
-
-fun SearchDSL.match(
-  field: String,
-  query: String, block: (MatchQueryConfig.() -> Unit)? = null
-) = MatchQuery(field, query, block = block)
-```
-
 For more information on how to extend the DSL read [Extending and Customizing the Kotlin DSLs](dsl-customization.md)
 
 
