@@ -28,8 +28,10 @@ interface NodeSelector {
 //    }
 //}
 
+expect fun defaultHttpClient(logging: Boolean = false): HttpClient
+
 class RestClient(
-    private val client: HttpClient,
+    private val client: HttpClient = defaultHttpClient(),
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
@@ -69,13 +71,13 @@ class RestClient(
             url {
                 host = node.host
                 port = node.port
-                if(!user.isNullOrBlank()) {
+                if (!user.isNullOrBlank()) {
                     user = this@RestClient.user
                 }
-                if(!password.isNullOrBlank()) {
+                if (!password.isNullOrBlank()) {
                     password = this@RestClient.password
                 }
-                protocol = if(https) URLProtocol.HTTPS else URLProtocol.HTTP
+                protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
                 path("/${pathComponents.joinToString("/")}")
                 if (!parameters.isNullOrEmpty()) {
                     parameters.entries.forEach { (key, value) ->
@@ -124,8 +126,8 @@ sealed class RestResponse() {
 
     abstract val bytes: ByteArray
     abstract val responseCategory: ResponseCategory
-    
-    val completedNormally by lazy {  responseCategory == ResponseCategory.Success }
+
+    val completedNormally by lazy { responseCategory == ResponseCategory.Success }
     val text by lazy { bytes.decodeToString() }
 
     abstract class Status2XX(override val responseCategory: ResponseCategory = ResponseCategory.Success) :

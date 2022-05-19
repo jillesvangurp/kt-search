@@ -5,6 +5,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 plugins {
     kotlin("multiplatform")
     `maven-publish`
+    "org.jetbrains.dokka"
+
 }
 
 repositories {
@@ -13,7 +15,7 @@ repositories {
 
 // publishing
 apply(plugin = "maven-publish")
-apply(plugin = "org.jetbrains.dokka")
+// apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
@@ -110,7 +112,7 @@ tasks.withType<Test> {
                     TESTFAILURE ${desc.className} - ${desc.name}
                     ${result.exception?.let { e->
                         """
-                            ${e::class.simpleName} ${e.message}                            
+                            ${e::class.simpleName} ${e.message}
                         """.trimIndent()
                     }}
                     -----------------

@@ -13,7 +13,7 @@ repositories {
 
 // publishing
 apply(plugin = "maven-publish")
-apply(plugin = "org.jetbrains.dokka")
+// apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
@@ -22,12 +22,6 @@ println("group: $group")
 
 kotlin {
     jvm {
-//        val main by compilations.getting {
-//        }
-//        val test by compilations.getting {
-//            kotlinOptions {
-//            }
-//        }
     }
     js(BOTH) {
         nodejs {
@@ -46,14 +40,15 @@ kotlin {
                 project(":search-dsls")
                 api(KotlinX.datetime)
                 api(Ktor.client.core)
-                implementation(Ktor.client.logging)
-                implementation(Ktor.client.serialization)
                 implementation(KotlinX.serialization.json)
                 implementation(Ktor.client.core)
                 implementation(Ktor.client.logging)
                 implementation(Ktor.client.serialization)
-                implementation("io.ktor:ktor-server-content-negotiation:_")
+                implementation("io.ktor:ktor-client-logging:_")
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:_")
+                implementation("io.ktor:ktor-client-content-negotiation:_")
+
 
             }
         }
@@ -67,7 +62,6 @@ kotlin {
         val jvmMain by existing {
             dependencies {
                 implementation(Ktor.client.cio)
-                implementation("io.ktor:ktor-client-logging-jvm:_")
             }
         }
         val jvmTest by getting {
@@ -81,7 +75,7 @@ kotlin {
         }
         val jsMain by existing {
             dependencies {
-                implementation("io.ktor:ktor-client-logging-js:_")
+                implementation("io.ktor:ktor-client-js:_")
             }
         }
         val jsTest by getting {
@@ -125,7 +119,7 @@ tasks.withType<Test> {
                     TESTFAILURE ${desc.className} - ${desc.name}
                     ${result.exception?.let { e->
                         """
-                            ${e::class.simpleName} ${e.message}                            
+                            ${e::class.simpleName} ${e.message}
                         """.trimIndent()
                     }}
                     -----------------

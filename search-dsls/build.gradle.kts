@@ -11,7 +11,7 @@ repositories {
 
 // publishing
 apply(plugin = "maven-publish")
-apply(plugin = "org.jetbrains.dokka")
+// apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
