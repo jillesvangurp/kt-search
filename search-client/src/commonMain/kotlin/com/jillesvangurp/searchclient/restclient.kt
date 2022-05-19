@@ -28,10 +28,10 @@ interface NodeSelector {
 //    }
 //}
 
-expect fun defaultHttpClient(logging: Boolean = false): HttpClient
+//expect fun defaultHttpClient(logging: Boolean = false): HttpClient
 
 class RestClient(
-    private val client: HttpClient = defaultHttpClient(),
+    private val client: HttpClient,
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
