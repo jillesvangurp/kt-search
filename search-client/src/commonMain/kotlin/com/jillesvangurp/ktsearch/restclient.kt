@@ -1,12 +1,10 @@
-package com.jillesvanurp.es.client
+package com.jillesvangurp.ktsearch
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
-import java.nio.charset.StandardCharsets
 import kotlin.random.Random
 
 data class Node(val host: String, val port: Int)
@@ -15,29 +13,31 @@ interface NodeSelector {
     fun selectNode(nodes: Array<out Node>): Node
 }
 
-fun createHttpClient(logging: Boolean): HttpClient {
-    return HttpClient(CIO) {
-        useDefaultTransformers = false // we want to handle responses directly
-        engine {
-            maxConnectionsCount = 100
-            endpoint {
-                keepAliveTime = 100_000
-                connectTimeout = 5_000
-                requestTimeout = 30_000
-                connectAttempts = 3
-            }
-        }
-    }
-}
+//fun createHttpClient(logging: Boolean): HttpClient {
+//    return HttpClient(CIO) {
+//        useDefaultTransformers = false // we want to handle responses directly
+//        engine {
+//            maxConnectionsCount = 100
+//            endpoint {
+//                keepAliveTime = 100_000
+//                connectTimeout = 5_000
+//                requestTimeout = 30_000
+//                connectAttempts = 3
+//            }
+//        }
+//    }
+//}
+
+expect fun defaultHttpClient(logging: Boolean = false): HttpClient
 
 class RestClient(
-    val client: HttpClient = createHttpClient(false),
-    val https: Boolean = false,
-    val user: String? = null,
-    val password: String? = null,
+    private val client: HttpClient = defaultHttpClient(),
+    private val https: Boolean = false,
+    private val user: String? = null,
+    private val password: String? = null,
     // TODO smarter default node selector strategies to deal with node failure, failover, etc.
-    val nodeSelector: NodeSelector? = null,
-    vararg val nodes: Node
+    private val nodeSelector: NodeSelector? = null,
+    private vararg val nodes: Node
 ) {
     constructor(
         client: HttpClient,
@@ -71,8 +71,13 @@ class RestClient(
             url {
                 host = node.host
                 port = node.port
-                user = this@RestClient.user
-                password = this@RestClient.password
+                if (!user.isNullOrBlank()) {
+                    user = this@RestClient.user
+                }
+                if (!password.isNullOrBlank()) {
+                    password = this@RestClient.password
+                }
+                protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
                 path("/${pathComponents.joinToString("/")}")
                 if (!parameters.isNullOrEmpty()) {
                     parameters.entries.forEach { (key, value) ->
@@ -82,7 +87,6 @@ class RestClient(
                 if (payload != null) {
                     setBody(TextContent(payload, contentType = contentType))
                 }
-
             }
         }
 
@@ -122,9 +126,9 @@ sealed class RestResponse() {
 
     abstract val bytes: ByteArray
     abstract val responseCategory: ResponseCategory
-    
-    val completedNormally by lazy {  responseCategory == ResponseCategory.Success }
-    val text by lazy { String(bytes, StandardCharsets.UTF_8) }
+
+    val completedNormally by lazy { responseCategory == ResponseCategory.Success }
+    val text by lazy { bytes.decodeToString() }
 
     abstract class Status2XX(override val responseCategory: ResponseCategory = ResponseCategory.Success) :
         RestResponse() {

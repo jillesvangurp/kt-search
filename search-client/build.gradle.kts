@@ -13,7 +13,7 @@ repositories {
 
 // publishing
 apply(plugin = "maven-publish")
-// apply(plugin = "org.jetbrains.dokka")
+apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
@@ -37,9 +37,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common", "_"))
-                project(":search-dsls")
-                api(KotlinX.datetime)
-                api(Ktor.client.core)
+                implementation(project(":search-dsls"))
+                implementation(project(":json-dsl"))
+                implementation(KotlinX.datetime)
+                implementation(Ktor.client.core)
                 implementation(KotlinX.serialization.json)
                 implementation(Ktor.client.core)
                 implementation(Ktor.client.logging)
@@ -85,7 +86,7 @@ kotlin {
         }
 
         all {
-//            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
     }
@@ -138,18 +139,12 @@ tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
     }
 }
 
-
 afterEvaluate {
-//        val dokkaJar = tasks.register<Jar>("dokkaJar") {
-//            from(tasks["dokkaHtml"])
-//            dependsOn(tasks["dokkaHtml"])
-//            archiveClassifier.set("javadoc")
-//        }
-//        val sourcesJar by tasks.registering(Jar::class) {
-//            archiveClassifier.set("sources")
-//            from(sourceSets["main"].allSource)
-//            duplicatesStrategy = DuplicatesStrategy.INCLUDE
-//        }
+        val dokkaJar = tasks.register<Jar>("dokkaJar") {
+            from(tasks["dokkaHtml"])
+            dependsOn(tasks["dokkaHtml"])
+            archiveClassifier.set("javadoc")
+        }
 
     configure<PublishingExtension> {
         repositories {
@@ -171,8 +166,7 @@ afterEvaluate {
             }
         }
         publications.withType<MavenPublication> {
-//                artifact(dokkaJar)
-//                artifact(sourcesJar)
+                artifact(dokkaJar)
         }
     }
 }
