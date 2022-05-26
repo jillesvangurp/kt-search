@@ -122,7 +122,6 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
 
 class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     private var settings by property<IndexSettings>()
-    private var meta : JsonDsl?=null
     private var mappings by property<JsonDsl>()
 //    private var dynamicEnabled by property<Boolean>(customPropertyName = "dynamic")
 
@@ -141,7 +140,6 @@ class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false
         } else {
             mappings=JsonDsl().apply { this["_meta"] = newMeta }
         }
-        this.meta = newMeta
     }
 
     fun mappings(dynamicEnabled: Boolean? = null, block: FieldMappings.() -> Unit) {
