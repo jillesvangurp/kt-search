@@ -58,6 +58,8 @@ kotlin {
                 implementation(project(":json-dsl"))
                 implementation(KotlinX.datetime)
                 implementation(Ktor.client.core)
+                implementation(KotlinX.coroutines.core)
+
                 implementation(KotlinX.serialization.json)
                 implementation(Ktor.client.core)
                 implementation(Ktor.client.logging)

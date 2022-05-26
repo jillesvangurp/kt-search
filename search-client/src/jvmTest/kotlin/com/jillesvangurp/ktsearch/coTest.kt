@@ -1,6 +1,6 @@
 package com.jillesvangurp.ktsearch
 
-import io.kotest.common.runBlocking
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 

@@ -15,7 +15,7 @@ expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): Un
  */
 open class SearchTest() {
     // make sure we use the same client in all tests
-    val client by lazy { sharedClient }
+    val client by lazy { SearchClient(sharedClient) }
 
     companion object {
         private val sharedClient by lazy {
