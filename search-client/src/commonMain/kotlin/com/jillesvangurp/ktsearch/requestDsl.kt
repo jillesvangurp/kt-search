@@ -5,7 +5,7 @@ import com.jillesvangurp.jsondsl.json
 import io.ktor.http.*
 
 data class SearchAPIRequest(
-    internal var body: String = "",
+    internal var body: String? = null,
     internal var contentType: ContentType = ContentType.Application.Json,
     internal var pathComponents: List<String> = listOf(),
     internal val parameters: MutableMap<String, String> = mutableMapOf()
@@ -28,7 +28,7 @@ data class SearchAPIRequest(
     }
 }
 
-suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): RestResponse {
+suspend fun KtorRestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -36,10 +36,10 @@ suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): RestResponse {
         payload = request.body,
         httpMethod = HttpMethod.Post,
         parameters = request.parameters
-    )
+    ).asResult()
 }
 
-suspend fun RestClient.delete(block: (SearchAPIRequest) -> Unit): RestResponse {
+suspend fun KtorRestClient.delete(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -47,20 +47,20 @@ suspend fun RestClient.delete(block: (SearchAPIRequest) -> Unit): RestResponse {
         payload = request.body,
         httpMethod = HttpMethod.Delete,
         parameters = request.parameters
-    )
+    ).asResult()
 }
 
-suspend fun RestClient.get(block: (SearchAPIRequest) -> Unit): RestResponse {
+suspend fun KtorRestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
         pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
-        payload = request.body,
+//        payload = request.body,
         httpMethod = HttpMethod.Get,
         parameters = request.parameters
-    )
+    ).asResult()
 }
-suspend fun RestClient.put(block: (SearchAPIRequest) -> Unit): RestResponse {
+suspend fun KtorRestClient.put(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -68,5 +68,5 @@ suspend fun RestClient.put(block: (SearchAPIRequest) -> Unit): RestResponse {
         payload = request.body,
         httpMethod = HttpMethod.Put,
         parameters = request.parameters
-    )
+    ).asResult()
 }

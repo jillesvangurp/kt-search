@@ -1,4 +1,4 @@
-package com.jillesvangurp.eskotlinwrapper
+package com.jillesvangurp.jsondsl
 
 import com.jillesvangurp.jsondsl.*
 import io.kotest.matchers.shouldBe

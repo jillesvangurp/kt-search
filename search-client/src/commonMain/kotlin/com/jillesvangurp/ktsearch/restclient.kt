@@ -13,32 +13,32 @@ interface NodeSelector {
     fun selectNode(nodes: Array<out Node>): Node
 }
 
-//fun createHttpClient(logging: Boolean): HttpClient {
-//    return HttpClient(CIO) {
-//        useDefaultTransformers = false // we want to handle responses directly
-//        engine {
-//            maxConnectionsCount = 100
-//            endpoint {
-//                keepAliveTime = 100_000
-//                connectTimeout = 5_000
-//                requestTimeout = 30_000
-//                connectAttempts = 3
-//            }
-//        }
-//    }
-//}
+expect fun defaultKtorHttpClient(logging: Boolean = false): HttpClient
 
-expect fun defaultHttpClient(logging: Boolean = false): HttpClient
+interface RestClient {
+    fun nextNode(): Node
 
-class RestClient(
-    private val client: HttpClient = defaultHttpClient(),
+    suspend fun doRequest(
+        pathComponents: List<String> = emptyList(),
+        httpMethod: HttpMethod = HttpMethod.Post,
+        parameters: Map<String, Any>? = null,
+        payload: String? = null,
+        contentType: ContentType = ContentType.Application.Json,
+    ): RestResponse
+}
+
+/**
+ * Simple facade for different rest clients like ktor, okhttp, etc.
+ */
+class KtorRestClient(
+    private val client: HttpClient = defaultKtorHttpClient(),
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
     // TODO smarter default node selector strategies to deal with node failure, failover, etc.
     private val nodeSelector: NodeSelector? = null,
     private vararg val nodes: Node
-) {
+) : RestClient {
     constructor(
         client: HttpClient,
         https: Boolean = false,
@@ -55,14 +55,14 @@ class RestClient(
         Node(host, port)
     )
 
-    private fun nextNode(): Node = nodeSelector?.selectNode(nodes) ?: nodes[Random.nextInt(nodes.size)]
+    override fun nextNode(): Node = nodeSelector?.selectNode(nodes) ?: nodes[Random.nextInt(nodes.size)]
 
-    suspend fun doRequest(
-        pathComponents: List<String> = emptyList(),
-        httpMethod: HttpMethod = HttpMethod.Post,
-        parameters: Map<String, Any>? = null,
-        payload: String? = null,
-        contentType: ContentType = ContentType.Application.Json,
+    override suspend fun doRequest(
+        pathComponents: List<String>,
+        httpMethod: HttpMethod,
+        parameters: Map<String, Any>?,
+        payload: String?,
+        contentType: ContentType,
     ): RestResponse {
 
         val response = client.request {
@@ -72,10 +72,10 @@ class RestClient(
                 host = node.host
                 port = node.port
                 if (!user.isNullOrBlank()) {
-                    user = this@RestClient.user
+                    user = this@KtorRestClient.user
                 }
                 if (!password.isNullOrBlank()) {
-                    password = this@RestClient.password
+                    password = this@KtorRestClient.password
                 }
                 protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
                 path("/${pathComponents.joinToString("/")}")
@@ -116,7 +116,16 @@ class RestClient(
     }
 }
 
-sealed class RestResponse() {
+class RestException(response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}")
+fun RestResponse.asResult(): Result<RestResponse.Status2XX> {
+    return if(this is RestResponse.Status2XX) {
+        Result.success(this)
+    } else {
+        Result.failure(RestException(this))
+    }
+}
+
+sealed class RestResponse(open val status: Int) {
     enum class ResponseCategory {
         Success,
         RequestIsWrong,
@@ -124,48 +133,49 @@ sealed class RestResponse() {
         Other
     }
 
+
     abstract val bytes: ByteArray
     abstract val responseCategory: ResponseCategory
 
     val completedNormally by lazy { responseCategory == ResponseCategory.Success }
     val text by lazy { bytes.decodeToString() }
 
-    abstract class Status2XX(override val responseCategory: ResponseCategory = ResponseCategory.Success) :
-        RestResponse() {
-        class OK(override val bytes: ByteArray) : Status2XX()
-        class NotModified(override val bytes: ByteArray) : Status2XX()
-        class Accepted(override val bytes: ByteArray) : Status2XX()
-        class Gone(override val bytes: ByteArray) : Status2XX()
+    abstract class Status2XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.Success) :
+        RestResponse(status) {
+        class OK(override val bytes: ByteArray) : Status2XX(200)
+        class NotModified(override val bytes: ByteArray) : Status2XX(201)
+        class Accepted(override val bytes: ByteArray) : Status2XX(202)
+        class Gone(override val bytes: ByteArray) : Status2XX(204)
     }
 
-    abstract class Status3XX(override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
-        RestResponse() {
+    abstract class Status3XX(override val status: Int,override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
+        RestResponse(status) {
         abstract val location: String?
 
         class PermanentRedirect(override val bytes: ByteArray, override val location: String?) :
-            Status3XX()
+            Status3XX(301)
 
         class TemporaryRedirect(override val bytes: ByteArray, override val location: String?) :
-            Status3XX()
+            Status3XX(303)
     }
 
-    abstract class Status4XX(override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
-        RestResponse() {
-        class BadRequest(override val bytes: ByteArray) : Status4XX()
-        class NotFound(override val bytes: ByteArray) : Status4XX()
-        class UnAuthorized(override val bytes: ByteArray) : Status4XX()
-        class Forbidden(override val bytes: ByteArray) : Status4XX()
+    abstract class Status4XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
+        RestResponse(status) {
+        class BadRequest(override val bytes: ByteArray) : Status4XX(400)
+        class NotFound(override val bytes: ByteArray) : Status4XX(404)
+        class UnAuthorized(override val bytes: ByteArray) : Status4XX(401)
+        class Forbidden(override val bytes: ByteArray) : Status4XX(403)
     }
 
-    abstract class Status5xx(override val responseCategory: ResponseCategory = ResponseCategory.ServerProblem) :
-        RestResponse() {
-        class InternalServerError(override val bytes: ByteArray) : Status5xx()
-        class ServiceUnavailable(override val bytes: ByteArray) : Status5xx()
-        class GatewayTimeout(override val bytes: ByteArray) : Status5xx()
+    abstract class Status5xx(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.ServerProblem) :
+        RestResponse(status) {
+        class InternalServerError(override val bytes: ByteArray) : Status5xx(500)
+        class ServiceUnavailable(override val bytes: ByteArray) : Status5xx(503)
+        class GatewayTimeout(override val bytes: ByteArray) : Status5xx(502)
     }
 
     class UnexpectedStatus(
-        override val bytes: ByteArray, val statusCode: Int,
+        override val bytes: ByteArray, override val status:  Int,
         override val responseCategory: ResponseCategory = ResponseCategory.Other
-    ) : RestResponse()
+    ) : RestResponse(status)
 }
