@@ -130,7 +130,6 @@ tasks.withType<Test> {
     }
     if(!isUp) {
         dependsOn(
-            "examplesClasses",
             "composeUp"
         )
     }
