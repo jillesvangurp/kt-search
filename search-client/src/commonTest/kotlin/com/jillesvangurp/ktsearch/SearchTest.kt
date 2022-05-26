@@ -1,6 +1,8 @@
 package com.jillesvangurp.ktsearch
 
 import kotlinx.coroutines.*
+import kotlin.random.Random
+import kotlin.random.nextULong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -16,6 +18,8 @@ expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): Un
 open class SearchTest() {
     // make sure we use the same client in all tests
     val client by lazy { SearchClient(sharedClient) }
+
+    fun randomIndexName() = "index-${Random.nextULong()}"
 
     companion object {
         private val sharedClient by lazy {

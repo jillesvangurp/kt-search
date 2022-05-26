@@ -122,9 +122,9 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
 
 class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     private var settings by property<IndexSettings>()
-    private var meta by property<JsonDsl>()
-    private var mappings by property<FieldMappings>()
-    private var dynamicEnabled by property<Boolean>(customPropertyName = "dynamic")
+    private var meta : JsonDsl?=null
+    private var mappings by property<JsonDsl>()
+//    private var dynamicEnabled by property<Boolean>(customPropertyName = "dynamic")
 
     fun settings(block: IndexSettings.() -> Unit) {
         val settingsMap = IndexSettings()
@@ -134,13 +134,25 @@ class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false
     }
 
     fun meta(block: JsonDsl.() -> Unit) {
-        meta = JsonDsl()
-        block.invoke(meta)
+        val newMeta = JsonDsl()
+        block.invoke(newMeta)
+        if(containsKey("mappings")) {
+            mappings["_meta"] = newMeta
+        } else {
+            mappings=JsonDsl().apply { this["_meta"] = newMeta }
+        }
+        this.meta = newMeta
     }
 
     fun mappings(dynamicEnabled: Boolean? = null, block: FieldMappings.() -> Unit) {
-        this.dynamicEnabled = dynamicEnabled ?: true
-        mappings = FieldMappings()
-        block.invoke(mappings)
+        val properties = FieldMappings()
+        if(!containsKey("mappings")) {
+            mappings = JsonDsl()
+        }
+        dynamicEnabled?.let {
+            mappings["dynamic"] = dynamicEnabled
+        }
+        block.invoke(properties)
+        mappings["properties"] = properties
     }
 }
