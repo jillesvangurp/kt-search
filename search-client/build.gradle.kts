@@ -1,10 +1,17 @@
+@file:Suppress("UNUSED_VARIABLE")
+
+import com.avast.gradle.dockercompose.ComposeExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import java.util.Properties
+import java.net.URL
+
 
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     `maven-publish`
+    id("com.avast.gradle.docker-compose")
 }
 
 repositories {
@@ -19,6 +26,16 @@ version = project.property("libraryVersion") as String
 println("project: $path")
 println("version: $version")
 println("group: $group")
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use {
+        load(it)
+    }
+}
+
+fun getProperty(propertyName: String, defaultValue: Any?=null) = (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
+
 
 kotlin {
     jvm {
@@ -92,7 +109,29 @@ kotlin {
     }
 }
 
+val searchEngine: String = getProperty("searchEngine", "es-7").toString()
+
+configure<ComposeExtension> {
+    buildAdditionalArgs.set(listOf("--force-rm"))
+    stopContainers.set(true)
+    removeContainers.set(true)
+    forceRecreate.set(true)
+    useComposeFiles.set(listOf("../docker-compose-$searchEngine.yml"))
+}
+
 tasks.withType<Test> {
+    val isUp = try {
+        URL("http://localhost:9999").openConnection().connect()
+        true
+    } catch (e: Exception) {
+        false
+    }
+    if(!isUp) {
+        dependsOn(
+            "examplesClasses",
+            "composeUp"
+        )
+    }
     useJUnitPlatform()
     testLogging.exceptionFormat = FULL
     testLogging.events = setOf(
@@ -129,7 +168,9 @@ tasks.withType<Test> {
             }
         }
     })
-
+    if(!isUp) {
+        this.finalizedBy("composeDown")
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {

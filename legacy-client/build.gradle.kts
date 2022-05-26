@@ -87,7 +87,7 @@ tasks.dokkaHtml.configure {
     dokkaSourceSets {
         configureEach {
 //            includes.setFrom(files("packages.md", "extra.md","module.md"))
-            jdkVersion.set(8)
+            jdkVersion.set(11)
         }
     }
 
