@@ -28,7 +28,7 @@ data class SearchAPIRequest(
     }
 }
 
-suspend fun KtorRestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -39,7 +39,7 @@ suspend fun KtorRestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestR
     ).asResult()
 }
 
-suspend fun KtorRestClient.delete(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.delete(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -50,7 +50,7 @@ suspend fun KtorRestClient.delete(block: (SearchAPIRequest) -> Unit): Result<Res
     ).asResult()
 }
 
-suspend fun KtorRestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -60,7 +60,7 @@ suspend fun KtorRestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestRe
         parameters = request.parameters
     ).asResult()
 }
-suspend fun KtorRestClient.put(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.put(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(

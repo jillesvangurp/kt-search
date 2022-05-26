@@ -14,10 +14,10 @@ import kotlin.time.Duration.Companion.seconds
  */
 open class SearchTest() {
     // make sure we use the same client in all tests
-    val client by lazy {  _client }
+    val client by lazy {  sharedClient }
     private val testScope = CoroutineScope(CoroutineName("test-scope"))
     companion object {
-        private val _client by lazy { KtorRestClient(nodes = arrayOf(Node("127.0.0.1", 9999))) }
+        private val sharedClient by lazy { KtorRestClient(nodes = arrayOf(Node("127.0.0.1", 9999))) }
     }
 
     fun coTest(timeout: Duration = 30.seconds, block: suspend ()->Unit ): Unit {

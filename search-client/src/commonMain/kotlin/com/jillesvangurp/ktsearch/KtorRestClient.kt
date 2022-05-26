@@ -7,25 +7,7 @@ import io.ktor.content.*
 import io.ktor.http.*
 import kotlin.random.Random
 
-data class Node(val host: String, val port: Int)
-
-interface NodeSelector {
-    fun selectNode(nodes: Array<out Node>): Node
-}
-
 expect fun defaultKtorHttpClient(logging: Boolean = false): HttpClient
-
-interface RestClient {
-    fun nextNode(): Node
-
-    suspend fun doRequest(
-        pathComponents: List<String> = emptyList(),
-        httpMethod: HttpMethod = HttpMethod.Post,
-        parameters: Map<String, Any>? = null,
-        payload: String? = null,
-        contentType: ContentType = ContentType.Application.Json,
-    ): RestResponse
-}
 
 /**
  * Simple facade for different rest clients like ktor, okhttp, etc.
@@ -116,66 +98,5 @@ class KtorRestClient(
     }
 }
 
-class RestException(response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}")
-fun RestResponse.asResult(): Result<RestResponse.Status2XX> {
-    return if(this is RestResponse.Status2XX) {
-        Result.success(this)
-    } else {
-        Result.failure(RestException(this))
-    }
-}
-
-sealed class RestResponse(open val status: Int) {
-    enum class ResponseCategory {
-        Success,
-        RequestIsWrong,
-        ServerProblem,
-        Other
-    }
 
 
-    abstract val bytes: ByteArray
-    abstract val responseCategory: ResponseCategory
-
-    val completedNormally by lazy { responseCategory == ResponseCategory.Success }
-    val text by lazy { bytes.decodeToString() }
-
-    abstract class Status2XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.Success) :
-        RestResponse(status) {
-        class OK(override val bytes: ByteArray) : Status2XX(200)
-        class NotModified(override val bytes: ByteArray) : Status2XX(201)
-        class Accepted(override val bytes: ByteArray) : Status2XX(202)
-        class Gone(override val bytes: ByteArray) : Status2XX(204)
-    }
-
-    abstract class Status3XX(override val status: Int,override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
-        RestResponse(status) {
-        abstract val location: String?
-
-        class PermanentRedirect(override val bytes: ByteArray, override val location: String?) :
-            Status3XX(301)
-
-        class TemporaryRedirect(override val bytes: ByteArray, override val location: String?) :
-            Status3XX(303)
-    }
-
-    abstract class Status4XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
-        RestResponse(status) {
-        class BadRequest(override val bytes: ByteArray) : Status4XX(400)
-        class NotFound(override val bytes: ByteArray) : Status4XX(404)
-        class UnAuthorized(override val bytes: ByteArray) : Status4XX(401)
-        class Forbidden(override val bytes: ByteArray) : Status4XX(403)
-    }
-
-    abstract class Status5xx(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.ServerProblem) :
-        RestResponse(status) {
-        class InternalServerError(override val bytes: ByteArray) : Status5xx(500)
-        class ServiceUnavailable(override val bytes: ByteArray) : Status5xx(503)
-        class GatewayTimeout(override val bytes: ByteArray) : Status5xx(502)
-    }
-
-    class UnexpectedStatus(
-        override val bytes: ByteArray, override val status:  Int,
-        override val responseCategory: ResponseCategory = ResponseCategory.Other
-    ) : RestResponse(status)
-}

@@ -2,9 +2,11 @@ package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.json.Json
 
+// fixes the unusable & insane defaults for kotlinx serialization
+
 val DEFAULT_JSON: Json = Json {
     // don't rely on external systems being written in kotlin or even having a language with default values
-    // the default of false is FFing insane and dangerous
+    // the default of false is insane and dangerous
     encodeDefaults = true
     // save space
     prettyPrint = false
