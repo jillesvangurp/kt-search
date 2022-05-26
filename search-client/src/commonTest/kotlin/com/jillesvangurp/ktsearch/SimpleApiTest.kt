@@ -9,4 +9,15 @@ class SimpleApiTest : SearchTest()  {
     fun clusterShouldBeHealthy() = coTest {
         client.clusterHealth().status shouldBe ClusterStatus.Yellow
     }
+
+    @Test
+    fun createIndex() = coTest {
+        val response = client.createIndex("foo") {
+            mappings(false) {
+                keyword("foo")
+                number<Long>("bar")
+            }
+        }
+        println(response.getOrThrow().text)
+    }
 }

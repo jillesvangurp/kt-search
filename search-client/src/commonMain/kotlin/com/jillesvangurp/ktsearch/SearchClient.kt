@@ -2,6 +2,8 @@
 
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.*
 
 /*
@@ -31,7 +33,18 @@ fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrat
 class SearchClient(val restClient: RestClient) {
     suspend fun clusterHealth(): ClusterHealthResponse {
         return restClient.get {
-            it.path("_cluster","health")
+            path("_cluster","health")
         }.parse(ClusterHealthResponse.serializer())
+    }
+
+    suspend fun createIndex(name: String, block: IndexSettingsAndMappingsDSL.() -> Unit): Result<RestResponse.Status2XX> {
+        val dsl = IndexSettingsAndMappingsDSL()
+        block.invoke(dsl)
+
+        return restClient.put {
+            json(dsl)
+            path(name)
+        }
+
     }
 }

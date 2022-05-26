@@ -28,7 +28,7 @@ data class SearchAPIRequest(
     }
 }
 
-suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.post(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -39,7 +39,7 @@ suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestRespo
     ).asResult()
 }
 
-suspend fun RestClient.delete(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.delete(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -50,7 +50,7 @@ suspend fun RestClient.delete(block: (SearchAPIRequest) -> Unit): Result<RestRes
     ).asResult()
 }
 
-suspend fun RestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.get(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
@@ -60,7 +60,7 @@ suspend fun RestClient.get(block: (SearchAPIRequest) -> Unit): Result<RestRespon
         parameters = request.parameters
     ).asResult()
 }
-suspend fun RestClient.put(block: (SearchAPIRequest) -> Unit): Result<RestResponse.Status2XX> {
+suspend fun RestClient.put(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
