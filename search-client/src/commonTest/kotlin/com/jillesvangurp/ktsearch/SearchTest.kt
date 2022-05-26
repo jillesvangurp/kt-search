@@ -1,10 +1,11 @@
 package com.jillesvangurp.ktsearch
 
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+
+expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): Unit
 
 /**
  * Base class for search tests. Use together with the gradle compose plugin.
@@ -14,15 +15,14 @@ import kotlin.time.Duration.Companion.seconds
  */
 open class SearchTest() {
     // make sure we use the same client in all tests
-    val client by lazy {  sharedClient }
-    private val testScope = CoroutineScope(CoroutineName("test-scope"))
-    companion object {
-        private val sharedClient by lazy { KtorRestClient(nodes = arrayOf(Node("127.0.0.1", 9999))) }
-    }
+    val client by lazy { sharedClient }
 
-    fun coTest(timeout: Duration = 30.seconds, block: suspend ()->Unit ): Unit {
-        testScope.launch {
-            block.invoke()
+    companion object {
+        private val sharedClient by lazy {
+            KtorRestClient(
+                nodes = arrayOf(Node("127.0.0.1", 9999)),
+                client = defaultKtorHttpClient(true)
+            )
         }
     }
 }

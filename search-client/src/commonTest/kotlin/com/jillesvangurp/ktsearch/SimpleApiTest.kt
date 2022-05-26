@@ -10,6 +10,6 @@ class SimpleApiTest : SearchTest()  {
         val response = client.get {
             it.path("_cluster","health")
         }.getOrThrow()
-        response.text shouldContain "green"
+        response.text shouldContain "yellow"
     }
 }

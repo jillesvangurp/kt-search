@@ -60,7 +60,7 @@ class KtorRestClient(
                     password = this@KtorRestClient.password
                 }
                 protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
-                path("/${pathComponents.joinToString("/")}")
+                path(pathComponents.joinToString("/"))
                 if (!parameters.isNullOrEmpty()) {
                     parameters.entries.forEach { (key, value) ->
                         parameter(key, value)

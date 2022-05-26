@@ -32,7 +32,7 @@ suspend fun RestClient.post(block: (SearchAPIRequest) -> Unit): Result<RestRespo
     val request = SearchAPIRequest()
     block.invoke(request)
     return doRequest(
-        pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
+        pathComponents = listOf(request.pathComponents.joinToString("/")),
         payload = request.body,
         httpMethod = HttpMethod.Post,
         parameters = request.parameters
