@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import io.ktor.http.*
+import kotlin.time.Duration
 
 data class SearchAPIRequest(
     internal var body: String? = null,
@@ -14,8 +15,25 @@ data class SearchAPIRequest(
         pathComponents = components.toList()
     }
 
-    fun parameter(key: String, value: String) {
-        parameters[key] = value
+    fun parameter(key: String, value: String?) {
+        value?.let {
+            parameters[key] = value
+        }
+    }
+    fun parameter(key: String, value: Duration?) {
+        value?.let {
+            parameters[key] = "${value.inWholeSeconds}s"
+        }
+    }
+    fun parameter(key: String, value: Number?) {
+        value?.let {
+            parameters[key] = "$value"
+        }
+    }
+    fun parameter(key: String, value: Boolean?) {
+        value?.let {
+            parameters[key] = "$value"
+        }
     }
 
     fun json(dsl: JsonDsl, pretty: Boolean = false) {
