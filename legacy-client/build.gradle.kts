@@ -109,7 +109,7 @@ tasks.withType<Test> {
     if(!isUp) {
         dependsOn(
             "examplesClasses",
-            ":search-client:composeUp"
+            ":search-client:test"
         )
     }
     useJUnitPlatform()

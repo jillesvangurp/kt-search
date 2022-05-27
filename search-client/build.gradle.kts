@@ -170,7 +170,8 @@ tasks.withType<Test> {
         }
     })
     if(!isUp) {
-        this.finalizedBy("composeDown")
+        // called by legacy client
+//        this.finalizedBy("composeDown")
     }
 }
 
