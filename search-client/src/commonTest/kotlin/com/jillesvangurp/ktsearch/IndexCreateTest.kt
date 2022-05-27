@@ -1,16 +1,9 @@
 package com.jillesvangurp.ktsearch
 
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
-class SimpleApiTest : SearchTest()  {
-
-    @Test
-    fun clusterShouldBeHealthy() = coTest {
-        client.clusterHealth().status shouldNotBe ClusterStatus.Red
-    }
-
+class IndexCreateTest: SearchTest() {
     @Test
     fun createIndex() = coTest {
         val response = client.createIndex(randomIndexName()) {
@@ -26,6 +19,6 @@ class SimpleApiTest : SearchTest()  {
                 shards=5
             }
         }
-        println(response.getOrThrow().text)
+        response.acknowledged shouldBe true
     }
 }

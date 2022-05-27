@@ -2,7 +2,6 @@
 
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.*
 import kotlin.time.Duration
@@ -23,43 +22,14 @@ enum class ClusterStatus {
     Green
 }
 
-@Serializable
-data class ClusterHealthResponse(
-    @SerialName("cluster_name")
-    val clusterName: String,
-    val status: ClusterStatus,
-    @SerialName("timed_out")
-    val timedOut: Boolean,
-)
+
 
 fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrategy<T>): T =
     DEFAULT_JSON.decodeFromString(deserializationStrategy, this.getOrThrow().text)
 
+
 class SearchClient(val restClient: RestClient) {
-    suspend fun clusterHealth(): ClusterHealthResponse {
-        return restClient.get {
-            path("_cluster", "health")
-        }.parse(ClusterHealthResponse.serializer())
-    }
 
-    suspend fun createIndex(
-        name: String,
-        waitForActiveShards: Int? = null,
-        masterTimeOut: Duration? = null,
-        timeout: Duration? = null,
-        block: IndexSettingsAndMappingsDSL.() -> Unit
-    ): Result<RestResponse.Status2XX> {
-        val dsl = IndexSettingsAndMappingsDSL()
-        block.invoke(dsl)
 
-        return restClient.put {
-            path(name)
 
-            parameter("wait_for_active_shards", waitForActiveShards)
-            parameter("master_timeout", masterTimeOut)
-            parameter("timeout", timeout)
-
-            json(dsl)
-        }
-    }
 }

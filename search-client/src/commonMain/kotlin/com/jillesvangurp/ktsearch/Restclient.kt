@@ -37,20 +37,22 @@ sealed class RestResponse(open val status: Int) {
     abstract class Status2XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.Success) :
         RestResponse(status) {
         class OK(override val bytes: ByteArray) : Status2XX(200)
-        class NotModified(override val bytes: ByteArray) : Status2XX(201)
+        class Created(override val bytes: ByteArray) : Status2XX(201)
         class Accepted(override val bytes: ByteArray) : Status2XX(202)
         class Gone(override val bytes: ByteArray) : Status2XX(204)
     }
 
     abstract class Status3XX(override val status: Int,override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
         RestResponse(status) {
-        abstract val location: String?
+        open val location: String? = null
 
         class PermanentRedirect(override val bytes: ByteArray, override val location: String?) :
             Status3XX(301)
 
         class TemporaryRedirect(override val bytes: ByteArray, override val location: String?) :
             Status3XX(303)
+        class NotModified(override val bytes: ByteArray) :
+            Status3XX(304)
     }
 
     abstract class Status4XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :

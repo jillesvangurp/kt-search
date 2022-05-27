@@ -75,8 +75,9 @@ class KtorRestClient(
         val responseBody = response.readBytes()
         return when (response.status) {
             HttpStatusCode.OK -> RestResponse.Status2XX.OK(responseBody)
+            HttpStatusCode.Created -> RestResponse.Status2XX.Created(responseBody)
             HttpStatusCode.Accepted -> RestResponse.Status2XX.Accepted(responseBody)
-            HttpStatusCode.NotModified -> RestResponse.Status2XX.NotModified(responseBody)
+            HttpStatusCode.Gone -> RestResponse.Status2XX.Gone(responseBody)
             HttpStatusCode.PermanentRedirect -> RestResponse.Status3XX.PermanentRedirect(
                 responseBody,
                 response.headers["Location"]
@@ -85,7 +86,9 @@ class KtorRestClient(
                 responseBody,
                 response.headers["Location"]
             )
-            HttpStatusCode.Gone -> RestResponse.Status2XX.Gone(responseBody)
+            HttpStatusCode.NotModified -> RestResponse.Status3XX.NotModified(
+                responseBody
+            )
             HttpStatusCode.BadRequest -> RestResponse.Status4XX.BadRequest(responseBody)
             HttpStatusCode.Unauthorized -> RestResponse.Status4XX.UnAuthorized(responseBody)
             HttpStatusCode.Forbidden -> RestResponse.Status4XX.Forbidden(responseBody)

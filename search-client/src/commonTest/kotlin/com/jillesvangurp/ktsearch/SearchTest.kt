@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import kotlinx.coroutines.*
 import kotlin.random.Random
 import kotlin.random.nextULong
+import kotlin.test.BeforeTest
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -21,6 +22,13 @@ open class SearchTest() {
 
     fun randomIndexName() = "index-${Random.nextULong()}"
 
+    suspend fun testDocumentIndex(): String {
+        val index = randomIndexName()
+        return TestDocument.mapping.let {
+            client.createIndex(index,it)
+        }.index
+    }
+
     companion object {
         private val sharedClient by lazy {
             KtorRestClient(
@@ -30,3 +38,4 @@ open class SearchTest() {
         }
     }
 }
+
