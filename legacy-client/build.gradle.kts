@@ -1,4 +1,3 @@
-import com.avast.gradle.dockercompose.ComposeExtension
 import com.jillesvangurp.escodegen.EsKotlinCodeGenPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -38,7 +37,6 @@ plugins {
     id("com.github.ben-manes.versions") // gradle dependencyUpdates -Drevision=release
     java
 
-    id("com.avast.gradle.docker-compose")
     `maven-publish`
 }
 
@@ -101,25 +99,17 @@ kotlin.sourceSets["main"].kotlin.srcDirs("src/main/kotlin", "build/generatedcode
 
 val searchEngine: String = getProperty("searchEngine", "es-7").toString()
 
-configure<ComposeExtension> {
-    buildAdditionalArgs.set(listOf("--force-rm"))
-    stopContainers.set(true)
-    removeContainers.set(true)
-    forceRecreate.set(true)
-    useComposeFiles.set(listOf("../docker-compose-$searchEngine.yml"))
-}
-
 tasks.withType<Test> {
     val isUp = try {
         URL("http://localhost:9999").openConnection().connect()
         true
-    } catch (e: kotlin.Exception) {
+    } catch (e: Exception) {
         false
     }
     if(!isUp) {
         dependsOn(
             "examplesClasses",
-            "composeUp"
+            ":search-client:composeUp"
         )
     }
     useJUnitPlatform()
@@ -132,7 +122,7 @@ tasks.withType<Test> {
         TestLogEvent.STANDARD_OUT
     )
     if(!isUp) {
-        this.finalizedBy("composeDown")
+        this.finalizedBy(":search-client:composeDown")
     }
 }
 
