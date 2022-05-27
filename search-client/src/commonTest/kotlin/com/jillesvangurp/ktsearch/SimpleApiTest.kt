@@ -1,13 +1,14 @@
 package com.jillesvangurp.ktsearch
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
 class SimpleApiTest : SearchTest()  {
 
     @Test
     fun clusterShouldBeHealthy() = coTest {
-        client.clusterHealth().status shouldBe ClusterStatus.Yellow
+        client.clusterHealth().status shouldNotBe ClusterStatus.Red
     }
 
     @Test
