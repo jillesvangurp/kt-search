@@ -15,5 +15,5 @@ data class ClusterHealthResponse(
 suspend fun SearchClient.clusterHealth(): ClusterHealthResponse {
     return restClient.get {
         path("_cluster", "health")
-    }.parse(ClusterHealthResponse.serializer())
+    }.parse(ClusterHealthResponse.serializer(), json)
 }

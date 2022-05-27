@@ -28,7 +28,7 @@ suspend fun SearchClient.createIndex(
         parameter("timeout", timeout)
 
         json(mapping)
-    }.parse(IndexCreateResponse.serializer())
+    }.parse(IndexCreateResponse.serializer(), json)
 }
 
 suspend fun SearchClient.createIndex(

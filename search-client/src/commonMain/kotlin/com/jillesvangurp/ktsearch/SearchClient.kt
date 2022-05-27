@@ -4,6 +4,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import kotlin.time.Duration
 
 /*
@@ -22,14 +23,10 @@ enum class ClusterStatus {
     Green
 }
 
+fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON): T =
+    json.decodeFromString(deserializationStrategy, this.getOrThrow().text)
 
 
-fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrategy<T>): T =
-    DEFAULT_JSON.decodeFromString(deserializationStrategy, this.getOrThrow().text)
-
-
-class SearchClient(val restClient: RestClient) {
-
-
+class SearchClient(val restClient: RestClient, val json: Json = DEFAULT_JSON) {
 
 }

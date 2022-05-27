@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.jillesvangurp.ktsearch
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 // fixes the unusable & insane defaults for kotlinx serialization

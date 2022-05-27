@@ -30,12 +30,11 @@ data class DocumentCreateResponse(
     val seqNo: Int,
     @SerialName("_primary_term")
     val primaryTerm: Int
-
 )
 
 suspend fun SearchClient.createDocument(
     target: String,
-    json: String,
+    serializedJson: String,
     id: String? = null,
     ifSeqNo: Int? = null,
     ifPrimaryTerm: Int? = null,
@@ -52,12 +51,8 @@ suspend fun SearchClient.createDocument(
         parameter("if_primary_term", ifPrimaryTerm)
         parameter("op_type", opType?.name?.lowercase())
 
-        rawBody(json)
-    }.parse(DocumentCreateResponse.serializer())
-}
-
-suspend fun SearchClient.updateDocument(index: String, id: String, json: String) {
-
+        rawBody(serializedJson)
+    }.parse(DocumentCreateResponse.serializer(), json)
 }
 
 suspend fun SearchClient.deleteDocument(target: String, id: String) {
@@ -66,6 +61,8 @@ suspend fun SearchClient.deleteDocument(target: String, id: String) {
     }
 }
 
-suspend fun SearchClient.getDocument(index: String, id: String) {
-
+suspend fun SearchClient.getDocument(target: String, id: String) {
+    restClient.get {
+        path(target,"_doc",id)
+    }
 }
