@@ -4,7 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class DocumentCRUDTest: SearchTest() {
+class DocumentCRUDTest: SearchTestBase() {
 
     @Test
     fun shouldDoDocumentCrud() = coTest {

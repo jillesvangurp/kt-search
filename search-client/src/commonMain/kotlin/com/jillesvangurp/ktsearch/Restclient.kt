@@ -7,6 +7,9 @@ interface NodeSelector {
     fun selectNode(nodes: Array<out Node>): Node
 }
 
+/**
+ * Minimalistic abstraction that should allow for implementations on top of ktor-client, apache httpclient, okhttp, and other clients.
+ */
 interface RestClient {
     fun nextNode(): Node
 

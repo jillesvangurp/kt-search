@@ -4,6 +4,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+enum class ClusterStatus {
+    @SerialName("red")
+    Red,
+
+    @SerialName("yellow")
+    Yellow,
+
+    @SerialName("green")
+    Green
+}
+
+@Serializable
 data class ClusterHealthResponse(
     @SerialName("cluster_name")
     val clusterName: String,
