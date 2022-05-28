@@ -7,7 +7,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 
-//expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
+expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
 
 /**
  * Base class for search tests. Use together with the gradle compose plugin.
