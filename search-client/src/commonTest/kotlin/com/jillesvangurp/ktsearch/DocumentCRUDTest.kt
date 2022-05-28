@@ -2,13 +2,14 @@ package com.jillesvangurp.ktsearch
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
 class DocumentCRUDTest: SearchTestBase() {
 
     @Test
-    fun shouldDoDocumentCrud() = coTest {
+    fun shouldDoDocumentCrud() = runTest {
         val index = testDocumentIndex()
         client.indexDocument(index, TestDocument("xx").json()).also {createResponse ->
             createResponse.index shouldBe index
