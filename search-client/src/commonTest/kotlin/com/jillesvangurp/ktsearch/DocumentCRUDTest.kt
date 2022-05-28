@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.fail
 
 class DocumentCRUDTest: SearchTestBase() {
 
@@ -26,10 +27,12 @@ class DocumentCRUDTest: SearchTestBase() {
                 document.name shouldBe "yy"
             }
             client.deleteDocument(index,createResponse.id)
-            shouldThrow<RestException> {
+            try {
                 client.getDocument(index, createResponse.id)
-            }.status shouldBe 404
-
+                fail("should throw")
+            } catch (e: RestException) {
+                // not a problem
+            }
         }
 
 

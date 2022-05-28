@@ -77,6 +77,7 @@ kotlin {
                 implementation(kotlin("test-common", "_"))
                 implementation(kotlin("test-annotations-common", "_"))
                 implementation(Testing.kotest.assertions.core)
+                implementation(KotlinX.coroutines.test)
             }
         }
         val jvmMain by existing {
