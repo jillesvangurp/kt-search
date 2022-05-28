@@ -1,12 +1,13 @@
 package com.jillesvangurp.ktsearch
 
+import kotlinx.coroutines.test.TestResult
 import kotlin.random.Random
 import kotlin.random.nextULong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 
-expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): Unit
+expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
 
 /**
  * Base class for search tests. Use together with the gradle compose plugin.
