@@ -40,7 +40,7 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 kotlin {
     jvm {
     }
-    js(BOTH) {
+    js(IR) {
         nodejs {
             testTask {
                 useMocha {
