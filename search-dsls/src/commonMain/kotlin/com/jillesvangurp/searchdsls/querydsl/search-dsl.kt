@@ -42,9 +42,9 @@ fun customQuery(name: String, block: JsonDsl.() -> Unit): ESQuery {
 }
 
 @Suppress("UNCHECKED_CAST")
-class SearchDSL : JsonDsl() {
+class SearchDSL : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var from: Int by property()
-    var trackTotalHits: Boolean by property()
+    var trackTotalHits: String by property()
 
     /** Same as the size property on Elasticsearch. But as kotlin's map already has a size property, we can't use that name. */
     var resultSize: Int by property("size") // clashes with Map.size

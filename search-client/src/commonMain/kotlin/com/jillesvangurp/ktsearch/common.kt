@@ -21,4 +21,4 @@ enum class VersionType {
 fun Enum<*>.snakeCase() = this.name.camelCase2SnakeCase()
 
 @Serializable
-data class Shards(val total: Int, val successful: Int, val failed: Int)
+data class Shards(val total: Int, val successful: Int, val failed: Int, val skipped: Int?=null)

@@ -80,7 +80,6 @@ suspend fun RestClient.get(block: SearchAPIRequest.() -> Unit): Result<RestRespo
     block.invoke(request)
     return doRequest(
         pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
-//        payload = request.body,
         httpMethod = HttpMethod.Get,
         parameters = request.parameters
     ).asResult()
