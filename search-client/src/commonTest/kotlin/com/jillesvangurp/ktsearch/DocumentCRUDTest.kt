@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,6 +26,10 @@ class DocumentCRUDTest: SearchTest() {
                 document.name shouldBe "yy"
             }
             client.deleteDocument(index,createResponse.id)
+            shouldThrow<RestException> {
+                client.getDocument(index, createResponse.id)
+            }.status shouldBe 404
+
         }
 
 

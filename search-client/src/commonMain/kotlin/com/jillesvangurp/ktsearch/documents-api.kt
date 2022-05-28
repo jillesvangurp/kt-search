@@ -103,7 +103,7 @@ suspend fun SearchClient.deleteDocument(
     waitForActiveShards: String? = null,
     ): DocumentIndexResponse {
     return restClient.delete {
-        path(target, id)
+        path(target, "_doc",id)
 
         parameter("if_seq_no", ifSeqNo)
         parameter("if_primary_term", ifPrimaryTerm)

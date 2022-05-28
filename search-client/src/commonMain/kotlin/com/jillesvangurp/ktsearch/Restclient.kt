@@ -76,7 +76,9 @@ sealed class RestResponse(open val status: Int) {
     ) : RestResponse(status)
 }
 
-class RestException(response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}")
+class RestException(response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}") {
+    val status = response.status
+}
 
 fun RestResponse.asResult(): Result<RestResponse.Status2XX> {
     return if(this is RestResponse.Status2XX) {
