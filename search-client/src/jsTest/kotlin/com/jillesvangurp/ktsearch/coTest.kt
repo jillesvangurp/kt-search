@@ -1,12 +1,14 @@
 package com.jillesvangurp.ktsearch
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.*
 import kotlin.time.Duration
 
-@OptIn(ExperimentalCoroutinesApi::class)
-actual fun coTest(timeout: Duration, block: suspend () -> Unit) = runTest {
-    block.invoke()
-}
+private val testScope = CoroutineScope(CoroutineName("test-scope"))
+actual fun coTest(timeout: Duration, block: suspend () -> Unit): dynamic = testScope.async {
+    withTimeout(timeout) {
+        block.invoke()
+        delay(1000)
+    }
+}.asPromise()
 
 
