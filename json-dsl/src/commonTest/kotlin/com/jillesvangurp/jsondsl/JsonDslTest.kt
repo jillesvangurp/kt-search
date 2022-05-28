@@ -1,6 +1,5 @@
 package com.jillesvangurp.jsondsl
 
-import com.jillesvangurp.jsondsl.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -17,9 +16,9 @@ class JsonDslTest {
 
     @Test
     fun shouldSnakeCaseNames() {
-        "fooBarFooBar".snakeCaseToUnderscore() shouldBe "foo_bar_foo_bar"
-        "foo_BarFooBar".snakeCaseToUnderscore() shouldBe  "foo_bar_foo_bar"
-        "foo1Bar1Foo1Bar".snakeCaseToUnderscore() shouldBe  "foo1_bar1_foo1_bar"
+        "fooBarFooBar".camelCase2SnakeCase() shouldBe "foo_bar_foo_bar"
+        "foo_BarFooBar".camelCase2SnakeCase() shouldBe  "foo_bar_foo_bar"
+        "foo1Bar1Foo1Bar".camelCase2SnakeCase() shouldBe  "foo1_bar1_foo1_bar"
     }
 
     @Test

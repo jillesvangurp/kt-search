@@ -1,20 +1,15 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.jsondsl.camelCase2SnakeCase
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
-enum class OperationType {
-    Create,Index
-}
-
-//{"_index":"index-15952561278798383668","_type":"_doc","_id":"wfmrBYEB2kpMqSwAHKrd","_version":1,"result":"created",
-// "_shards":{"total":2,"successful":1,"failed":0},"_seq_no":0,"_primary_term":1}
-
-@kotlinx.serialization.Serializable
-data class Shards(val total: Int, val successful: Int, val failed: Int)
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlin.time.Duration
 
 @Serializable
-data class DocumentCreateResponse(
+data class DocumentIndexResponse(
     @SerialName("_index")
     val index: String,
     @SerialName("_type")
@@ -32,16 +27,24 @@ data class DocumentCreateResponse(
     val primaryTerm: Int
 )
 
-suspend fun SearchClient.createDocument(
+suspend fun SearchClient.indexDocument(
     target: String,
     serializedJson: String,
     id: String? = null,
     ifSeqNo: Int? = null,
     ifPrimaryTerm: Int? = null,
-    opType: OperationType? = null
-): DocumentCreateResponse {
+    opType: OperationType? = null,
+    pipeline: String? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    timeout: Duration? = null,
+    version: Int? = null,
+    versionType: VersionType? = null,
+    waitForActiveShards: String? = null,
+    requireAlias: Boolean? = null,
+): DocumentIndexResponse {
     return restClient.post {
-        if(id ==null) {
+        if (id == null) {
             path(target, "_doc")
         } else {
             path(target, "_doc", id)
@@ -49,20 +52,99 @@ suspend fun SearchClient.createDocument(
 
         parameter("if_seq_no", ifSeqNo)
         parameter("if_primary_term", ifPrimaryTerm)
-        parameter("op_type", opType?.name?.lowercase())
+        parameter("op_type", opType)
+        parameter("pipeline", pipeline)
+        parameter("refresh", refresh)
+        parameter("routing", routing)
+        parameter("timeout", timeout)
+        parameter("version", version)
+        parameter("version_type", versionType)
+        parameter("wait_for_active_shards", waitForActiveShards)
+        parameter("require_alias", requireAlias)
 
         rawBody(serializedJson)
-    }.parse(DocumentCreateResponse.serializer(), json)
+    }.parse(DocumentIndexResponse.serializer(), json)
 }
 
-suspend fun SearchClient.deleteDocument(target: String, id: String) {
-    restClient.delete {
-        path(target,id)
-    }
+@Serializable
+data class GetDocumentResponse(
+    @SerialName("_index")
+    val index: String,
+    @SerialName("_type")
+    val type: String,
+    @SerialName("_id")
+    val id: String,
+    @SerialName("_version")
+    val version: Long,
+    @SerialName("_source")
+    val source: JsonObject,
+    @SerialName("_seq_no")
+    val seqNo: Int,
+    @SerialName("_primary_term")
+    val primaryTerm: Int,
+    val found: Boolean,
+    @SerialName("_routing")
+    val routing: String? = null,
+    val fields: JsonObject? = null,
+) {
+    inline fun <reified T> document(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(source)
 }
 
-suspend fun SearchClient.getDocument(target: String, id: String) {
-    restClient.get {
-        path(target,"_doc",id)
-    }
+suspend fun SearchClient.deleteDocument(
+    target: String,
+    id: String,
+    ifSeqNo: Int? = null,
+    ifPrimaryTerm: Int? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    timeout: Duration? = null,
+    version: Int? = null,
+    versionType: VersionType? = null,
+    waitForActiveShards: String? = null,
+    ): DocumentIndexResponse {
+    return restClient.delete {
+        path(target, id)
+
+        parameter("if_seq_no", ifSeqNo)
+        parameter("if_primary_term", ifPrimaryTerm)
+        parameter("refresh", refresh)
+        parameter("routing", routing)
+        parameter("timeout", timeout)
+        parameter("version", version)
+        parameter("version_type", versionType)
+        parameter("wait_for_active_shards", waitForActiveShards)
+
+    }.parse(DocumentIndexResponse.serializer(), json)
+}
+
+suspend fun SearchClient.getDocument(
+    target: String,
+    id: String,
+    preference: String? = null,
+    realtime: Boolean? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    storedFields: String? = null,
+    source: String? = null,
+    sourceExcludes: String? = null,
+    sourceIncludes: String? = null,
+    version: Int? = null,
+    versionType: VersionType? = null,
+
+
+    ): GetDocumentResponse {
+    return restClient.get {
+        path(target, "_doc", id)
+
+        parameter("preference", preference)
+        parameter("realtime", realtime)
+        parameter("refresh", refresh)
+        parameter("routing", routing)
+        parameter("stored_fields", storedFields)
+        parameter("source", source)
+        parameter("source_excludes", sourceExcludes)
+        parameter("source_includes", sourceIncludes)
+        parameter("version", version)
+        parameter("version_type", versionType)
+    }.parse(GetDocumentResponse.serializer(), json)
 }

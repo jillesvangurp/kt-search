@@ -30,9 +30,16 @@ data class SearchAPIRequest(
             parameters[key] = "$value"
         }
     }
+
     fun parameter(key: String, value: Boolean?) {
         value?.let {
             parameters[key] = "$value"
+        }
+    }
+
+    fun parameter(key: String, value: Enum<*>?) {
+        value?.let {
+            parameters[key] = value.snakeCase()
         }
     }
 

@@ -7,7 +7,7 @@ import kotlin.reflect.KProperty
 annotation class JsonDSL
 
 private val re = "(?<=[a-z0-9])[A-Z]".toRegex()
-fun String.snakeCaseToUnderscore(): String {
+fun String.camelCase2SnakeCase(): String {
     return re.replace(this) { m -> "_${m.value}" }.lowercase()
 }
 
@@ -19,7 +19,7 @@ enum class PropertyNamingConvention {
 fun String.convertPropertyName(namingConvention: PropertyNamingConvention):String {
     return when(namingConvention) {
         PropertyNamingConvention.AsIs -> this // e.g. kotlin convention is camelCase
-        PropertyNamingConvention.ConvertToSnakeCase -> this.snakeCaseToUnderscore()
+        PropertyNamingConvention.ConvertToSnakeCase -> this.camelCase2SnakeCase()
     }
 }
 /**
@@ -34,7 +34,7 @@ open class JsonDsl(
 ) : MutableMap<String, Any> by _properties, IJsonDsl {
     override val defaultNamingConvention: PropertyNamingConvention = namingConvention
 
-    override fun get(key: String) = _properties[key.snakeCaseToUnderscore()]
+    override fun get(key: String) = _properties[key.camelCase2SnakeCase()]
 
     override fun put(key: String, value: Any, namingConvention: PropertyNamingConvention) {
         _properties[key.convertPropertyName(namingConvention)] = value
