@@ -123,6 +123,9 @@ configure<ComposeExtension> {
 }
 
 tasks.named("jsNodeTest") {
+    // on gh actions jsNodeTest manages to run before tasks of type
+    // Test are initialized. So explicitly bring up compose before jsNodeTest fixes
+    // that problem
     val isUp = try {
         URL("http://localhost:9999").openConnection().connect()
         true
@@ -187,7 +190,7 @@ tasks.withType<Test> {
     })
     if(!isUp) {
         // called by legacy client
-//        this.finalizedBy("composeDown")
+        //        this.finalizedBy("composeDown")
     }
 }
 
