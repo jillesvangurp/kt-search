@@ -21,3 +21,7 @@ A clear and concise description of what you expected to happen.
 - what versions of software are you using
 - what operating system are you using
 - whatever else you think is relevant
+
+**Will you be able to help with a pull request?**
+
+Optional of course, but do let me know if you plan to do work.
