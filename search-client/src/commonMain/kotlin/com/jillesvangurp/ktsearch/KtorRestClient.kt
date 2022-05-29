@@ -10,7 +10,7 @@ import kotlin.random.Random
 expect fun defaultKtorHttpClient(logging: Boolean = false): HttpClient
 
 /**
- * Simple facade for different rest clients like ktor, okhttp, etc.
+ * Ktor-client implementation of the RestClient.
  */
 class KtorRestClient(
     private val client: HttpClient = defaultKtorHttpClient(),
