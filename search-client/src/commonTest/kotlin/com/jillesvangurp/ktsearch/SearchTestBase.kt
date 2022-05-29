@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
 import kotlin.random.Random
 import kotlin.random.nextULong

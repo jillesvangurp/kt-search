@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TestDocument(
     val name: String,
-    val description: String?=null,
-    val number: Long?=null,
-    val tags: List<String>?=null
+    val description: String? = null,
+    val number: Long? = null,
+    val tags: List<String>? = null
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
@@ -21,6 +21,11 @@ data class TestDocument(
         }
     }
 
-    fun json() = DEFAULT_PRETTY_JSON.encodeToString(serializer(), this)
+    fun json(pretty: Boolean = false): String {
+        return if (pretty)
+            DEFAULT_PRETTY_JSON.encodeToString(serializer(), this)
+        else
+            DEFAULT_JSON.encodeToString(serializer(), this)
+    }
 }
 

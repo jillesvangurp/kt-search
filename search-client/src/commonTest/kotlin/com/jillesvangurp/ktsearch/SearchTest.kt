@@ -9,8 +9,8 @@ class SearchTest: SearchTestBase() {
     @Test
     fun shouldSearch() = coTest {
         val index= testDocumentIndex()
-        client.indexDocument(index, TestDocument("foo bar").json(), refresh = Refresh.WaitFor)
-        client.indexDocument(index, TestDocument("fooo").json(), refresh = Refresh.WaitFor)
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor)
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor)
         val response = client.search(index,"")
         response.total shouldBe 2
 

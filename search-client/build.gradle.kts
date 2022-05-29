@@ -107,6 +107,7 @@ kotlin {
 
         all {
             languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
 
     }
