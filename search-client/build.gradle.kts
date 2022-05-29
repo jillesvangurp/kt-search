@@ -122,6 +122,21 @@ configure<ComposeExtension> {
     useComposeFiles.set(listOf("../docker-compose-$searchEngine.yml"))
 }
 
+tasks.named("jsNodeTest") {
+    val isUp = try {
+        URL("http://localhost:9999").openConnection().connect()
+        true
+    } catch (e: Exception) {
+        false
+    }
+    if(!isUp) {
+        dependsOn(
+            "composeUp"
+        )
+    }
+
+}
+
 tasks.withType<Test> {
     val isUp = try {
         URL("http://localhost:9999").openConnection().connect()
