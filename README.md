@@ -45,6 +45,18 @@ This repository contains several kotlin modules that each may be used independen
 
 KT Search is currently under heavy development. The legacy client module provides essentially all the functionality of the old client. It utilizes the newly extracted `search-dsl` module. The `search-client` module is the main thing to use.
 
+### Help is welcome!
+
+If you want to help:
+
+- Review my code and provide me feedback.
+- File issues
+- Create pull requests. Smaller is better. Talk to me before you start re-arranging a lot of code. Some ideas for things that are very welcome:
+  - Extend the query DSL with features not yet supported
+  - Add SearchClient extension functions for APIs that are not yet supported  
+  - Extend the mapping and settings API. I've added support for the basics.
+  - Pick up any of the tickets in the issue tracker. If you do, please leave a comment and assign yourself.
+
 ### Legacy client 
 
 The legacy client currently only works with Elasticsearch 7 and this is not likely to be addressed (feel free to fork though). However, beware that there may be some compatibility breaking changes before we release a stable release. Users currently using the old client should probably stick with the old version for now until we are ready to release an alpha/beta release. 
