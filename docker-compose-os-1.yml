@@ -13,6 +13,7 @@ services:
       - cluster.routing.allocation.disk.watermark.high=2gb
       - cluster.routing.allocation.disk.watermark.flood_stage=1gb
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - plugins.security.disabled=true
     ulimits:
       memlock:
         soft: -1
