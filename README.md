@@ -4,7 +4,9 @@ KT Search is a kotlin multi-platform library that provides client functionality 
 
 It builds on other multi platform libraries such as ktor and kotlinx-serialization.
 
-This project is currently under development. Tasks:
+This project is currently under development. 
+
+Planned work:
 
 - [x] Extract the kotlin DSLs to a multi platform module.
 - [x] Rename the project to kt-search and give it its own repository
