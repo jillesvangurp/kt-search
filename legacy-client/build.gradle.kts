@@ -109,7 +109,7 @@ tasks.withType<Test> {
     if(!isUp) {
         dependsOn(
             "examplesClasses",
-            ":search-client:check"
+            ":search-client:composeUp"
         )
     }
     useJUnitPlatform()
@@ -122,7 +122,8 @@ tasks.withType<Test> {
         TestLogEvent.STANDARD_OUT
     )
     if(!isUp) {
-        this.finalizedBy(":search-client:composeDown")
+        // called by docs
+//        this.finalizedBy(":search-client:composeDown")
     }
 }
 

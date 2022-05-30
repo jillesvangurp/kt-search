@@ -1,4 +1,4 @@
-# KT Search Client 
+# Manual Index 
 
 KT Search is a kotlin multi-platform library that provides client functionality for Elasticsearch and Opensearch.
 
@@ -8,9 +8,9 @@ This project is currently under development. Tasks:
 
 - [x] Extract the kotlin DSLs to a multi platform module.
 - [x] Rename the project to kt-search and give it its own repository
-- [x] Implement a new client using ktor and kotlinx-serialization
+- [ ] Implement a new client using ktor and kotlinx-serialization (in progress)
 - [ ] Port the IndexRepository to the new client
-- [x] Port the bulk indexing functionality to the new client
+- [ ] Port the bulk indexing functionality to the new client
 - [ ] Update documentation for the new client
 - [ ] Delete the legacy client module from this project once all functionality has been ported
 - [ ] Extract an interface for the new client and provide alternate implementations. By extracting the dsl, I've created the possibility to use different JSON serialization and parsing strategies. So potentially we could support alternate http transport and parsing without too much trouble.
@@ -50,9 +50,6 @@ My intention is to keep the legacy client as an option until I have all relevant
 ## Usage
 
 ```kotlin
-// we'll use a data class with kotlinx.serialization
-// you can use whatever json framework for your documents
-// of course
 @Serializable
 data class TestDocument(
   val name: String,
@@ -67,22 +64,16 @@ data class TestDocument(
 }
 
 val client = SearchClient(
-  // for now ktor client is the only supported client
-  // but it's easy to provide alternate transports
   KtorRestClient(
-    // our test server runs on port 9999
     nodes = arrayOf(
       Node("localhost", 9999)
     )
   )
-  // both SearchClient and KtorRestClient use sensible
-  // but overridable defaults for lots of things
 )
 
-// we'll generate a random index name
 val indexName = "index-${Clock.System.now().toEpochMilliseconds()}"
 
-// most client functions are suspending, so lets use runBlocking
+// most client functions are suspending
 runBlocking {
   // create an index and use our mappings dsl
   client.createIndex(indexName) {
@@ -120,7 +111,6 @@ runBlocking {
       index = indexName
     )
   }
-  // now let's search using the search DSL
   client.search(indexName) {
     query = bool {
       must(
@@ -142,8 +132,6 @@ Hits: 1
 {"name":"apple","tags":["fruit"]}
 
 ```
-
-For more details, check the tests. A full manual will follow soon.
 
 ## Development status
 

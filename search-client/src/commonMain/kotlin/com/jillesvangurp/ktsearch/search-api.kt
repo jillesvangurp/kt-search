@@ -34,7 +34,7 @@ data class SearchResponse(
     @Serializable
     data class Hits(
         @SerialName("max_score")
-        val maxScore: Double,
+        val maxScore: Double?,
         val total: Total,
         val hits: List<Hit>
     ) {

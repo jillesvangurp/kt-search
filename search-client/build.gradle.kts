@@ -190,7 +190,7 @@ tasks.withType<Test> {
         }
     })
     if(!isUp) {
-        // called by legacy client
+        // called by docs
         //        this.finalizedBy("composeDown")
     }
 }
