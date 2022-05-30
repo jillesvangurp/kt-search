@@ -24,6 +24,10 @@ jobs:
           ~/.gradle
           .gradle
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
+    - name: Compose up
+      run: ./gradlew :search-client:composeUp
     - name: Gradle Build
       run: ./gradlew build
-    
+    - name: Compose down
+      run: ./gradlew :search-client:composeDown
+
