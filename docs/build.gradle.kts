@@ -47,7 +47,7 @@ tasks.withType<Test> {
     }
     if(!isUp) {
         dependsOn(
-            ":search-client:composeDown"
+            ":search-client:composeUp"
         )
     }
     useJUnitPlatform()
