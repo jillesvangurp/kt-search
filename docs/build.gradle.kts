@@ -60,7 +60,9 @@ tasks.withType<Test> {
         TestLogEvent.STANDARD_OUT
     )
     if(!isUp) {
-        this.finalizedBy(":search-client:composeDown")
+        // legacy-client finishes last ...
+        // FIXME more robust shut down mechanism
+//        this.finalizedBy(":search-client:composeDown")
     }
 }
 

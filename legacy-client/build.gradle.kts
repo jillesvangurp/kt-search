@@ -123,7 +123,7 @@ tasks.withType<Test> {
     )
     if(!isUp) {
         // called by docs
-//        this.finalizedBy(":search-client:composeDown")
+        this.finalizedBy(":search-client:composeDown")
     }
 }
 
