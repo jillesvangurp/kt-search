@@ -158,25 +158,19 @@ class BulkSession internal constructor(
             ops.addAll(operations)
             operations.clear()
 
-            val response = searchClient.restClient.post {
-                if (target.isNullOrBlank()) {
-                    path("_bulk")
-                } else {
-                    path(target, "_bulk")
-                }
-
-                parameter("pipeline", pipeline)
-                parameter("refresh", refresh)
-                parameter("routing", routing)
-                parameter("timeout", timeout)
-                parameter("wait_for_active_shards", waitForActiveShards)
-                parameter("require_alias", requireAlias)
-                parameter("source", source)
-                parameter("source_excludes", sourceExcludes)
-                parameter("source_includes", sourceIncludes)
-
-                rawBody(ops.flatMap { listOfNotNull(it.first, it.second) }.joinToString("\n") + "\n")
-            }.parse(BulkResponse.serializer(), searchClient.json)
+            val response = searchClient.bulk(
+                payload = ops.flatMap { listOfNotNull(it.first, it.second) }.joinToString("\n") + "\n",
+                target = target,
+                pipeline = pipeline,
+                refresh = refresh,
+                routing = routing,
+                timeout = timeout,
+                waitForActiveShards = waitForActiveShards,
+                requireAlias = requireAlias,
+                source = source,
+                sourceExcludes = sourceExcludes,
+                sourceIncludes = sourceIncludes,
+            )
 
             if (callBack != null) {
                 response.itemDetails.forEach { (type, details) ->
@@ -195,16 +189,58 @@ class BulkSession internal constructor(
 }
 
 /**
- * Creates a bulk session that allows you to index, create, or delete items.
+ * Send a single bulk request. Consider using the variant that creates a BulkSession.
+ */
+suspend fun SearchClient.bulk(
+    payload: String,
+    target: String? = null,
+    pipeline: String? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    timeout: Duration? = null,
+    waitForActiveShards: String? = null,
+    requireAlias: Boolean? = null,
+    source: String? = null,
+    sourceExcludes: String? = null,
+    sourceIncludes: String? = null,
+) =
+    restClient.post {
+        if (target.isNullOrBlank()) {
+            path("_bulk")
+        } else {
+            path(target, "_bulk")
+        }
+
+        parameter("pipeline", pipeline)
+        parameter("refresh", refresh)
+        parameter("routing", routing)
+        parameter("timeout", timeout)
+        parameter("wait_for_active_shards", waitForActiveShards)
+        parameter("require_alias", requireAlias)
+        parameter("source", source)
+        parameter("source_excludes", sourceExcludes)
+        parameter("source_includes", sourceIncludes)
+
+        rawBody(payload)
+    }.parse(BulkResponse.serializer(), json)
+
+
+/**
+ * Creates a bulk session that allows you to index, create, or delete items via the convenient kotlin DSL.
  *
  * The BulkSession takes care of firing off bulk requests with the specified bulkSize
  * so you don't have to manually construct bulk requests.
  *
- * You can use the callback to deal with individual item responses. This is
+ * @param target if you specify a target, you don't have to specify an index on each operation
+ *
+ * @param callBack You can use the callback to deal with individual item responses. This is
  * useful for dealing with e.g. version conflicts or other non-fatal item problems.
  * Also, you can get to things like seq_no and primary_term for optimistic locking.
  *
- * If you are expecting all items to succeed, you should set failFast to true.
+ * @param failOnFirstError If you are expecting all items to succeed, you should set failOnFirstError to true.
+ *
+ * For the rest of the parameters, see the official bulk REST documentation. All known parameters are supported.
+ * Please file a bug if you think something is missing.
  */
 suspend fun SearchClient.bulk(
     bulkSize: Int = 100,
