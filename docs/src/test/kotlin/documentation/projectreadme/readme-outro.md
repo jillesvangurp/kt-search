@@ -12,9 +12,9 @@ My intention is to keep the legacy client as an option until I have all relevant
 
 The future is going to be about using the pure kotlin multi-platform client. Of course, you may combine that with other clients; including the old RestHighLevel client or even the legacy client.
 
-This project is currently under development. 
+## Goals/todo's:
 
-Goals:
+For more detail refer to the issue tracker. This is merely my high level plan.
 
 - [x] Extract the kotlin DSLs to a multi platform module.
 - [x] Rename the project to kt-search and give it its own repository
