@@ -4,7 +4,7 @@ import com.jillesvangurp.jsondsl.camelCase2SnakeCase
 import kotlinx.serialization.Serializable
 
 enum class OperationType {
-    Create,Index
+    Create,Index,Update,Delete
 }
 
 enum class Refresh {
