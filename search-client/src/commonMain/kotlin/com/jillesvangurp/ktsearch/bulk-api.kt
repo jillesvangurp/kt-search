@@ -14,7 +14,7 @@ data class BulkResponse(
     val errors: Boolean,
     val items: List<JsonObject>
 ) {
-    val itemDetails: List<Pair<OperationType,ItemDetails>> by lazy {
+    val itemDetails: List<Pair<OperationType, ItemDetails>> by lazy {
         items.map { obj ->
             when {
                 obj.containsKey("create") -> {
@@ -41,6 +41,7 @@ data class BulkResponse(
             }
         }
     }
+
     @Serializable
     data class ItemDetails(
         @SerialName("_index")
@@ -55,9 +56,9 @@ data class BulkResponse(
         @SerialName("_shards")
         val shards: Shards,
         @SerialName("_seq_no")
-        val seqNo:Long,
+        val seqNo: Long,
         @SerialName("_primary_term")
-        val primaryTerm:Long,
+        val primaryTerm: Long,
         val status: Int
     )
 }
@@ -68,8 +69,15 @@ interface BulkItemCallBack {
     fun itemOk(operationType: OperationType, item: BulkResponse.ItemDetails)
 }
 
-class BulkException(bulkResponse: BulkResponse): Exception("Bulk request completed with errors item statuses: [${bulkResponse.itemDetails.map { (_,details)->details.status }.distinct().joinToString(",")}]")
+class BulkException(bulkResponse: BulkResponse) : Exception(
+    "Bulk request completed with errors item statuses: [${
+        bulkResponse.itemDetails.map { (_, details) -> details.status }.distinct().joinToString(",")
+    }]"
+)
 
+/**
+ * Create using SearchClient.bulk()
+ */
 class BulkSession internal constructor(
     val searchClient: SearchClient,
     val failOnFirstError: Boolean = false,
@@ -105,7 +113,7 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun index(source: String, index: String?=null, id: String? = null, requireAlias: Boolean? = null) {
+    suspend fun index(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
         val opDsl = JsonDsl().apply {
             this["index"] = JsonDsl().apply {
                 index?.let {
@@ -122,7 +130,7 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun delete(id: String, index: String?=null, requireAlias: Boolean? = null) {
+    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null) {
         val opDsl = JsonDsl().apply {
             this["delete"] = JsonDsl().apply {
                 this["_id"] = id
@@ -167,25 +175,37 @@ class BulkSession internal constructor(
                 parameter("source_excludes", sourceExcludes)
                 parameter("source_includes", sourceIncludes)
 
-                rawBody(ops.flatMap {  listOfNotNull(it.first,it.second) }.joinToString("\n") + "\n")
+                rawBody(ops.flatMap { listOfNotNull(it.first, it.second) }.joinToString("\n") + "\n")
             }.parse(BulkResponse.serializer(), searchClient.json)
 
-            if(callBack != null) {
-                response.itemDetails.forEach { (type,details) ->
-                    if(details.status < 300) {
-                        callBack.itemOk(type,details)
+            if (callBack != null) {
+                response.itemDetails.forEach { (type, details) ->
+                    if (details.status < 300) {
+                        callBack.itemOk(type, details)
                     } else {
-                        callBack.itemFailed(type,details)
+                        callBack.itemFailed(type, details)
                     }
                 }
             }
-            if(response.errors && failOnFirstError) {
+            if (response.errors && failOnFirstError) {
                 throw BulkException(response)
             }
         }
     }
 }
 
+/**
+ * Creates a bulk session that allows you to index, create, or delete items.
+ *
+ * The BulkSession takes care of firing off bulk requests with the specified bulkSize
+ * so you don't have to manually construct bulk requests.
+ *
+ * You can use the callback to deal with individual item responses. This is
+ * useful for dealing with e.g. version conflicts or other non-fatal item problems.
+ * Also, you can get to things like seq_no and primary_term for optimistic locking.
+ *
+ * If you are expecting all items to succeed, you should set failFast to true.
+ */
 suspend fun SearchClient.bulk(
     bulkSize: Int = 100,
     target: String? = null,
