@@ -18,15 +18,17 @@ suspend fun SearchClient.createIndex(
     mapping: IndexSettingsAndMappingsDSL,
     waitForActiveShards: Int? = null,
     masterTimeOut: Duration? = null,
-    timeout: Duration? = null
-): IndexCreateResponse {
+    timeout: Duration? = null,
+    extraParameters: Map<String, String>? = null,
+
+    ): IndexCreateResponse {
     return restClient.put {
         path(name)
 
         parameter("wait_for_active_shards", waitForActiveShards)
         parameter("master_timeout", masterTimeOut)
         parameter("timeout", timeout)
-
+        parameters(extraParameters)
         json(mapping)
     }.parse(IndexCreateResponse.serializer(), json)
 }
@@ -36,10 +38,33 @@ suspend fun SearchClient.createIndex(
     waitForActiveShards: Int? = null,
     masterTimeOut: Duration? = null,
     timeout: Duration? = null,
+    extraParameters: Map<String, String>? = null,
     block: IndexSettingsAndMappingsDSL.() -> Unit
 ): IndexCreateResponse {
     val dsl = IndexSettingsAndMappingsDSL()
     block.invoke(dsl)
 
-    return createIndex(name,dsl,waitForActiveShards,masterTimeOut,timeout)
+    return createIndex(
+        name = name,
+        mapping = dsl,
+        waitForActiveShards = waitForActiveShards,
+        masterTimeOut = masterTimeOut,
+        timeout = timeout,
+        extraParameters = extraParameters
+    )
+}
+
+suspend fun SearchClient.deleteIndex(
+    target: String,
+    masterTimeOut: Duration? = null,
+    timeout: Duration? = null,
+    extraParameters: Map<String,String>?=null,
+    ) {
+    restClient.delete {
+        path(target)
+
+        parameter("master_timeout", masterTimeOut)
+        parameter("timeout", timeout)
+        parameters(extraParameters)
+    }
 }

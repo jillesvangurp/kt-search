@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.ktsearch.repository.repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
 import kotlin.random.Random
@@ -28,6 +29,8 @@ open class SearchTestBase() {
             client.createIndex(index,it)
         }.index
     }
+
+    val repo by lazy { client.repository(randomIndexName(),TestDocument.serializer()) }
 
     companion object {
         private val sharedClient by lazy {

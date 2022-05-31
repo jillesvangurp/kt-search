@@ -54,27 +54,30 @@ val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
 suspend fun SearchClient.search(
     target: String,
+    extraParameters: Map<String,String>?=null,
     block: SearchDSL.() -> Unit
 ): SearchResponse {
     val dsl = SearchDSL()
     block.invoke(dsl)
-    return search(target, dsl)
+    return search(target = target, dsl = dsl, extraParameters = extraParameters)
 }
 
 suspend fun SearchClient.search(
     target: String,
-    dsl: SearchDSL
-) =
-    search(target, dsl.json())
+    dsl: SearchDSL,
+    extraParameters: Map<String,String>?=null,
+    ) =
+    search(target = target, rawJson = dsl.json(), extraParameters = extraParameters)
 
 
 suspend fun SearchClient.search(
     target: String?,
-    rawJson: String?
-): SearchResponse {
+    rawJson: String?,
+    extraParameters: Map<String,String>?=null,
+    ): SearchResponse {
     return restClient.post {
         path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_search").toTypedArray())
-
+        parameters(extraParameters)
         if (!rawJson.isNullOrBlank()) {
             rawBody(rawJson)
         }

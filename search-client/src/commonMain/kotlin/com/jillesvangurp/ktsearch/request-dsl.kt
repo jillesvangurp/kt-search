@@ -43,6 +43,12 @@ data class SearchAPIRequest(
         }
     }
 
+    fun parameters(params: Map<String,String>?) {
+        params?.let {
+            parameters.putAll(params)
+        }
+    }
+
     fun json(dsl: JsonDsl, pretty: Boolean = false) {
         body = dsl.json(pretty)
     }

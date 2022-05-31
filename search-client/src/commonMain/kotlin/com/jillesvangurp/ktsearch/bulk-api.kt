@@ -93,7 +93,8 @@ class BulkSession internal constructor(
     val source: String? = null,
     val sourceExcludes: String? = null,
     val sourceIncludes: String? = null,
-) {
+    val extraParameters: Map<String,String>?=null,
+    ) {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
 
     suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
@@ -170,6 +171,7 @@ class BulkSession internal constructor(
                 source = source,
                 sourceExcludes = sourceExcludes,
                 sourceIncludes = sourceIncludes,
+                extraParameters = extraParameters
             )
 
             if (callBack != null) {
@@ -203,7 +205,8 @@ suspend fun SearchClient.bulk(
     source: String? = null,
     sourceExcludes: String? = null,
     sourceIncludes: String? = null,
-) =
+    extraParameters: Map<String,String>?=null,
+    ) =
     restClient.post {
         if (target.isNullOrBlank()) {
             path("_bulk")
@@ -220,6 +223,7 @@ suspend fun SearchClient.bulk(
         parameter("source", source)
         parameter("source_excludes", sourceExcludes)
         parameter("source_includes", sourceIncludes)
+        parameters(extraParameters)
 
         rawBody(payload)
     }.parse(BulkResponse.serializer(), json)

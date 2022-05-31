@@ -42,7 +42,8 @@ suspend fun SearchClient.indexDocument(
     versionType: VersionType? = null,
     waitForActiveShards: String? = null,
     requireAlias: Boolean? = null,
-): DocumentIndexResponse {
+    extraParameters: Map<String,String>?=null,
+    ): DocumentIndexResponse {
     return restClient.post {
         if (id == null) {
             path(target, "_doc")
@@ -61,7 +62,7 @@ suspend fun SearchClient.indexDocument(
         parameter("version_type", versionType)
         parameter("wait_for_active_shards", waitForActiveShards)
         parameter("require_alias", requireAlias)
-
+        parameters(extraParameters)
         rawBody(serializedJson)
     }.parse(DocumentIndexResponse.serializer(), json)
 }
@@ -101,6 +102,7 @@ suspend fun SearchClient.deleteDocument(
     version: Int? = null,
     versionType: VersionType? = null,
     waitForActiveShards: String? = null,
+    extraParameters: Map<String,String>?=null,
     ): DocumentIndexResponse {
     return restClient.delete {
         path(target, "_doc",id)
@@ -113,6 +115,7 @@ suspend fun SearchClient.deleteDocument(
         parameter("version", version)
         parameter("version_type", versionType)
         parameter("wait_for_active_shards", waitForActiveShards)
+        parameters(extraParameters)
 
     }.parse(DocumentIndexResponse.serializer(), json)
 }
@@ -130,8 +133,7 @@ suspend fun SearchClient.getDocument(
     sourceIncludes: String? = null,
     version: Int? = null,
     versionType: VersionType? = null,
-
-
+    extraParameters: Map<String,String>?=null,
     ): GetDocumentResponse {
     return restClient.get {
         path(target, "_doc", id)
@@ -146,5 +148,6 @@ suspend fun SearchClient.getDocument(
         parameter("source_includes", sourceIncludes)
         parameter("version", version)
         parameter("version_type", versionType)
+        parameters(extraParameters)
     }.parse(GetDocumentResponse.serializer(), json)
 }
