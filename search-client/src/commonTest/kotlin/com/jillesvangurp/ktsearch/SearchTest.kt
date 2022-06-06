@@ -1,10 +1,12 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.match
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.count
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.minutes
 
 class SearchTest: SearchTestBase() {
 
@@ -35,5 +37,22 @@ class SearchTest: SearchTestBase() {
             query = matchAll()
         }
         client.scroll(resp).count() shouldBe 20
+    }
+
+    @Test
+    fun shouldDoSearchAfter() = coTest {
+        val index= testDocumentIndex()
+        client.bulk(target = index, refresh = Refresh.WaitFor) {
+            (1..20).forEach {
+                index(TestDocument("doc $it").json())
+            }
+        }
+        val q = SearchDSL().apply{
+            resultSize=3
+            query = matchAll()
+        }
+        val (resp,hits) = client.searchAfter(index,1.minutes,q)
+        resp.total shouldBe 20
+        hits.count() shouldBe 20
     }
 }
