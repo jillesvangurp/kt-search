@@ -1,12 +1,18 @@
+@file:OptIn(FlowPreview::class)
+
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchType
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.yield
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Serializable
 data class SearchResponse(
@@ -16,7 +22,9 @@ data class SearchResponse(
     @SerialName("timed_out")
     val timedOut: Boolean,
     val hits: Hits?,
-    val aggs: JsonObject?
+    val aggs: JsonObject?,
+    @SerialName("_scroll_id")
+    val scrollId: String?
 ) {
     @Serializable
     data class Hit(
@@ -53,6 +61,8 @@ data class SearchResponse(
         data class Total(val value: Long, val relation: TotalRelation)
     }
 }
+
+val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
 
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
@@ -351,4 +361,42 @@ suspend fun SearchClient.search(
             rawBody(rawJson)
         }
     }.parse(SearchResponse.serializer(), json)
+}
+
+suspend fun SearchClient.scroll(scrollId: String, scroll: Duration = 60.seconds): SearchResponse {
+    return restClient.post {
+        path("_search", "scroll")
+        rawBody(
+            """
+            {
+                "scroll_id": "$scrollId",
+                "scroll": "${scroll.inWholeSeconds}s"
+            }
+        """.trimIndent()
+        )
+    }.parse(SearchResponse.serializer(), json)
+}
+
+suspend fun SearchClient.deleteScroll(scrollId: String?) {
+    if (scrollId != null) {
+        restClient.delete {
+            path("_scroll", scrollId)
+        }
+    }
+}
+
+suspend fun SearchClient.scroll(response: SearchResponse): Flow<SearchResponse.Hit> {
+    return flow<SearchResponse> {
+        var resp: SearchResponse = response
+        var scrollId: String? = resp.scrollId
+        emit(resp)
+        while (resp.searchHits.isNotEmpty() && scrollId != null) {
+            resp = scroll(scrollId)
+            emit(resp)
+            if (resp.scrollId != null) {
+                scrollId = resp.scrollId
+            }
+        }
+        deleteScroll(scrollId)
+    }.flatMapConcat { it.searchHits.asFlow() }
 }
