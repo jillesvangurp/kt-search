@@ -10,9 +10,17 @@ import java.net.URL
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
-    `maven-publish`
+    id("maven-publish")
     id("com.avast.gradle.docker-compose")
+    signing
 }
+
+// Stub secrets to let the project sync and build without the publication values set up
+ext["signing.keyId"] = null
+ext["signing.password"] = null
+ext["signing.secretKeyRingFile"] = null
+ext["ossrhUsername"] = null
+ext["ossrhPassword"] = null
 
 repositories {
     mavenCentral()
@@ -68,8 +76,6 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")
                 implementation("io.ktor:ktor-client-content-negotiation:_")
-
-
             }
         }
         val commonTest by getting {
@@ -138,7 +144,6 @@ tasks.named("jsNodeTest") {
             "composeUp"
         )
     }
-
 }
 
 tasks.withType<Test> {
@@ -232,4 +237,8 @@ afterEvaluate {
                 artifact(dokkaJar)
         }
     }
+}
+
+signing {
+    sign(publishing.publications)
 }
