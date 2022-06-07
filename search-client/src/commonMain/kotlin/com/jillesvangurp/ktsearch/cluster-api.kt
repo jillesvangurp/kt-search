@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.SerialName
@@ -38,7 +40,22 @@ suspend fun SearchClient.clusterHealth(
 data class SearchEngineVersion(
     val distribution: String?,
     val number: String,
+    @SerialName("build_flavor")
+    val buildFlavor: String?,
+    @SerialName("build_hash")
+    val buildHash: String,
+    @SerialName("build_date")
+    val buildDate: String,
+    @SerialName("build_snapshot")
+    val buildSnapshot: Boolean,
+    @SerialName("lucene_version")
+    val luceneVersion: String,
+    @SerialName("minimum_wire_compatibility_version")
+    val minimumWireCompatibilityVersion: String,
+    @SerialName("minimum_index_compatibility_version")
+    val minimumIndexCompatibilityVersion: String,
 )
+
 
 @Serializable
 data class SearchEngineInformation(
