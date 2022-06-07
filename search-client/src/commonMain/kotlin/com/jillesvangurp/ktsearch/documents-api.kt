@@ -13,7 +13,7 @@ data class DocumentIndexResponse(
     @SerialName("_index")
     val index: String,
     @SerialName("_type")
-    val type: String,
+    val type: String?,
     @SerialName("_id")
     val id: String,
     @SerialName("_version")
@@ -72,7 +72,7 @@ data class GetDocumentResponse(
     @SerialName("_index")
     val index: String,
     @SerialName("_type")
-    val type: String,
+    val type: String?,
     @SerialName("_id")
     val id: String,
     @SerialName("_version")
