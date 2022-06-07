@@ -4,7 +4,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @DslMarker
-annotation class DSL
+annotation class JsonDslMarker
 
 private val re = "(?<=[a-z0-9])[A-Z]".toRegex()
 fun String.camelCase2SnakeCase(): String {
@@ -27,7 +27,7 @@ fun String.convertPropertyName(namingConvention: PropertyNamingConvention):Strin
  * for creating Kotlin DSLs for Json DSLs such as the Elasticsearch query DSL.
  */
 @Suppress("UNCHECKED_CAST")
-@DSL
+@JsonDslMarker
 open class JsonDsl(
     private val namingConvention: PropertyNamingConvention = PropertyNamingConvention.AsIs,
     internal val _properties: MutableMap<String, Any> = mutableMapOf(),
