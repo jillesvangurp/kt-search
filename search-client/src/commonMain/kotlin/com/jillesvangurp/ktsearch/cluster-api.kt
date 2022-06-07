@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.SerialName
@@ -24,10 +26,12 @@ data class ClusterHealthResponse(
     val timedOut: Boolean,
 )
 
-suspend fun SearchClient.clusterHealth(    extraParameters: Map<String,String>?=null,
+suspend fun SearchClient.clusterHealth(
+    extraParameters: Map<String, String>? = null,
 ): ClusterHealthResponse {
     return restClient.get {
         path("_cluster", "health")
         parameters(extraParameters)
     }.parse(ClusterHealthResponse.serializer(), json)
 }
+
