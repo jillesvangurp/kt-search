@@ -15,6 +15,6 @@ fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrat
 /**
  * Search client. Actual client api functions are implemented as extension functions
  */
-class SearchClient(val restClient: RestClient, val json: Json = DEFAULT_JSON) {
+class SearchClient(val restClient: RestClient=KtorRestClient(), val json: Json = DEFAULT_JSON) {
 
 }
