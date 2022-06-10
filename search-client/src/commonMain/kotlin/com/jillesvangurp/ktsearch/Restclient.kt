@@ -4,11 +4,13 @@ import io.ktor.http.*
 
 data class Node(val host: String, val port: Int)
 interface NodeSelector {
-    fun selectNode(nodes: Array<out Node>): Node
+    fun selectNode(initialNodes: Array<out Node>): Node
 }
 
 /**
- * Minimalistic abstraction that should allow for implementations on top of ktor-client, apache httpclient, okhttp, and other clients.
+ * Minimalistic abstraction that should allow for different clients.
+ *
+ * For now, the [KtorRestClient] is the only implementation.
  */
 interface RestClient {
     fun nextNode(): Node
@@ -29,7 +31,6 @@ sealed class RestResponse(open val status: Int) {
         ServerProblem,
         Other
     }
-
 
     abstract val bytes: ByteArray
     abstract val responseCategory: ResponseCategory

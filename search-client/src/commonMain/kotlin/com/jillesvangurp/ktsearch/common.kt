@@ -22,3 +22,5 @@ fun Enum<*>.snakeCase() = this.name.camelCase2SnakeCase()
 
 @Serializable
 data class Shards(val total: Int, val successful: Int, val failed: Int, val skipped: Int?=null)
+
+enum class SearchEngineVariant { ES7, ES8, OS1 }

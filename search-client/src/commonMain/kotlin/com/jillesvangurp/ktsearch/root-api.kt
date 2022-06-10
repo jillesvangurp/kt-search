@@ -46,8 +46,13 @@ data class SearchEngineInformation(
     }
 }
 
-enum class SearchEngineVariant { ES7, ES8, OS1 }
 
+/**
+ * Search engine variant meta data.
+ *
+ * You can get this from [SearchEngineInformation] to figure out which
+ * search engine your client is connected to.
+ */
 data class VariantInfo(
     val variant: SearchEngineVariant,
     val versionString: String,
@@ -57,8 +62,17 @@ data class VariantInfo(
     val patchVersion by lazy { versionString.split('.')[2].toIntOrNull() }
 }
 
-suspend fun SearchClient.searchEngineVersion(): SearchEngineInformation {
+/**
+ * Http GET to `/`
+ *
+ * Note, you can may want to use [SearchClient.engineInfo], which
+ * caches the response and avoid calling this multiple times.
+ *
+ * @return meta information about the search engine
+ */
+suspend fun SearchClient.root(): SearchEngineInformation {
     return restClient.get {
 
     }.parse(SearchEngineInformation.serializer(), json)
 }
+
