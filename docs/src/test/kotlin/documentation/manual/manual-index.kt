@@ -7,8 +7,8 @@ import documentation.mdLink
 import documentation.sourceGitRepository
 
 val manualPages = listOf(
-    Page("What is Kt-Search", "WhatIsKtSearch.md", "./manual") to whatIsKtSearchMd,
-    Page("Getting Started", "GettingStarted.md", "./manual") to gettingStartedMd,
+    Page("What is Kt-Search", "WhatIsKtSearch.md", "../manual") to whatIsKtSearchMd,
+    Page("Getting Started", "GettingStarted.md", "../manual") to gettingStartedMd,
 )
 
 val manualIndexMd = sourceGitRepository.md {

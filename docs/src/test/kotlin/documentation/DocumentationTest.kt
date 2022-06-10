@@ -27,22 +27,18 @@ val sourceGitRepository = SourceRepository(
     sourcePaths = setOf("src/main/kotlin", "src/test/kotlin")
 )
 
-
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    Page("Manual Index", "README.md", ".") to manualIndexMd,
+    Page("Manual Index", "README.md", "../manual") to manualIndexMd,
 )
 
 class DocumentationTest {
 
     @Test
-    fun readmes() {
+    fun documentation() {
         readmePages.forEach { (page, md) ->
             page.write(md.value)
         }
-    }
-
-    fun manual() {
         manualPages.forEach { (page, md) ->
             page.write(md.value)
         }
