@@ -30,6 +30,12 @@ jobs:
       run: ./gradlew build
     - name: Compose down
       run: ./gradlew :search-client:composeDown
+    - name: Deploy Manual
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/manual
+        destination_dir: kt-search
   matrix-test:
     runs-on: ubuntu-latest
     strategy:
