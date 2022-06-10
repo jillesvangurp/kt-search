@@ -18,7 +18,7 @@ val client = SearchClient()
 ```kotlin
 runBlocking {
   // all apis are `suspend` functions, so you need a co-routine scope
-  client.searchEngineVersion().let { resp ->
+  client.root().let { resp ->
     println("${resp.variantInfo.variant}: ${resp.version.number}")
   }
   client.clusterHealth().let {resp ->
