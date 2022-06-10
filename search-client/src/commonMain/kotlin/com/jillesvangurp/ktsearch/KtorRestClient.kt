@@ -18,26 +18,17 @@ class KtorRestClient(
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
-    // TODO smarter default node selector strategies to deal with node failure, failover, etc.
-    private val nodeSelector: NodeSelector? = null,
+    private val nodeSelector: NodeSelector = RoundRobinNodeSelector(),
 ) : RestClient {
     constructor(
-        client: HttpClient,
-        https: Boolean = false,
-        user: String? = null,
-        password: String? = null,
         host: String = "localhost",
         port: Int = 9200
     ) : this(
-        client = client,
-        https = https,
-        user = user,
-        password = password,
-        nodeSelector = null,
+        nodeSelector = RoundRobinNodeSelector(),
         nodes= arrayOf( Node(host, port))
     )
 
-    override fun nextNode(): Node = nodeSelector?.selectNode(nodes) ?: nodes[Random.nextInt(nodes.size)]
+    override fun nextNode(): Node = nodeSelector.selectNode(nodes)
 
     override suspend fun doRequest(
         pathComponents: List<String>,

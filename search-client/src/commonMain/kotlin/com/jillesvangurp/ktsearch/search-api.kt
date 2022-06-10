@@ -1,4 +1,5 @@
 @file:OptIn(FlowPreview::class)
+@file:Suppress("EnumEntryName", "unused")
 
 package com.jillesvangurp.ktsearch
 
@@ -8,8 +9,10 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchType
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -439,6 +442,8 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
     }.parse(CreatePointInTimeResponse.serializer(),json).id
 }
 
+
+annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
 /**
  * Perform a deep paging search using point in time and search after.
  *
@@ -450,7 +455,9 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
  * @return a pair of the first response and a flow of hits that when consumed pages through
  * the results using the point in time id and the sort.
  */
+@VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
+    validateEngine("search_after works slighly differently on Opensearch and only is supported for Elasticsearch currently", SearchEngineVariant.ES7, SearchEngineVariant.ES8)
     val pitId = createPointInTime(target, keepAlive)
     query["pit"] = JsonDsl().apply {
         this["id"] = pitId

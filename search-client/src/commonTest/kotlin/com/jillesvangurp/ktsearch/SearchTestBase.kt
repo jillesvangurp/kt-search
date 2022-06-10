@@ -26,7 +26,7 @@ open class SearchTestBase() {
 
     suspend fun onlyOn(message: String, vararg variants: SearchEngineVariant, block: suspend () -> Unit) {
         if(versionInfo==null) {
-            versionInfo = client.searchEngineVersion()
+            versionInfo = client.root()
         }
         val variant = versionInfo!!.variantInfo.variant
         if(variants.contains(variant)) {
