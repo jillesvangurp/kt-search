@@ -4,6 +4,7 @@ import com.jillesvangurp.kotlin4example.SourceRepository
 import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.manualIndexMd
+import documentation.manual.manualOutputDir
 import documentation.manual.manualPages
 import documentation.projectreadme.projectReadme
 import org.junit.jupiter.api.Test
@@ -29,13 +30,14 @@ val sourceGitRepository = SourceRepository(
 
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    Page("Manual Index", "README.md", "../manual") to manualIndexMd,
+    Page("Manual Index", "README.md", manualOutputDir) to manualIndexMd,
 )
 
 class DocumentationTest {
 
     @Test
     fun documentation() {
+        File(manualOutputDir).mkdirs()
         readmePages.forEach { (page, md) ->
             page.write(md.value)
         }
