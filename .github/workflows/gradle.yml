@@ -32,8 +32,9 @@ jobs:
       run: ./gradlew :search-client:composeDown
   matrix-test:
     runs-on: ubuntu-latest
-    matrix:
-      version: [ "es-7", "es-8", "os-1" ]
+    strategy:
+      matrix:
+        version: ["es-7","es-8","os-1"]
     steps:
       - name: Checkout the code
         uses: actions/checkout@master
