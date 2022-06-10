@@ -16,7 +16,7 @@ jobs:
     - name: Setup Java
       uses: actions/setup-java@v1
       with:
-        java-version: '13.0.1'
+        java-version: '17'
     - name: Cache build .gradle dir
       uses: actions/cache@v2
       with:
@@ -30,4 +30,29 @@ jobs:
       run: ./gradlew build
     - name: Compose down
       run: ./gradlew :search-client:composeDown
+  matrix-test:
+    runs-on: ubuntu-latest
+    matrix:
+      version: [ "es-7", "es-8", "os-1" ]
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@master
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Cache build .gradle dir
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle
+            .gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
+      - name: Compose up
+        run: ./gradlew :search-client:composeUp -PsearchEngine=${{ matrix.version }}
+      - name: Gradle Build
+        run: ./gradlew :search-client:check -PsearchEngine=${{ matrix.version }}
+      - name: Compose down
+        run: ./gradlew :search-client:composeDown -PsearchEngine=${{ matrix.version }}
+
 
