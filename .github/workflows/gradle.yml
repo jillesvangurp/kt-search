@@ -32,7 +32,6 @@ jobs:
       run: ./gradlew :search-client:composeDown
     - name: Deploy Manual
       uses: peaceiris/actions-gh-pages@v3
-      if: ${{ github.ref == 'ref/head/master' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/build/manual
