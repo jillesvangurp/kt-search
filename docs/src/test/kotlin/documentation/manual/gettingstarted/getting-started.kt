@@ -1,6 +1,7 @@
 package documentation.manual.gettingstarted
 
 import com.jillesvangurp.ktsearch.*
+import documentation.loadMd
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 
@@ -48,5 +49,4 @@ val gettingStartedMd = sourceGitRepository.md {
             )
         }
     }
-
 }
