@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,9 +24,23 @@ jobs:
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
-      run: ./gradlew build
+      run: ./gradlew build :search-client:dokkaHtml
     - name: Compose down
       run: ./gradlew :search-client:composeDown
+    - name: Deploy Manual
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/manual
+        enable_jekyll: true
+        destination_dir: manual
+    - name: Deploy Dokka
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./search-client/build/dokka/html
+        enable_jekyll: true
+        destination_dir: api
   matrix-test:
     runs-on: ubuntu-latest
     strategy:

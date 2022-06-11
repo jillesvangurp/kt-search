@@ -1,9 +1,8 @@
-import com.jillesvangurp.escodegen.EsKotlinCodeGenPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URL
-import java.util.Properties
+import java.util.*
 
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use {
@@ -29,10 +28,13 @@ repositories {
     }
 }
 
-
-
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+
+    kotlinOptions {
+        jvmTarget = "11"
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs += "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+    }
     this.sourceFilesExtensions
 }
 

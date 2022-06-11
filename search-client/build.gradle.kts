@@ -44,7 +44,6 @@ val localProperties = Properties().apply {
 fun getProperty(propertyName: String, defaultValue: Any?=null) = (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 
-
 kotlin {
     jvm {
     }
@@ -116,7 +115,6 @@ kotlin {
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
-
     }
 }
 
@@ -195,10 +193,10 @@ tasks.withType<Test> {
             }
         }
     })
-    if(!isUp) {
+//    if(!isUp) {
         // called by docs
         //        this.finalizedBy("composeDown")
-    }
+//    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {

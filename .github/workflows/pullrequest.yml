@@ -1,0 +1,43 @@
+name: CI-gradle-build
+
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@master
+    - name: Setup Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '17'
+    - name: Cache build .gradle dir
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle
+          .gradle
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
+    - name: Compose up
+      run: ./gradlew :search-client:composeUp
+    - name: Gradle Build
+      run: ./gradlew check
+    - name: Compose down
+      run: ./gradlew :search-client:composeDown
+    - name: Deploy Manual
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/manual
+        enable_jekyll: true
+        destination_dir: manual
+    - name: Deploy Dokka
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/dokka
+        enable_jekyll: false
+        destination_dir: dokka

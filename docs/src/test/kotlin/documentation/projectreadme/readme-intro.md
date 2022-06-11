@@ -8,22 +8,24 @@ This project started as a full rewrite of my [es-kotlin-client](https://github.c
 
 ## Documentation
 
-Currently, documentation is still work in progress. But you can learn a lot by looking at the integration tests in the `search-client` module.
+Currently, documentation is still work in progress.
 
-- [Manual](manual/README.md)
+- [Manual](https://jillesvangurp.github.io/kt-search/manual)
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/)
+- You can learn a lot by looking at the integration tests in the `search-client` module.
 - The code sample below should help you figure out the basics.
 
 ## Module Overview
 
 This repository contains several kotlin modules that each may be used independently.
 
-| Module          | Description                                                                  |
-|-----------------|------------------------------------------------------------------------------|
-| `json-dsl`      | Kotlin DSL for creating json requests                                        |
-| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                            |
-| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch.            |
-| `docs`          | Contains the code that generates the [manual](manual/README.md) and readmes. |
-| `legacy-client` | The old v1 client with some changes to integrate the `search-dsls`           |
+| Module          | Description                                                                                                   |
+|-----------------|---------------------------------------------------------------------------------------------------------------|
+| `json-dsl`      | Kotlin DSL for creating json requests                                                                         |
+| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                             |
+| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch.                                             |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and readmes. |
+| `legacy-client` | The old v1 client with some changes to integrate the `search-dsls`                                            |
 
 
 
