@@ -36,7 +36,6 @@ val localProperties = Properties().apply {
 fun getProperty(propertyName: String, defaultValue: Any?=null) = (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 
-
 kotlin {
     jvm {
     }
@@ -110,7 +109,6 @@ kotlin {
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
-
     }
 }
 
