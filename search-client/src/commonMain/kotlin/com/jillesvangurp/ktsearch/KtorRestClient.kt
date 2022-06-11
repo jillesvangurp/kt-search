@@ -22,9 +22,16 @@ class KtorRestClient(
 ) : RestClient {
     constructor(
         host: String = "localhost",
-        port: Int = 9200
-    ) : this(
-        nodeSelector = RoundRobinNodeSelector(),
+        port: Int = 9200,
+        client: HttpClient = defaultKtorHttpClient(),
+        https: Boolean = false,
+        user: String? = null,
+        password: String? = null,
+        ) : this(
+        client=client,
+        https=https,
+        user=user,
+        password=password,
         nodes= arrayOf( Node(host, port))
     )
 
