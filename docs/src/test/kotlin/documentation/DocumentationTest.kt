@@ -12,7 +12,7 @@ import java.io.File
 
 data class Page(val title: String, val fileName: String, val outputDir: String)
 
-val Page.mdLink get() = "[$title]($outputDir.$fileName)"
+val Page.mdLink get() = "[$title]($fileName)"
 
 fun Page.write(content: String) {
     File(outputDir, fileName).writeText(
