@@ -1,4 +1,4 @@
 Overview:
 
 - [manual](manual)
-- [dokka](dokka)
+- [dokka](api)
