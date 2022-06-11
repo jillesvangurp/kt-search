@@ -77,12 +77,14 @@ val gettingStartedMd = sourceGitRepository.md {
 
         block {
             val DEFAULT_JSON = Json {
-                // don't rely on external systems being written in kotlin or even having a language with default values
+                // don't rely on external systems being written in kotlin
+                // or even having a language with default values
                 // the default of false is insane and dangerous
                 encodeDefaults = true
                 // save space
                 prettyPrint = false
-                // people adding things to the json is OK, we're forward compatible and will just ignore it
+                // people adding things to the json is OK, we're forward compatible
+                // and will just ignore it
                 isLenient = true
                 // encoding nulls is meaningless and a waste of space.
                 explicitNulls = false
