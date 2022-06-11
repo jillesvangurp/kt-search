@@ -39,7 +39,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./search-client/build/dokka/html
-        enable_jekyll: false
+        enable_jekyll: true
         destination_dir: api
   matrix-test:
     runs-on: ubuntu-latest
