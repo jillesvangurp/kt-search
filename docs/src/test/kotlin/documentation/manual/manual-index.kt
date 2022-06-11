@@ -1,16 +1,14 @@
 package documentation.manual
 
-import documentation.Page
+import documentation.*
 import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
-import documentation.mdLink
-import documentation.sourceGitRepository
-
-internal const val manualOutputDir = "build/manual"
+import documentation.manualOutputDir
 
 val manualPages = listOf(
     Page("What is Kt-Search", "WhatIsKtSearch.md", manualOutputDir) to whatIsKtSearchMd,
     Page("Getting Started", "GettingStarted.md", manualOutputDir) to gettingStartedMd,
+    Page("Migrating from Es-Kotlin-Client", "Migrating.md", manualOutputDir) to loadMd("manual/gettingstarted/migrating.md"),
 )
 
 val manualIndexMd = sourceGitRepository.md {

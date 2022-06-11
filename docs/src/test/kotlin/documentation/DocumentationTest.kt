@@ -1,10 +1,7 @@
 package documentation
 
 import com.jillesvangurp.kotlin4example.SourceRepository
-import documentation.manual.gettingstarted.gettingStartedMd
-import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.manualIndexMd
-import documentation.manual.manualOutputDir
 import documentation.manual.manualPages
 import documentation.projectreadme.projectReadme
 import org.junit.jupiter.api.Test
@@ -28,10 +25,16 @@ val sourceGitRepository = SourceRepository(
     sourcePaths = setOf("src/main/kotlin", "src/test/kotlin")
 )
 
+internal const val manualOutputDir = "build/manual"
+
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    Page("Manual Index", "README.md", manualOutputDir) to manualIndexMd,
+    Page("KT Search Manual", "README.md", manualOutputDir) to manualIndexMd,
 )
+
+fun loadMd(fileName: String) = sourceGitRepository.md {
+    includeMdFile(fileName)
+}
 
 class DocumentationTest {
 
