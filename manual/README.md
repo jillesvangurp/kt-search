@@ -1,9 +1,10 @@
-# Manual Index 
+# KT Search Manual 
 
 ## Table of contents
 
 - [What is Kt-Search](WhatIsKtSearch.md)
 - [Getting Started](GettingStarted.md)
+- [Migrating from Es-Kotlin-Client](Migrating.md)
 
 ## About this Manual
 
