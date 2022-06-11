@@ -2,8 +2,8 @@
 
 ## Table of contents
 
-- [What is Kt-Search](build/manual.WhatIsKtSearch.md)
-- [Getting Started](build/manual.GettingStarted.md)
+- [What is Kt-Search](WhatIsKtSearch.md)
+- [Getting Started](GettingStarted.md)
 
 ## About this Manual
 
