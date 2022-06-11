@@ -188,10 +188,10 @@ tasks.withType<Test> {
             }
         }
     })
-    if(!isUp) {
+//    if(!isUp) {
         // called by docs
         //        this.finalizedBy("composeDown")
-    }
+//    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
