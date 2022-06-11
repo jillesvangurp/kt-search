@@ -38,9 +38,9 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/build/dokka
+        publish_dir: ./search-client/build/dokka/html
         enable_jekyll: false
-        destination_dir: dokka
+        destination_dir: api
   matrix-test:
     runs-on: ubuntu-latest
     strategy:
