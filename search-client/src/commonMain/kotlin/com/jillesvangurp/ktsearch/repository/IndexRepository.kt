@@ -1,9 +1,16 @@
 package com.jillesvangurp.ktsearch.repository
 
+import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.KSerializer
 import kotlin.time.Duration
 
+@Suppress("unused")
 class IndexRepository<T : Any>(
     val indexName: String,
     private val client: SearchClient,
@@ -52,6 +59,9 @@ class IndexRepository<T : Any>(
     ) {
         client.deleteIndex(indexName, masterTimeOut, timeout, combineParams(extraParameters))
     }
+
+    suspend fun getALiases(): Unit = TODO()
+
 
     suspend fun get(
         id: String,
@@ -179,5 +189,42 @@ class IndexRepository<T : Any>(
         )
     }
 
-    suspend fun getALiases(): Unit = TODO()
+    suspend fun search(dsl: SearchDSL): Pair<SearchResponse, Flow<T?>> {
+        val response = client.search(target = indexReadAlias, dsl = dsl)
+        return deserialize(response)
+    }
+    suspend fun search(rawJson: String): Pair<SearchResponse, Flow<T?>> {
+        val response = client.search(target = indexReadAlias, rawJson = rawJson)
+        return deserialize(response)
+    }
+
+    suspend fun search(block: SearchDSL.() -> Unit): Pair<SearchResponse, Flow<T?>> {
+        val response = client.search(target = indexReadAlias, block=block)
+        return deserialize(response)
+    }
+
+    private fun deserialize(response: SearchResponse): Pair<SearchResponse, Flow<T?>> {
+        val deserializedHits = flow { response.searchHits.forEach { emit(it) } }.map {
+            it.source?.let { source ->
+                serializer.deSerialize(source)
+            }
+        }
+        return response to deserializedHits
+    }
 }
+
+fun <T : Any> SearchClient.repository(
+    indexName: String,
+    serializer: KSerializer<T>,
+    indexWriteAlias: String = indexName,
+    indexReadAlias: String = indexWriteAlias,
+    defaultParameters: Map<String, String>? = null,
+
+    ) = IndexRepository<T>(
+    indexName = indexName,
+    client = this,
+    serializer = this.ktorModelSerializer(serializer),
+    indexWriteAlias = indexWriteAlias,
+    indexReadAlias = indexReadAlias,
+    defaultParameters = defaultParameters
+)
