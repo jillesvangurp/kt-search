@@ -21,19 +21,3 @@ class KotlinxSerializationModelSerializationStrategy<T : Any>(
 
 fun <T : Any> SearchClient.ktorModelSerializer(serializer: KSerializer<T>, customJson: Json? = null) =
     KotlinxSerializationModelSerializationStrategy<T>(serializer, customJson ?: json)
-
-fun <T : Any> SearchClient.repository(
-    indexName: String,
-    serializer: KSerializer<T>,
-    indexWriteAlias: String = indexName,
-    indexReadAlias: String = indexWriteAlias,
-    defaultParameters: Map<String, String>? = null,
-
-    ) = IndexRepository<T>(
-    indexName = indexName,
-    client = this,
-    serializer = this.ktorModelSerializer(serializer),
-    indexWriteAlias = indexWriteAlias,
-    indexReadAlias = indexReadAlias,
-    defaultParameters = defaultParameters
-)
