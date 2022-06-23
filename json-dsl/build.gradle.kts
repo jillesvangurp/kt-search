@@ -1,14 +1,12 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
-import java.net.URI
 import java.util.Properties
 
 plugins {
     kotlin("multiplatform")
     `maven-publish`
-    "org.jetbrains.dokka"
+    id("org.jetbrains.dokka")
     signing
-
 }
 
 repositories {
@@ -31,7 +29,7 @@ ext["signing.secretKeyRingFile"] = null
 ext["ossrhUsername"] = null
 ext["ossrhPassword"] = null
 
-val overrideKeys=listOf("signing.keyId","signing.password","signing.secretKeyRingFile","ossrhUsername","ossrhPassword")
+val overrideKeys=listOf("signing.keyId","signing.password","signing.secretKeyRingFile","sonatypeUsername","sonatypePassword")
 
 overrideKeys.forEach {
     ext[it]=null
@@ -166,15 +164,15 @@ afterEvaluate {
     }
 
     configure<PublishingExtension> {
-        repositories {
-            maven {
-                credentials {
-                    username = project.properties["ossrhUsername"]?.toString()
-                    password = project.properties["ossrhPassword"]?.toString()
-                }
-                url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-            }
-        }
+//        repositories {
+//            maven {
+//                credentials {
+//                    username = project.properties["ossrhUsername"]?.toString()
+//                    password = project.properties["ossrhPassword"]?.toString()
+//                }
+//                url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+//            }
+//        }
         publications.withType<MavenPublication> {
             artifact(dokkaJar)
         }
