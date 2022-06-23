@@ -25,3 +25,7 @@ out/
 .vscode
 epub
 book.epub
+
+# deploy secrets and local configuration
+secring.gpg
+local.properties

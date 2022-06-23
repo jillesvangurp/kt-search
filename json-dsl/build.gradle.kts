@@ -1,11 +1,13 @@
-import de.fayard.refreshVersions.core.versionFor
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import java.net.URI
+import java.util.Properties
 
 plugins {
     kotlin("multiplatform")
     `maven-publish`
     "org.jetbrains.dokka"
+    signing
 
 }
 
@@ -15,21 +17,50 @@ repositories {
 
 // publishing
 apply(plugin = "maven-publish")
-// apply(plugin = "org.jetbrains.dokka")
+apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
 println("version: $version")
 println("group: $group")
 
+// Stub secrets to let the project sync and build without the publication values set up
+ext["signing.keyId"] = null
+ext["signing.password"] = null
+ext["signing.secretKeyRingFile"] = null
+ext["ossrhUsername"] = null
+ext["ossrhPassword"] = null
+
+val overrideKeys=listOf("signing.keyId","signing.password","signing.secretKeyRingFile","ossrhUsername","ossrhPassword")
+
+overrideKeys.forEach {
+    ext[it]=null
+}
+val localProperties = Properties().apply {
+    // override gradle.properties with properties in a file that is ignored in git
+    rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use {
+        load(it)
+    }
+}.also {ps ->
+    overrideKeys.forEach {
+        if(ps[it] != null) {
+            println("override $it from local.properties")
+            ext[it] = ps[it]
+        }
+    }
+}
+
+fun getProperty(propertyName: String, defaultValue: Any? = null) =
+    (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+
+fun getStringProperty(propertyName: String, defaultValue: String) =
+    getProperty(propertyName)?.toString() ?: defaultValue
+
+fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
+
+
 kotlin {
     jvm {
-//        val main by compilations.getting {
-//        }
-//        val test by compilations.getting {
-//            kotlinOptions {
-//            }
-//        }
     }
     js(BOTH) {
         nodejs {
@@ -128,39 +159,28 @@ tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
 
 
 afterEvaluate {
-//        val dokkaJar = tasks.register<Jar>("dokkaJar") {
-//            from(tasks["dokkaHtml"])
-//            dependsOn(tasks["dokkaHtml"])
-//            archiveClassifier.set("javadoc")
-//        }
-//        val sourcesJar by tasks.registering(Jar::class) {
-//            archiveClassifier.set("sources")
-//            from(sourceSets["main"].allSource)
-//            duplicatesStrategy = DuplicatesStrategy.INCLUDE
-//        }
+    val dokkaJar = tasks.register<Jar>("dokkaJar") {
+        from(tasks["dokkaHtml"])
+        dependsOn(tasks["dokkaHtml"])
+        archiveClassifier.set("javadoc")
+    }
 
     configure<PublishingExtension> {
         repositories {
-            logger.info("configuring publishing")
-            if (project.hasProperty("publish")) {
-                maven {
-                    // this is what we do in github actions
-                    // GOOGLE_APPLICATION_CREDENTIALS env var must be set for this to work
-                    // either to a path with the json for the service account or with the base64 content of that.
-                    // in github actions we should configure a secret on the repository with a base64 version of a service account
-                    // export GOOGLE_APPLICATION_CREDENTIALS=$(cat /Users/jillesvangurp/.gcloud/jvg-admin.json | base64)
-
-                    url = uri("gcs://mvn-tryformation/releases")
-
-                    // FIXME figure out url & gcs credentials using token & actor
-                    //     credentials()
-
+            maven {
+                credentials {
+                    username = project.properties["ossrhUsername"]?.toString()
+                    password = project.properties["ossrhPassword"]?.toString()
                 }
+                url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
             }
         }
         publications.withType<MavenPublication> {
-//                artifact(dokkaJar)
-//                artifact(sourcesJar)
+            artifact(dokkaJar)
         }
     }
+}
+
+signing {
+    sign(publishing.publications)
 }

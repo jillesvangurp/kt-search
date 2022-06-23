@@ -36,8 +36,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("com.github.ben-manes.versions") // gradle dependencyUpdates -Drevision=release
     java
-
-    `maven-publish`
+//    `maven-publish`
 }
 
 apply(plugin = "com.github.jillesvangurp.codegen")
@@ -192,36 +191,36 @@ val javadocJar = task("javadocJar", Jar::class) {
     archiveClassifier.set("javadoc")
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            groupId = artifactGroup
-            artifactId = artifactName
-            pom {
-                description.set("Kotlin client for Elasticsearch that uses the Elastic Java client.")
-                name.set(artifactId)
-                url.set("https://github.com/jillesvangurp/es-kotlin-client")
-                licenses {
-                    license {
-                        name.set("MIT")
-                        url.set("https://github.com/jillesvangurp/es-kotlin-client/LICENSE")
-                        distribution.set("repo")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("jillesvangurp")
-                        name.set("Jilles van Gurp")
-                    }
-                }
-                scm {
-                    url.set("https://github.com/mvysny/karibu-testing")
-                }
-            }
-
-            from(components["java"])
-            artifact(sourceJar)
-            artifact(javadocJar)
-        }
-    }
-}
+//publishing {
+//    publications {
+//        create<MavenPublication>("mavenJava") {
+//            groupId = artifactGroup
+//            artifactId = artifactName
+//            pom {
+//                description.set("Kotlin client for Elasticsearch that uses the Elastic Java client.")
+//                name.set(artifactId)
+//                url.set("https://github.com/jillesvangurp/es-kotlin-client")
+//                licenses {
+//                    license {
+//                        name.set("MIT")
+//                        url.set("https://github.com/jillesvangurp/es-kotlin-client/LICENSE")
+//                        distribution.set("repo")
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id.set("jillesvangurp")
+//                        name.set("Jilles van Gurp")
+//                    }
+//                }
+//                scm {
+//                    url.set("https://github.com/mvysny/karibu-testing")
+//                }
+//            }
+//
+//            from(components["java"])
+//            artifact(sourceJar)
+//            artifact(javadocJar)
+//        }
+//    }
+//}
