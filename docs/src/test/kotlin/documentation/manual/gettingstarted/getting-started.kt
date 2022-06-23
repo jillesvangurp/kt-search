@@ -38,7 +38,7 @@ val gettingStartedMd = sourceGitRepository.md {
                 }
             }
         }
-        section("Alternative ways to construct the client") {
+        section("Alternative ways to create a client") {
             +"""
             You may want to override some of the default parameter values. For example, this is how you would
             connect to your cluster in Elastic Cloud.
@@ -54,7 +54,7 @@ val gettingStartedMd = sourceGitRepository.md {
                 )
             }
             +"""
-            `KtorRestClient` also has an alternate constructor that you can use if
+            `KtorRestClient` has an alternate constructor that you can use if
              you have a proxy in front of your cluster or only one node.
         """.trimIndent()
             block {

@@ -119,7 +119,8 @@ suspend fun SearchClient.search(
     trackTotalHits: Boolean? = null,
     typedKeys: Boolean? = null,
     version: Boolean? = null,
-    extraParameters: Map<String, String>? = null, block: SearchDSL.() -> Unit
+    extraParameters: Map<String, String>? = null,
+    block: SearchDSL.() -> Unit
 ): SearchResponse {
     val dsl = SearchDSL()
     block.invoke(dsl)
