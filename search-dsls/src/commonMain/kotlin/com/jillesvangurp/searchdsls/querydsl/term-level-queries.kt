@@ -272,3 +272,15 @@ fun SearchDSL.wildcard(
     block: (WildCardQueryConfig.() -> Unit)? = null
 ) =
     WildCardQuery(field,value, block = block)
+
+@SearchDSLMarker
+class NestedQuery : ESQuery(name = "nested") {
+    var path: String by queryDetails.property()
+    var query: ESQuery by queryDetails.esQueryProperty()
+}
+
+fun SearchDSL.nested(block: NestedQuery.() -> Unit): NestedQuery {
+    val q = NestedQuery()
+    block.invoke(q)
+    return q
+}
