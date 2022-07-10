@@ -75,17 +75,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     this.sourceFilesExtensions
 }
-//
-//tasks.dokkaHtml.configure {
-//    outputDirectory.set(projectDir.resolve("docs"))
-//    dokkaSourceSets {
-//        configureEach {
-////            includes.setFrom(files("packages.md", "extra.md","module.md"))
-//            jdkVersion.set(11)
-//        }
-//    }
-//
-//}
 
 configure<EsKotlinCodeGenPluginExtension> {
     output = projectDir.absolutePath + "/build/generatedcode"
@@ -173,18 +162,4 @@ dependencies {
     examplesImplementation("org.apache.logging.log4j:log4j-to-slf4j:_") // es seems to insist on log4j2
     examplesImplementation("ch.qos.logback:logback-classic:_")
 }
-
-val artifactName = "es-kotlin-client"
-val artifactGroup = "com.github.jillesvangurp"
-
-//val sourceJar = task("sourceJar", Jar::class) {
-//    dependsOn(tasks["classes"])
-//    archiveClassifier.set("sources")
-//    from(sourceSets.main.get().allSource)
-//}
-//
-//val javadocJar = task("javadocJar", Jar::class) {
-//    from(tasks["dokkaJavadoc"])
-//    archiveClassifier.set("javadoc")
-//}
 
