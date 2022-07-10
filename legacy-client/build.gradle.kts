@@ -70,11 +70,11 @@ val examplesImplementation: Configuration by configurations.getting {
 // add our production dependencies to the examples
 configurations["examplesRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
-//tasks.withType<KotlinCompile> {
-//    dependsOn("codegen")
-//    kotlinOptions.jvmTarget = "1.8"
-//    this.sourceFilesExtensions
-//}
+tasks.withType<KotlinCompile> {
+    dependsOn("codegen")
+    kotlinOptions.jvmTarget = "1.8"
+    this.sourceFilesExtensions
+}
 //
 //tasks.dokkaHtml.configure {
 //    outputDirectory.set(projectDir.resolve("docs"))
