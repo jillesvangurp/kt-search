@@ -22,7 +22,7 @@ repositories {
 Then add the latest version:
 
 ```kotlin
-implementation("com.jillesvangurp:search-client:_")
+implementation("com.jillesvangurp:search-client:1.99.0")
 ```
 
 Note, we may at some point try to push this to maven-central. For now, please use the maven repository above.
