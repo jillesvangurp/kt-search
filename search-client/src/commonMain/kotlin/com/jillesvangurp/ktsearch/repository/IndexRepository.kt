@@ -84,7 +84,7 @@ class IndexRepository<T : Any>(
             id = id,
             preference = preference,
             realtime = realtime,
-            refresh = refresh?:defaultRefresh,
+            refresh = refresh,
             routing = routing,
             storedFields = storedFields,
             source = source,
