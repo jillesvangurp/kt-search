@@ -27,17 +27,3 @@ jobs:
       run: ./gradlew check
     - name: Compose down
       run: ./gradlew :search-client:composeDown
-    - name: Deploy Manual
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/build/manual
-        enable_jekyll: true
-        destination_dir: manual
-    - name: Deploy Dokka
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/build/dokka
-        enable_jekyll: false
-        destination_dir: dokka
