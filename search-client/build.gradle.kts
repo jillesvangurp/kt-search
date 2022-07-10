@@ -45,8 +45,6 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("com.avast.gradle.docker-compose")
-    id("maven-publish")
-    signing
 }
 
 repositories {
@@ -54,13 +52,10 @@ repositories {
 }
 
 // publishing
-apply(plugin = "maven-publish")
-apply(plugin = "org.jetbrains.dokka")
+//apply(plugin = "maven-publish")
+//apply(plugin = "org.jetbrains.dokka")
 
-version = project.property("libraryVersion") as String
-println("project: $path")
-println("version: $version")
-println("group: $group")
+//version = project.property("libraryVersion") as String
 
 
 val searchEngine = getStringProperty("searchEngine", "es-7")
@@ -221,37 +216,3 @@ tasks.withType<Test> {
 //    }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-        languageVersion = "1.6"
-    }
-}
-
-afterEvaluate {
-    val dokkaJar = tasks.register<Jar>("dokkaJar") {
-        from(tasks["dokkaHtml"])
-        dependsOn(tasks["dokkaHtml"])
-        archiveClassifier.set("javadoc")
-    }
-
-    configure<PublishingExtension> {
-//        repositories {
-//            maven {
-//                credentials {
-//                    username = project.properties["ossrhUsername"]?.toString()
-//                    password = project.properties["ossrhPassword"]?.toString()
-//                }
-//                url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-//            }
-//        }
-        publications.withType<MavenPublication> {
-            artifact(dokkaJar)
-        }
-    }
-}
-
-signing {
-    sign(publishing.publications)
-
-}

@@ -33,10 +33,7 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 plugins {
     id("org.jetbrains.kotlin.jvm")
     kotlin("plugin.serialization")
-    id("org.jetbrains.dokka")
-    id("com.github.ben-manes.versions") // gradle dependencyUpdates -Drevision=release
     java
-//    `maven-publish`
 }
 
 apply(plugin = "com.github.jillesvangurp.codegen")
@@ -73,22 +70,22 @@ val examplesImplementation: Configuration by configurations.getting {
 // add our production dependencies to the examples
 configurations["examplesRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
-tasks.withType<KotlinCompile> {
-    dependsOn("codegen")
-    kotlinOptions.jvmTarget = "1.8"
-    this.sourceFilesExtensions
-}
-
-tasks.dokkaHtml.configure {
-    outputDirectory.set(projectDir.resolve("docs"))
-    dokkaSourceSets {
-        configureEach {
-//            includes.setFrom(files("packages.md", "extra.md","module.md"))
-            jdkVersion.set(11)
-        }
-    }
-
-}
+//tasks.withType<KotlinCompile> {
+//    dependsOn("codegen")
+//    kotlinOptions.jvmTarget = "1.8"
+//    this.sourceFilesExtensions
+//}
+//
+//tasks.dokkaHtml.configure {
+//    outputDirectory.set(projectDir.resolve("docs"))
+//    dokkaSourceSets {
+//        configureEach {
+////            includes.setFrom(files("packages.md", "extra.md","module.md"))
+//            jdkVersion.set(11)
+//        }
+//    }
+//
+//}
 
 configure<EsKotlinCodeGenPluginExtension> {
     output = projectDir.absolutePath + "/build/generatedcode"
@@ -180,47 +177,14 @@ dependencies {
 val artifactName = "es-kotlin-client"
 val artifactGroup = "com.github.jillesvangurp"
 
-val sourceJar = task("sourceJar", Jar::class) {
-    dependsOn(tasks["classes"])
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
-}
-
-val javadocJar = task("javadocJar", Jar::class) {
-    from(tasks["dokkaJavadoc"])
-    archiveClassifier.set("javadoc")
-}
-
-//publishing {
-//    publications {
-//        create<MavenPublication>("mavenJava") {
-//            groupId = artifactGroup
-//            artifactId = artifactName
-//            pom {
-//                description.set("Kotlin client for Elasticsearch that uses the Elastic Java client.")
-//                name.set(artifactId)
-//                url.set("https://github.com/jillesvangurp/es-kotlin-client")
-//                licenses {
-//                    license {
-//                        name.set("MIT")
-//                        url.set("https://github.com/jillesvangurp/es-kotlin-client/LICENSE")
-//                        distribution.set("repo")
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        id.set("jillesvangurp")
-//                        name.set("Jilles van Gurp")
-//                    }
-//                }
-//                scm {
-//                    url.set("https://github.com/mvysny/karibu-testing")
-//                }
-//            }
-//
-//            from(components["java"])
-//            artifact(sourceJar)
-//            artifact(javadocJar)
-//        }
-//    }
+//val sourceJar = task("sourceJar", Jar::class) {
+//    dependsOn(tasks["classes"])
+//    archiveClassifier.set("sources")
+//    from(sourceSets.main.get().allSource)
 //}
+//
+//val javadocJar = task("javadocJar", Jar::class) {
+//    from(tasks["dokkaJavadoc"])
+//    archiveClassifier.set("javadoc")
+//}
+

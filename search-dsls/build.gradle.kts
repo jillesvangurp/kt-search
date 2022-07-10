@@ -1,20 +1,13 @@
-import java.util.Properties
-import java.net.URI
+import java.util.*
 
 plugins {
     kotlin("multiplatform")
-    "org.jetbrains.dokka"
     `maven-publish`
-    signing
 }
 
 repositories {
     mavenCentral()
 }
-
-// publishing
-apply(plugin = "maven-publish")
-apply(plugin = "org.jetbrains.dokka")
 
 version = project.property("libraryVersion") as String
 println("project: $path")
@@ -58,12 +51,6 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 
 kotlin {
     jvm {
-//        val main by compilations.getting {
-//        }
-//        val test by compilations.getting {
-//            kotlinOptions {
-//            }
-//        }
     }
     js(BOTH) {
         nodejs {
@@ -114,47 +101,8 @@ kotlin {
         }
 
         all {
-//            languageSettings.optIn("kotlin.RequiresOptIn")
-        }
-
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-        languageVersion = "1.6"
-    }
-}
-
-
-afterEvaluate {
-    val dokkaJar = tasks.register<Jar>("dokkaJar") {
-        from(tasks["dokkaHtml"])
-        dependsOn(tasks["dokkaHtml"])
-        archiveClassifier.set("javadoc")
-    }
-
-    configure<PublishingExtension> {
-//        repositories {
-//            maven {
-//                credentials {
-//                    username = project.properties["ossrhUsername"]?.toString()
-//                    password = project.properties["ossrhPassword"]?.toString()
-//                }
-//                url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-//            }
-//        }
-        publications.withType<MavenPublication> {
-            artifact(dokkaJar)
+            languageSettings.optIn("kotlin.RequiresOptIn")
         }
     }
 }
 
-signing {
-    sign(publishing.publications)
-}

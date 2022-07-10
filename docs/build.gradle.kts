@@ -1,7 +1,4 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.net.URL
 import java.util.*
 
 val localProperties = Properties().apply {
@@ -29,7 +26,6 @@ repositories {
 }
 
 tasks.withType<KotlinCompile> {
-
     kotlinOptions {
         jvmTarget = "11"
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
@@ -39,34 +35,6 @@ tasks.withType<KotlinCompile> {
 }
 
 val searchEngine: String = getProperty("searchEngine", "es-7").toString()
-
-tasks.withType<Test> {
-    val isUp = try {
-        URL("http://localhost:9999").openConnection().connect()
-        true
-    } catch (e: Exception) {
-        false
-    }
-    if(!isUp) {
-        dependsOn(
-            ":search-client:composeUp"
-        )
-    }
-    useJUnitPlatform()
-    testLogging.exceptionFormat = TestExceptionFormat.FULL
-    testLogging.events = setOf(
-        TestLogEvent.FAILED,
-        TestLogEvent.PASSED,
-        TestLogEvent.SKIPPED,
-        TestLogEvent.STANDARD_ERROR,
-        TestLogEvent.STANDARD_OUT
-    )
-    if(!isUp) {
-        // legacy-client finishes last ...
-        // FIXME more robust shut down mechanism
-//        this.finalizedBy(":search-client:composeDown")
-    }
-}
 
 dependencies {
     testImplementation(project(":json-dsl"))
