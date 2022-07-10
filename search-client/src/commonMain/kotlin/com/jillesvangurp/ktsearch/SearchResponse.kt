@@ -76,4 +76,6 @@ data class BucketAggregationResult(
     val buckets: List<Bucket>
 )
 
+fun List<Bucket>.counts() = this.associate { it.key to it.docCount }
+
 fun JsonObject.asBucketAggregationResult() = DEFAULT_JSON.decodeFromJsonElement<BucketAggregationResult>(this)

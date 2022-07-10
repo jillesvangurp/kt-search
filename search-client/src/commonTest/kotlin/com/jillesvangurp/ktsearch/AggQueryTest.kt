@@ -12,11 +12,13 @@ class AggQueryTest: SearchTestBase() {
         val tags = object {
             val foo = "foo"
             val bar = "bar"
+            val fooBar="foobar"
         }
         repo.bulk {
             index(TestDocument("1", tags = listOf(tags.bar)).json())
             index(TestDocument("2", tags = listOf(tags.foo)).json())
             index(TestDocument("3", tags = listOf(tags.foo,tags.bar)).json())
+            index(TestDocument("4", tags = listOf(tags.fooBar)).json())
         }
         val (r, _) = repo.search {
             resultSize = 0 // we only care about the aggs
@@ -25,6 +27,8 @@ class AggQueryTest: SearchTestBase() {
             })
         }
         val buckets = r.aggregations["by_tag"]?.asBucketAggregationResult()?.buckets!!
-        buckets.size shouldBe 2
+        buckets.size shouldBe 3
+        buckets.counts()[tags.bar] shouldBe 2
+        buckets.counts()[tags.fooBar] shouldBe 1
     }
 }
