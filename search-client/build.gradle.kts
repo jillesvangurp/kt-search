@@ -3,9 +3,8 @@
 import com.avast.gradle.dockercompose.ComposeExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
-import java.net.URI
 import java.net.URL
-import java.util.Properties
+import java.util.*
 
 // Stub secrets to let the project sync and build without the publication values set up
 ext["signing.keyId"] = null
