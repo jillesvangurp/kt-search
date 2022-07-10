@@ -45,7 +45,9 @@ open class SearchTestBase() {
         }.index
     }
 
-    val repo by lazy { client.repository(randomIndexName(),TestDocument.serializer()) }
+    val repo by lazy {
+        client.repository(randomIndexName(),TestDocument.serializer())
+    }
 
     companion object {
         private val sharedClient by lazy {

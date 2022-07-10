@@ -1,6 +1,5 @@
 package com.jillesvangurp.ktsearch.repository
 
-import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
@@ -32,6 +31,25 @@ class IndexRepository<T : Any>(
     }
 
     suspend fun createIndex(
+        mappingsAndSettings: IndexSettingsAndMappingsDSL,
+        waitForActiveShards: Int? = null,
+        masterTimeOut: Duration? = null,
+        timeout: Duration? = null,
+        extraParameters: Map<String, String>? = null,
+
+        ): IndexCreateResponse {
+
+        return client.createIndex(
+            name = indexName,
+            mapping = mappingsAndSettings,
+            waitForActiveShards = waitForActiveShards,
+            masterTimeOut = masterTimeOut,
+            timeout = timeout ?: defaultTimeout,
+            extraParameters = combineParams(extraParameters)
+        )
+    }
+
+    suspend fun createIndex(
         block: IndexSettingsAndMappingsDSL.() -> Unit,
         waitForActiveShards: Int? = null,
         masterTimeOut: Duration? = null,
@@ -46,7 +64,7 @@ class IndexRepository<T : Any>(
             mapping = dsl,
             waitForActiveShards = waitForActiveShards,
             masterTimeOut = masterTimeOut,
-            timeout = timeout?:defaultTimeout,
+            timeout = timeout ?: defaultTimeout,
             extraParameters = combineParams(extraParameters)
         )
     }
@@ -123,9 +141,9 @@ class IndexRepository<T : Any>(
             ifPrimaryTerm = ifPrimaryTerm,
             opType = opType,
             pipeline = pipeline,
-            refresh = refresh?:defaultRefresh,
+            refresh = refresh ?: defaultRefresh,
             routing = routing,
-            timeout = timeout?:defaultTimeout,
+            timeout = timeout ?: defaultTimeout,
             version = version,
             versionType = versionType,
             waitForActiveShards = waitForActiveShards,
@@ -148,9 +166,9 @@ class IndexRepository<T : Any>(
             attempt = 0,
             maxRetries = maxRetries,
             pipeline = pipeline,
-            refresh = refresh?:defaultRefresh,
+            refresh = refresh ?: defaultRefresh,
             routing = routing,
-            timeout = timeout?:defaultTimeout,
+            timeout = timeout ?: defaultTimeout,
             block = block
         )
 
@@ -176,10 +194,10 @@ class IndexRepository<T : Any>(
                 ifSeqNo = resp.seqNo,
                 ifPrimaryTerm = resp.primaryTerm,
                 pipeline = pipeline,
-                refresh = refresh?:defaultRefresh,
+                refresh = refresh ?: defaultRefresh,
                 routing = routing,
-                timeout = timeout?:defaultTimeout,
-                )
+                timeout = timeout ?: defaultTimeout,
+            )
         } catch (e: RestException) {
             if (e.status == 409 && attempt < maxRetries) {
                 return update(id = id, attempt = attempt + 1, maxRetries = maxRetries, block = block)
@@ -206,9 +224,9 @@ class IndexRepository<T : Any>(
             id = id,
             ifSeqNo = ifSeqNo,
             ifPrimaryTerm = ifPrimaryTerm,
-            refresh = refresh?:defaultRefresh,
+            refresh = refresh ?: defaultRefresh,
             routing = routing,
-            timeout = timeout?:defaultTimeout,
+            timeout = timeout ?: defaultTimeout,
             version = version,
             versionType = versionType,
             waitForActiveShards = waitForActiveShards,
@@ -216,17 +234,53 @@ class IndexRepository<T : Any>(
         )
     }
 
+    suspend fun bulk(
+        bulkSize: Int = 100,
+        pipeline: String? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        timeout: Duration? = null,
+        waitForActiveShards: String? = null,
+        requireAlias: Boolean? = null,
+        source: String? = null,
+        sourceExcludes: String? = null,
+        sourceIncludes: String? = null,
+        failOnFirstError: Boolean = false,
+        callBack: BulkItemCallBack? = null,
+        block: suspend BulkSession.() -> Unit
+    ) {
+        val session = BulkSession(
+            searchClient = client,
+            failOnFirstError = failOnFirstError,
+            callBack = callBack,
+            bulkSize = bulkSize,
+            pipeline = pipeline,
+            refresh = refresh?:defaultRefresh,
+            routing = routing,
+            timeout = timeout?:defaultTimeout,
+            waitForActiveShards = waitForActiveShards,
+            requireAlias = requireAlias,
+            source = source,
+            sourceExcludes = sourceExcludes,
+            sourceIncludes = sourceIncludes,
+            target = indexWriteAlias
+        )
+        block.invoke(session)
+        session.flush()
+    }
+
     suspend fun search(dsl: SearchDSL): Pair<SearchResponse, Flow<T?>> {
         val response = client.search(target = indexReadAlias, dsl = dsl)
         return deserialize(response)
     }
+
     suspend fun search(rawJson: String): Pair<SearchResponse, Flow<T?>> {
         val response = client.search(target = indexReadAlias, rawJson = rawJson)
         return deserialize(response)
     }
 
     suspend fun search(block: SearchDSL.() -> Unit): Pair<SearchResponse, Flow<T?>> {
-        val response = client.search(target = indexReadAlias, block=block)
+        val response = client.search(target = indexReadAlias, block = block)
         return deserialize(response)
     }
 

@@ -13,67 +13,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-
-@Serializable
-data class SearchResponse(
-    val took: Long,
-    @SerialName("_shards")
-    val shards: Shards,
-    @SerialName("timed_out")
-    val timedOut: Boolean,
-    val hits: Hits?,
-    val aggs: JsonObject?,
-    @SerialName("_scroll_id")
-    val scrollId: String?,
-    @SerialName("pit_id")
-    val pitId: String?
-) {
-    @Serializable
-    data class Hit(
-        @SerialName("_index")
-        val index: String,
-        @SerialName("_type")
-        val type: String?,
-        @SerialName("_id")
-        val id: String,
-        @SerialName("_score")
-        val score: Double?,
-        @SerialName("_source")
-        val source: JsonObject?,
-        val fields: JsonObject?,
-        val sort: JsonArray?
-    )
-
-    @Serializable
-    data class Hits(
-        @SerialName("max_score")
-        val maxScore: Double?,
-        val total: Total,
-        val hits: List<Hit>
-    ) {
-        @Serializable
-        enum class TotalRelation {
-            @SerialName("eq")
-            Eq,
-
-            @SerialName("gte")
-            Gte
-        }
-
-        @Serializable
-        data class Total(val value: Long, val relation: TotalRelation)
-    }
-}
-
-val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
-
-val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
 suspend fun SearchClient.search(
     target: String,
