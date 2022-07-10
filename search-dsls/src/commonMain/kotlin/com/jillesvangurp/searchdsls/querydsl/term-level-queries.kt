@@ -272,3 +272,4 @@ fun SearchDSL.wildcard(
     block: (WildCardQueryConfig.() -> Unit)? = null
 ) =
     WildCardQuery(field,value, block = block)
+
