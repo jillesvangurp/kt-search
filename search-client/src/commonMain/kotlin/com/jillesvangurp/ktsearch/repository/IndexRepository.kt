@@ -18,6 +18,8 @@ class IndexRepository<T : Any>(
     val indexWriteAlias: String = indexName,
     val indexReadAlias: String = indexWriteAlias,
     val defaultParameters: Map<String, String>? = null,
+    private val defaultRefresh: Refresh? = Refresh.WaitFor,
+    private val defaultTimeout: Duration? = null,
 ) {
     private fun combineParams(extraParameters: Map<String, String>?): Map<String, String>? {
         return extraParameters?.let {
@@ -44,7 +46,7 @@ class IndexRepository<T : Any>(
             mapping = dsl,
             waitForActiveShards = waitForActiveShards,
             masterTimeOut = masterTimeOut,
-            timeout = timeout,
+            timeout = timeout?:defaultTimeout,
             extraParameters = combineParams(extraParameters)
         )
     }
@@ -82,7 +84,7 @@ class IndexRepository<T : Any>(
             id = id,
             preference = preference,
             realtime = realtime,
-            refresh = refresh,
+            refresh = refresh?:defaultRefresh,
             routing = routing,
             storedFields = storedFields,
             source = source,
@@ -121,9 +123,9 @@ class IndexRepository<T : Any>(
             ifPrimaryTerm = ifPrimaryTerm,
             opType = opType,
             pipeline = pipeline,
-            refresh = refresh,
+            refresh = refresh?:defaultRefresh,
             routing = routing,
-            timeout = timeout,
+            timeout = timeout?:defaultTimeout,
             version = version,
             versionType = versionType,
             waitForActiveShards = waitForActiveShards,
@@ -132,13 +134,34 @@ class IndexRepository<T : Any>(
         )
     }
 
-    suspend fun update(id: String, maxRetries: Int = 3, block: (T) -> T): Pair<T, DocumentIndexResponse> =
-        update(attempt = 0, maxRetries = maxRetries, id = id, block = block)
+    suspend fun update(
+        id: String,
+        maxRetries: Int = 3,
+        pipeline: String? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        timeout: Duration? = null,
+        block: (T) -> T
+    ): Pair<T, DocumentIndexResponse> =
+        update(
+            id = id,
+            attempt = 0,
+            maxRetries = maxRetries,
+            pipeline = pipeline,
+            refresh = refresh?:defaultRefresh,
+            routing = routing,
+            timeout = timeout?:defaultTimeout,
+            block = block
+        )
 
     private suspend fun update(
         id: String,
         attempt: Int = 0,
         maxRetries: Int = 3,
+        pipeline: String? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        timeout: Duration? = null,
         block: (T) -> T
     ): Pair<T, DocumentIndexResponse> {
         val (original, resp) = get(id, extraParameters = defaultParameters)
@@ -151,8 +174,12 @@ class IndexRepository<T : Any>(
                 id = id,
                 serializedJson = serializer.serialize(updated),
                 ifSeqNo = resp.seqNo,
-                ifPrimaryTerm = resp.primaryTerm
-            )
+                ifPrimaryTerm = resp.primaryTerm,
+                pipeline = pipeline,
+                refresh = refresh?:defaultRefresh,
+                routing = routing,
+                timeout = timeout?:defaultTimeout,
+                )
         } catch (e: RestException) {
             if (e.status == 409 && attempt < maxRetries) {
                 return update(id = id, attempt = attempt + 1, maxRetries = maxRetries, block = block)
@@ -179,9 +206,9 @@ class IndexRepository<T : Any>(
             id = id,
             ifSeqNo = ifSeqNo,
             ifPrimaryTerm = ifPrimaryTerm,
-            refresh = refresh,
+            refresh = refresh?:defaultRefresh,
             routing = routing,
-            timeout = timeout,
+            timeout = timeout?:defaultTimeout,
             version = version,
             versionType = versionType,
             waitForActiveShards = waitForActiveShards,
