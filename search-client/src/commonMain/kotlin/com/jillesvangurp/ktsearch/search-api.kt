@@ -400,7 +400,9 @@ annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
  */
 @VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
-    validateEngine("search_after works slighly differently on Opensearch and only is supported for Elasticsearch currently", SearchEngineVariant.ES7, SearchEngineVariant.ES8)
+    validateEngine("search_after works differently on Opensearch.",
+        SearchEngineVariant.ES7,
+        SearchEngineVariant.ES8)
     val pitId = createPointInTime(target, keepAlive)
     query["pit"] = JsonDsl().apply {
         this["id"] = pitId
