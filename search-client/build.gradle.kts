@@ -76,21 +76,21 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-common", "_"))
-                implementation(project(":search-dsls"))
-                implementation(project(":json-dsl"))
-                implementation(KotlinX.datetime)
-                implementation(Ktor.client.core)
-                implementation(KotlinX.coroutines.core)
+                api(kotlin("stdlib-common", "_"))
+                api(project(":search-dsls"))
+                api(project(":json-dsl"))
+                api(KotlinX.datetime)
+                api(Ktor.client.core)
+                api(KotlinX.coroutines.core)
 
-                implementation(KotlinX.serialization.json)
-                implementation(Ktor.client.core)
-                implementation(Ktor.client.logging)
-                implementation(Ktor.client.serialization)
-                implementation("io.ktor:ktor-client-logging:_")
-                implementation("io.ktor:ktor-serialization-kotlinx:_")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:_")
-                implementation("io.ktor:ktor-client-content-negotiation:_")
+                api(KotlinX.serialization.json)
+                api(Ktor.client.core)
+                api(Ktor.client.logging)
+                api(Ktor.client.serialization)
+                api("io.ktor:ktor-client-logging:_")
+                api("io.ktor:ktor-serialization-kotlinx:_")
+                api("io.ktor:ktor-serialization-kotlinx-json:_")
+                api("io.ktor:ktor-client-content-negotiation:_")
             }
         }
         val commonTest by getting {
