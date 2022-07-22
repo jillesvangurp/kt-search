@@ -25,6 +25,8 @@ val DEFAULT_JSON: Json = Json {
     explicitNulls = false
     // adding enum values is OK even if older clients won't understand it
     ignoreUnknownKeys=true
+    // make sure new enum values don't break deserialization (will be null)
+    coerceInputValues=true
 }
 
 /**
@@ -38,5 +40,6 @@ val DEFAULT_PRETTY_JSON: Json = Json {
     isLenient = true
     explicitNulls = false
     ignoreUnknownKeys=true
+    coerceInputValues=true
 }
 
