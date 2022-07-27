@@ -50,12 +50,11 @@ class IndexRepository<T : Any>(
     }
 
     suspend fun createIndex(
-        block: IndexSettingsAndMappingsDSL.() -> Unit,
         waitForActiveShards: Int? = null,
         masterTimeOut: Duration? = null,
         timeout: Duration? = null,
         extraParameters: Map<String, String>? = null,
-
+        block: IndexSettingsAndMappingsDSL.() -> Unit,
         ): IndexCreateResponse {
         val dsl = IndexSettingsAndMappingsDSL()
         block.invoke(dsl)
