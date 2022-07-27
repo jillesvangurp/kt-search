@@ -29,7 +29,7 @@ repositories {
 Then add the latest version:
 
 ```kotlin
-implementation("com.jillesvangurp:search-client:1.99.1")
+implementation("com.jillesvangurp:search-client:1.99.2")
 ```
 
 Note, we may at some point try to push this to maven-central. For now, please use the maven repository above. All the pre-releases will have the `1.99.x` prefix
