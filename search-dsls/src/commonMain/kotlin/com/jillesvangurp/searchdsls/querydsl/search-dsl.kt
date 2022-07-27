@@ -10,10 +10,7 @@ import kotlin.reflect.KProperty
 annotation class SearchDSLMarker
 
 @SearchDSLMarker
-open class ESQuery(
-    val name: String,
-    val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
-) :
+open class ESQuery(val name: String, val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)) :
     IJsonDsl by queryDetails {
 
     fun toMap(): Map<String, Any> = dslObject { this[name] = queryDetails }
@@ -76,7 +73,6 @@ class SearchDSL : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToS
 
 enum class SortOrder { ASC, DESC }
 enum class SortMode { MIN, MAX, SUM, AVG, MEDIAN }
-
 @Suppress("UNUSED_PARAMETER")
 class SortField(field: String, order: SortOrder? = null, mode: SortMode? = null)
 
@@ -90,15 +86,15 @@ class SortBuilder {
         field: KProperty<*>,
         order: SortOrder = SortOrder.DESC,
         mode: SortMode? = null,
-        missing: String?,
+        missing: String? = null,
         block: (JsonDsl.() -> Unit)? = null
     ) =
-        add(field = field.name, order = order, mode = mode, missing = missing, block = block)
+        add(field.name, order, mode, missing, block)
 
     fun add(
         field: String,
         order: SortOrder = SortOrder.DESC,
-        mode: SortMode? = null,
+        mode: SortMode?= null,
         missing: String? = null,
         block: (JsonDsl.() -> Unit)? = null
     ) = sortFields.add(withJsonDsl {
@@ -108,7 +104,7 @@ class SortBuilder {
                 this["mode"] = mode.name.lowercase()
             }
             missing?.let {
-                this["missing"] = it
+                this["missing"] = missing
             }
             block?.invoke(this)
         }, PropertyNamingConvention.AsIs)
@@ -116,7 +112,7 @@ class SortBuilder {
 }
 
 fun SearchDSL.sort(block: SortBuilder.() -> Unit) {
-    val builder = SortBuilder()
+    val builder =  SortBuilder()
     block.invoke(builder)
     this["sort"] = builder.sortFields
 }
@@ -159,19 +155,19 @@ class MultiSearchDSL(internal val jsonDslSerializer: JsonDslSerializer) {
         json.add(jsonDslSerializer.serialize(dsl))
     }
 
-    fun header(headerBlock: MultiSearchHeader.() -> Unit): MultiSearchHeader {
+    fun header(headerBlock: MultiSearchHeader.()-> Unit) : MultiSearchHeader {
         val header = MultiSearchHeader()
         headerBlock.invoke(header)
         return header
     }
 
-    infix fun MultiSearchHeader.withQuery(queryBlock: SearchDSL.() -> Unit) {
+    infix fun MultiSearchHeader.withQuery(queryBlock: SearchDSL.()-> Unit) {
         val dsl = SearchDSL()
         queryBlock.invoke(dsl)
         add(this, dsl)
     }
 
-    fun withQuery(queryBlock: SearchDSL.() -> Unit) {
+    fun withQuery(queryBlock: SearchDSL.()-> Unit) {
         val dsl = SearchDSL()
         queryBlock.invoke(dsl)
         add(MultiSearchHeader(), dsl)

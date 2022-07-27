@@ -174,7 +174,11 @@ class SearchDSLTest : AbstractElasticSearchTest(indexPrefix = "search", createIn
             sort {
                 +"tag"
                 +TestModel::tag
-                add(TestModel::number, order = SortOrder.DESC, mode = SortMode.MAX)
+                add(
+                    field = TestModel::number,
+                    order = SortOrder.DESC,
+                    mode = SortMode.MAX
+                )
             }
         }
     }
