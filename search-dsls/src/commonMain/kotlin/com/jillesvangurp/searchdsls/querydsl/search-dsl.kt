@@ -87,9 +87,9 @@ class SortBuilder {
 
     fun add(
         field: String,
-        order: SortOrder,
-        mode: SortMode?,
-        block: (JsonDsl.() -> Unit)?
+        order: SortOrder = SortOrder.DESC,
+        mode: SortMode?= null,
+        block: (JsonDsl.() -> Unit)? = null
     ) = sortFields.add(withJsonDsl {
         this.put(field, dslObject {
             this["order"] = order.name
