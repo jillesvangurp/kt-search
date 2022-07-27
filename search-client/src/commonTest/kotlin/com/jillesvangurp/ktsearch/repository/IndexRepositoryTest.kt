@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch.repository
 import com.jillesvangurp.ktsearch.SearchTestBase
 import com.jillesvangurp.ktsearch.TestDocument
 import com.jillesvangurp.ktsearch.coTest
+import com.jillesvangurp.ktsearch.total
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -22,6 +23,17 @@ class IndexRepositoryTest : SearchTestBase() {
         doc2.name shouldBe "2"
         val (doc3,_)= repo.get(d.id)
         doc3 shouldBe doc2
+    }
 
+    @Test
+    fun shouldDoBulkWithRepo() = coTest{
+        repo.createIndex {}
+        repo.bulk {
+            index(TestDocument("1").json())
+            index(TestDocument("2").json())
+            index(TestDocument("3").json())
+        }
+        val (r,_) = repo.search {  }
+        r.total shouldBe 3
     }
 }
