@@ -59,7 +59,7 @@ data class SearchResponse(
 }
 
 val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
-
+val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
 @Serializable
