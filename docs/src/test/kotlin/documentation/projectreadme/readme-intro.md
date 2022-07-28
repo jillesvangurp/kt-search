@@ -48,7 +48,7 @@ Some suggestions:
 
 ## Documentation
 
-Currently, documentation is still work in progress. I hope to add to finalize this before releasing 2.0.
+Currently, documentation is still work in progress. Most of the basics are documented at this point but there still some things missing.
 
 - [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). 

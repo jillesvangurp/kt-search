@@ -40,7 +40,10 @@ val bulkMd = sourceGitRepository.md {
                 (0..10).forEach { index ->
                     index(
                         // pass the json source (has to be on a single line)
-                        source = DEFAULT_JSON.encodeToString(Foo.serializer(), Foo("document $index")),
+                        source = DEFAULT_JSON.encodeToString(
+                            Foo.serializer(),
+                            Foo("document $index")
+                        ),
                         index = "test"
                     )
                     // same as index but will fail if a document with the id already exists
@@ -69,7 +72,7 @@ val bulkMd = sourceGitRepository.md {
                 target = "test",
                 // default is wait_for
                 refresh = Refresh.False
-                ) {
+            ) {
                 // these will all go into the test index
                 (0..10).forEach { index ->
                     index(Foo("document $index"))

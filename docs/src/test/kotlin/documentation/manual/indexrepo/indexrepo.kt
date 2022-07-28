@@ -30,7 +30,7 @@ val indexRepoMd = sourceGitRepository.md {
         @Serializable
         data class TestDoc(val message: String)
 
-        suspendingBlock {
+        suspendingBlock(false) {
             val repo = client.repository("test", TestDoc.serializer())
 
             repo.createIndex {
@@ -49,7 +49,7 @@ val indexRepoMd = sourceGitRepository.md {
     }
 
     section("Bulk Indexing") {
-        suspendingBlock {
+        suspendingBlock(false) {
             repo.bulk {
                 // no need to specify the index
                 index(TestDoc("test"))
@@ -69,7 +69,7 @@ val indexRepoMd = sourceGitRepository.md {
             easier, you can use the update function instead.
             
         """.trimIndent()
-        suspendingBlock {
+        suspendingBlock(false) {
             val id = repo.index(TestDoc("A document")).id
             repo.update(id, maxRetries = 2) {oldVersion ->
                 oldVersion.copy(message = "An updated document")
