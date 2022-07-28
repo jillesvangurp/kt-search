@@ -26,7 +26,7 @@ For example, consider this bit of Json:
 To create a DSL for this, you simply create a new class:
 
 ```kotlin
-class BarDsl: JsonDsl(
+class BarDsl : JsonDsl(
   // this is the default
   namingConvention = PropertyNamingConvention.AsIs
 ) {
@@ -34,7 +34,7 @@ class BarDsl: JsonDsl(
   var yYy by property<Boolean>()
 }
 
-class FooDSL: JsonDsl(
+class FooDSL : JsonDsl(
   namingConvention = PropertyNamingConvention.ConvertToSnakeCase
 ) {
   var foo by property<String>()
@@ -44,7 +44,7 @@ class FooDSL: JsonDsl(
   }
 }
 
-fun foo(block: FooDSL.()->Unit) = FooDSL().apply(block)
+fun foo(block: FooDSL.() -> Unit) = FooDSL().apply(block)
 
 
 foo {
@@ -53,7 +53,7 @@ foo {
     xxx = 123
     yYy = false
     // you can just improvise things that aren't part of your DSL
-    this["zzz"] = listOf(1,2,3)
+    this["zzz"] = listOf(1, 2, 3)
     this["missingFeature"] = JsonDsl().apply {
       this["another"] = " field"
       put(
@@ -104,4 +104,113 @@ Both the `SearchDSL` and the `IndexSettingsAndMappingsDSL` use the same names as
 they model whereever possible. Exceptions to this are Kotlin keywords and functions that are part of the 
 `JsonDsl` parent class. For example, `size` is part of the `Map` interface it implements and therefore we 
 can't use it to e.g. specify the query size attribute.
+
+## Implementing your own queries
+
+As an example, we'll use the `term` query implementation in this library.                       
+
+```kotlin
+class TermQueryConfig : JsonDsl() {
+  var value by property<String>()
+  var boost by property<Double>()
+}
+
+@SearchDSLMarker
+class TermQuery(
+  field: String,
+  value: String,
+  termQueryConfig: TermQueryConfig = TermQueryConfig(),
+  block: (TermQueryConfig.() -> Unit)? = null
+) : ESQuery("term") {
+
+  init {
+    put(field, termQueryConfig, PropertyNamingConvention.AsIs)
+    termQueryConfig.value = value
+    block?.invoke(termQueryConfig)
+  }
+}
+
+fun SearchDSL.term(
+  field: KProperty<*>,
+  value: String,
+  block: (TermQueryConfig.() -> Unit)? = null
+) =
+  TermQuery(field.name, value, block = block)
+
+fun SearchDSL.term(
+  field: String,
+  value: String,
+  block: (TermQueryConfig.() -> Unit)? = null
+) =
+  TermQuery(field, value, block = block)
+```
+
+The query dsl has this convention of wrapping various types of queries with a single 
+field object where the object key is the name of the query. Therefore, `TermQuery` extends `EsQuery`, which
+takes care of this. Additionally it sets snake casing as the naming convention as most of the DSL uses that.
+
+All the query implementations have convenient extension functions on `SearchDSL`. This ensures that you
+can easily find the functions in any place that has a receiver block for `SearchDSL`.
+
+Term queries always have at least a field name and a value. This is why these are constructor 
+parameters on `TermQueryConfig`. Since specifying additional configuration is optional, the block in both 
+`term` functions defaults to null.
+ 
+Since, mostly you will have Kotlin data classes for your document models, there is a variant of the term 
+function that takes a `KProperty`.  
+           
+Here's an example of how you can use the term query:
+
+```kotlin
+SearchDSL().apply {
+  data class MyDoc(val keyword: String)
+  query = bool {
+    should(
+      term(MyDoc::keyword, "foo") {
+        boost = 2.0
+      },
+      term("keyword", "foo") {
+        boost = 2.0
+      },
+      term("keyword", "foo")
+    )
+  }
+}.json(pretty = true)
+```
+
+->
+
+```
+{
+  "query": {
+  "bool": {
+    "should": [
+    {
+      "term": {
+      "keyword": {
+        "value": "foo",
+        "boost": 2.0
+      }
+      }
+    }, 
+    {
+      "term": {
+      "keyword": {
+        "value": "foo",
+        "boost": 2.0
+      }
+      }
+    }, 
+    {
+      "term": {
+      "keyword": {
+        "value": "foo"
+      }
+      }
+    }
+    ]
+  }
+  }
+}
+```
 
