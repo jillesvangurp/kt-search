@@ -59,6 +59,9 @@ data class SearchResponse(
 }
 
 val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
+inline fun <reified T> SearchResponse.parseHits() = searchHits.map {
+    DEFAULT_JSON.decodeFromJsonElement<T>(it.source?: error("source is disabled"))
+}
 val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
