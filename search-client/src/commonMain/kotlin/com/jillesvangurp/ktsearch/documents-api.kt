@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.camelCase2SnakeCase
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -27,6 +28,44 @@ data class DocumentIndexResponse(
     val primaryTerm: Int
 )
 
+suspend inline fun <reified T> SearchClient.indexDocument(
+    target: String,
+    document: T,
+    id: String? = null,
+    ifSeqNo: Int? = null,
+    ifPrimaryTerm: Int? = null,
+    opType: OperationType? = null,
+    pipeline: String? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    timeout: Duration? = null,
+    version: Int? = null,
+    versionType: VersionType? = null,
+    waitForActiveShards: String? = null,
+    requireAlias: Boolean? = null,
+    extraParameters: Map<String, String>? = null,
+    json: Json = DEFAULT_JSON
+): DocumentIndexResponse {
+    val json = json.encodeToString(document)
+    return indexDocument(
+        target = target,
+        serializedJson = json,
+        id = id,
+        ifSeqNo = ifSeqNo,
+        ifPrimaryTerm = ifPrimaryTerm,
+        opType = opType,
+        pipeline = pipeline,
+        refresh = refresh,
+        routing = routing,
+        timeout = timeout,
+        version = version,
+        versionType = versionType,
+        waitForActiveShards = waitForActiveShards,
+        requireAlias = requireAlias,
+        extraParameters = extraParameters
+    )
+}
+
 suspend fun SearchClient.indexDocument(
     target: String,
     serializedJson: String,
@@ -42,8 +81,8 @@ suspend fun SearchClient.indexDocument(
     versionType: VersionType? = null,
     waitForActiveShards: String? = null,
     requireAlias: Boolean? = null,
-    extraParameters: Map<String,String>?=null,
-    ): DocumentIndexResponse {
+    extraParameters: Map<String, String>? = null,
+): DocumentIndexResponse {
     return restClient.post {
         if (id == null) {
             path(target, "_doc")
@@ -102,10 +141,10 @@ suspend fun SearchClient.deleteDocument(
     version: Int? = null,
     versionType: VersionType? = null,
     waitForActiveShards: String? = null,
-    extraParameters: Map<String,String>?=null,
-    ): DocumentIndexResponse {
+    extraParameters: Map<String, String>? = null,
+): DocumentIndexResponse {
     return restClient.delete {
-        path(target, "_doc",id)
+        path(target, "_doc", id)
 
         parameter("if_seq_no", ifSeqNo)
         parameter("if_primary_term", ifPrimaryTerm)
@@ -133,8 +172,8 @@ suspend fun SearchClient.getDocument(
     sourceIncludes: String? = null,
     version: Int? = null,
     versionType: VersionType? = null,
-    extraParameters: Map<String,String>?=null,
-    ): GetDocumentResponse {
+    extraParameters: Map<String, String>? = null,
+): GetDocumentResponse {
     return restClient.get {
         path(target, "_doc", id)
 
