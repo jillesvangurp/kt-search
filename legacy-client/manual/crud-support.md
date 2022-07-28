@@ -316,6 +316,14 @@ repo.search {
 }
 ```
 
+Captured Output:
+
+```
+name: Another thing, amount: 666
+name: Another Thing, amount: 42
+
+```
+
 ## Custom serialization 
 
 By default, we use the popular jackson framework.         

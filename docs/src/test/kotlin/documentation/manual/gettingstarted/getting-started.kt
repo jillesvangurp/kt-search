@@ -13,6 +13,7 @@ val whatIsKtSearchMd = sourceGitRepository.md {
     includeMdFile("whatisktsearch.md")
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 val gettingStartedMd = sourceGitRepository.md {
     includeMdFile("gettingstarted.md")
     section("Creating a Client") {
