@@ -4,7 +4,10 @@
 
 - [What is Kt-Search](WhatIsKtSearch.md)
 - [Getting Started](GettingStarted.md)
+- [IndexRepository](IndexRepository.md)
+- [Bulk Indexing](BulkIndexing.md)
 - [Migrating from Es-Kotlin-Client](Migrating.md)
+- [Extending the Search or Mapping DSL](ExtendingTheDSL.md)
 
 ## About this Manual
 
