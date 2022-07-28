@@ -1,4 +1,4 @@
-# IndexRepository 
+# Index Repository 
 
 To cut down on the amount of copy pasting of aliases and index names, kt-search includes 
 a useful abstraction: the `IndexRepository`.
