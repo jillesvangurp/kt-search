@@ -62,10 +62,10 @@ suspend fun SearchClient.search(
     typedKeys: Boolean? = null,
     version: Boolean? = null,
     extraParameters: Map<String, String>? = null,
-    block: SearchDSL.() -> Unit
+    block: (SearchDSL.() -> Unit)?=null
 ): SearchResponse {
     val dsl = SearchDSL()
-    block.invoke(dsl)
+    block?.invoke(dsl)
     return search(
         target = target,
         dsl = dsl,
