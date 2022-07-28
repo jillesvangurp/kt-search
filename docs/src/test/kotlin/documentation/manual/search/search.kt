@@ -4,12 +4,10 @@ import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.bool
-import com.jillesvangurp.searchdsls.querydsl.filterSource
 import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
 import com.jillesvangurp.searchdsls.querydsl.term
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.jsonArray
 
 
 val searchMd = sourceGitRepository.md {
@@ -157,12 +155,12 @@ val searchMd = sourceGitRepository.md {
                         matchPhrasePrefix(TestDoc::name, "ban")
                     )
                 }
-                // source filtering is supported
-                filterSource {
-                    includes(TestDoc::name)
-                }
-            }.searchHits.map { it.fields?.get("name")?.jsonArray?.first() }
+            }.parseHits<TestDoc>().map { it.name }
         }
+
+        +"""
+            Note how we are parsing the hits back to TestDoc here
+        """.trimIndent()
     }
 
     // TODO scrolling search and search_after
