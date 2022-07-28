@@ -36,6 +36,9 @@ open class JsonDsl(
 
     override fun get(key: String) = _properties[key.camelCase2SnakeCase()]
 
+    override fun put(key: KProperty<*>, value: Any, namingConvention: PropertyNamingConvention) {
+        _properties[key.name.convertPropertyName(namingConvention)] = value
+    }
     override fun put(key: String, value: Any, namingConvention: PropertyNamingConvention) {
         _properties[key.convertPropertyName(namingConvention)] = value
     }

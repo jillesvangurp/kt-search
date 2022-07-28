@@ -1,14 +1,21 @@
 package com.jillesvangurp.jsondsl
 
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * Base interface for IMapBackedProperties; this allows using interface delegation on classes that
- * can't extend MapBackedProperties class
+ * can't extend the JsonDsl class
  */
 interface IJsonDsl : MutableMap<String, Any> {
     val defaultNamingConvention: PropertyNamingConvention
     fun put(key: String, value: Any, namingConvention: PropertyNamingConvention=defaultNamingConvention)
+
+    fun put(
+        key: KProperty<*>,
+        value: Any,
+        namingConvention: PropertyNamingConvention = PropertyNamingConvention.ConvertToSnakeCase
+    )
 
     /**
      * Property delegate that stores the value in the MapBackedProperties. Use this to create type safe
@@ -28,7 +35,6 @@ interface IJsonDsl : MutableMap<String, Any> {
      * Helper to manipulate list value objects.
      */
     fun getOrCreateMutableList(key: String): MutableList<Any>
-
 }
 
 /**
