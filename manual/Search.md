@@ -154,16 +154,14 @@ client.search(indexName) {
       matchPhrasePrefix(TestDoc::name, "ban")
     )
   }
-  // source filtering is supported
-  filterSource {
-    includes(TestDoc::name)
-  }
-}.searchHits.map { it.fields?.get("name")?.jsonArray?.first() }
+}.parseHits<TestDoc>().map { it.name }
 ```
 
 ->
 
 ```
-[null, null]
+[Banana, Apple]
 ```
+
+Note how we are parsing the hits back to TestDoc here
 
