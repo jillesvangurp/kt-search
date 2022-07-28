@@ -46,4 +46,33 @@ class JsonDslTest {
               }
             }""".trimIndent()
     }
+
+    @Test
+    fun shouldIndentCorrectly() {
+        JsonDsl().apply {
+            this["f"]= mapOf("f" to mapOf("f" to 1))
+        }.json(true) shouldBe """
+            {
+              "f": {
+                "f": {
+                  "f": 1
+                }
+              }
+            }
+        """.trimIndent()
+
+        JsonDsl().apply {
+            this["f1"] = 1
+            this["f2"] = JsonDsl().apply {
+                this["f1"] = 1
+            }
+        }.json(true) shouldBe """
+            {
+              "f1": 1,
+              "f2": {
+                "f1": 1
+              }
+            }
+        """.trimIndent()
+    }
 }

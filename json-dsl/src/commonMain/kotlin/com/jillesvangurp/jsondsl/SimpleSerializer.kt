@@ -58,10 +58,8 @@ class SimpleSerializer: JsonDslSerializer {
                 buf.newLine(indent,indentStep,pretty)
                 buf.append(']')
             }
-            is JsonDsl -> {
-                buf.append(obj.json(pretty))
-            }
             else -> {
+                // fallback to just treating everything else as a String
                 buf.append('"')
                 obj.toString().escapeJson(buf)
                 buf.append('"')
