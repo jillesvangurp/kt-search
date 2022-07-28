@@ -3,7 +3,9 @@ package documentation.manual.extending
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
+import kotlin.reflect.KProperty
 
 val extendingMd = sourceGitRepository.md {
     +"""
@@ -36,7 +38,7 @@ val extendingMd = sourceGitRepository.md {
         """.trimIndent()
 
         block {
-            class BarDsl: JsonDsl(
+            class BarDsl : JsonDsl(
                 // this is the default
                 namingConvention = PropertyNamingConvention.AsIs
             ) {
@@ -44,7 +46,7 @@ val extendingMd = sourceGitRepository.md {
                 var yYy by property<Boolean>()
             }
 
-            class FooDSL: JsonDsl(
+            class FooDSL : JsonDsl(
                 namingConvention = PropertyNamingConvention.ConvertToSnakeCase
             ) {
                 var foo by property<String>()
@@ -54,7 +56,7 @@ val extendingMd = sourceGitRepository.md {
                 }
             }
 
-            fun foo(block: FooDSL.()->Unit) = FooDSL().apply(block)
+            fun foo(block: FooDSL.() -> Unit) = FooDSL().apply(block)
 
 
             foo {
@@ -63,7 +65,7 @@ val extendingMd = sourceGitRepository.md {
                     xxx = 123
                     yYy = false
                     // you can just improvise things that aren't part of your DSL
-                    this["zzz"] = listOf(1,2,3)
+                    this["zzz"] = listOf(1, 2, 3)
                     this["missingFeature"] = JsonDsl().apply {
                         this["another"] = " field"
                         put(
@@ -92,5 +94,82 @@ val extendingMd = sourceGitRepository.md {
             `JsonDsl` parent class. For example, `size` is part of the `Map` interface it implements and therefore we 
             can't use it to e.g. specify the query size attribute.
         """.trimIndent()
+    }
+
+    section("Implementing your own queries") {
+        +"""
+            As an example, we'll use the `term` query implementation in this library.                       
+        """.trimIndent()
+
+        block(false) {
+            class TermQueryConfig : JsonDsl() {
+                var value by property<String>()
+                var boost by property<Double>()
+            }
+
+            @SearchDSLMarker
+            class TermQuery(
+                field: String,
+                value: String,
+                termQueryConfig: TermQueryConfig = TermQueryConfig(),
+                block: (TermQueryConfig.() -> Unit)? = null
+            ) : ESQuery("term") {
+
+                init {
+                    put(field, termQueryConfig, PropertyNamingConvention.AsIs)
+                    termQueryConfig.value = value
+                    block?.invoke(termQueryConfig)
+                }
+            }
+
+            fun SearchDSL.term(
+                field: KProperty<*>,
+                value: String,
+                block: (TermQueryConfig.() -> Unit)? = null
+            ) =
+                TermQuery(field.name, value, block = block)
+
+            fun SearchDSL.term(
+                field: String,
+                value: String,
+                block: (TermQueryConfig.() -> Unit)? = null
+            ) =
+                TermQuery(field, value, block = block)
+        }
+
+        +"""
+            The query dsl has this convention of wrapping various types of queries with a single 
+            field object where the object key is the name of the query. Therefore, `TermQuery` extends `EsQuery`, which
+            takes care of this. Additionally it sets snake casing as the naming convention as most of the DSL uses that.
+            
+            All the query implementations have convenient extension functions on `SearchDSL`. This ensures that you
+            can easily find the functions in any place that has a receiver block for `SearchDSL`.
+            
+            Term queries always have at least a field name and a value. This is why these are constructor 
+            parameters on `TermQueryConfig`. Since specifying additional configuration is optional, the block in both 
+            `term` functions defaults to null.
+             
+            Since, mostly you will have Kotlin data classes for your document models, there is a variant of the term 
+            function that takes a `KProperty`.  
+                       
+            Here's an example of how you can use the term query:
+        """.trimIndent()
+
+        block {
+            SearchDSL().apply {
+                data class MyDoc(val keyword: String)
+                query = bool {
+                    should(
+                        term(MyDoc::keyword, "foo") {
+                            boost = 2.0
+                        },
+                        term("keyword", "foo") {
+                            boost = 2.0
+                        },
+                        term("keyword", "foo")
+                    )
+                }
+            }.json(pretty = true)
+        }
     }
 }
