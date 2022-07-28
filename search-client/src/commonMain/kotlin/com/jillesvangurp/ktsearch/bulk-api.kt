@@ -4,6 +4,7 @@ import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlin.time.Duration
@@ -188,6 +189,13 @@ class BulkSession internal constructor(
             }
         }
     }
+}
+
+suspend inline fun <reified T> BulkSession.create(doc: T, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
+}
+suspend inline fun <reified T> BulkSession.index(doc: T, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
 /**
