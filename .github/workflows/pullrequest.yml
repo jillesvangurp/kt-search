@@ -1,4 +1,4 @@
-name: CI-gradle-build
+name: pull-request-build
 
 on:
   pull_request:

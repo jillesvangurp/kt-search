@@ -1,6 +1,6 @@
 # KT Search Client 
 
-[![CI-gradle-build](https://github.com/jillesvangurp/kt-search/actions/workflows/gradle.yml/badge.svg)](https://github.com/jillesvangurp/kt-search/actions/workflows/gradle.yml)
+[![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
 Kt-search is a pure Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It includes rich Kotlin DSLs for querying, defining mappings, and more. It relies on all the latest and greatest multi platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x.
 

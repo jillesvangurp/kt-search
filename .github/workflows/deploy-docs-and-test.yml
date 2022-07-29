@@ -1,4 +1,4 @@
-name: CI-gradle-build
+name: matrix-test-and-deploy-docs
 
 on:
   push:
