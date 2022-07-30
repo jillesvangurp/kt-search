@@ -2,9 +2,9 @@
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a pure Kotlin Multi-Platform library to search across the Opensearch and Elasticsearch ecosystem. It includes rich Kotlin DSLs for querying, defining mappings, and more. It relies on all the latest and greatest multi platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x.
+Kt-search is a pure Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It includes rich Kotlin DSLs for querying, defining mappings, and more. It relies on all the latest and greatest multi-platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x.
 
-Because it is a multi platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps.
+Because it is a multi-platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps.
 
 Learn how to integrate advanced search in your Kotlin applications. Whether you are building a web based dashboard, an advanced ETL pipeline, or simply exposing a search endpoint in as a microservice, this library has you covered.
 
@@ -34,6 +34,14 @@ implementation("com.jillesvangurp:search-client:1.99.3")
 
 Note, we may at some point try to push this to maven-central. For now, please use the maven repository above. All the pre-releases will have the `1.99.x` prefix
 
+## Use cases
+
+There are many ways you can use kt-search
+
+- Add search functionality to your servers. Kt-search works great with Spring Boot, Kto, Quarkus, and other popular JVM based servers. Simply create your client as a singleton object and inject it wherever you need search.
+- Use Kt-search in a Kotlin-js based web application to create dashboards, or web applications that don't need a separate server. See our [Full Stack at FORMATION](https://github.com/formation-res/kt-fullstack-demo) demo project for an example.
+- Use Kotlin Scripts to operate and introspect your cluster. See the `scripts` directory in this repository for some examples. Also refer to the [manual](https://jillesvangurp.github.io/kt-search/manual/Scripting.html) on how to do this.
+
 ## License
 
 This project is [licensed](LICENSE) under the MIT license.
@@ -45,7 +53,7 @@ Pull requests are very welcome! Please communicate your intentions in advance to
 Some suggestions:
 
 - Extend the mapping or query DSLs. Our goal is to have coverage of all the common things we and other users need. The extensibility of `JsonDsl` always gives you the option to add whatever is not directly supported by manipulating the underlying map. But creating extension functions that do this properly is not har.
-- Add more API support for things in Opensearch/Elasticsearch that are not yet supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you customize any requests.
+- Add more API support for things in Opensearch/Elasticsearch that are not yet supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you to customize any requests.
 - Work on one of the issues or suggest some new ones.
 
 ## Documentation
@@ -59,7 +67,7 @@ Currently, documentation is still work in progress. Most of the basics are docum
 
 ## Compatibility
 
-The integration tests on Github Actions use a matrix build that tests everything against Elasticsearch 7 & 8 and Opensearch 1. It should work fine with earlier versions as well. But we don't actively test this. Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine. You can use the client for introspecting on the API version of course.
+The integration tests on GitHub Actions use a matrix build that tests everything against Elasticsearch 7 & 8 and Opensearch 1. It should work fine with earlier versions as well. But we don't actively test this. Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine. You can use the client for introspecting on the API version of course.
 
 If this matters to you, feel free to create pull requests to address compatibility issues or to make our tests run against e.g. v5 and v6 of Elasticsearch. I suspect most features should just work with some exceptions. 
 
@@ -91,7 +99,7 @@ This repository contains several kotlin modules that each may be used independen
 | `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and readmes.                             |
 | `legacy-client` | The old v1 client with some changes to integrate the `search-dsls`. If you were using that, you may use this to migrate to the new client |
 
-The search client module is the main module of this library. I extracted the json-dsl module and search-dsls module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. 
+The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. 
 
 The legacy client currently only works with Elasticsearch 7. However, beware that there may be some compatibility breaking changes before we release a stable release. Users currently using the old client should stick with the old version for now until we are ready to release an alpha/beta release. After that, you may use it as a migration path.
 
@@ -99,9 +107,9 @@ My intention is to keep the legacy client as an option until I have all relevant
 
 ## History of the project
 
-Before kt-search, I actually built various Java http clients for older versions of Elasticsearch. So, this project builds on 10 years of using and working with Elasticsearch. At Inbot, we used our in house client for several years with Elasticsearch 1.x. I actually built an open source client for version 2.0 but we never upgraded to that version as version 5 was released and broke compatibility. Later, I wrote another client on a customer project for version 5.0. This was before the Elastic's RestHighLevel client was finalized. Finally, Kt-search is  a full rewrite of my [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) project, which I have maintained and used in various projects for the last three years. It has a modestly large group of users.
+Before kt-search, I actually built various Java http clients for older versions of Elasticsearch. So, this project builds on 10 years of using and working with Elasticsearch. At Inbot, we used our in house client for several years with Elasticsearch 1.x. I actually built an open source client for version 2.0, but we never upgraded to that version as version 5 was released and broke compatibility. Later, I wrote another client on a customer project for version 5.0. This was before the Elastic's RestHighLevel client was finalized. Finally, Kt-search is  a full rewrite of my [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) project, which I have maintained and used in various projects for the last three years. It has a modestly large group of users.
 
-The rewrite in `kt-search` 2.0 was necessitated by the deprecation of Elastic's RestHighLevelClient and the Opensearch fork of Elasticsearc created by Amazon. One of the things they forked is this deprecated client. Except of course they changed all the package names, which makes supporting both impossible.
+The rewrite in `kt-search` 2.0 was necessitated by the deprecation of Elastic's RestHighLevelClient and the Opensearch fork of Elasticsearch created by Amazon. One of the things they forked is this deprecated client. Except of course they changed all the package names, which makes supporting both impossible.
 
 However, Elasticsearch and Opensearch still share the same REST API with only very minor variations mostly related to advanced features. For most common uses they are identical products. 
 
@@ -111,7 +119,7 @@ Currently, that includes the **jvm** and **kotlin-js** compilers. However, it sh
 
 Whether it is practical or not, you can use this client in Spring servers, Ktor servers, AWS lambda functions, node-js servers, web applications running in a browser, or native applications running on IOS and Android. I expect, people will mostly stick to using servers on the JVM, at least short term. But I have some uses in mind for building small dashboard UIs as web applications as well. Let me know what you do with this!
 
-Es-kotlin-client, aka. kt-search 1.0 lives on as the legacy-client module in this library and shares several of the other modules (e.g. the search dsls). So, you may use this as a migration path to the multi-platform client. But in terms of how you use the client, the transition from the legacy client to this should be pretty straight-forward.
+Es-kotlin-client, aka. kt-search 1.0 lives on as the legacy-client module in this library and shares several of the other modules (e.g. `search-dsls`). So, you may use this as a migration path to the multi-platform client. But in terms of how you use the client, the transition from the legacy client to this should be pretty straight-forward.
 
 
 
@@ -223,11 +231,11 @@ KT Search is currently still under development. I'll release a 2.0 release (1.x 
 
 Currently, the client is essentially feature complete. I have so far not found any show stopping issues. The 1.99.x series can be seen as a series of increasingly better release candidates/betas. If you do run into issues, please create an issue. Likewise, if there is important functionality that you need.
 
-## Goals/todo's:
+## Goals/TODOs:
 
 For more detail refer to the issue tracker. This is merely my high level plan for getting to a 2.0 release.
 
-- [x] Extract the kotlin DSLs to a multi platform module.
+- [x] Extract the kotlin DSLs to a multi-platform module.
 - [x] Rename the project to kt-search and give it its own repository
 - [x] Implement a new client using ktor and kotlinx-serialization
 - [x] Port the IndexRepository to the new client
@@ -248,7 +256,7 @@ Non Goals:
 
 ## Contributing
 
-I'm tracking a few open issues and would appreciate any help of course. But until this stabilizes, reach out to me before doing a lot of work to create a pull request. Check the [here](CONTRIBUTING.md) for mote details.
+I'm tracking a few open issues and would appreciate any help of course. But until this stabilizes, reach out to me before doing a lot of work to create a pull request. Check [here](CONTRIBUTING.md) for mote details.
 
 ## Help, support, and consulting
 
