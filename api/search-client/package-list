@@ -69,6 +69,7 @@ $dokka.location:com.jillesvangurp.ktsearch//searchAfter/com.jillesvangurp.ktsear
 $dokka.location:com.jillesvangurp.ktsearch//searchHits/com.jillesvangurp.ktsearch.SearchResponse#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/search-hits.html
 $dokka.location:com.jillesvangurp.ktsearch//snakeCase/kotlin.Enum[*]#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/snake-case.html
 $dokka.location:com.jillesvangurp.ktsearch//total/com.jillesvangurp.ktsearch.SearchResponse#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/total.html
+$dokka.location:com.jillesvangurp.ktsearch//usable/com.jillesvangurp.ktsearch.ClusterStatus#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/usable.html
 $dokka.location:com.jillesvangurp.ktsearch/Bucket///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bucket/index.html
 $dokka.location:com.jillesvangurp.ktsearch/Bucket/Bucket/#kotlin.String#kotlin.Long/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bucket/-bucket.html
 $dokka.location:com.jillesvangurp.ktsearch/Bucket/docCount/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bucket/doc-count.html
