@@ -33,7 +33,7 @@ class IndexRepositoryTest : SearchTestBase() {
             index(TestDocument("2").json())
             index(TestDocument("3").json())
         }
-        val (r,_) = repo.search {  }
+        val r = repo.search {  }
         r.total shouldBe 3
     }
 }

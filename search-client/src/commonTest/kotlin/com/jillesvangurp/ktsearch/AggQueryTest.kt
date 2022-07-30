@@ -20,7 +20,7 @@ class AggQueryTest: SearchTestBase() {
             index(TestDocument("3", tags = listOf(tags.foo,tags.bar)).json())
             index(TestDocument("4", tags = listOf(tags.fooBar)).json())
         }
-        val (r, _) = repo.search {
+        val r = repo.search {
             resultSize = 0 // we only care about the aggs
             agg("by_tag", TermsAgg("tags") {
                 aggSize = 100

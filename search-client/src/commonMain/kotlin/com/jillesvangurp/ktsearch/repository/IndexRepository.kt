@@ -4,10 +4,9 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Suppress("unused")
 class IndexRepository<T : Any>(
@@ -55,7 +54,7 @@ class IndexRepository<T : Any>(
         timeout: Duration? = null,
         extraParameters: Map<String, String>? = null,
         block: IndexSettingsAndMappingsDSL.() -> Unit,
-        ): IndexCreateResponse {
+    ): IndexCreateResponse {
         val dsl = IndexSettingsAndMappingsDSL()
         block.invoke(dsl)
         return client.createIndex(
@@ -254,9 +253,9 @@ class IndexRepository<T : Any>(
             callBack = callBack,
             bulkSize = bulkSize,
             pipeline = pipeline,
-            refresh = refresh?:defaultRefresh,
+            refresh = refresh ?: defaultRefresh,
             routing = routing,
-            timeout = timeout?:defaultTimeout,
+            timeout = timeout ?: defaultTimeout,
             waitForActiveShards = waitForActiveShards,
             requireAlias = requireAlias,
             source = source,
@@ -268,28 +267,19 @@ class IndexRepository<T : Any>(
         session.flush()
     }
 
-    suspend fun search(dsl: SearchDSL): Pair<SearchResponse, Flow<T?>> {
-        val response = client.search(target = indexReadAlias, dsl = dsl)
-        return deserialize(response)
+    suspend fun search(rawJson: String): SearchResponse {
+        return client.search(target = indexReadAlias, rawJson = rawJson)
+    }
+    suspend fun search(dsl: SearchDSL): SearchResponse {
+        return client.search(target = indexReadAlias, dsl = dsl)
     }
 
-    suspend fun search(rawJson: String): Pair<SearchResponse, Flow<T?>> {
-        val response = client.search(target = indexReadAlias, rawJson = rawJson)
-        return deserialize(response)
+    suspend fun search(block: SearchDSL.() -> Unit): SearchResponse {
+        return client.search(target = indexReadAlias, block = block)
     }
 
-    suspend fun search(block: SearchDSL.() -> Unit): Pair<SearchResponse, Flow<T?>> {
-        val response = client.search(target = indexReadAlias, block = block)
-        return deserialize(response)
-    }
-
-    private fun deserialize(response: SearchResponse): Pair<SearchResponse, Flow<T?>> {
-        val deserializedHits = flow { response.searchHits.forEach { emit(it) } }.map {
-            it.source?.let { source ->
-                serializer.deSerialize(source)
-            }
-        }
-        return response to deserializedHits
+    suspend fun searchAfter(keepAlive: Duration= 1.minutes, block: SearchDSL.() -> Unit): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
+        return client.searchAfter(target = indexReadAlias, keepAlive = keepAlive, block = block)
     }
 }
 
