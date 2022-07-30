@@ -44,15 +44,27 @@ Some ideas for using `kts` scripting with Kt-Search:
 - orchestrate rolling restarts
 - snapshot management
 
-## Problems and solutions
+## How to run `.main.kts` scripts
 
-Unfortunately, using kotlin script is a bit underdocumented by Jetbrains.
-
-Some gotchas:
-
-- your script name MUST end in `.main.kts`
-- make sure to add the shebang to your script `#!/usr/bin/env kotlin` 
-this will direct linux/mac to use kotlin to run the script
-- intellij does not reliably reload the script context when you 
-modify the dependencies: closing and re-opening the IDE seems to work.
+            To be able to run the scripts, install kotlin 1.7 via your linux package manager, 
+            home-brew, sdkman, snap, etc. There are many ways to do this.
+                        
+            Unfortunately, using kotlin script is a bit under-documented by Jetbrains and still has some issues.
+            
+            Some gotchas:
+            
+            - your script name **MUST** end in `.main.kts`
+            - kotlin scripting does not understand multi-platform, add `-jvm` suffix for the `kt-client` dependency
+            - if you add a custom repository, you also have to specify maven central as a repository explicitly if you need more dependencies
+```kotlin
+@file:Repository("https://repo1.maven.org/maven2")
+@file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
+@file:Repository("https://maven.tryformation.com/releases")
+@file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.3")
+```            
+            - make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
+            course make it executable `chmod 755 myscript.main.kts`
+            this will direct linux/mac to use kotlin to run the script with kotlin
+            - intellij does not reliably reload the script context when you 
+            modify the dependencies: closing and re-opening the IDE seems to work.
 
