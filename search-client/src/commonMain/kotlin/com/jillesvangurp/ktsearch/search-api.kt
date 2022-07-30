@@ -62,7 +62,7 @@ suspend fun SearchClient.search(
     typedKeys: Boolean? = null,
     version: Boolean? = null,
     extraParameters: Map<String, String>? = null,
-    block: (SearchDSL.() -> Unit)?=null
+    block: (SearchDSL.() -> Unit)? = null
 ): SearchResponse {
     val dsl = SearchDSL()
     block?.invoke(dsl)
@@ -380,13 +380,14 @@ data class CreatePointInTimeResponse(val id: String)
  */
 suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String {
     return restClient.post {
-        path(name,"_pit")
+        path(name, "_pit")
         parameter("keep_alive", "${keepAlive.inWholeSeconds}s")
-    }.parse(CreatePointInTimeResponse.serializer(),json).id
+    }.parse(CreatePointInTimeResponse.serializer(), json).id
 }
 
 
 annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
+
 /**
  * Perform a deep paging search using point in time and search after.
  *
@@ -398,22 +399,28 @@ annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
  * @return a pair of the first response and a flow of hits that when consumed pages through
  * the results using the point in time id and the sort.
  */
-@VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
-suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
-    validateEngine("search_after works differently on Opensearch.",
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
+suspend fun SearchClient.searchAfter(
+    target: String,
+    keepAlive: Duration,
+    query: SearchDSL
+): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
+    validateEngine(
+        "search_after works differently on Opensearch.",
         SearchEngineVariant.ES7,
-        SearchEngineVariant.ES8)
+        SearchEngineVariant.ES8
+    )
     val pitId = createPointInTime(target, keepAlive)
     query["pit"] = JsonDsl().apply {
         this["id"] = pitId
     }
-    if(!query.containsKey("sort")) {
+    if (!query.containsKey("sort")) {
         query["sort"] = withJsonDsl {
             this["_shard_doc"] = "asc"
         }
     }
 
-    val response = search(null,query.json())
+    val response = search(null, query.json())
 
     val hitFlow = flow {
         var resp: SearchResponse = response
@@ -428,7 +435,7 @@ suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query:
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }
             }
-            resp = search(null,query.json())
+            resp = search(null, query.json())
             emit(resp)
         }
     }.flatMapConcat { it.searchHits.asFlow() }

@@ -41,7 +41,10 @@ class SearchTest: SearchTestBase() {
 
     @Test
     fun shouldDoSearchAfter() = coTest {
-        onlyOn("opensearch implements search_after slightly differently",SearchEngineVariant.ES7,SearchEngineVariant.ES8) {
+        onlyOn("opensearch implemented search_after with v2",
+            SearchEngineVariant.OS2,
+            SearchEngineVariant.ES7,
+            SearchEngineVariant.ES8) {
             val index= testDocumentIndex()
             client.bulk(target = index, refresh = Refresh.WaitFor) {
                 (1..20).forEach {
