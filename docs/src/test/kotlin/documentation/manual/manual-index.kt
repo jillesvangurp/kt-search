@@ -8,6 +8,7 @@ import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
 import documentation.manual.scripting.scriptingMd
+import documentation.manual.search.deepPagingMd
 import documentation.manual.search.searchMd
 import documentation.manualOutputDir
 
@@ -15,6 +16,7 @@ val manualPages = listOf(
     Page("What is Kt-Search", "WhatIsKtSearch.md", manualOutputDir) to whatIsKtSearchMd,
     Page("Getting Started", "GettingStarted.md", manualOutputDir) to gettingStartedMd,
     Page("Searching", "Search.md", manualOutputDir) to searchMd,
+    Page("Deep Paging", "DeepPaging.md", manualOutputDir) to deepPagingMd,
     Page("Document Manipulation", "crud.md", manualOutputDir) to crudMd,
     Page("Index Repository", "IndexRepository.md", manualOutputDir) to indexRepoMd,
     Page("Bulk Indexing", "BulkIndexing.md", manualOutputDir) to bulkMd,

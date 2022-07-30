@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -59,8 +60,14 @@ data class SearchResponse(
 }
 
 val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
-inline fun <reified T> SearchResponse.parseHits() = searchHits.map {
-    DEFAULT_JSON.decodeFromJsonElement<T>(it.source?: error("source is disabled"))
+inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = searchHits.map {
+    it.parseHit<T>(json)
+}
+
+inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T? {
+    return this.source?.let {
+        json.decodeFromJsonElement<T>(it)
+    }
 }
 val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0

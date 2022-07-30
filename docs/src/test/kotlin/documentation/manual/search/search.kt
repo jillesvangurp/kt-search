@@ -3,20 +3,19 @@ package documentation.manual.search
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
-import com.jillesvangurp.searchdsls.querydsl.bool
-import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
-import com.jillesvangurp.searchdsls.querydsl.term
+import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
+import kotlinx.coroutines.flow.count
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.minutes
 
 
+@Suppress("CanBeVal", "NAME_SHADOWING")
 val searchMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
     @Serializable
     data class TestDoc(val id: String, val name: String, val tags: List<String> = listOf())
     val indexName = "docs-search-demo"
-
-
 
     +"""
         Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
@@ -155,13 +154,11 @@ val searchMd = sourceGitRepository.md {
                         matchPhrasePrefix(TestDoc::name, "ban")
                     )
                 }
-            }.parseHits<TestDoc>().map { it.name }
+            }.parseHits<TestDoc>().map { it?.name }
         }
 
         +"""
             Note how we are parsing the hits back to TestDoc here
         """.trimIndent()
     }
-
-    // TODO scrolling search and search_after
 }

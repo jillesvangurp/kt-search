@@ -8,8 +8,8 @@ import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
-import org.junit.jupiter.api.Test
 
+@Suppress("NAME_SHADOWING")
 val indexRepoMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
     @Serializable

@@ -1,6 +1,5 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.jsondsl.camelCase2SnakeCase
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -46,10 +45,10 @@ suspend inline fun <reified T> SearchClient.indexDocument(
     extraParameters: Map<String, String>? = null,
     json: Json = DEFAULT_JSON
 ): DocumentIndexResponse {
-    val json = json.encodeToString(document)
+    val serialized = json.encodeToString(document)
     return indexDocument(
         target = target,
-        serializedJson = json,
+        serializedJson = serialized,
         id = id,
         ifSeqNo = ifSeqNo,
         ifPrimaryTerm = ifPrimaryTerm,

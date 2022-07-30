@@ -8,17 +8,17 @@ import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchType
+import com.jillesvangurp.searchdsls.querydsl.SortOrder
+import com.jillesvangurp.searchdsls.querydsl.sort
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 suspend fun SearchClient.search(
-    target: String,
+    target: String?,
     allowNoIndices: Boolean? = null,
     allowPartialSearchResults: Boolean? = null,
     analyzer: String? = null,
@@ -116,7 +116,7 @@ suspend fun SearchClient.search(
 }
 
 suspend fun SearchClient.search(
-    target: String,
+    target: String?,
     dsl: SearchDSL,
     allowNoIndices: Boolean? = null,
     allowPartialSearchResults: Boolean? = null,
@@ -385,6 +385,15 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
     }.parse(CreatePointInTimeResponse.serializer(), json).id
 }
 
+suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
+    return restClient.delete {
+        path("_pit")
+        body = JsonDsl().apply {
+            this["id"] = id
+        }.json()
+    }.parse(JsonObject.serializer())
+}
+
 
 annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
 
@@ -406,17 +415,20 @@ suspend fun SearchClient.searchAfter(
     query: SearchDSL
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     validateEngine(
-        "search_after works differently on Opensearch.",
+        "search_after does not Opensearch 1.x",
+        SearchEngineVariant.OS2,
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8
     )
-    val pitId = createPointInTime(target, keepAlive)
+    var pitId = createPointInTime(target, keepAlive)
     query["pit"] = JsonDsl().apply {
         this["id"] = pitId
     }
     if (!query.containsKey("sort")) {
-        query["sort"] = withJsonDsl {
-            this["_shard_doc"] = "asc"
+        query.apply {
+            sort {
+                add("_shard_doc", SortOrder.ASC)
+            }
         }
     }
 
@@ -429,9 +441,10 @@ suspend fun SearchClient.searchAfter(
             resp.hits?.hits?.last()?.sort?.let { sort ->
                 query["search_after"] = sort
             }
-            resp.pitId?.let { pid ->
+            resp.pitId?.let { id ->
+                pitId = id
                 query["pit"] = JsonDsl().apply {
-                    this["id"] = pid
+                    this["id"] = pitId
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }
             }
@@ -440,4 +453,13 @@ suspend fun SearchClient.searchAfter(
         }
     }.flatMapConcat { it.searchHits.asFlow() }
     return response to hitFlow
+}
+
+suspend fun SearchClient.searchAfter(
+    target: String,
+    keepAlive: Duration,
+    block: (SearchDSL.() -> Unit)? = null
+): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
+    val dsl = SearchDSL().apply(block?:{})
+    return searchAfter(target,keepAlive,dsl)
 }
