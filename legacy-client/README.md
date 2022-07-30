@@ -15,7 +15,7 @@ At this point, the products are similar but there are some notable differences b
 - Elastic provided client libraries such as the Rest High Level Java client that was used in previous versions of this client have been modified by Elastic to only work with their product. Older versions from before the fork still work with Opensearch.
 - The Rest High Level Client has been deprecated by Elastic in favor of their new Java client.
 
-As can be imagined, this left me with a bit of a challenge on how to move forward with this kotlin client. Over the years, I've added many useful features that in my view are still valid and nice to have. The new Java client by Elasticsearch is nice for Java users and probably a big improvement. But it lacks the convenience provided by our library for Kotlin. 
+As can be imagined, this left me with a bit of a challenge on how to move forward with this kotlin client. Over the years, I've added many useful features that in my view are still valid and nice to have. The new Java client by Elasticsearch is nice for Javamulti platform users and probably a big improvement. But it lacks the convenience provided by our library for Kotlin. 
 
 Version 2.0 therefore is a major refactoring and re-write of version 1.x that has several big changes:
 
