@@ -270,6 +270,7 @@ class IndexRepository<T : Any>(
     suspend fun search(rawJson: String): SearchResponse {
         return client.search(target = indexReadAlias, rawJson = rawJson)
     }
+
     suspend fun search(dsl: SearchDSL): SearchResponse {
         return client.search(target = indexReadAlias, dsl = dsl)
     }
@@ -278,7 +279,16 @@ class IndexRepository<T : Any>(
         return client.search(target = indexReadAlias, block = block)
     }
 
-    suspend fun searchAfter(keepAlive: Duration= 1.minutes, block: SearchDSL.() -> Unit): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
+    fun deserialize(response: SearchResponse) =
+        response.hits?.hits?.map {
+            it.source?.let { source -> serializer.deSerialize(source) }
+                ?: error("cannot deserialize because hit has no source!")
+        } ?: listOf()
+
+    suspend fun searchAfter(
+        keepAlive: Duration = 1.minutes,
+        block: SearchDSL.() -> Unit
+    ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
         return client.searchAfter(target = indexReadAlias, keepAlive = keepAlive, block = block)
     }
 }
