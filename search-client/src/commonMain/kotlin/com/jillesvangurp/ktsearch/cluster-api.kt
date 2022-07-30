@@ -17,6 +17,8 @@ enum class ClusterStatus {
     Green
 }
 
+val ClusterStatus.usable: Boolean get() = this == ClusterStatus.Green || this == ClusterStatus.Yellow
+
 @Serializable
 data class ClusterHealthResponse(
     @SerialName("cluster_name")
