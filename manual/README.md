@@ -5,6 +5,7 @@
 - [What is Kt-Search](WhatIsKtSearch.md)
 - [Getting Started](GettingStarted.md)
 - [Searching](Search.md)
+- [Deep Paging](DeepPaging.md)
 - [Document Manipulation](crud.md)
 - [Index Repository](IndexRepository.md)
 - [Bulk Indexing](BulkIndexing.md)

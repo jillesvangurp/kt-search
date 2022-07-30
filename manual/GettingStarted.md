@@ -1,11 +1,27 @@
 # Getting Started 
 
-Add the dependency to your gradle build file:
+## Gradle
 
-// TODO gradle kts snippet
+Add the [tryformation](https://tryformation.com) maven repository:
 
+```kotlin
+repositories {
+    mavenCentral()
+    maven("https://maven.tryformation.com/releases") {
+        content {
+            includeGroup("com.jillesvangurp")
+        }
+    }
+}
+```
 
-## Creating a Client
+Then add the latest version:
+
+```kotlin
+implementation("com.jillesvangurp:search-client:1.99.5")
+```
+
+## Create a Client
 
 First you have to create a client. Similar to what the Elastic and Opensearch Java client do, there is a
 simple `RestClient` interface that currently has a default implementation based on `ktor-client`. This client
@@ -21,7 +37,7 @@ runBlocking {
   client.root().let { resp ->
     println("${resp.variantInfo.variant}: ${resp.version.number}")
   }
-  client.clusterHealth().let {resp ->
+  client.clusterHealth().let { resp ->
     println(resp.clusterName + " is " + resp.status)
   }
 }
@@ -84,7 +100,9 @@ val DEFAULT_JSON = Json {
   // encoding nulls is meaningless and a waste of space.
   explicitNulls = false
   // adding enum values is OK even if older clients won't understand it
-  ignoreUnknownKeys=true
+  ignoreUnknownKeys = true
+  // will decode missing enum values as null
+  coerceInputValues = true
 }
 ```
 

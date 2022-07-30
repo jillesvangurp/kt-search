@@ -154,7 +154,7 @@ client.search(indexName) {
       matchPhrasePrefix(TestDoc::name, "ban")
     )
   }
-}.parseHits<TestDoc>().map { it.name }
+}.parseHits<TestDoc>().map { it?.name }
 ```
 
 ->
