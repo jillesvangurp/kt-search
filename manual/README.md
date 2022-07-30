@@ -10,6 +10,7 @@
 - [Bulk Indexing](BulkIndexing.md)
 - [Migrating from Es-Kotlin-Client](Migrating.md)
 - [Extending the Search or Mapping DSL](ExtendingTheDSL.md)
+- [Scripting Search with KTS](Scripting.md)
 
 ## About this Manual
 
