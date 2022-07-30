@@ -2,7 +2,7 @@
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a pure Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It includes rich Kotlin DSLs for querying, defining mappings, and more. It relies on all the latest and greatest multi platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x.
+Kt-search is a pure Kotlin Multi-Platform library to search across the Opensearch and Elasticsearch ecosystem. It includes rich Kotlin DSLs for querying, defining mappings, and more. It relies on all the latest and greatest multi platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x.
 
 Because it is a multi platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps.
 

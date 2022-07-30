@@ -4,11 +4,11 @@ KT Search is currently still under development. I'll release a 2.0 release (1.x 
 
 Currently, the client is essentially feature complete. I have so far not found any show stopping issues. The 1.99.x series can be seen as a series of increasingly better release candidates/betas. If you do run into issues, please create an issue. Likewise, if there is important functionality that you need.
 
-## Goals/todo's:
+## Goals/TODOs:
 
 For more detail refer to the issue tracker. This is merely my high level plan for getting to a 2.0 release.
 
-- [x] Extract the kotlin DSLs to a multi platform module.
+- [x] Extract the kotlin DSLs to a multi-platform module.
 - [x] Rename the project to kt-search and give it its own repository
 - [x] Implement a new client using ktor and kotlinx-serialization
 - [x] Port the IndexRepository to the new client
@@ -29,7 +29,7 @@ Non Goals:
 
 ## Contributing
 
-I'm tracking a few open issues and would appreciate any help of course. But until this stabilizes, reach out to me before doing a lot of work to create a pull request. Check the [here](CONTRIBUTING.md) for mote details.
+I'm tracking a few open issues and would appreciate any help of course. But until this stabilizes, reach out to me before doing a lot of work to create a pull request. Check [here](CONTRIBUTING.md) for mote details.
 
 ## Help, support, and consulting
 
