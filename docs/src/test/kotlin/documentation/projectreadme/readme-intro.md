@@ -66,7 +66,11 @@ Currently, documentation is still work in progress. Most of the basics are docum
 
 ## Compatibility
 
-The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2. It should work fine with earlier Elasticsearch versions as well. But we don't actively test this. Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine (Opensearch 1.x). You can use the client for introspecting on the API version of course.
+The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2. 
+
+It may work fine with earlier Elasticsearch versions as well. But we don't actively test this and are tests are known to not pass with Elasticsearch 6 due to some changes in the mapping dsl. You may be able to work around this, however.
+
+Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine (Opensearch 1.x). You can use the client for introspecting on the API version of course.
 
 If this matters to you, feel free to create pull requests to address compatibility issues or to make our tests run against e.g. v5 and v6 of Elasticsearch. I suspect most features should just work with some exceptions. 
 
