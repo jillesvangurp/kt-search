@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 suspend fun SearchClient.search(
@@ -457,7 +458,7 @@ suspend fun SearchClient.searchAfter(
 
 suspend fun SearchClient.searchAfter(
     target: String,
-    keepAlive: Duration,
+    keepAlive: Duration = 1.minutes,
     block: (SearchDSL.() -> Unit)? = null
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     val dsl = SearchDSL().apply(block?:{})
