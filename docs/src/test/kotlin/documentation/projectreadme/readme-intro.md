@@ -58,14 +58,15 @@ Some suggestions:
 
 Currently, documentation is still work in progress. Most of the basics are documented at this point but there still some things missing.
 
+- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
 - [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file.
-- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). 
-- You can learn a lot by looking at the integration tests in the `search-client` module.
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
+- You can also learn a lot by looking at the integration tests in the `search-client` module.
 - The code sample below should help you figure out the basics.
 
 ## Compatibility
 
-The integration tests on GitHub Actions use a matrix build that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2. It should work fine with earlier Elasticsearch versions as well. But we don't actively test this. Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine. You can use the client for introspecting on the API version of course.
+The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2. It should work fine with earlier Elasticsearch versions as well. But we don't actively test this. Some features like e.g. `search-after` for deep paging have vendor specific behavior and will throw an error if used with an unsupported search engine (Opensearch 1.x). You can use the client for introspecting on the API version of course.
 
 If this matters to you, feel free to create pull requests to address compatibility issues or to make our tests run against e.g. v5 and v6 of Elasticsearch. I suspect most features should just work with some exceptions. 
 
@@ -80,10 +81,20 @@ suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query:
 
     // ...
 }
-
 ```
 
-The annotation is informational only for now.
+The annotation is informational only for now. In our tests, we use `onlyon` to prevent tests from 
+failing on unsupported engines For example this is added to the test for `search_after`:
+
+```kotlin
+onlyOn("opensearch implemented search_after with v2",
+    SearchEngineVariant.OS2,
+    SearchEngineVariant.ES7,
+    SearchEngineVariant.ES8)
+```
+
+Should you want to test a specific version of opensearch or elasticsearch, all you need to do is run it on port 9999
+and then run `./gradlew :search-client:build` to run the tests.
 
 ## Module Overview
 
