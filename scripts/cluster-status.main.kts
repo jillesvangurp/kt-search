@@ -7,6 +7,8 @@ import com.jillesvangurp.ktsearch.*
 import kotlinx.coroutines.runBlocking
 
 val client = SearchClient(
+    // our docker test cluster runs on port 9999
+    // you may want to use 9200 with your own cluster
     KtorRestClient("localhost",9999)
 )
 
