@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 
 val projectReadme = sourceGitRepository.md {
     includeMdFile("readme-intro.md")
+    includeMdFile("gradle.md")
     +"""
      ## Usage
      """.trimIndent()
