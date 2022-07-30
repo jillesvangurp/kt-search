@@ -68,8 +68,8 @@ class IndexRepository<T : Any>(
         )
     }
 
-    suspend fun updateIndexMapping(): Unit = TODO()
-    suspend fun updateIndexSettings(): Unit = TODO()
+//    suspend fun updateIndexMapping(): Unit = TODO()
+//    suspend fun updateIndexSettings(): Unit = TODO()
 
     suspend fun deleteIndex(
         masterTimeOut: Duration? = null,
@@ -79,7 +79,7 @@ class IndexRepository<T : Any>(
         client.deleteIndex(indexName, masterTimeOut, timeout, combineParams(extraParameters))
     }
 
-    suspend fun getALiases(): Unit = TODO()
+//    suspend fun getALiases(): Unit = TODO()
 
 
     suspend fun get(
