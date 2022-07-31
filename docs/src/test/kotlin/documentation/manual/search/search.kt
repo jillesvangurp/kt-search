@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration.Companion.minutes
 
 
-@Suppress("CanBeVal", "NAME_SHADOWING")
+@Suppress("NAME_SHADOWING")
 val searchMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
     @Serializable
@@ -80,12 +80,13 @@ val searchMd = sourceGitRepository.md {
             Of course normally, you'd specify some kind of query. One way is to simply pass that as a string.
         """.trimIndent()
         suspendingBlock {
+            val term="legumes"
             client.search(indexName, rawJson = """
                 {
                     "query": {
                         "term": {
                             "tags": {
-                              "value":"legumes"
+                              "value":"$term"
                             }
                         }
                     }
@@ -94,9 +95,14 @@ val searchMd = sourceGitRepository.md {
         }
     }
 
+    +"""
+        Note how we are using templated strings here. With some hand crafted queries, this style of querying may be very useful.
+    """.trimIndent()
+
     section("Using the SearchDSL") {
         +"""
-            Of course it is much nicer to query using the Kotlin Search DSL. Here is the same query using the SearchDSL
+            Of course it is much nicer to query using a Kotlin Search DSL (Domain Specific Language). 
+            Here is the same query using the `SearchDSL`.
         """.trimIndent()
         suspendingBlock {
             client.search(indexName) {
@@ -124,41 +130,54 @@ val searchMd = sourceGitRepository.md {
                 )
             }.ids
         }
-    }
-    section("Supported queries") {
-        +"""
+
+        section("Supported queries") {
+            +"""
             Currently the following queries are supported:
             
             - all term level queries (term, terms, regex, etc.)
             - all full text queries (match, match_phrase_prefix, multi-match, etc.)
             - all compound queries (bool, boosting, dismax, etc.)
             - nested queries
-            - some aggregation queries
+            - some aggregation queries (`terms`)
             
             Adding more queries to the DSL is easy and we welcome pull requests for this.
         """.trimIndent()
-
-        suspendingBlock {
-            client.search(indexName) {
-                from=0
-                // size is of course also a thing in Map
-                resultSize=100
-                // more relevant if you have more than 10k hits
-                trackTotalHits = "true" // not always a boolean in the DSL
-                // a more complex query
-                query = bool {
-                    filter(
-                        term(TestDoc::tags,"fruit")
-                    )
-                    should(
-                        matchPhrasePrefix(TestDoc::name, "ban")
-                    )
-                }
-            }.parseHits<TestDoc>().map { it?.name }
         }
 
-        +"""
-            Note how we are parsing the hits back to TestDoc here
-        """.trimIndent()
+        section("Parsing the results") {
+            +"""
+                Of course a key reason for querying is to get the documents you indexed back and deserialized.
+                
+                Here is a more complex query that returns fruit with `ban` as the name prefix.
+            """.trimIndent()
+            suspendingBlock {
+                client.search(indexName) {
+                    from = 0
+                    // size is of course also a thing in Map
+                    resultSize = 100
+                    // more relevant if you have more than 10k hits
+                    trackTotalHits = "true" // not always a boolean in the DSL
+                    // a more complex query
+                    query = bool {
+                        filter(
+                            term(TestDoc::tags, "fruit")
+                        )
+                        should(
+                            matchPhrasePrefix(TestDoc::name, "ban")
+                        )
+                    }
+                }.parseHits<TestDoc>().map { it?.name }
+            }
+
+
+            +"""
+                Note how we are parsing the hits back to TestDoc here. By default, the source
+                gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
+                use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
+                data structure. This is something we use in multiple places.
+                
+            """.trimIndent()
+        }
     }
 }
