@@ -15,7 +15,7 @@ you need to have kotlin installed on your system of course.
 
 @file:Repository("https://jitpack.io")
 @file:Repository("https://maven.tryformation.com/releases")
-@file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.2")
+@file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.3")
 
 import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.clusterHealth
@@ -76,6 +76,8 @@ After parsing the `args`, you can get a `SearchClient` by simply calling
 
 You can use then import the client as normally. Because the client uses suspending
  functions, you have to surround your code with a `runBlocking {...}`
+ 
+Note, be sure to use the latest version of [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/).a
 
 ## Some ideas for using kt-search on the cli
 
