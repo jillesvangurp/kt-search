@@ -41,6 +41,8 @@ val scriptingMd = sourceGitRepository.md {
     
             You can use then import the client as normally. Because the client uses suspending
              functions, you have to surround your code with a `runBlocking {...}`
+             
+            Note, be sure to use the latest version of [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/).a
          """.trimIndent()
     }
     section("Some ideas for using kt-search on the cli") {

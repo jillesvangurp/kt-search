@@ -4,7 +4,7 @@ There are many ways you can use kt-search
 
 - Add search functionality to your servers. Kt-search works great with Spring Boot, Kto, Quarkus, and other popular JVM based servers. Simply create your client as a singleton object and inject it wherever you need search.
 - Use Kt-search in a Kotlin-js based web application to create dashboards, or web applications that don't need a separate server. See our [Full Stack at FORMATION](https://github.com/formation-res/kt-fullstack-demo) demo project for an example.
-- Use Kotlin Scripts to operate and introspect your cluster. See the `scripts` directory in this repository for some examples. Also refer to the [manual](https://jillesvangurp.github.io/kt-search/manual/Scripting.html) on how to do this.
+- Use Kotlin Scripting to operate and introspect your cluster. See the companion project [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) for more on this as well as the scripting section in the manual. The companion library combines `kt-search` with `kotlinx-cli` for command line argument parsing and provides some example scripts; all with the minimum of boiler plate.
 
 ## License
 
