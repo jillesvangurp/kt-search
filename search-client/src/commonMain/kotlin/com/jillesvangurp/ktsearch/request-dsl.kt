@@ -11,8 +11,8 @@ data class SearchAPIRequest(
     internal var pathComponents: List<String> = listOf(),
     internal val parameters: MutableMap<String, String> = mutableMapOf()
 ) {
-    fun path(vararg components: String) {
-        pathComponents = components.toList()
+    fun path(vararg components: String?) {
+        pathComponents = components.toList().filterNotNull()
     }
 
     fun parameter(key: String, value: String?) {

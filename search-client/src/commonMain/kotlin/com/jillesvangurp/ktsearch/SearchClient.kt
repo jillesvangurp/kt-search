@@ -4,12 +4,13 @@ package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 
 fun <T> Result<RestResponse>.parse(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON): T =
     json.decodeFromString(deserializationStrategy, this.getOrThrow().text)
 
-
+fun Result<RestResponse>.parseJsonObject() = parse(JsonObject.serializer())
 /**
  * Search client that you can use to talk to Elasticsearch or Opensearch.
  *
