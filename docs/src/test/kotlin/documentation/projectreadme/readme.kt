@@ -17,8 +17,7 @@ Kt-search is a pure Kotlin Multi Platform library to search across the Opensearc
 
 Because it is a multi-platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps.
 
-Learn how to integrate advanced search in your Kotlin applications. Whether you are building a web based dashboard, an advanced ETL pipeline, or simply exposing a search endpoint in as a microservice, this library has you covered.
-
+Integrate advanced search in your Kotlin applications. Whether you are building a web based dashboard, an advanced ETL pipeline, or simply exposing a search endpoint in as a microservice, this library has you covered. You can also integrate kt-search into your `kts` scripts. For this we have a little companion library to get you started: [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/). Also, see the scripting section in the manual.
 
 It builds on other multi-platform libraries such as `ktor-client` and `kotlinx-serialization`. The goal for this library is to be the most convenient way to use opensearch and elasticsearch from Kotlin on any platform where Kotlin compiles.        
     """.trimIndent()

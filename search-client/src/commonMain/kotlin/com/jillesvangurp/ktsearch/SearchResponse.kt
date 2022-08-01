@@ -65,10 +65,11 @@ inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = sea
 }
 
 inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T? {
-    return this.source?.let {
-        json.decodeFromJsonElement<T>(it)
-    }
+    return this.source?.parse<T>()
 }
+
+inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(this)
+
 val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
@@ -77,6 +78,7 @@ data class Bucket(
     val key: String,
     @SerialName("doc_count") val docCount: Long
 )
+
 @Serializable
 data class BucketAggregationResult(
     @SerialName("doc_count_error_upper_bound")
