@@ -1,6 +1,6 @@
 # Deep Paging 
 
-You can page through results using the `from` and `size` parameters (called `resultSize` in the dsl because
+You can page through results using the `from` and `size` parameters (called `resultSize` in the DSL because
 the name clashes with `Map.size`). However, this has performance issues and for that result, the from is 
 limited to 10000. To retrieve more than that number of results, you need deep paging.
 

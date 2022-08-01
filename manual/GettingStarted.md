@@ -1,5 +1,8 @@
 # Getting Started 
 
+To get started, simply add the dependency to your project and create a client. 
+The process is the same for both jvm and kotlin-js.
+
 ## Gradle
 
 Add the [tryformation](https://tryformation.com) maven repository:
@@ -21,11 +24,13 @@ Then add the latest version:
 implementation("com.jillesvangurp:search-client:1.99.5")
 ```
 
+Note, we may at some point try to push this to maven-central. For now, please use the maven repository above. All the pre-releases will have the `1.99.x` prefix
+
 ## Create a Client
 
 First you have to create a client. Similar to what the Elastic and Opensearch Java client do, there is a
 simple `RestClient` interface that currently has a default implementation based on `ktor-client`. This client
-takes care of sending http calls to your search cluster.
+takes care of sending HTTP calls to your search cluster.
 
 ```kotlin
 val client = SearchClient()
@@ -81,7 +86,7 @@ that has a default value with a carefully constructed instance that is configure
 to be lenient and do the right thing with e.g. nulls and default values. But you 
 can of course use your own instance should you need to.
            
-There are two instances included with this library that you may use here:
+There are two instances included with this library that are used by default that you may use here:
 
 - `DEFAULT_JSON` this is what is used by default
 - `DEFAULT_PRETTY_JSON` a pretty printing variant of DEFAULT_JSON that otherwise has the same settings.

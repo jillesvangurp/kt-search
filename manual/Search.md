@@ -65,12 +65,13 @@ client.search(indexName).ids
 Of course normally, you'd specify some kind of query. One way is to simply pass that as a string.
 
 ```kotlin
+val term="legumes"
 client.search(indexName, rawJson = """
   {
     "query": {
       "term": {
         "tags": {
-          "value":"legumes"
+          "value":"$term"
         }
       }
     }
@@ -84,9 +85,12 @@ client.search(indexName, rawJson = """
 [3]
 ```
 
+Note how we are using templated strings here. With some hand crafted queries, this style of querying may be very useful.
+
 ## Using the SearchDSL
 
-Of course it is much nicer to query using the Kotlin Search DSL. Here is the same query using the SearchDSL
+Of course it is much nicer to query using a Kotlin Search DSL (Domain Specific Language). 
+Here is the same query using the `SearchDSL`.
 
 ```kotlin
 client.search(indexName) {
@@ -134,21 +138,27 @@ Currently the following queries are supported:
 - all full text queries (match, match_phrase_prefix, multi-match, etc.)
 - all compound queries (bool, boosting, dismax, etc.)
 - nested queries
-- some aggregation queries
+- some aggregation queries (`terms`)
 
 Adding more queries to the DSL is easy and we welcome pull requests for this.
 
+## Parsing the results
+
+Of course a key reason for querying is to get the documents you indexed back and deserialized.
+
+Here is a more complex query that returns fruit with `ban` as the name prefix.
+
 ```kotlin
 client.search(indexName) {
-  from=0
+  from = 0
   // size is of course also a thing in Map
-  resultSize=100
+  resultSize = 100
   // more relevant if you have more than 10k hits
   trackTotalHits = "true" // not always a boolean in the DSL
   // a more complex query
   query = bool {
     filter(
-      term(TestDoc::tags,"fruit")
+      term(TestDoc::tags, "fruit")
     )
     should(
       matchPhrasePrefix(TestDoc::name, "ban")
@@ -163,5 +173,8 @@ client.search(indexName) {
 [Banana, Apple]
 ```
 
-Note how we are parsing the hits back to TestDoc here
+Note how we are parsing the hits back to TestDoc here. By default, the source
+gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
+use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
+data structure. This is something we use in multiple places.
 
