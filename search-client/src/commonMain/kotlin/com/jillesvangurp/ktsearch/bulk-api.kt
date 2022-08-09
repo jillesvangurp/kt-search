@@ -22,18 +22,22 @@ data class BulkResponse(
                     val details = obj["create"]!!.jsonObject
                     OperationType.Create to details
                 }
+
                 obj.containsKey("index") -> {
                     val details = obj["index"]!!.jsonObject
                     OperationType.Index to details
                 }
+
                 obj.containsKey("update") -> {
                     val details = obj["update"]!!.jsonObject
                     OperationType.Update to details
                 }
+
                 obj.containsKey("delete") -> {
                     val details = obj["delete"]!!.jsonObject
                     OperationType.Delete to details
                 }
+
                 else -> {
                     error("unexpected operation response: $obj")
                 }
@@ -64,10 +68,33 @@ data class BulkResponse(
     )
 }
 
+/**
+ * Use this to deal with item responses and failures; or bulk request errors. By default, the callback is null.
+ */
 interface BulkItemCallBack {
+    /**
+     * Called when the bulk response marks the item with a non successful status.
+     */
     fun itemFailed(operationType: OperationType, item: BulkResponse.ItemDetails)
 
+    /**
+     * Called to confirm an item was processes successfully with details about the item (e.g. primary_term, seq_no, id, etc.)
+     */
     fun itemOk(operationType: OperationType, item: BulkResponse.ItemDetails)
+
+    /**
+     * Called when elasticsearch responds with an error. By default, this is considered fatal and the bulk session
+     * closes and is no longer usable and an exception will be thrown.
+     * You may choose to keep it open by setting `closeOnRequestError` to false when you create the
+     * `BulkSession` to e.g. implement a retry strategy or simply drop the failed bulk requests.
+     *
+     * Note, exceptions may happen  for all sorts of reasons, including the cluster
+     * being unreachable, temporarily unavailable, or configuration errors.
+     *
+     * @param e the exception that was thrown. If of type `RestException`, you may be able to implement some recover procedure
+     * @param ops the list of operations and their payload (or null for e.g. delete)
+     */
+    fun bulkRequestFailed(e: Exception, ops: List<Pair<String, String?>>)
 }
 
 class BulkException(bulkResponse: BulkResponse) : Exception(
@@ -77,11 +104,21 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
 )
 
 /**
- * Create using SearchClient.bulk()
+ * Create using SearchClient.bulk() or SearchClient.bulkSession().
+ *
+ * Use the [closeOnRequestError] (defaults to true) in combination with a custom [callBack] to
+ * handle error situations. The default is to throw an error and close the bulk session.
+ *
+ * If you set [failOnFirstError] to true (defaults to false), the bulk session will throw a BulkException and the
+ * exception will be handled via the [callBack] and close the session if [closeOnRequestError] is true. If you are
+ * expecting 100% success for your operations, this allows you to detect when that assumption is broken.
+ *
+ * @throws BulkException if [failOnFirstError] is true and an item fails to process with an OK status.
+ * You may want to configure a [callBack] instead and do something else.
  */
 class BulkSession internal constructor(
     val searchClient: SearchClient,
-    val failOnFirstError: Boolean = false,
+    val failOnFirstError: Boolean = true,
     val callBack: BulkItemCallBack? = null,
     val bulkSize: Int,
     val target: String?,
@@ -94,9 +131,11 @@ class BulkSession internal constructor(
     val source: String? = null,
     val sourceExcludes: String? = null,
     val sourceIncludes: String? = null,
-    val extraParameters: Map<String,String>?=null,
-    ) {
+    val extraParameters: Map<String, String>? = null,
+    val closeOnRequestError: Boolean = true
+) {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
+    private var closed: Boolean = false
 
     suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
         val opDsl = JsonDsl().apply {
@@ -148,6 +187,7 @@ class BulkSession internal constructor(
     }
 
     suspend fun operation(operation: String, source: String? = null) {
+        verifyOpen()
         operations.add(operation to source)
         if (operations.size > bulkSize) {
             flush()
@@ -155,46 +195,85 @@ class BulkSession internal constructor(
     }
 
     suspend fun flush() {
+        verifyOpen()
         if (operations.isNotEmpty()) {
             val ops = mutableListOf<Pair<String, String?>>()
             ops.addAll(operations)
             operations.clear()
 
-            val response = searchClient.bulk(
-                payload = ops.flatMap { listOfNotNull(it.first, it.second) }.joinToString("\n") + "\n",
-                target = target,
-                pipeline = pipeline,
-                refresh = refresh,
-                routing = routing,
-                timeout = timeout,
-                waitForActiveShards = waitForActiveShards,
-                requireAlias = requireAlias,
-                source = source,
-                sourceExcludes = sourceExcludes,
-                sourceIncludes = sourceIncludes,
-                extraParameters = extraParameters
-            )
-
-            if (callBack != null) {
-                response.itemDetails.forEach { (type, details) ->
-                    if (details.status < 300) {
-                        callBack.itemOk(type, details)
-                    } else {
-                        callBack.itemFailed(type, details)
+            try {
+                val response = sendOperations(ops)
+                if (callBack != null) {
+                    response.itemDetails.forEach { (type, details) ->
+                        if (details.status < 300) {
+                            callBack.itemOk(type, details)
+                        } else {
+                            callBack.itemFailed(type, details)
+                        }
                     }
                 }
-            }
-            if (response.errors && failOnFirstError) {
-                throw BulkException(response)
+                if (response.errors && failOnFirstError) {
+                    throw BulkException(response)
+                }
+            } catch (e: Exception) {
+                // give user a chance to recover from a failed flush
+                // like sleep and resend a few times before permanently failing
+                callBack?.bulkRequestFailed(e, ops)
+                if(closeOnRequestError) {
+                    closed = true
+                    throw e
+                }
             }
         }
     }
+
+    private fun verifyOpen() {
+        if (closed) {
+            error("session was closed")
+        }
+    }
+
+    suspend fun sendOperations(ops: MutableList<Pair<String, String?>>) =
+        searchClient.bulk(
+            payload = ops.flatMap { listOfNotNull(it.first, it.second) }.joinToString("\n") + "\n",
+            target = target,
+            pipeline = pipeline,
+            refresh = refresh,
+            routing = routing,
+            timeout = timeout,
+            waitForActiveShards = waitForActiveShards,
+            requireAlias = requireAlias,
+            source = source,
+            sourceExcludes = sourceExcludes,
+            sourceIncludes = sourceIncludes,
+            extraParameters = extraParameters
+        )
+
+    /**
+     * Closes the bulk session.
+     *
+     * Attempts to add more operations or flush, will fail after this is called.
+     */
+    fun close() {
+        closed = true
+    }
 }
 
-suspend inline fun <reified T> BulkSession.create(doc: T, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+suspend inline fun <reified T> BulkSession.create(
+    doc: T,
+    index: String? = null,
+    id: String? = null,
+    requireAlias: Boolean? = null
+) {
     create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
-suspend inline fun <reified T> BulkSession.index(doc: T, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+
+suspend inline fun <reified T> BulkSession.index(
+    doc: T,
+    index: String? = null,
+    id: String? = null,
+    requireAlias: Boolean? = null
+) {
     index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
@@ -213,8 +292,8 @@ suspend fun SearchClient.bulk(
     source: String? = null,
     sourceExcludes: String? = null,
     sourceIncludes: String? = null,
-    extraParameters: Map<String,String>?=null,
-    ) =
+    extraParameters: Map<String, String>? = null,
+) =
     restClient.post {
         if (target.isNullOrBlank()) {
             path("_bulk")
@@ -268,9 +347,48 @@ suspend fun SearchClient.bulk(
     sourceIncludes: String? = null,
     failOnFirstError: Boolean = false,
     callBack: BulkItemCallBack? = null,
+    closeOnRequestError: Boolean = true,
     block: suspend BulkSession.() -> Unit
 ) {
-    val session = BulkSession(
+    val session = bulkSession(
+        failOnFirstError = failOnFirstError,
+        callBack = callBack,
+        bulkSize = bulkSize,
+        pipeline = pipeline,
+        refresh = refresh,
+        routing = routing,
+        timeout = timeout,
+        waitForActiveShards = waitForActiveShards,
+        requireAlias = requireAlias,
+        source = source,
+        sourceExcludes = sourceExcludes,
+        sourceIncludes = sourceIncludes,
+        target = target,
+        closeOnRequestError = closeOnRequestError
+    )
+
+    block.invoke(session)
+    // flush remaining items
+    session.flush()
+}
+
+suspend fun SearchClient.bulkSession(
+    bulkSize: Int = 100,
+    target: String? = null,
+    pipeline: String? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    timeout: Duration? = null,
+    waitForActiveShards: String? = null,
+    requireAlias: Boolean? = null,
+    source: String? = null,
+    sourceExcludes: String? = null,
+    sourceIncludes: String? = null,
+    failOnFirstError: Boolean = false,
+    callBack: BulkItemCallBack? = null,
+    closeOnRequestError: Boolean = true,
+): BulkSession {
+    return BulkSession(
         searchClient = this,
         failOnFirstError = failOnFirstError,
         callBack = callBack,
@@ -284,9 +402,8 @@ suspend fun SearchClient.bulk(
         source = source,
         sourceExcludes = sourceExcludes,
         sourceIncludes = sourceIncludes,
-        target = target
+        target = target,
+        closeOnRequestError = closeOnRequestError
     )
-    block.invoke(session)
-    session.flush()
 }
 

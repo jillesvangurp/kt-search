@@ -32,6 +32,10 @@ class BulkTest: SearchTestBase() {
             override fun itemOk(operationType: OperationType, item: BulkResponse.ItemDetails) {
                 success++
             }
+
+            override fun bulkRequestFailed(e: Exception, ops: List<Pair<String, String?>>) {
+                error("this won't happen")
+            }
         }) {
             (1..10).forEach {
                 index(TestDocument(name = "doc $it").json())
