@@ -109,6 +109,15 @@ val itemCallBack = object : BulkItemCallBack {
     """.trimIndent()
     )
   }
+
+  override fun bulkRequestFailed(
+    e: Exception,
+    ops: List<Pair<String, String?>>) {
+    println("""
+      Request failure ${e.message}.
+      Unless you set 
+    """.trimIndent())
+  }
 }
 client.bulk(callBack = itemCallBack) {
   // invalid json would cause an error
