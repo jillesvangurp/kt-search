@@ -51,10 +51,16 @@ open class JsonDsl(
      * Property delegate that stores the value in the MapBackedProperties. Use this to create type safe
      * properties.
      */
-    override fun <T : Any?> property(): ReadWriteProperty<Any, T> {
+    override fun <T : Any?> property(defaultValue: T?): ReadWriteProperty<Any, T> {
         return object : ReadWriteProperty<Any, T> {
             override fun getValue(thisRef: Any, property: KProperty<*>): T {
-                return _properties[property.name.convertPropertyName(namingConvention)] as T
+                val propertyName = property.name.convertPropertyName(namingConvention)
+                return (_properties[propertyName]).let {
+                    if(it == null && defaultValue != null) {
+                        _properties[propertyName] = defaultValue
+                    }
+                    _properties[propertyName]
+                } as T
             }
 
             override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
@@ -69,10 +75,15 @@ open class JsonDsl(
      * with a kotlin keyword or super class property or method. For example, "size" is also a method on
      * MapBackedProperties and thus cannot be used as a kotlin property name in a Kotlin class implementing Map.
      */
-    override fun <T : Any?> property(customPropertyName: String): ReadWriteProperty<JsonDsl, T> {
+    override fun <T : Any?> property(customPropertyName: String, defaultValue: T?): ReadWriteProperty<JsonDsl, T> {
         return object : ReadWriteProperty<JsonDsl, T> {
             override fun getValue(thisRef: JsonDsl, property: KProperty<*>): T {
-                return _properties[customPropertyName] as T
+                return _properties[customPropertyName].let {
+                    if(it == null && defaultValue != null) {
+                        _properties[customPropertyName] = defaultValue
+                    }
+                    _properties[customPropertyName]
+                } as T
             }
 
             override fun setValue(thisRef: JsonDsl, property: KProperty<*>, value: T) {

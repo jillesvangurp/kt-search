@@ -21,7 +21,7 @@ interface IJsonDsl : MutableMap<String, Any> {
      * Property delegate that stores the value in the MapBackedProperties. Use this to create type safe
      * properties.
      */
-    fun <T : Any?> property(): ReadWriteProperty<Any, T>
+    fun <T : Any?> property(defaultValue: T?=null): ReadWriteProperty<Any, T>
 
     /**
      * Property delegate that stores the value in the MapBackedProperties; uses the customPropertyName instead of the
@@ -29,7 +29,7 @@ interface IJsonDsl : MutableMap<String, Any> {
      * with a kotlin keyword or super class property or method. For example, "size" is also a method on
      * MapBackedProperties and thus cannot be used as a kotlin property name in a Kotlin class implementing Map.
      */
-    fun <T : Any?> property(customPropertyName: String): ReadWriteProperty<JsonDsl, T>
+    fun <T : Any?> property(customPropertyName: String, defaultValue: T?=null): ReadWriteProperty<JsonDsl, T>
 
     /**
      * Helper to manipulate list value objects.
