@@ -81,7 +81,7 @@ class ILMConfiguration(): JsonDsl(namingConvention = PropertyNamingConvention.Co
     var policy by property<IMLPolicy>(defaultValue = IMLPolicy())
 }
 
-suspend fun SearchClient.ilm(policyName: String, block: IMLPhases.()->Unit): JsonObject {
+suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Unit): JsonObject {
     validateEngine(
         "ilm only works on Elasticsearch",
         SearchEngineVariant.ES7,
@@ -92,7 +92,19 @@ suspend fun SearchClient.ilm(policyName: String, block: IMLPhases.()->Unit): Jso
     config.policy.phases.apply(block)
 
     return restClient.put {
-        path("_ilm","policy", policyName)
+        path("_ilm","policy", policyId)
         body = config.json(true)
+    }.parseJsonObject()
+}
+
+suspend fun SearchClient.deleteIlmPolicy(policyId: String): JsonObject {
+    return restClient.delete {
+        path("_ilm","policy", policyId)
+    }.parseJsonObject()
+}
+
+suspend fun SearchClient.getIlmPolicy(policyId: String): JsonObject {
+    return restClient.get {
+        path("_ilm","policy", policyId)
     }.parseJsonObject()
 }
