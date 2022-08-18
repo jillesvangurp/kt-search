@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
@@ -7,7 +9,7 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 
-class ILMActions(): JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ILMActions : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     fun rollOver(maxPrimaryShardSizeGb: Int) {
         this["rollover"] = withJsonDsl {
             this["max_primary_shard_size"] = "${maxPrimaryShardSizeGb}gb"
@@ -31,7 +33,7 @@ class ILMActions(): JsonDsl(namingConvention = PropertyNamingConvention.ConvertT
     }
 }
 
-class ILMPhaseConfiguration(): JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ILMPhaseConfiguration : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var minAge by property<String>()
     fun minAge(duration: Duration) {
         val m = duration.inWholeMinutes
@@ -74,14 +76,14 @@ class IMLPhases : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToS
 }
 
 class IMLPolicy : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
-    var phases by property<IMLPhases>(defaultValue = IMLPhases())
+    var phases by property(defaultValue = IMLPhases())
 }
 
-class ILMConfiguration(): JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
-    var policy by property<IMLPolicy>(defaultValue = IMLPolicy())
+class ILMConfiguration: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    var policy by property(defaultValue = IMLPolicy())
 }
 
-suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Unit): JsonObject {
+suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Unit): AcknowledgedResponse {
     validateEngine(
         "ilm only works on Elasticsearch",
         SearchEngineVariant.ES7,
@@ -94,7 +96,7 @@ suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Uni
     return restClient.put {
         path("_ilm","policy", policyId)
         body = config.json(true)
-    }.parseJsonObject()
+    }.parse(AcknowledgedResponse.serializer())
 }
 
 suspend fun SearchClient.deleteIlmPolicy(policyId: String): JsonObject {

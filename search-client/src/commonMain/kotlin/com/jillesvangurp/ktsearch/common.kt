@@ -33,3 +33,6 @@ fun formatTimestamp(): String {
     val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
     return "${now.year}${now.monthNumber.formatTwoChars()}${now.dayOfMonth.formatTwoChars()}T${now.hour.formatTwoChars()}${now.minute.formatTwoChars()}${now.second.formatTwoChars()}"
 }
+
+@Serializable
+data class AcknowledgedResponse(val acknowledged: Boolean)
