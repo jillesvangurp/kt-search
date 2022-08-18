@@ -1,4 +1,4 @@
-# Extending the Search or Mapping DSL 
+# Extending the Json DSLs 
 
 This library includes Kotlin DSLs for querying, mapping and other functionality in Elasticsearch. 
 ELasticsearch has a very rich set of features and new ones are constantly being added. Keeping up with 

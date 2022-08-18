@@ -1,4 +1,4 @@
-# Scripting Search with KTS 
+# Using Kotlin Scripting 
 
 One interesting use of kt-search is to script common operations around Elasticsearch.
 

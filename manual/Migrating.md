@@ -1,4 +1,4 @@
-# Migrating from Es-Kotlin-Client 
+# Migrating from the old Es Kotlin Client 
 
 Migrating from the old es-kotlin-client is quite easy but it is going to involve a bit of work:
 

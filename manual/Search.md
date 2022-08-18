@@ -1,4 +1,4 @@
-# Searching 
+# Search and Queries 
 
 Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
 with a rich Kotlin DSL. However, you can also use string literals to search.
@@ -45,6 +45,10 @@ docs.forEach { d ->
   )
 }
 ```
+
+This creates a simple index with a custom mapping and adds some documents using our API.
+
+You can learn more about creating indices with customized mappings here: [Indices, settings, mappings, and aliases](IndexManagement.md)
 
 ## Searching without the Kotlin DSL
 
@@ -177,4 +181,6 @@ Note how we are parsing the hits back to TestDoc here. By default, the source
 gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
 data structure. This is something we use in multiple places.
+
+It uses some sane defaults for parsing that you can learn more about here: [Getting Started](GettingStarted.md)
 

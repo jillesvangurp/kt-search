@@ -4,14 +4,16 @@
 
 - [What is Kt-Search](WhatIsKtSearch.md)
 - [Getting Started](GettingStarted.md)
-- [Searching](Search.md)
-- [Deep Paging](DeepPaging.md)
-- [Document Manipulation](crud.md)
+- [Indices, settings, mappings, and aliases](IndexManagement.md)
+- [Search and Queries](Search.md)
+- [Deep paging using search_after and scroll](DeepPaging.md)
+- [Document Manipulation](DocumentManipulation.md)
 - [Index Repository](IndexRepository.md)
-- [Bulk Indexing](BulkIndexing.md)
-- [Migrating from Es-Kotlin-Client](Migrating.md)
-- [Extending the Search or Mapping DSL](ExtendingTheDSL.md)
-- [Scripting Search with KTS](Scripting.md)
+- [Efficiently ingest content using Bulk Indexing](BulkIndexing.md)
+- [Creating Data Streams](DataStreams.md)
+- [Migrating from the old Es Kotlin Client](Migrating.md)
+- [Extending the Json DSLs](ExtendingTheDSL.md)
+- [Using Kotlin Scripting](Scripting.md)
 
 ## About this Manual
 
