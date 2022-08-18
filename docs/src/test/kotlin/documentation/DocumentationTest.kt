@@ -7,7 +7,11 @@ import documentation.projectreadme.projectReadme
 import org.junit.jupiter.api.Test
 import java.io.File
 
-data class Page(val title: String, val fileName: String, val outputDir: String)
+data class Page(
+    val title: String,
+    val fileName: String,
+    val outputDir: String
+)
 
 val Page.mdLink get() = "[$title]($fileName)"
 

@@ -14,35 +14,66 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+
+object Analysis {
+    class Analyzer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var type by property<String>()
+        var tokenizer by property<String>()
+        var filter by property<List<String>>()
+        var charFilter by property<List<String>>()
+        var positionIncrementGap by property<Int>()
+    }
+
+    class Normalizer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var type by property<String>()
+        var filter by property<List<String>>()
+        var charFilter by property<List<String>>()
+    }
+    open class Tokenizer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var type by property<String>()
+    }
+    open class CharFilter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var type by property<String>()
+
+    }
+    open class Filter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var type by property<String>()
+    }
+}
+
 @JsonDslMarker
 class IndexSettings : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+
     var replicas: Int by property("index.number_of_replicas")
     var shards: Int by property("index.number_of_shards")
 
-    private fun indexObject(type: String, name: String, block: JsonDsl.() -> Unit) {
-        val analysis = get("analysis") as JsonDsl? ?: JsonDsl()
-        val objects = analysis[type] as JsonDsl? ?: JsonDsl()
-        val objectProperties = JsonDsl()
-        block.invoke(objectProperties)
-        objects[name] = objectProperties
-        analysis[type] = objects
-        put("analysis", analysis)
+    private fun addToAnalysis(type: String, name: String, json: JsonDsl) {
+        val analysis = get("analysis") as JsonDsl? ?: JsonDsl().also {
+            put("analysis", it)
+        }
+        val objects = analysis[type] as JsonDsl? ?: JsonDsl().also {
+            analysis[type] = it
+        }
+        objects[name] = json
     }
 
-    fun addAnalyzer(name: String, block: JsonDsl.() -> Unit) {
-        indexObject("analyzer", name, block)
+    fun addAnalyzer(name: String, block: Analysis.Analyzer.() -> Unit) {
+        addToAnalysis("analyzer", name, Analysis.Analyzer().apply(block))
+    }
+    fun addNormalyzer(name: String, block: Analysis.Normalizer.() -> Unit) {
+        addToAnalysis("normalizer", name, Analysis.Normalizer().apply(block))
     }
 
-    fun addTokenizer(name: String, block: JsonDsl.() -> Unit) {
-        indexObject("tokenizer", name, block)
+    fun addTokenizer(name: String, block: Analysis.Tokenizer.() -> Unit) {
+        addToAnalysis("tokenizer", name, Analysis.Tokenizer().apply(block))
     }
 
-    fun addCharFilter(name: String, block: JsonDsl.() -> Unit) {
-        indexObject("char_filter", name, block)
+    fun addCharFilter(name: String, block: Analysis.CharFilter.() -> Unit) {
+        addToAnalysis("char_filter", name, Analysis.CharFilter().apply(block))
     }
 
-    fun addFilter(name: String, block: JsonDsl.() -> Unit) {
-        indexObject("filter", name, block)
+    fun addFilter(name: String, block: Analysis.Filter.() -> Unit) {
+        addToAnalysis("filter", name, Analysis.Filter().apply(block))
     }
 }
 

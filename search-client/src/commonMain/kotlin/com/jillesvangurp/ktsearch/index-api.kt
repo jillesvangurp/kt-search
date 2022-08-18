@@ -39,10 +39,10 @@ suspend fun SearchClient.createIndex(
     masterTimeOut: Duration? = null,
     timeout: Duration? = null,
     extraParameters: Map<String, String>? = null,
-    block: IndexSettingsAndMappingsDSL.() -> Unit
+    block: (IndexSettingsAndMappingsDSL.() -> Unit)?=null
 ): IndexCreateResponse {
     val dsl = IndexSettingsAndMappingsDSL()
-    block.invoke(dsl)
+    block?.invoke(dsl)
 
     return createIndex(
         name = name,

@@ -2,6 +2,8 @@ package documentation.manual
 
 import documentation.*
 import documentation.manual.bulk.bulkMd
+import documentation.manual.bulk.indexmanagement.indexManagementMd
+import documentation.manual.bulk.indexmanagement.dataStreamsMd
 import documentation.manual.crud.crudMd
 import documentation.manual.extending.extendingMd
 import documentation.manual.gettingstarted.gettingStartedMd
@@ -12,17 +14,39 @@ import documentation.manual.search.deepPagingMd
 import documentation.manual.search.searchMd
 import documentation.manualOutputDir
 
+enum class ManualPages(title: String = "") {
+    WhatIsKtSearch("What is Kt-Search"),
+    GettingStarted("Getting Started"),
+    Search("Search and Queries"),
+    DeepPaging("Deep paging using search_after and scroll"),
+    DocumentManipulation("Document Manipulation"),
+    IndexRepository("Index Repository"),
+    BulkIndexing("Efficiently ingest content using Bulk Indexing"),
+    IndexManagement("Using Index Aliases"),
+    DataStreams("Creating Data Streams"),
+    Migrating("Migrating from the old Es Kotlin Client"),
+    ExtendingTheDSL("Extending the Json DSLs"),
+    Scripting("Using Kotlin Scripting")
+    ;
+
+    val page by lazy {
+        Page(title,"${name}.md", manualOutputDir)
+    }
+}
+
 val manualPages = listOf(
-    Page("What is Kt-Search", "WhatIsKtSearch.md", manualOutputDir) to whatIsKtSearchMd,
-    Page("Getting Started", "GettingStarted.md", manualOutputDir) to gettingStartedMd,
-    Page("Searching", "Search.md", manualOutputDir) to searchMd,
-    Page("Deep Paging", "DeepPaging.md", manualOutputDir) to deepPagingMd,
-    Page("Document Manipulation", "crud.md", manualOutputDir) to crudMd,
-    Page("Index Repository", "IndexRepository.md", manualOutputDir) to indexRepoMd,
-    Page("Bulk Indexing", "BulkIndexing.md", manualOutputDir) to bulkMd,
-    Page("Migrating from Es-Kotlin-Client", "Migrating.md", manualOutputDir) to loadMd("manual/gettingstarted/migrating.md"),
-    Page("Extending the Search or Mapping DSL","ExtendingTheDSL.md", manualOutputDir) to extendingMd,
-    Page("Scripting Search with KTS","Scripting.md", manualOutputDir) to scriptingMd,
+    ManualPages.WhatIsKtSearch.page to whatIsKtSearchMd,
+    ManualPages.GettingStarted.page to gettingStartedMd,
+    ManualPages.IndexManagement.page to indexManagementMd,
+    ManualPages.Search.page to searchMd,
+    ManualPages.DeepPaging.page to deepPagingMd,
+    ManualPages.DocumentManipulation.page to crudMd,
+    ManualPages.IndexRepository.page to indexRepoMd,
+    ManualPages.BulkIndexing.page to bulkMd,
+    ManualPages.DataStreams.page to dataStreamsMd,
+    ManualPages.Migrating.page to loadMd("manual/gettingstarted/migrating.md"),
+    ManualPages.ExtendingTheDSL.page to extendingMd,
+    ManualPages.Scripting.page to scriptingMd,
 )
 
 val manualIndexMd = sourceGitRepository.md {
