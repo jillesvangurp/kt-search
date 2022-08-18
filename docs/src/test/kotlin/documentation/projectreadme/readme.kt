@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE")
+@file:Suppress("UNUSED_VARIABLE", "NAME_SHADOWING", "unused")
 
 package documentation.projectreadme
 
