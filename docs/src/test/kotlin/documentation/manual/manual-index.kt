@@ -22,7 +22,7 @@ enum class ManualPages(title: String = "") {
     DocumentManipulation("Document Manipulation"),
     IndexRepository("Index Repository"),
     BulkIndexing("Efficiently ingest content using Bulk Indexing"),
-    IndexManagement("Using Index Aliases"),
+    IndexManagement("Indices, settings, mappings, and aliases"),
     DataStreams("Creating Data Streams"),
     Migrating("Migrating from the old Es Kotlin Client"),
     ExtendingTheDSL("Extending the Json DSLs"),

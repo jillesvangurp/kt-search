@@ -4,6 +4,8 @@ import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.manual.ManualPages
+import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.flow.count
 import kotlinx.serialization.Serializable
@@ -20,6 +22,7 @@ val searchMd = sourceGitRepository.md {
     +"""
         Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
         with a rich Kotlin DSL. However, you can also use string literals to search.
+                
     """.trimIndent()
 
     section("Some test documents") {
@@ -64,6 +67,11 @@ val searchMd = sourceGitRepository.md {
                 )
             }
         }
+        +"""
+            This creates a simple index with a custom mapping and adds some documents using our API.
+            
+            You can learn more about creating indices with customized mappings here: ${ManualPages.IndexManagement.page.mdLink}
+        """.trimIndent()
     }
 
     section("Searching without the Kotlin DSL") {
@@ -176,6 +184,8 @@ val searchMd = sourceGitRepository.md {
                 gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
                 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
                 data structure. This is something we use in multiple places.
+                
+                It uses some sane defaults for parsing that you can learn more about here: ${ManualPages.GettingStarted.page.mdLink}
                 
             """.trimIndent()
         }

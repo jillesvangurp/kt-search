@@ -26,7 +26,7 @@ suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query:
 ```
 
 The annotation is informational only for now. In our tests, we use `onlyon` to prevent tests from
-failing on unsupported engines For example this is added to the test for `search_after`:
+failing on unsupported engines For example, this is added to the test for `search_after`:
 
 ```kotlin
 onlyOn("opensearch implemented search_after with v2",

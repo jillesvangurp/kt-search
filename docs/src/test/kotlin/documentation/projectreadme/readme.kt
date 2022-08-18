@@ -15,7 +15,7 @@ val projectReadme = sourceGitRepository.md {
     +"""
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It provides Kotlin DSLs for querying, defining mappings,  bulk indexing, and more. 
+Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It provides Kotlin DSLs for querying, defining mappings,  bulk indexing, index templares, index life cycle manahement, and more. 
 
 Integrate advanced search in your Kotlin applications. Whether you are building a web based dashboard, an advanced ETL pipeline, or simply exposing a search endpoint in as a microservice, this library has you covered. You can also integrate kt-search into your `kts` scripts. For this we have a little companion library to get you started: [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/). Also, see the scripting section in the manual.
 

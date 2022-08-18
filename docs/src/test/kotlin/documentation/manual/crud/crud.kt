@@ -1,6 +1,8 @@
 package documentation.manual.crud
 
 import com.jillesvangurp.ktsearch.*
+import documentation.manual.ManualPages
+import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
@@ -50,5 +52,8 @@ val crudMd = sourceGitRepository.md {
         The index API has a lot more parameters that are supported here as well
         via nullable parameters. You can also use a variant of the index API
         that accepts a json String instead of the TestDoc.
+        
+        Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: ${
+        ManualPages.BulkIndexing.page.mdLink}.
     """.trimIndent()
 }
