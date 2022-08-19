@@ -251,6 +251,7 @@ class WildCardQuery(
 ) : ESQuery("wildcard") {
 
     var boost by queryDetails.property<Double>()
+    var caseInsensitive by queryDetails.property<Boolean>()
 
     init {
         this.put(field, wildCardQueryConfig, PropertyNamingConvention.AsIs)
