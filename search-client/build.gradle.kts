@@ -85,6 +85,7 @@ kotlin {
 
                 api(KotlinX.serialization.json)
                 api(Ktor.client.core)
+                api(Ktor.client.auth)
                 api(Ktor.client.logging)
                 api(Ktor.client.serialization)
                 api("io.ktor:ktor-client-logging:_")

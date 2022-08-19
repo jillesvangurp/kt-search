@@ -7,31 +7,38 @@ import io.ktor.content.*
 import io.ktor.http.*
 import kotlin.random.Random
 
-expect fun defaultKtorHttpClient(logging: Boolean = false): HttpClient
+expect fun defaultKtorHttpClient(
+    logging: Boolean = false,
+    user: String? = null,
+    password: String? = null
+): HttpClient
 
 /**
  * Ktor-client implementation of the RestClient.
  */
 class KtorRestClient(
     private vararg val nodes: Node= arrayOf(Node("localhost",9200)),
-    private val client: HttpClient = defaultKtorHttpClient(),
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
+    private val logging: Boolean = false,
+    private val client: HttpClient = defaultKtorHttpClient(logging=logging,user=user, password = password),
     private val nodeSelector: NodeSelector = RoundRobinNodeSelector(),
 ) : RestClient {
     constructor(
         host: String = "localhost",
         port: Int = 9200,
-        client: HttpClient = defaultKtorHttpClient(),
         https: Boolean = false,
         user: String? = null,
         password: String? = null,
+        logging: Boolean = false,
+        client: HttpClient = defaultKtorHttpClient(logging=logging,user=user, password = password),
         ) : this(
         client=client,
         https=https,
         user=user,
         password=password,
+        logging=logging,
         nodes= arrayOf( Node(host, port))
     )
 
@@ -51,12 +58,6 @@ class KtorRestClient(
             url {
                 host = node.host
                 port = node.port
-                if (!user.isNullOrBlank()) {
-                    user = this@KtorRestClient.user
-                }
-                if (!password.isNullOrBlank()) {
-                    password = this@KtorRestClient.password
-                }
                 protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
                 path(pathComponents.joinToString("/"))
                 if (!parameters.isNullOrEmpty()) {
