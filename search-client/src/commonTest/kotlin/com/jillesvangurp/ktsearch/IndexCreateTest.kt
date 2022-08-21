@@ -16,7 +16,6 @@ class IndexCreateTest: SearchTestBase() {
                 mapping("text") {
                     fields {
                         keyword("keyword")
-
                     }
                 }
             }
@@ -27,6 +26,7 @@ class IndexCreateTest: SearchTestBase() {
             mappings(true) {
                 keyword("foo")
                 number<Long>("bar")
+                objField("foo", dynamic = "true")
             }
             meta {
                 this["foo"] = "bar"
