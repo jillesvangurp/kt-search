@@ -97,7 +97,7 @@ class FieldMappingConfig(typeName: String) : JsonDsl(namingConvention = Property
     var nullValue by property<String>()
     var script by property<String>()
     var onScriptError by property<String>()
-    var meta by property<Map<String,String>>()
+    var meta by property<Map<String, String>>()
 
     init {
         type = typeName
@@ -159,20 +159,19 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
     inline fun <reified T : Number> number(property: KProperty<*>, noinline block: FieldMappingConfig.() -> Unit) =
         number<T>(property.name, block)
 
-    fun objField(name: String, dynamic: String? = null, block: FieldMappings.() -> Unit) {
+    fun objField(name: String, dynamic: String? = null, block: (FieldMappings.() -> Unit)? = null) {
         field(name, "object") {
-            val fieldMappings = FieldMappings()
-            if(!dynamic.isNullOrBlank()) {
+            if (!dynamic.isNullOrBlank()) {
                 this["dynamic"] = dynamic
             }
-            block.invoke(fieldMappings)
-            if (fieldMappings.size > 0) {
-                this["properties"] = fieldMappings
+            if (block != null) {
+                this["properties"] = FieldMappings().apply(block)
             }
         }
     }
 
-    fun objField(property: KProperty<*>, dynamic: String? = null, block: FieldMappings.() -> Unit) = objField(property.name, dynamic, block)
+    fun objField(property: KProperty<*>, dynamic: String? = null, block: (FieldMappings.() -> Unit)? = null) =
+        objField(property.name, dynamic, block)
 
     fun nestedField(name: String, block: FieldMappings.() -> Unit) {
         field(name, "nested") {
