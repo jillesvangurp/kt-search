@@ -159,9 +159,12 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
     inline fun <reified T : Number> number(property: KProperty<*>, noinline block: FieldMappingConfig.() -> Unit) =
         number<T>(property.name, block)
 
-    fun objField(name: String, block: FieldMappings.() -> Unit) {
+    fun objField(name: String, dynamic: String? = null, block: FieldMappings.() -> Unit) {
         field(name, "object") {
             val fieldMappings = FieldMappings()
+            if(!dynamic.isNullOrBlank()) {
+                this[dynamic] = dynamic
+            }
             block.invoke(fieldMappings)
             if (fieldMappings.size > 0) {
                 this["properties"] = fieldMappings
@@ -169,7 +172,7 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
         }
     }
 
-    fun objField(property: KProperty<*>, block: FieldMappings.() -> Unit) = objField(property.name, block)
+    fun objField(property: KProperty<*>, dynamic: String? = null, block: FieldMappings.() -> Unit) = objField(property.name, dynamic, block)
 
     fun nestedField(name: String, block: FieldMappings.() -> Unit) {
         field(name, "nested") {
@@ -232,6 +235,7 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun dynamicTemplate(dynamicTemplateId: String, block: DynamicTemplateDefinition.() -> Unit) {
         if (!containsKey("mappings")) {
             mappings = JsonDsl()

@@ -2,12 +2,15 @@ package com.jillesvangurp.ktsearch
 
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlin.test.Test
 
 class IndexCreateTest: SearchTestBase() {
     @Test
     fun createIndex() = runTest {
-        val response = client.createIndex(randomIndexName()) {
+        val index = randomIndexName()
+        val response = client.createIndex(index) {
             dynamicTemplate("test_fields") {
                 match = "test*"
                 mapping("text") {
@@ -16,6 +19,10 @@ class IndexCreateTest: SearchTestBase() {
 
                     }
                 }
+            }
+            dynamicTemplate("more_fields") {
+                match = "more*"
+                mapping("keyword")
             }
             mappings(true) {
                 keyword("foo")
@@ -30,5 +37,8 @@ class IndexCreateTest: SearchTestBase() {
             }
         }
         response.acknowledged shouldBe true
+        client.getIndexMappings(index).let {
+            it[index]?.jsonObject?.get("mappings")?.jsonObject?.get("dynamic_templates")?.jsonArray?.size shouldBe 2
+        }
     }
 }
