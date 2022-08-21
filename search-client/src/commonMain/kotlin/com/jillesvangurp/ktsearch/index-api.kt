@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 
 @Serializable
@@ -68,3 +69,16 @@ suspend fun SearchClient.deleteIndex(
         parameters(extraParameters)
     }
 }
+
+suspend fun SearchClient.getIndex(name: String): JsonObject {
+    return restClient.get {
+        path(name)
+    }.parseJsonObject()
+}
+
+suspend fun SearchClient.getIndexMappings(name: String): JsonObject {
+    return restClient.get {
+        path(name,"_mappings")
+    }.parseJsonObject()
+}
+
