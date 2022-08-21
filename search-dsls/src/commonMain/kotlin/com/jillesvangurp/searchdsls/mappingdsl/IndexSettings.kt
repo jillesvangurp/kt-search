@@ -5,9 +5,11 @@ package com.jillesvangurp.searchdsls.mappingdsl
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.JsonDslMarker
 import com.jillesvangurp.jsondsl.PropertyNamingConvention
+import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
-class Analysis: JsonDsl() {
+@Suppress("LeakingThis")
+class Analysis : JsonDsl() {
     class Analyzer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
         var type by property<String>()
         var tokenizer by property<String>()
@@ -21,13 +23,16 @@ class Analysis: JsonDsl() {
         var filter by property<List<String>>()
         var charFilter by property<List<String>>()
     }
+
     open class Tokenizer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
         var type by property<String>()
     }
+
     open class CharFilter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
         var type by property<String>()
 
     }
+
     open class Filter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
         var type by property<String>()
     }
@@ -39,23 +44,24 @@ class Analysis: JsonDsl() {
         objects[name] = json
     }
 
-    fun analyzer(name: String, block: Analysis.Analyzer.() -> Unit) {
-        addConfig("analyzer", name, Analysis.Analyzer().apply(block))
-    }
-    fun normalizer(name: String, block: Analysis.Normalizer.() -> Unit) {
-        addConfig("normalizer", name, Analysis.Normalizer().apply(block))
+    fun analyzer(name: String, block: Analyzer.() -> Unit) {
+        addConfig("analyzer", name, Analyzer().apply(block))
     }
 
-    fun tokenizer(name: String, block: Analysis.Tokenizer.() -> Unit) {
-        addConfig("tokenizer", name, Analysis.Tokenizer().apply(block))
+    fun normalizer(name: String, block: Normalizer.() -> Unit) {
+        addConfig("normalizer", name, Normalizer().apply(block))
     }
 
-    fun charFilter(name: String, block: Analysis.CharFilter.() -> Unit) {
-        addConfig("char_filter", name, Analysis.CharFilter().apply(block))
+    fun tokenizer(name: String, block: Tokenizer.() -> Unit) {
+        addConfig("tokenizer", name, Tokenizer().apply(block))
     }
 
-    fun filter(name: String, block: Analysis.Filter.() -> Unit) {
-        addConfig("filter", name, Analysis.Filter().apply(block))
+    fun charFilter(name: String, block: CharFilter.() -> Unit) {
+        addConfig("char_filter", name, CharFilter().apply(block))
+    }
+
+    fun filter(name: String, block: Filter.() -> Unit) {
+        addConfig("filter", name, Filter().apply(block))
     }
 
 }
@@ -65,22 +71,33 @@ class IndexSettings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
     var replicas: Int by property("index.number_of_replicas")
     var shards: Int by property("index.number_of_shards")
 
-    fun analysis(block : Analysis.()->Unit) {
+    fun analysis(block: Analysis.() -> Unit) {
         this["analysis"] = Analysis().apply(block)
     }
 }
 
 @JsonDslMarker
 class FieldMappingConfig(typeName: String) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
-    var type: String by property()
+    var type by property<String>()
     var boost by property<Double>()
-    var docValues by property<Boolean>()
     var store by property<Boolean>()
     var enabled by property<Boolean>()
-    var copyTo: List<String> by property()
+    var copyTo by property<List<String>>()
 
-    var analyzer: String by property()
-    var searchAnalyzer: String by property()
+    var analyzer by property<String>()
+    var normalizer by property<String>()
+    var searchAnalyzer by property<String>()
+
+    var ignoreAbove by property<String>()
+    var docValues by property<Boolean>()
+    var norms by property<Boolean>()
+    var index by property<Boolean>()
+    var splitQueriesOnWhitespace by property<Boolean>()
+    var indexOptions by property<String>()
+    var nullValue by property<String>()
+    var script by property<String>()
+    var onScriptError by property<String>()
+    var meta by property<Map<String,String>>()
 
     init {
         type = typeName
@@ -116,12 +133,14 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
     fun geoPoint(name: String) = field(name, "geo_point")
     fun geoPoint(property: KProperty<*>) = field(property.name, "geo_point")
     fun geoPoint(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "geo_point", block)
-    fun geoPoint(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) = field(property.name, "geo_point", block)
+    fun geoPoint(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) =
+        field(property.name, "geo_point", block)
 
     fun geoShape(name: String) = field(name, "geo_shape")
     fun geoShape(property: KProperty<*>) = field(property.name, "geo_shape")
     fun geoShape(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "geo_shape", block)
-    fun geoShape(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) = field(property.name, "geo_shape", block)
+    fun geoShape(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) =
+        field(property.name, "geo_shape", block)
 
     inline fun <reified T : Number> number(name: String) = number<T>(name) {}
     inline fun <reified T : Number> number(property: KProperty<*>) = number<T>(property.name) {}
@@ -136,7 +155,9 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
         }
         field(name, type, block)
     }
-    inline fun <reified T : Number> number(property: KProperty<*>, noinline block: FieldMappingConfig.() -> Unit) = number<T>(property.name, block)
+
+    inline fun <reified T : Number> number(property: KProperty<*>, noinline block: FieldMappingConfig.() -> Unit) =
+        number<T>(property.name, block)
 
     fun objField(name: String, block: FieldMappings.() -> Unit) {
         field(name, "object") {
@@ -147,6 +168,7 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
             }
         }
     }
+
     fun objField(property: KProperty<*>, block: FieldMappings.() -> Unit) = objField(property.name, block)
 
     fun nestedField(name: String, block: FieldMappings.() -> Unit) {
@@ -158,6 +180,7 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
             }
         }
     }
+
     fun nestedField(property: KProperty<*>, block: FieldMappings.() -> Unit) = nestedField(property.name, block)
 
     fun field(name: String, type: String) = field(name, type) {}
@@ -168,13 +191,29 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
         block.invoke(mapping)
         put(name, mapping, PropertyNamingConvention.AsIs)
     }
-    fun field(property: KProperty<*>, type: String, block: FieldMappingConfig.() -> Unit) = field(property.name, type, block)
+
+    fun field(property: KProperty<*>, type: String, block: FieldMappingConfig.() -> Unit) =
+        field(property.name, type, block)
 }
 
-class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class DynamicTemplateDefinition : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    var matchMappingType by property<String>()
+    var match by property<String>()
+    var unmatch by property<String>()
+    var pathMatch by property<String>()
+    var pathUnmatch by property<String>()
+    fun mapping(type: String, block: (FieldMappingConfig.() -> Unit)? = null) {
+        put("mapping", FieldMappingConfig(type).also { config ->
+            block?.let { config.apply(it) }
+        })
+
+    }
+}
+
+class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = false) :
+    JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     private var settings by property<IndexSettings>()
     private var mappings by property<JsonDsl>()
-//    private var dynamicEnabled by property<Boolean>(customPropertyName = "dynamic")
 
     fun settings(block: IndexSettings.() -> Unit) {
         val settingsMap = IndexSettings()
@@ -186,20 +225,35 @@ class IndexSettingsAndMappingsDSL (private val generateMetaFields: Boolean=false
     fun meta(block: JsonDsl.() -> Unit) {
         val newMeta = JsonDsl()
         block.invoke(newMeta)
-        if(containsKey("mappings")) {
+        if (containsKey("mappings")) {
             mappings["_meta"] = newMeta
         } else {
-            mappings=JsonDsl().apply { this["_meta"] = newMeta }
+            mappings = JsonDsl().apply { this["_meta"] = newMeta }
+        }
+    }
+
+    fun dynamicTemplate(dynamicTemplateId: String, block: DynamicTemplateDefinition.() -> Unit) {
+        if (!containsKey("mappings")) {
+            mappings = JsonDsl()
+        }
+        if (mappings["dynamic_templates"] == null) {
+            mappings["dynamic_templates"] = mutableListOf<JsonDsl>()
+        }
+        mappings["dynamic_templates"]?.let { dynamicMappings ->
+            dynamicMappings as MutableList<JsonDsl>
+            dynamicMappings.add(withJsonDsl {
+                this[dynamicTemplateId] = DynamicTemplateDefinition().apply(block)
+            })
         }
     }
 
     fun mappings(dynamicEnabled: Boolean? = null, block: FieldMappings.() -> Unit) {
         val properties = FieldMappings()
-        if(!containsKey("mappings")) {
+        if (!containsKey("mappings")) {
             mappings = JsonDsl()
         }
         dynamicEnabled?.let {
-            mappings["dynamic"] = dynamicEnabled
+            mappings["dynamic"] = dynamicEnabled.toString()
         }
         block.invoke(properties)
         mappings["properties"] = properties

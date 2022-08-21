@@ -8,7 +8,16 @@ class IndexCreateTest: SearchTestBase() {
     @Test
     fun createIndex() = runTest {
         val response = client.createIndex(randomIndexName()) {
-            mappings(false) {
+            dynamicTemplate("test_fields") {
+                match = "test*"
+                mapping("text") {
+                    fields {
+                        keyword("keyword")
+
+                    }
+                }
+            }
+            mappings(true) {
                 keyword("foo")
                 number<Long>("bar")
             }
