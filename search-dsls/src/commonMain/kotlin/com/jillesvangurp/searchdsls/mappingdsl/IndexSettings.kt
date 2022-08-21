@@ -163,7 +163,7 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
         field(name, "object") {
             val fieldMappings = FieldMappings()
             if(!dynamic.isNullOrBlank()) {
-                this[dynamic] = dynamic
+                this["dynamic"] = dynamic
             }
             block.invoke(fieldMappings)
             if (fieldMappings.size > 0) {
