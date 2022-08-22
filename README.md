@@ -179,6 +179,13 @@ returns a JsonObject, which we then decode.
 
 For more details, refer to the manual.
 
+## Related projects
+
+There are several libraries that build on kt-search that may be of interest to you.
+
+- [kt-search-kts](https://gitgub.com/jillesvangurp/kt-search-kts) - this library combines `kt-search` with `kotlinx-cli` to make scripting really easy. Combined with the out of the box support for managing snapshots, creating template mappings, bulk indexing, data-streams, etc. this is the perfect companion to script all your index operations. Additionally, it's a great tool to e.g. query your data, or build some health checks against your production indices.
+- [kt-search-logback-appender](https://gitgub.com/jillesvangurp/kt-search-kts) - this is a logback appender that bulk indexes log events straight to elasticsearch.
+
 ## License
 
 This project is [licensed](LICENSE) under the MIT license.
