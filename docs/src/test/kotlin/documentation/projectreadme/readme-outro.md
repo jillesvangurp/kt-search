@@ -77,22 +77,7 @@ Currently, that includes the **jvm** and **kotlin-js** compilers. However, it sh
 
 Whether it is practical or not, you can use this client in Spring servers, Ktor servers, AWS lambda functions, node-js servers, web applications running in a browser, or native applications running on IOS and Android. I expect, people will mostly stick to using servers on the JVM, at least short term. But I have some uses in mind for building small dashboard UIs as web applications as well. Let me know what you do with this!
 
-Es-kotlin-client, aka. kt-search 1.0 lives on as the legacy-client module in this library and shares several of the other modules (e.g. `search-dsls`). So, you may use this as a migration path to the multi-platform client. But in terms of how you use the client, the transition from the legacy client to this should be pretty straight-forward.
-
-## Development status
-
-Currently, the client is feature complete, useful, and already better in many ways than the es-kotlin-client 1.x ever was. 
-
-The 1.99.x series can be seen as a series of increasingly better release candidates/betas. If you do run into issues, please create an issue. Likewise, if there is important functionality that you need. I have so far not found any show stopping issues.
-
-Before tagging a 2.0 release, I intend to port some of our internal code at FORMATION to use kt-search and dog food this extensively. I will likely discover new/missing features, add things I need, etc.
-
-Until then, I reserve the right to refactor, rename, etc. things as needed. A 2.0 release will mark a commitment to API stability.
-
-Non Goals:
-
-- Full coverage of what the RestHighLevel client used to do. If you need it, just add that as a dependency or create your own extension function for `SearchClient`; it's not that hard. And of course consider creating a pull request if you do.
-- Cover the entire search DSL. The provided Kotlin DSL is very easy to extend by design. If it doesn't directly support what you need, you can simply manipulate the underlying Map to add what you need. See the manual for instructions on how to do this. Alternatively, you can create a pull request to add proper type safe support for the feature that you want. Currently, most commonly used things in the DSL are already supported. We'll likely expand the features over time of course. Note, you can also create JsonDsls for other APIs. E.g. the snapshot API, the reindex API, etc. each have their own custom Json requests and responses. 
+Es-kotlin-client, aka. kt-search 1.0 lives on as the legacy-client module in this library and shares several of the other modules (e.g. `search-dsls`). So, you may use this as a migration path to the multi-platform client. But in terms of how you use the client, the transition from the legacy client to this should be pretty straight-forward. Currently, you have to build this yourself. For more tips on migrating to the new version see the manual's migration section.
 
 ## Contributing
 
