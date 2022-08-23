@@ -12,3 +12,5 @@ To faciliate migrating to the new client, the old es-kotlin-client is preserved 
 
 You can use the legacy-client next to the kt-search client and gradually get rid of usages of the legacy-client. Once you are done, remove the dependency on the legacy-client
 
+Alternatively, you can stick with the old client but bring in the search-dsls module to benefit from the new and improved json DSLs for mappings, querying, template management etc. and try to use those with the old extension functions against the `RestHighLevelClient`. Or, vice versa, use the old DSL with the new client.
+

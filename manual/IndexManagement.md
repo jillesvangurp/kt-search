@@ -41,8 +41,9 @@ client.createIndex("an-index") {
     analysis {
       filter("2_5_edgengrams") {
         type = "edge_ngram"
-        // we don't directly support these params
-        // so use put to add them
+        // we don't directly support all params
+        // of each filter, tokenizer, etc.
+        // so use put to add anything that is missing
         put("min_gram", 2)
         put("max_gram", 5)
       }
@@ -63,7 +64,7 @@ client.createIndex("an-index") {
       }
     }
     text("catchall") {
-
+      norms = false
     }
     number<Double>(TestDocument::number)
     objField(TestDocument::properties) {
@@ -82,7 +83,7 @@ client.createIndex("an-index") {
 IndexCreateResponse(acknowledged=true, shardsAcknowledged=true, index=an-index)
 ```
 
-This is a deliberately more complex example that shows off a few of the features of the DSL:
+This is a deliberately more elaborate example that shows off a few of the features of the DSL:
 
 - we customized the replicas and shards settings
 - we added a custom analyzer
@@ -97,7 +98,7 @@ Aliases are a useful tool to manage indices over time. As your data mode evolves
 to create new indices with new mappings. Aliases allow this to happen independently of your query logic 
 and write logic.
 
-There are many ways to make use of aliases. A common pattern is to use `read-`, and `write-` aliases that 
+There are many ways to make use of aliases. A common pattern is to use e.g. `read-`, and `write-` aliases that 
 point to the actual index. By separating reads and writes, you can implement a reindex strategy 
 where writes  go to a new index and after you have reindexed the old index, you switch over the read alias
 so all your queries use the new index. After that, you can safely remove the old index.
@@ -166,4 +167,8 @@ Aliases for foo-1: []
 Aliases for foo-2: [foo]
 
 ```
+
+Note. you may also want to consider using data streams instead: [Creating Data Streams](DataStreams.md)
+ 
+Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
 
