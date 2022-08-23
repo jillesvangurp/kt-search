@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import com.jillesvangurp.searchdsls.querydsl.ids
 import com.jillesvangurp.searchdsls.querydsl.match
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import io.kotest.matchers.shouldBe
@@ -22,6 +23,18 @@ class SearchTest: SearchTestBase() {
             trackTotalHits = "true"
             query = match(TestDocument::name,"bar")
         }.total shouldBe 1
+    }
+
+    @Test
+    fun shouldDoIdSearch() = coTest {
+        val index= testDocumentIndex()
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id="2")
+        client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id="3")
+
+        client.search("$index,$index") {
+            query = ids("1","3")
+        }.total shouldBe 2
     }
 
     @Test

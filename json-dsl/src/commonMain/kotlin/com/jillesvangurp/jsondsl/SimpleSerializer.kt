@@ -58,6 +58,21 @@ class SimpleSerializer: JsonDslSerializer {
                 buf.newLine(indent,indentStep,pretty)
                 buf.append(']')
             }
+            is Array<*> -> {
+                buf.append('[')
+                val iterator=obj.iterator()
+                while(iterator.hasNext()) {
+                    val v = iterator.next()
+                    buf.newLine(indent+1,indentStep,pretty)
+                    write(buf = buf, indent = indent+1, indentStep = indentStep, pretty = pretty, obj = v)
+                    if(iterator.hasNext()) {
+                        buf.append(',')
+                        buf.space(pretty)
+                    }
+                }
+                buf.newLine(indent,indentStep,pretty)
+                buf.append(']')
+            }
             else -> {
                 // fallback to just treating everything else as a String
                 buf.append('"')
