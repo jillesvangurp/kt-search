@@ -2,15 +2,15 @@
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem. It provides Kotlin DSLs for querying, defining mappings, bulk indexing, index templates, index life cycle management, index aliases, and more. 
+Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem on any platform that kotlin can compile to. It provides Kotlin DSLs for querying, defining mappings, bulk indexing, index templates, index life cycle management, index aliases, etc. 
 
-Integrate advanced search in your Kotlin applications. Whether you are building a web based dashboard, an advanced ETL pipeline, or simply exposing a search endpoint in as a microservice, this library has you covered. You can also integrate kt-search into your `kts` scripts. For this we have a little companion library to get you started: [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/). Also, see the scripting section in the manual.
+Integrate **advanced search** capabilities in your Kotlin applications. Whether you want to build a web based dashboard, an advanced ETL pipeline or simply exposing a search endpoint in as a microservice, this library has you covered. You can also integrate kt-search into your `kts` scripts. For this we have a little companion library to get you started: [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/). Also, see the scripting section in the manual.
 
-Because it is a multi platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps. For this, it relies on all the latest and greatest multi-platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x., etc., whic work across all these platforms.
+Because it is a multi platform library you can embed it in your server (Ktor, Spring Boot, Quarkus), use it in a browser using kotlin-js, or embed it in your Android/IOS apps. For this, it relies on all the latest and greatest multi-platform Kotlin features that you love: co-routines, kotlinx.serialization, ktor-client 2.x., etc., which work across all these platforms.
 
-The goal for kt-search is to be the most convenient way to use opensearch and elasticsearch from Kotlin on any platform where Kotlin compiles.  
+The goal for kt-search is to be the **most convenient way to use opensearch and elasticsearch from Kotlin** on any platform where Kotlin compiles.  
       
-It is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
+Kt-search is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
 
 ## Gradle
 
@@ -45,12 +45,10 @@ There are many ways you can use kt-search
 - Use Kt-search in a Kotlin-js based web application to create dashboards, or web applications that don't need a separate server. See our [Full Stack at FORMATION](https://github.com/formation-res/kt-fullstack-demo) demo project for an example.
 - Use Kotlin Scripting to operate and introspect your cluster. See the companion project [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) for more on this as well as the scripting section in the manual. The companion library combines `kt-search` with `kotlinx-cli` for command line argument parsing and provides some example scripts; all with the minimum of boiler plate.
 
-## Documentation
-
-Currently, documentation is still work in progress. Most of the basics are documented at this point but there still some things missing.
+## Learn more
 
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
-- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file.
+- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - The code sample below should help you figure out the basics.
@@ -68,8 +66,10 @@ val client = SearchClient(
 )
 ```
 
-First create a client. Kotlin has default variables for parameters. So, we use sensible defaults. This 
-is something we do wherever we can in this library. 
+First create a client. Kotlin has default values for parameters. So, we use sensible defaults for the 
+`host` and `port` variables to connect to `localhohst` and `9200`. You can also configure multiple hosts, 
+or add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
+multiple hosts, you can also configure a strategy for selecting the host to connect to.
 
 ```kotlin
 @Serializable
@@ -79,7 +79,9 @@ data class TestDocument(
 )
 ```
 
-In the example below we will use this `TestDocument`, which we can serialize using the kotlinx.serialization framework.
+In the example below we will use this `TestDocument`, which we can serialize using the kotlinx.serialization 
+framework. You can also pass in your own serialized json in requests, so if you want to use e.g. jackson or gson,
+you can do so easily.
 
 ```kotlin
 //
@@ -100,6 +102,8 @@ runBlocking {
   }
 
   // bulk index some documents
+  // using the bulk DSL and a BulkSession
+  // WaitFor ensures we can query for the documents
   client.bulk(refresh = Refresh.WaitFor) {
     index(
       doc = TestDocument(
@@ -131,6 +135,7 @@ runBlocking {
   val results = client.search(indexName) {
     query = bool {
       must(
+        // note how we use property references here
         term(TestDocument::tags, "fruit"),
         matchPhrasePrefix(TestDocument::name, "app")
       )
@@ -141,7 +146,6 @@ runBlocking {
   results
     // extension function that deserializes
     // uses kotlinx.serialization
-    // but you can use something else
     .parseHits<TestDocument>()
     .first()
     // hits don't always include source
@@ -166,18 +170,17 @@ doc apple
 
 This example shows off a few nice features of this library:
 
-- There is a convenient mapping and settings DSL that you can use to create indices
+- There is a convenient mapping and settings DSL (Domain Specific Language) that you can use to create indices.
 - In te mappings and in your queries, you can use kotlin property references instead of
 field names.
-- Bulk indexing does not require any bookkeeping with kt-search. The `bulk` block
+- Bulk indexing does not require any bookkeeping with kt-search because we have bulk DSL. The `bulk` block
 creates a `BulkSession` for you and it deals with sending bulk requests and picking
-the responses apart. BulkSession has a lot of optional featured that you can use: 
+the responses apart for error handling. BulkSession has a lot of optional featured that you can use: 
 it has item callbacks, you can specify the refresh parameter, you can make it 
 fail on the first item failure, etc. Alternatively, you can make it robust against
 failures, implement error handling and retries, etc.
-- You can use kotlinx.serialization for your documents but you don't have to. 
-Note how you can pass in a json string for parsing and how the search response
-returns a JsonObject, which we then decode. 
+- You can use kotlinx.serialization for your documents but you don't have to. When using `kt-search` on the
+jvm you might want to use alternative json frameworks.
 
 For more details, refer to the manual.
 
