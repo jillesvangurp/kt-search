@@ -76,11 +76,13 @@ enum class SortMode { MIN, MAX, SUM, AVG, MEDIAN }
 @Suppress("UNUSED_PARAMETER")
 class SortField(field: String, order: SortOrder? = null, mode: SortMode? = null)
 
-class SortBuilder {
-    internal val sortFields = mutableListOf<Any>()
+class SortBuilder(){
+    private val _sortFields = mutableListOf<Any>()
 
-    operator fun String.unaryPlus() = sortFields.add(this)
-    operator fun KProperty<*>.unaryPlus() = sortFields.add(this)
+    val sortFields get() = _sortFields.toList()
+
+    operator fun String.unaryPlus() = _sortFields.add(this)
+    operator fun KProperty<*>.unaryPlus() = _sortFields.add(this)
 
     fun add(
         field: KProperty<*>,
@@ -97,7 +99,7 @@ class SortBuilder {
         mode: SortMode?= null,
         missing: String? = null,
         block: (JsonDsl.() -> Unit)? = null
-    ) = sortFields.add(withJsonDsl {
+    ) = _sortFields.add(withJsonDsl {
         this.put(field, dslObject {
             this["order"] = order.name
             mode?.let {
