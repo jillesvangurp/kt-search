@@ -34,7 +34,7 @@ open class JsonDsl(
 ) : MutableMap<String, Any> by _properties, IJsonDsl {
     override val defaultNamingConvention: PropertyNamingConvention = namingConvention
 
-    override fun get(key: String) = _properties[key.camelCase2SnakeCase()]
+    override fun get(key: String) = _properties[key.convertPropertyName(namingConvention)]
 
     override fun put(key: KProperty<*>, value: Any, namingConvention: PropertyNamingConvention) {
         _properties[key.name.convertPropertyName(namingConvention)] = value
