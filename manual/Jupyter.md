@@ -91,27 +91,28 @@ Some ideas for using `kts` scripting with Kt-Search:
 
 ## How to run `.main.kts` scripts
 
-            To be able to run the scripts, install kotlin 1.7 via your linux package manager, 
-            home-brew, sdkman, snap, etc. There are many ways to do this.
-                        
-            Unfortunately, using kotlin script is a bit under-documented by Jetbrains and still has some issues.
+To be able to run the scripts, install kotlin 1.7 via your linux package manager, 
+home-brew, sdkman, snap, etc. There are many ways to do this.
             
-            [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) is there to get you started, of course.
-            
-            Some gotchas:
-            
-            - your script name **MUST** end in `.main.kts`
-            - kotlin scripting does not understand multi-platform, add `-jvm` suffix for the `kt-client` dependency
-            - if you add a custom repository, you also have to specify maven central as a repository explicitly if you need more dependencies
+Unfortunately, using kotlin script is a bit under-documented by Jetbrains and still has some issues.
+
+[kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) is there to get you started, of course.
+
+Some gotchas:
+
+- your script name **MUST** end in `.main.kts`
+- kotlin scripting does not understand multi-platform, add `-jvm` suffix for the `kt-client` dependency
+- if you add a custom repository, you also have to specify maven central as a repository explicitly if you need more dependencies
+
 ```kotlin
 @file:Repository("https://repo1.maven.org/maven2")
 @file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
 @file:Repository("https://maven.tryformation.com/releases")
-@file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.5")
+@file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.5")            
 ```            
-            - make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
-            course make it executable `chmod 755 myscript.main.kts`
-            this will direct linux/mac to use kotlin to run the script with kotlin
-            - intellij does not reliably reload the script context when you 
-            modify the dependencies: closing and re-opening the IDE seems to work.
+- make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
+course make it executable `chmod 755 myscript.main.kts`
+this will direct linux/mac to use kotlin to run the script with kotlin
+- intellij does not reliably reload the script context when you 
+modify the dependencies: closing and re-opening the IDE seems to work.
 
