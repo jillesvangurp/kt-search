@@ -26,7 +26,8 @@ enum class ManualPages(title: String = "") {
     DataStreams("Creating Data Streams"),
     Migrating("Migrating from the old Es Kotlin Client"),
     ExtendingTheDSL("Extending the Json DSLs"),
-    Scripting("Using Kotlin Scripting")
+    Scripting("Using Kotlin Scripting"),
+    Jupyter("Jupyter Notebooks"),
     ;
 
     val page by lazy {
@@ -47,6 +48,7 @@ val manualPages = listOf(
     ManualPages.Migrating.page to loadMd("manual/gettingstarted/migrating.md"),
     ManualPages.ExtendingTheDSL.page to extendingMd,
     ManualPages.Scripting.page to scriptingMd,
+    ManualPages.Jupyter.page to scriptingMd,
 )
 
 val manualIndexMd = sourceGitRepository.md {

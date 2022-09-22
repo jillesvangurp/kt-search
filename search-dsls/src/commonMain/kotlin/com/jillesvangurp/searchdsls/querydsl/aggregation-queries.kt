@@ -3,6 +3,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.JsonDslMarker
 import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)
@@ -41,6 +42,15 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)?=null): Agg
         config.field=field
         block?.invoke(config)
         put(name, config)
+    }
+}
+
+class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl() {
+    var min by property<String>()
+    var max by property<String>()
+
+    init {
+        block()
     }
 }
 
