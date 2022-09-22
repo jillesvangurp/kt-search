@@ -30,3 +30,4 @@ book.epub
 secring.gpg
 local.properties
 localRepo
+.ipynb_checkpoints
