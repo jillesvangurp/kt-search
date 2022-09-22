@@ -14,6 +14,7 @@
 - [Migrating from the old Es Kotlin Client](Migrating.md)
 - [Extending the Json DSLs](ExtendingTheDSL.md)
 - [Using Kotlin Scripting](Scripting.md)
+- [Jupyter Notebooks](Jupyter.md)
 
 ## About this Manual
 
