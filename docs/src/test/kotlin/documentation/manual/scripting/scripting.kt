@@ -71,12 +71,13 @@ val scriptingMd = sourceGitRepository.md {
             - your script name **MUST** end in `.main.kts`
             - kotlin scripting does not understand multi-platform, add `-jvm` suffix for the `kt-client` dependency
             - if you add a custom repository, you also have to specify maven central as a repository explicitly if you need more dependencies
-```kotlin
-@file:Repository("https://repo1.maven.org/maven2")
-@file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
-@file:Repository("https://maven.tryformation.com/releases")
-@file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.5")
-```            
+
+            ```kotlin
+            @file:Repository("https://repo1.maven.org/maven2")
+            @file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
+            @file:Repository("https://maven.tryformation.com/releases")
+            @file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.5")            
+            ```            
             - make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
             course make it executable `chmod 755 myscript.main.kts`
             this will direct linux/mac to use kotlin to run the script with kotlin
