@@ -48,7 +48,7 @@ val manualPages = listOf(
     ManualPages.Migrating.page to loadMd("manual/gettingstarted/migrating.md"),
     ManualPages.ExtendingTheDSL.page to extendingMd,
     ManualPages.Scripting.page to scriptingMd,
-    ManualPages.Jupyter.page to scriptingMd,
+    ManualPages.Jupyter.page to loadMd("manual/jupyter/jupyter.md"),
 )
 
 val manualIndexMd = sourceGitRepository.md {
