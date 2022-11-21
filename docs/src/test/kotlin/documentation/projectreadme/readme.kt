@@ -67,7 +67,6 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
         """.trimIndent()
 
         block {
-            //
             val indexName = "index-${Clock.System.now().toEpochMilliseconds()}"
 
             // create a co-routine context, kt-search uses `suspend` functions
@@ -104,17 +103,14 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
                     )
                     index(
                         // you can also provide raw json
-                        source = DEFAULT_JSON.encodeToString(
-                            TestDocument.serializer(),
-                            TestDocument(
-                                name = "banana",
-                                tags = listOf("fruit", "tropical")
-                            )),
+                        // but it has to be a single line in the bulk request
+                        source =
+                        """{"name":"banana","tags":["fruit","tropical"]}""",
                         index = indexName
                     )
                 }
 
-                // search
+                // search for some fruit
                 val results = client.search(indexName) {
                     query = bool {
                         must(
@@ -141,16 +137,16 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
                 println(results.hits?.hits?.first()?.source)
             }
         }
-
+        
         +"""
             This example shows off a few nice features of this library:
             
             - There is a convenient mapping and settings DSL (Domain Specific Language) that you can use to create indices.
-            - In te mappings and in your queries, you can use kotlin property references instead of
+            - In the mappings and in your queries, you can use kotlin property references instead of
             field names.
-            - Bulk indexing does not require any bookkeeping with kt-search because we have bulk DSL. The `bulk` block
+            - We have a bulk DSL. The `bulk` block
             creates a `BulkSession` for you and it deals with sending bulk requests and picking
-            the responses apart for error handling. BulkSession has a lot of optional featured that you can use: 
+            the responses apart for error handling. BulkSession has a lot of optional features that you can use: 
             it has item callbacks, you can specify the refresh parameter, you can make it 
             fail on the first item failure, etc. Alternatively, you can make it robust against
             failures, implement error handling and retries, etc.
