@@ -124,7 +124,7 @@ runBlocking {
     )
   }
 
-  // search
+  // search for some fruit
   val results = client.search(indexName) {
     query = bool {
       must(
