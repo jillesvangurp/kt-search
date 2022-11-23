@@ -56,14 +56,14 @@ data class BulkResponse(
         @SerialName("_id")
         val id: String,
         @SerialName("_version")
-        val version: Long,
-        val result: String,
+        val version: Long?,
+        val result: String?,
         @SerialName("_shards")
-        val shards: Shards,
+        val shards: Shards?,
         @SerialName("_seq_no")
-        val seqNo: Long,
+        val seqNo: Long?,
         @SerialName("_primary_term")
-        val primaryTerm: Long,
+        val primaryTerm: Long?,
         val status: Int
     )
 }
