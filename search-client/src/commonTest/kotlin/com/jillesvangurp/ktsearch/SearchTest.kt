@@ -73,4 +73,10 @@ class SearchTest: SearchTestBase() {
             hits.count() shouldBe 20
         }
     }
+
+    @Test
+    fun shouldWorkWithoutTotalHits() = coTest {
+        val index= testDocumentIndex()
+        client.search(target = index, trackTotalHits = false)
+    }
 }
