@@ -23,7 +23,7 @@ class KtorRestClient(
     private val password: String? = null,
     private val logging: Boolean = false,
     private val client: HttpClient = defaultKtorHttpClient(logging=logging,user=user, password = password),
-    private val nodeSelector: NodeSelector = RoundRobinNodeSelector(),
+    private val nodeSelector: NodeSelector = RoundRobinNodeSelector(nodes),
 ) : RestClient {
     constructor(
         host: String = "localhost",
@@ -42,7 +42,7 @@ class KtorRestClient(
         nodes= arrayOf( Node(host, port))
     )
 
-    override fun nextNode(): Node = nodeSelector.selectNode(nodes)
+    override fun nextNode(): Node = nodeSelector.selectNode()
 
     override suspend fun doRequest(
         pathComponents: List<String>,
