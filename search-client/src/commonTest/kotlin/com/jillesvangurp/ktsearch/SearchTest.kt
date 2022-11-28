@@ -97,4 +97,8 @@ class SearchTest: SearchTestBase() {
             hit.innerHits?.get("by_tag")?.hits?.hits?.size!! shouldBeGreaterThan 0
         }
     }
+    fun shouldWorkWithoutTotalHits() = coTest {
+        val index= testDocumentIndex()
+        client.search(target = index, trackTotalHits = false)
+    }
 }
