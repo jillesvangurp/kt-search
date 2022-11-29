@@ -14,8 +14,7 @@ you need to have kotlin installed on your system of course.
 #!/usr/bin/env kotlin
 
 @file:Repository("https://jitpack.io")
-@file:Repository("https://maven.tryformation.com/releases")
-@file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.3")
+@file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.7")
 
 import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.clusterHealth
