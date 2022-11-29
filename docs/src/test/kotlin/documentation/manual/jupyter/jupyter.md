@@ -13,8 +13,10 @@ brew install miniconda
 Once you have conda installed, install jupyter and the kotlin kernel.
 
 ```bash
- conda install jupyter
- conda install -c jetbrains kotlin-jupyter-kernel
+conda create -n kjupyter
+conda activate kjupyter 
+conda install jupyter
+conda install -c jetbrains kotlin-jupyter-kernel
 ```
 
 ## Open the notebook
@@ -31,8 +33,8 @@ jupyter notebook kt-search-example.ipynb
 Create a cell in your notebook with something like this:
 
 ```kotlin
-@file:Repository("https://maven.tryformation.com/releases")
-@file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.13")
+@file:Repository("https://jitpack.io")
+@file:DependsOn("com.github.jillesvangurp.kt-search:search-client:1.99.14")
 
 import com.jillesvangurp.ktsearch.*
 import kotlinx.coroutines.runBlocking

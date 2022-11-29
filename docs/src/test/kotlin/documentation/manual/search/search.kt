@@ -7,9 +7,7 @@ import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.sourceGitRepository
-import kotlinx.coroutines.flow.count
 import kotlinx.serialization.Serializable
-import kotlin.time.Duration.Companion.minutes
 
 
 @Suppress("NAME_SHADOWING")
