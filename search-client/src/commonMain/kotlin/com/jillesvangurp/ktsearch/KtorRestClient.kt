@@ -44,12 +44,14 @@ class KtorRestClient(
 
     override fun nextNode(): Node = nodeSelector.selectNode(nodes)
 
+    @Suppress("UNCHECKED_CAST")
     override suspend fun doRequest(
         pathComponents: List<String>,
         httpMethod: HttpMethod,
         parameters: Map<String, Any>?,
         payload: String?,
         contentType: ContentType,
+        headers:Map<String,Any>?
     ): RestResponse {
 
         val response = client.request {
@@ -65,9 +67,22 @@ class KtorRestClient(
                         parameter(key, value)
                     }
                 }
-                if (payload != null) {
-                    setBody(TextContent(payload, contentType = contentType))
+
+            }
+            headers?.let {providedHeaders ->
+                headers {
+                    providedHeaders.forEach {
+                        val value = it.value
+                        if(value is String) {
+                            append(it.key, value)
+                        } else if(value is List<*>) {
+                            appendAll(it.key, value as List<String>)
+                        }
+                    }
                 }
+            }
+            if (payload != null) {
+                setBody(TextContent(payload, contentType = contentType))
             }
         }
 

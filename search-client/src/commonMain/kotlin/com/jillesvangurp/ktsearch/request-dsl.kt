@@ -9,7 +9,8 @@ data class SearchAPIRequest(
     internal var body: String? = null,
     internal var contentType: ContentType = ContentType.Application.Json,
     internal var pathComponents: List<String> = listOf(),
-    internal val parameters: MutableMap<String, String> = mutableMapOf()
+    internal val parameters: MutableMap<String, String> = mutableMapOf(),
+    internal val headers: MutableMap<String, Any> = mutableMapOf()
 ) {
     fun path(vararg components: String?) {
         pathComponents = components.toList().filterNotNull()
@@ -20,11 +21,13 @@ data class SearchAPIRequest(
             parameters[key] = value
         }
     }
+
     fun parameter(key: String, value: Duration?) {
         value?.let {
             parameters[key] = "${value.inWholeSeconds}s"
         }
     }
+
     fun parameter(key: String, value: Number?) {
         value?.let {
             parameters[key] = "$value"
@@ -43,10 +46,17 @@ data class SearchAPIRequest(
         }
     }
 
-    fun parameters(params: Map<String,String>?) {
+    fun parameters(params: Map<String, String>?) {
         params?.let {
             parameters.putAll(params)
         }
+    }
+
+    fun header(key: String, value: String) {
+        headers[key] = value
+    }
+    fun header(key: String, values: List<String>) {
+        headers[key] = values
     }
 
     fun json(dsl: JsonDsl, pretty: Boolean = false) {
@@ -66,7 +76,9 @@ suspend fun RestClient.post(block: SearchAPIRequest.() -> Unit): Result<RestResp
         pathComponents = listOf(request.pathComponents.joinToString("/")),
         payload = request.body,
         httpMethod = HttpMethod.Post,
-        parameters = request.parameters
+        parameters = request.parameters,
+        headers = request.headers
+
     ).asResult()
 }
 
@@ -77,7 +89,8 @@ suspend fun RestClient.delete(block: SearchAPIRequest.() -> Unit): Result<RestRe
         pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
         payload = request.body,
         httpMethod = HttpMethod.Delete,
-        parameters = request.parameters
+        parameters = request.parameters,
+        headers = request.headers
     ).asResult()
 }
 
@@ -87,9 +100,11 @@ suspend fun RestClient.get(block: SearchAPIRequest.() -> Unit): Result<RestRespo
     return doRequest(
         pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
         httpMethod = HttpMethod.Get,
-        parameters = request.parameters
+        parameters = request.parameters,
+        headers = request.headers
     ).asResult()
 }
+
 suspend fun RestClient.put(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
@@ -97,6 +112,7 @@ suspend fun RestClient.put(block: SearchAPIRequest.() -> Unit): Result<RestRespo
         pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
         payload = request.body,
         httpMethod = HttpMethod.Put,
-        parameters = request.parameters
+        parameters = request.parameters,
+        headers = request.headers
     ).asResult()
 }

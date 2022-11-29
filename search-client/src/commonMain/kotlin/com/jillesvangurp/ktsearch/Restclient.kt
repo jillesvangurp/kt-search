@@ -21,6 +21,7 @@ interface RestClient {
         parameters: Map<String, Any>? = null,
         payload: String? = null,
         contentType: ContentType = ContentType.Application.Json,
+        headers:Map<String,Any>?=null
     ): RestResponse
 }
 
