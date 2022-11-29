@@ -51,7 +51,6 @@ data class SearchAPIRequest(
             parameters.putAll(params)
         }
     }
-
     fun header(key: String, value: String) {
         headers[key] = value
     }
