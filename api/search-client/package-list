@@ -218,6 +218,9 @@ $dokka.location:com.jillesvangurp.ktsearch/GetDocumentResponse/seqNo/#/PointingT
 $dokka.location:com.jillesvangurp.ktsearch/GetDocumentResponse/source/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-get-document-response/source.html
 $dokka.location:com.jillesvangurp.ktsearch/GetDocumentResponse/type/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-get-document-response/type.html
 $dokka.location:com.jillesvangurp.ktsearch/GetDocumentResponse/version/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-get-document-response/version.html
+$dokka.location:com.jillesvangurp.ktsearch/HitsContainer///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-hits-container/index.html
+$dokka.location:com.jillesvangurp.ktsearch/HitsContainer/HitsContainer/#com.jillesvangurp.ktsearch.SearchResponse.Hits/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-hits-container/-hits-container.html
+$dokka.location:com.jillesvangurp.ktsearch/HitsContainer/hits/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-hits-container/hits.html
 $dokka.location:com.jillesvangurp.ktsearch/ILMActions///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-i-l-m-actions/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ILMActions/ILMActions/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-i-l-m-actions/-i-l-m-actions.html
 $dokka.location:com.jillesvangurp.ktsearch/ILMActions/delete/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-i-l-m-actions/delete.html
@@ -407,10 +410,11 @@ $dokka.location:com.jillesvangurp.ktsearch/SearchOperator.AND///PointingToDeclar
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator.OR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-operator/-o-r/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-operator/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/index.html
-$dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/Hit/#kotlin.String#kotlin.String?#kotlin.String#kotlin.Double?#kotlinx.serialization.json.JsonObject?#kotlinx.serialization.json.JsonObject?#kotlinx.serialization.json.JsonArray?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/-hit.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/Hit/#kotlin.String#kotlin.String?#kotlin.String#kotlin.Double?#kotlinx.serialization.json.JsonObject?#kotlinx.serialization.json.JsonObject?#kotlinx.serialization.json.JsonArray?#kotlin.collections.Map[kotlin.String,com.jillesvangurp.ktsearch.HitsContainer]?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/-hit.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/fields/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/fields.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/id/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/id.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/index/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/--index--.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/innerHits/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/inner-hits.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/score/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/score.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/sort/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/sort.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit/source/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/source.html
