@@ -56,3 +56,5 @@ runBlocking {
 
 Note, you need to use `runBlocking` to use suspending calls on the client.
 
+Otherwise, see the documentation for how to use the kotlin scripting support.
+
