@@ -1,10 +1,10 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.searchdsls.querydsl.SearchDSL
-import com.jillesvangurp.searchdsls.querydsl.ids
-import com.jillesvangurp.searchdsls.querydsl.match
-import com.jillesvangurp.searchdsls.querydsl.matchAll
+import com.jillesvangurp.searchdsls.querydsl.*
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNot
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.count
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.minutes
@@ -71,6 +71,30 @@ class SearchTest: SearchTestBase() {
             val (resp,hits) = client.searchAfter(index,1.minutes,q)
             resp.total shouldBe 20
             hits.count() shouldBe 20
+        }
+    }
+
+    @Test
+    fun shouldCollapseResults() = coTest {
+        val index= testDocumentIndex()
+        client.bulk(target = index, refresh = Refresh.WaitFor) {
+                index(TestDocument("doc 1", tags = listOf("group1")).json())
+                index(TestDocument("doc 2", tags = listOf("group1")).json())
+                index(TestDocument("doc 3", tags = listOf("group2")).json())
+        }
+        val results = client.search(target = index) {
+            collapse(TestDocument::tags) {
+                innerHits("by_tag") {
+                    resultSize = 4
+                }
+            }
+        }
+        results.parseHits<TestDocument>().size shouldBe 2
+        results.hits?.hits?.forEach { hit ->
+            hit.innerHits shouldNotBe null
+            hit.innerHits?.get("by_tag") shouldNotBe null
+            // convoluted response json from Elasticsearch here
+            hit.innerHits?.get("by_tag")?.hits?.hits?.size!! shouldBeGreaterThan 0
         }
     }
 }

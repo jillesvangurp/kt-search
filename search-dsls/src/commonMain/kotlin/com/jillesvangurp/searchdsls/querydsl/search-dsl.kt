@@ -10,7 +10,10 @@ import kotlin.reflect.KProperty
 annotation class SearchDSLMarker
 
 @SearchDSLMarker
-open class ESQuery(val name: String, val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)) :
+open class ESQuery(
+    val name: String,
+    val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+) :
     IJsonDsl by queryDetails {
 
     fun toMap(): Map<String, Any> = dslObject { this[name] = queryDetails }
@@ -73,10 +76,11 @@ class SearchDSL : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToS
 
 enum class SortOrder { ASC, DESC }
 enum class SortMode { MIN, MAX, SUM, AVG, MEDIAN }
+
 @Suppress("UNUSED_PARAMETER")
 class SortField(field: String, order: SortOrder? = null, mode: SortMode? = null)
 
-class SortBuilder(){
+class SortBuilder {
     private val _sortFields = mutableListOf<Any>()
 
     val sortFields get() = _sortFields.toList()
@@ -96,7 +100,7 @@ class SortBuilder(){
     fun add(
         field: String,
         order: SortOrder = SortOrder.DESC,
-        mode: SortMode?= null,
+        mode: SortMode? = null,
         missing: String? = null,
         block: (JsonDsl.() -> Unit)? = null
     ) = _sortFields.add(withJsonDsl {
@@ -114,10 +118,54 @@ class SortBuilder(){
 }
 
 fun SearchDSL.sort(block: SortBuilder.() -> Unit) {
-    val builder =  SortBuilder()
+    val builder = SortBuilder()
     block.invoke(builder)
     this["sort"] = builder.sortFields
 }
+
+class Collapse(
+) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    var field: String by property()
+    var innerHits: InnerHits by property()
+
+    class InnerHits(
+    ) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+        var name: String by property()
+        var resultSize: Int by property("size")
+        var collapse: Collapse? by property()
+        val maxConcurrentGroupSearches: Int by property()
+    }
+}
+
+fun Collapse.innerHits(name: String, block: (Collapse.InnerHits.() -> Unit)? = null) {
+    val ih = Collapse.InnerHits()
+    ih.name = name
+    block?.let { ih.apply(it) }
+    innerHits = ih
+}
+
+fun Collapse.InnerHits.sort(block: SortBuilder.() -> Unit) {
+    val builder = SortBuilder()
+    block.invoke(builder)
+    this["sort"] = builder.sortFields
+}
+
+fun SearchDSL.collapse(field: String, block: (Collapse.() -> Unit)? = null) {
+    this["collapse"] = Collapse().let { c ->
+        c.field = field
+        block?.let { c.apply(block) } ?: c
+    }
+}
+
+fun SearchDSL.collapse(field: KProperty<*>, block: (Collapse.() -> Unit)? = null) = collapse(field.name, block)
+fun Collapse.InnerHits.collapse(field: String, block: (Collapse.() -> Unit)? = null) {
+    collapse = Collapse().let { c ->
+        c.field = field
+        block?.let { c.apply(block) } ?: c
+    }
+}
+
+fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit)? = null) = collapse(field.name, block)
 
 fun SearchDSL.matchAll() = ESQuery("match_all")
 
@@ -157,19 +205,19 @@ class MultiSearchDSL(internal val jsonDslSerializer: JsonDslSerializer) {
         json.add(jsonDslSerializer.serialize(dsl))
     }
 
-    fun header(headerBlock: MultiSearchHeader.()-> Unit) : MultiSearchHeader {
+    fun header(headerBlock: MultiSearchHeader.() -> Unit): MultiSearchHeader {
         val header = MultiSearchHeader()
         headerBlock.invoke(header)
         return header
     }
 
-    infix fun MultiSearchHeader.withQuery(queryBlock: SearchDSL.()-> Unit) {
+    infix fun MultiSearchHeader.withQuery(queryBlock: SearchDSL.() -> Unit) {
         val dsl = SearchDSL()
         queryBlock.invoke(dsl)
         add(this, dsl)
     }
 
-    fun withQuery(queryBlock: SearchDSL.()-> Unit) {
+    fun withQuery(queryBlock: SearchDSL.() -> Unit) {
         val dsl = SearchDSL()
         queryBlock.invoke(dsl)
         add(MultiSearchHeader(), dsl)

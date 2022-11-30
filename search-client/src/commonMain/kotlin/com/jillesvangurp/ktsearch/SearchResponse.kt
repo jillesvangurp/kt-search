@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.querydsl.Collapse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -35,7 +36,9 @@ data class SearchResponse(
         @SerialName("_source")
         val source: JsonObject?,
         val fields: JsonObject?,
-        val sort: JsonArray?
+        val sort: JsonArray?,
+        @SerialName("inner_hits")
+        val innerHits: Map<String,HitsContainer>?,
     )
 
     @Serializable
@@ -58,6 +61,9 @@ data class SearchResponse(
         data class Total(val value: Long, val relation: TotalRelation)
     }
 }
+
+@Serializable
+class HitsContainer(val hits: SearchResponse.Hits)
 
 val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
 inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = searchHits.map {

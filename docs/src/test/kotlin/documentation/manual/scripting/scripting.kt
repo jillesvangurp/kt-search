@@ -66,17 +66,27 @@ val scriptingMd = sourceGitRepository.md {
             
             [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) is there to get you started, of course.
             
-            Some gotchas:
-            
+            Limitations:
+
             - your script name **MUST** end in `.main.kts`
-            - kotlin scripting does not understand multi-platform, add `-jvm` suffix for the `kt-client` dependency
-            - if you add a custom repository, you also have to specify maven central as a repository explicitly if you need more dependencies
+            - import handling is a bit limited especially for extension functions outside of 
+              intellij. So, you may have to add the right imports manually.
+            - KTS and compiler plugins are tricky. Since kt-search uses kotlinx-serialization 
+              that means that defining new serializable data classes is not possible in 
+              KTS unless you can add the compiler plugin. There are some workarounds for that documented 
+              here: https://youtrack.jetbrains.com/issue/KT-47384. Alternatively, put your model classes in a separate library (that builds with the compiler plugin) and add a dependency to that.             
+            - KTS is a bit limited in with respect to handling multi-platform dependencies. 
+              Make sure to depend on the `-jvm` dependency for multi-platform dependencies 
+              (like kt-search). The `kt-search-kts` library has a transitive dependency and that 
+              works out fine.
+            - if you add a custom repository, you also have to specify maven 
+              central as a repository explicitly if you need more dependencies
 
             ```kotlin
             @file:Repository("https://repo1.maven.org/maven2")
             @file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
-            @file:Repository("https://maven.tryformation.com/releases")
-            @file:DependsOn("com.jillesvangurp:search-client-jvm:1.99.5")            
+            @file:Repository("https://jitpack.io")
+            @file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.7")
             ```            
             - make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
             course make it executable `chmod 755 myscript.main.kts`
