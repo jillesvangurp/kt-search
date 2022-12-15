@@ -75,30 +75,7 @@ class SearchTest : SearchTestBase() {
             hits.count() shouldBe 20
         }
     }
-
     @Test
-    fun shouldCollapseResults() = coTest {
-        val index= testDocumentIndex()
-        client.bulk(target = index, refresh = Refresh.WaitFor) {
-                index(TestDocument("doc 1", tags = listOf("group1")).json())
-                index(TestDocument("doc 2", tags = listOf("group1")).json())
-                index(TestDocument("doc 3", tags = listOf("group2")).json())
-        }
-        val results = client.search(target = index) {
-            collapse(TestDocument::tags) {
-                innerHits("by_tag") {
-                    resultSize = 4
-                }
-            }
-        }
-        results.parseHits<TestDocument>().size shouldBe 2
-        results.hits?.hits?.forEach { hit ->
-            hit.innerHits shouldNotBe null
-            hit.innerHits?.get("by_tag") shouldNotBe null
-            // convoluted response json from Elasticsearch here
-            hit.innerHits?.get("by_tag")?.hits?.hits?.size!! shouldBeGreaterThan 0
-        }
-    }
     fun shouldWorkWithoutTotalHits() = coTest {
         val index = testDocumentIndex()
         client.search(target = index, trackTotalHits = false)
