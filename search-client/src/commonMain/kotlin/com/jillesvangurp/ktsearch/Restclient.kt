@@ -4,7 +4,7 @@ import io.ktor.http.*
 
 data class Node(val host: String, val port: Int)
 interface NodeSelector {
-    fun selectNode(initialNodes: Array<out Node>): Node
+    fun selectNode(): Node
 }
 
 /**
