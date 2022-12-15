@@ -72,6 +72,7 @@ $dokka.location:com.jillesvangurp.ktsearch//ids/com.jillesvangurp.ktsearch.Searc
 $dokka.location:com.jillesvangurp.ktsearch//index/com.jillesvangurp.ktsearch.BulkSession#TypeParam(bounds=[kotlin.Any?])#kotlin.String?#kotlin.String?#kotlin.Boolean?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/--index--.html
 $dokka.location:com.jillesvangurp.ktsearch//indexDocument/com.jillesvangurp.ktsearch.SearchClient#kotlin.String#TypeParam(bounds=[kotlin.Any?])#kotlin.String?#kotlin.Int?#kotlin.Int?#com.jillesvangurp.ktsearch.OperationType?#kotlin.String?#com.jillesvangurp.ktsearch.Refresh?#kotlin.String?#kotlin.time.Duration?#kotlin.Int?#com.jillesvangurp.ktsearch.VersionType?#kotlin.String?#kotlin.Boolean?#kotlin.collections.Map[kotlin.String,kotlin.String]?#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/index-document.html
 $dokka.location:com.jillesvangurp.ktsearch//indexDocument/com.jillesvangurp.ktsearch.SearchClient#kotlin.String#kotlin.String#kotlin.String?#kotlin.Int?#kotlin.Int?#com.jillesvangurp.ktsearch.OperationType?#kotlin.String?#com.jillesvangurp.ktsearch.Refresh?#kotlin.String?#kotlin.time.Duration?#kotlin.Int?#com.jillesvangurp.ktsearch.VersionType?#kotlin.String?#kotlin.Boolean?#kotlin.collections.Map[kotlin.String,kotlin.String]?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/index-document.html
+$dokka.location:com.jillesvangurp.ktsearch//indexProvider/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/index-provider.html
 $dokka.location:com.jillesvangurp.ktsearch//listSnapshots/com.jillesvangurp.ktsearch.SearchClient#kotlin.String#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/list-snapshots.html
 $dokka.location:com.jillesvangurp.ktsearch//parse/kotlin.Result[com.jillesvangurp.ktsearch.RestResponse]#kotlinx.serialization.DeserializationStrategy[TypeParam(bounds=[kotlin.Any?])]#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/parse.html
 $dokka.location:com.jillesvangurp.ktsearch//parse/kotlinx.serialization.json.JsonObject#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/parse.html
@@ -251,6 +252,9 @@ $dokka.location:com.jillesvangurp.ktsearch/IndexCreateResponse/IndexCreateRespon
 $dokka.location:com.jillesvangurp.ktsearch/IndexCreateResponse/acknowledged/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-create-response/acknowledged.html
 $dokka.location:com.jillesvangurp.ktsearch/IndexCreateResponse/index/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-create-response/--index--.html
 $dokka.location:com.jillesvangurp.ktsearch/IndexCreateResponse/shardsAcknowledged/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-create-response/shards-acknowledged.html
+$dokka.location:com.jillesvangurp.ktsearch/IndexProvider///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-provider/index.html
+$dokka.location:com.jillesvangurp.ktsearch/IndexProvider/get/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-provider/get.html
+$dokka.location:com.jillesvangurp.ktsearch/IndexProvider/set/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-provider/set.html
 $dokka.location:com.jillesvangurp.ktsearch/IndexTemplate///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-template/index.html
 $dokka.location:com.jillesvangurp.ktsearch/IndexTemplate/IndexTemplate/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-template/-index-template.html
 $dokka.location:com.jillesvangurp.ktsearch/IndexTemplate/composedOf/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-index-template/composed-of.html
@@ -268,7 +272,7 @@ $dokka.location:com.jillesvangurp.ktsearch/Node/Node/#kotlin.String#kotlin.Int/P
 $dokka.location:com.jillesvangurp.ktsearch/Node/host/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/host.html
 $dokka.location:com.jillesvangurp.ktsearch/Node/port/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/port.html
 $dokka.location:com.jillesvangurp.ktsearch/NodeSelector///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node-selector/index.html
-$dokka.location:com.jillesvangurp.ktsearch/NodeSelector/selectNode/#kotlin.Array[com.jillesvangurp.ktsearch.Node]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node-selector/select-node.html
+$dokka.location:com.jillesvangurp.ktsearch/NodeSelector/selectNode/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node-selector/select-node.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType.Create///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-operation-type/-create/index.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType.Delete///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-operation-type/-delete/index.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType.Index///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-operation-type/-index/index.html
@@ -362,8 +366,8 @@ $dokka.location:com.jillesvangurp.ktsearch/RestResponse/responseCategory/#/Point
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse/status/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/status.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse/text/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/text.html
 $dokka.location:com.jillesvangurp.ktsearch/RoundRobinNodeSelector///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-round-robin-node-selector/index.html
-$dokka.location:com.jillesvangurp.ktsearch/RoundRobinNodeSelector/RoundRobinNodeSelector/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-round-robin-node-selector/-round-robin-node-selector.html
-$dokka.location:com.jillesvangurp.ktsearch/RoundRobinNodeSelector/selectNode/#kotlin.Array[com.jillesvangurp.ktsearch.Node]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-round-robin-node-selector/select-node.html
+$dokka.location:com.jillesvangurp.ktsearch/RoundRobinNodeSelector/RoundRobinNodeSelector/#kotlin.Array[com.jillesvangurp.ktsearch.Node]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-round-robin-node-selector/-round-robin-node-selector.html
+$dokka.location:com.jillesvangurp.ktsearch/RoundRobinNodeSelector/selectNode/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-round-robin-node-selector/select-node.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchAPIRequest///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-a-p-i-request/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchAPIRequest/SearchAPIRequest/#kotlin.String?#io.ktor.http.ContentType#kotlin.collections.List[kotlin.String]#kotlin.collections.MutableMap[kotlin.String,kotlin.String]#kotlin.collections.MutableMap[kotlin.String,kotlin.Any]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-a-p-i-request/-search-a-p-i-request.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchAPIRequest/header/#kotlin.String#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-a-p-i-request/header.html
@@ -446,6 +450,10 @@ $dokka.location:com.jillesvangurp.ktsearch/Shards/failed/#/PointingToDeclaration
 $dokka.location:com.jillesvangurp.ktsearch/Shards/skipped/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-shards/skipped.html
 $dokka.location:com.jillesvangurp.ktsearch/Shards/successful/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-shards/successful.html
 $dokka.location:com.jillesvangurp.ktsearch/Shards/total/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-shards/total.html
+$dokka.location:com.jillesvangurp.ktsearch/SimpleIndexProvider///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-simple-index-provider/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SimpleIndexProvider/SimpleIndexProvider/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-simple-index-provider/-simple-index-provider.html
+$dokka.location:com.jillesvangurp.ktsearch/SimpleIndexProvider/get/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-simple-index-provider/get.html
+$dokka.location:com.jillesvangurp.ktsearch/SimpleIndexProvider/set/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-simple-index-provider/set.html
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository.Settings///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/-settings/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository.Settings/Settings/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/-settings/-settings.html
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository.Settings/bucket/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/-settings/bucket.html
@@ -462,6 +470,10 @@ $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.always///PointingToDeclar
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.missing///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/missing/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.popular///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/popular/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-suggest-mode/index.html
+$dokka.location:com.jillesvangurp.ktsearch/ThreadLocalIndex///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-thread-local-index/index.html
+$dokka.location:com.jillesvangurp.ktsearch/ThreadLocalIndex/ThreadLocalIndex/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-thread-local-index/-thread-local-index.html
+$dokka.location:com.jillesvangurp.ktsearch/ThreadLocalIndex/get/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-thread-local-index/get.html
+$dokka.location:com.jillesvangurp.ktsearch/ThreadLocalIndex/set/#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-thread-local-index/set.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/index.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo/VariantInfo/#com.jillesvangurp.ktsearch.SearchEngineVariant#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/-variant-info.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo/majorVersion/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/major-version.html
