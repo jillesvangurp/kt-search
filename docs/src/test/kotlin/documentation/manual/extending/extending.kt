@@ -2,6 +2,7 @@ package documentation.manual.extending
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.PropertyNamingConvention
+import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
@@ -47,7 +48,7 @@ val extendingMd = sourceGitRepository.md {
             }
 
             class FooDSL : JsonDsl(
-                namingConvention = PropertyNamingConvention.ConvertToSnakeCase
+                namingConvention = ConvertToSnakeCase
             ) {
                 var foo by property<String>()
 
@@ -66,7 +67,9 @@ val extendingMd = sourceGitRepository.md {
                     yYy = false
                     // you can just improvise things that aren't part of your DSL
                     this["zzz"] = listOf(1, 2, 3)
-                    this["missingFeature"] = JsonDsl().apply {
+                    this["missingFeature"] = JsonDsl(
+                        namingConvention = ConvertToSnakeCase
+                    ).apply {
                         this["another"] = " field"
                         put(
                             key = "camelCasing",
@@ -102,7 +105,7 @@ val extendingMd = sourceGitRepository.md {
         """.trimIndent()
 
         block(false) {
-            class TermQueryConfig : JsonDsl() {
+            class TermQueryConfig : JsonDsl(namingConvention = ConvertToSnakeCase) {
                 var value by property<String>()
                 var boost by property<Double>()
             }

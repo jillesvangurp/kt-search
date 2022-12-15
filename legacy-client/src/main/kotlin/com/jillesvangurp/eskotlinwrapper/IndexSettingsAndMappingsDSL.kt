@@ -48,10 +48,10 @@ class IndexSettings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
     var shards: Int by property("index.number_of_shards")
 
     private fun addToAnalysis(type: String, name: String, json: JsonDsl) {
-        val analysis = get("analysis") as JsonDsl? ?: JsonDsl().also {
+        val analysis = get("analysis") as JsonDsl? ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
             put("analysis", it)
         }
-        val objects = analysis[type] as JsonDsl? ?: JsonDsl().also {
+        val objects = analysis[type] as JsonDsl? ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
             analysis[type] = it
         }
         objects[name] = json
@@ -193,7 +193,7 @@ class IndexSettingsAndMappingsDSL private constructor(private val generateMetaFi
     }
 
     fun meta(block: JsonDsl.() -> Unit) {
-        if (meta == null) meta = JsonDsl()
+        if (meta == null) meta = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
         block.invoke(meta!!)
     }
 
@@ -206,7 +206,7 @@ class IndexSettingsAndMappingsDSL private constructor(private val generateMetaFi
     internal fun build(pretty: Boolean = false): XContentBuilder {
         if (generateMetaFields) {
             // if it did not exist, create it.
-            if (meta == null) meta = object : JsonDsl() {}
+            if (meta == null) meta = object : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {}
             val mappingJson = mappings?.json(true) ?: "{}"
             meta!!["content_hash"] =
                 Base64.getEncoder().encodeToString(MessageDigest.getInstance("MD5").digest(mappingJson.toByteArray()))

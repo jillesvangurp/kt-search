@@ -1,6 +1,7 @@
 package com.jillesvangurp.eskotlinwrapper
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class KotlinxSerializationTest {
     }
 }
 
-class Foo : JsonDsl() {
+class Foo : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var aString: String by property()
     var aNumber: Int by property()
     var aList: List<String> by property()

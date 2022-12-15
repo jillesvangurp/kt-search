@@ -4,17 +4,18 @@ package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.JsonDslMarker
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)
 private fun JsonDsl.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
+    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
         this["aggs"]=it
     }
 }
 
 private fun AggQuery.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
+    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
         this["aggs"]=it
     }
 }
@@ -27,7 +28,7 @@ fun AggQuery.agg(name:String, aggQuery: AggQuery) {
     aggs()[name] = aggQuery
 }
 
-class TermsAggConfig: JsonDsl() {
+class TermsAggConfig: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var field by property<String>()
     var aggSize by property<Long>("size") // can't redefine Map.size sadly
     var minSize by property<Long>("min_size")
@@ -45,7 +46,7 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)?=null): Agg
     }
 }
 
-class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl() {
+class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var min by property<String>()
     var max by property<String>()
 
