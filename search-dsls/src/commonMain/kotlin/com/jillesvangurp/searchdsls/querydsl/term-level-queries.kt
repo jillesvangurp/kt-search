@@ -22,7 +22,7 @@ fun SearchDSL.exists(field: KProperty<*>, block: (ExistsQuery.() -> Unit)? = nul
 
 fun SearchDSL.exists(field: String, block: (ExistsQuery.() -> Unit)? = null) = ExistsQuery(field, block)
 
-class FuzzyQueryConfig : JsonDsl() {
+class FuzzyQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var boost by property<Double>()
     var value by property<String>()
     var fuzziness by property<String>()
@@ -68,7 +68,7 @@ fun SearchDSL.ids(
     block: (IdsQuery.() -> Unit)? = null
 ) = IdsQuery(*values,block = block)
 
-class PrefixQueryConfig : JsonDsl() {
+class PrefixQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var boost by property<Double>()
     var value by property<String>()
 }
@@ -102,7 +102,7 @@ fun SearchDSL.prefix(
     PrefixQuery(field, value, block = block)
 
 enum class RangeRelation { INTERSECTS, CONTAINS, WITHIN }
-class RangeQueryConfig : JsonDsl() {
+class RangeQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var boost by property<Double>()
     var gt by property<Any>()
     var gte by property<Any>()
@@ -132,7 +132,7 @@ fun SearchDSL.range(field: String, block: RangeQueryConfig.() -> Unit) =
     RangeQuery(field, block = block)
 
 
-class RegExpQueryConfig : JsonDsl() {
+class RegExpQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var boost by property<Double>()
     var value by property<String>()
     var flags by property<String>()
@@ -169,7 +169,7 @@ fun SearchDSL.regExp(
     RegExpQuery(field,value, block = block)
 
 // BEGIN term-query
-class TermQueryConfig : JsonDsl() {
+class TermQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var value by property<String>()
     var boost by property<Double>()
 }
@@ -236,7 +236,7 @@ fun SearchDSL.terms(
 ) =
     TermsQuery(field,*values, block = block)
 
-class WildCardQueryConfig : JsonDsl() {
+class WildCardQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var value by property<String>()
     var boost by property<Double>()
     var rewrite by property<String>()

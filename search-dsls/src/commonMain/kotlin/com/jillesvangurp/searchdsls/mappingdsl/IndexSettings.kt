@@ -9,7 +9,7 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
 @Suppress("LeakingThis")
-class Analysis : JsonDsl() {
+class Analysis : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     class Analyzer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
         var type by property<String>()
         var tokenizer by property<String>()
@@ -38,7 +38,7 @@ class Analysis : JsonDsl() {
     }
 
     private fun addConfig(type: String, name: String, json: JsonDsl) {
-        val objects = this[type] as JsonDsl? ?: JsonDsl().also {
+        val objects = this[type] as JsonDsl? ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
             this[type] = it
         }
         objects[name] = json
@@ -225,19 +225,19 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
     }
 
     fun meta(block: JsonDsl.() -> Unit) {
-        val newMeta = JsonDsl()
+        val newMeta = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
         block.invoke(newMeta)
         if (containsKey("mappings")) {
             mappings["_meta"] = newMeta
         } else {
-            mappings = JsonDsl().apply { this["_meta"] = newMeta }
+            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply { this["_meta"] = newMeta }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun dynamicTemplate(dynamicTemplateId: String, block: DynamicTemplateDefinition.() -> Unit) {
         if (!containsKey("mappings")) {
-            mappings = JsonDsl()
+            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
         }
         if (mappings["dynamic_templates"] == null) {
             mappings["dynamic_templates"] = mutableListOf<JsonDsl>()
@@ -253,7 +253,7 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
     fun mappings(dynamicEnabled: Boolean? = null, block: FieldMappings.() -> Unit) {
         val properties = FieldMappings()
         if (!containsKey("mappings")) {
-            mappings = JsonDsl()
+            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
         }
         dynamicEnabled?.let {
             mappings["dynamic"] = dynamicEnabled.toString()

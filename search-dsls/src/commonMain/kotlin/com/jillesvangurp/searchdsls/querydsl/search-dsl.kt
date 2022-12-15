@@ -176,7 +176,7 @@ enum class ExpandWildCards { all, open, closed, hidden, none }
 enum class SearchType { query_then_fetch, dfs_query_then_fetch }
 
 @Suppress("SpellCheckingInspection")
-class MultiSearchHeader : JsonDsl() {
+class MultiSearchHeader : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var allowNoIndices by property<Boolean>()
     var ccsMinimizeRoundtrips by property<Boolean>()
     var expandWildcards by property<ExpandWildCards>()

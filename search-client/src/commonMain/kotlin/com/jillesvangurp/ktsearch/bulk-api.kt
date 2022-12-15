@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -138,8 +139,8 @@ class BulkSession internal constructor(
     private var closed: Boolean = false
 
     suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = JsonDsl().apply {
-            this["create"] = JsonDsl().apply {
+        val opDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+            this["create"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
                 index?.let {
                     this["_index"] = index
                 }
@@ -155,8 +156,8 @@ class BulkSession internal constructor(
     }
 
     suspend fun index(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = JsonDsl().apply {
-            this["index"] = JsonDsl().apply {
+        val opDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+            this["index"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
                 index?.let {
                     this["_index"] = index
                 }
@@ -172,8 +173,8 @@ class BulkSession internal constructor(
     }
 
     suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = JsonDsl().apply {
-            this["delete"] = JsonDsl().apply {
+        val opDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+            this["delete"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
                 this["_id"] = id
                 index?.let {
                     this["_index"] = index

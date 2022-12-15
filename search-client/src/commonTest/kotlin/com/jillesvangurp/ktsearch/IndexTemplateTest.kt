@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import kotlin.test.Test
 
 class IndexTemplateTest: SearchTestBase() {
@@ -24,7 +25,7 @@ class IndexTemplateTest: SearchTestBase() {
         }
         client.createIndexTemplate(templateId) {
             indexPatterns = listOf("logs*")
-            dataStream = JsonDsl()
+            dataStream = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
             composedOf = listOf(settingsTemplateId, mappingsTemplateId)
         }
 

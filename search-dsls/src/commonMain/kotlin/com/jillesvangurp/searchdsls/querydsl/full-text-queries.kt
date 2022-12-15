@@ -13,7 +13,7 @@ enum class MatchOperator { AND, OR }
 enum class ZeroTermsQuery { all, none }
 
 @SearchDSLMarker
-class MatchQueryConfig : JsonDsl() {
+class MatchQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()
@@ -55,7 +55,7 @@ fun SearchDSL.match(
 ) = MatchQuery(field, query, block = block)
 // END MATCH_QUERY
 
-class MatchPhraseQueryConfig : JsonDsl() {
+class MatchPhraseQueryConfig : JsonDsl(PropertyNamingConvention.ConvertToSnakeCase) {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()
@@ -86,7 +86,7 @@ fun SearchDSL.matchPhrase(
     query: String, block: (MatchPhraseQueryConfig.() -> Unit)? = null
 ) = MatchPhraseQuery(field, query, block = block)
 
-class MatchBoolPrefixQueryConfig : JsonDsl() {
+class MatchBoolPrefixQueryConfig : JsonDsl(PropertyNamingConvention.ConvertToSnakeCase) {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()
@@ -122,7 +122,7 @@ fun SearchDSL.matchBoolPrefix(
     query: String, block: (MatchBoolPrefixQueryConfig.() -> Unit)? = null
 ) = MatchBoolPrefixQuery(field, query, block = block)
 
-class MatchPhrasePrefixQueryConfig : JsonDsl() {
+class MatchPhrasePrefixQueryConfig : JsonDsl(PropertyNamingConvention.ConvertToSnakeCase) {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()

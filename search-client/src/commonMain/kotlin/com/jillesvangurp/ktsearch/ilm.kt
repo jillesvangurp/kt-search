@@ -29,7 +29,7 @@ class ILMActions : JsonDsl(namingConvention = PropertyNamingConvention.ConvertTo
     }
 
     fun delete() {
-        this["delete"] = JsonDsl()
+        this["delete"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.ESQuery
@@ -10,7 +11,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonObject
 
 @Suppress("unused")
-class AliasAction: JsonDsl() {
+class AliasAction: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     var alias by property<String>()
     var aliases by property<List<String>>()
     var index by property<String>()
@@ -18,7 +19,7 @@ class AliasAction: JsonDsl() {
     var filter by property<ESQuery>()
 }
 
-class AliasUpdateRequest: JsonDsl() {
+class AliasUpdateRequest: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
     private var actions by property(mutableListOf<JsonDsl>())
     fun add(block: AliasAction.()->Unit) {
         actions.add(withJsonDsl {

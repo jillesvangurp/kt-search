@@ -1,6 +1,8 @@
 package documentation.manual.search
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
+import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
@@ -129,7 +131,9 @@ val searchMd = sourceGitRepository.md {
                     // of course JsonDsl is just a map
                     "term" to withJsonDsl {
                         // and withJsonDsl is just short for this:
-                        this[TestDoc::tags.name] = JsonDsl().apply {
+                        this[TestDoc::tags.name] = JsonDsl(
+                            namingConvention = ConvertToSnakeCase
+                        ).apply {
                            this["value"] = "legumes"
                         }
                     }
