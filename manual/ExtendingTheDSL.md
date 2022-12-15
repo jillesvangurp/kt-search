@@ -35,7 +35,7 @@ class BarDsl : JsonDsl(
 }
 
 class FooDSL : JsonDsl(
-  namingConvention = PropertyNamingConvention.ConvertToSnakeCase
+  namingConvention = ConvertToSnakeCase
 ) {
   var foo by property<String>()
 
@@ -54,7 +54,9 @@ foo {
     yYy = false
     // you can just improvise things that aren't part of your DSL
     this["zzz"] = listOf(1, 2, 3)
-    this["missingFeature"] = JsonDsl().apply {
+    this["missingFeature"] = JsonDsl(
+      namingConvention = ConvertToSnakeCase
+    ).apply {
       this["another"] = " field"
       put(
         key = "camelCasing",
@@ -110,7 +112,7 @@ can't use it to e.g. specify the query size attribute.
 As an example, we'll use the `term` query implementation in this library.                       
 
 ```kotlin
-class TermQueryConfig : JsonDsl() {
+class TermQueryConfig : JsonDsl(namingConvention = ConvertToSnakeCase) {
   var value by property<String>()
   var boost by property<Double>()
 }

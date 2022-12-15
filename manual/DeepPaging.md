@@ -122,7 +122,9 @@ val q = SearchDSL().apply {
   query = matchAll()
 
   // this is not part of the DSL
-  this["pit"] = JsonDsl().apply {
+  this["pit"] = JsonDsl(
+    namingConvention = ConvertToSnakeCase
+  ).apply {
     this["id"] = pit
   }
   // it's recommended to sort on _shard_doc
@@ -141,7 +143,9 @@ resp.hits?.hits?.last()?.sort?.let { sort ->
 }
 // the response will include a pit id
 resp.pitId?.let { pid ->
-  q["pit"] = JsonDsl().apply {
+  q["pit"] = JsonDsl(
+    namingConvention = ConvertToSnakeCase
+  ).apply {
     this["id"] = pid
     this["keep_alive"] = "60s"
   }

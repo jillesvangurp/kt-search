@@ -120,7 +120,9 @@ client.search(indexName) {
     // of course JsonDsl is just a map
     "term" to withJsonDsl {
       // and withJsonDsl is just short for this:
-      this[TestDoc::tags.name] = JsonDsl().apply {
+      this[TestDoc::tags.name] = JsonDsl(
+        namingConvention = ConvertToSnakeCase
+      ).apply {
          this["value"] = "legumes"
       }
     }
