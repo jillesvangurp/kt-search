@@ -4,8 +4,10 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * Base interface for IMapBackedProperties; this allows using interface delegation on classes that
- * can't extend the JsonDsl class
+ * Base interface for JsonDsl; this allows using interface delegation on classes that
+ * can't extend the JsonDsl class.
+ *
+ * See `SearchDsl` for an example of this.
  */
 interface IJsonDsl : MutableMap<String, Any> {
     val defaultNamingConvention: PropertyNamingConvention

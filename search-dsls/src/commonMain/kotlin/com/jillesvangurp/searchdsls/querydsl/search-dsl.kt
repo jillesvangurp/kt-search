@@ -13,8 +13,7 @@ annotation class SearchDSLMarker
 open class ESQuery(
     val name: String,
     val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
-) :
-    IJsonDsl by queryDetails {
+) : IJsonDsl by queryDetails {
 
     fun toMap(): Map<String, Any> = dslObject { this[name] = queryDetails }
 

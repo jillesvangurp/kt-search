@@ -1,8 +1,10 @@
 package com.jillesvangurp.jsondsl
 
-// you probably should not use this and use kotlinx serialization, jackson, or whatever instead
-// but it will work in a pinch
-class SimpleSerializer: JsonDslSerializer {
+/**
+ * To keep this framework light weight, I decided to implement my own json serializer.
+ * It's not that hard and it means that people can use whatever framework they want.
+ */
+class SimpleJsonSerializer: JsonDslSerializer {
     override fun serialize(properties: JsonDsl, pretty: Boolean): String {
         val buf = StringBuilder()
         write(buf = buf, indent = 0, indentStep = 2, pretty = pretty, obj = properties)
