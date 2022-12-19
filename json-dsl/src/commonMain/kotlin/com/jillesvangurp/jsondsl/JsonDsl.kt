@@ -29,7 +29,7 @@ fun String.convertPropertyName(namingConvention: PropertyNamingConvention):Strin
 @Suppress("UNCHECKED_CAST")
 @JsonDslMarker
 open class JsonDsl(
-    private val namingConvention: PropertyNamingConvention = PropertyNamingConvention.AsIs,
+    private val namingConvention: PropertyNamingConvention = PropertyNamingConvention.ConvertToSnakeCase,
     internal val _properties: MutableMap<String, Any> = mutableMapOf(),
 ) : MutableMap<String, Any> by _properties, IJsonDsl {
     override val defaultNamingConvention: PropertyNamingConvention = namingConvention

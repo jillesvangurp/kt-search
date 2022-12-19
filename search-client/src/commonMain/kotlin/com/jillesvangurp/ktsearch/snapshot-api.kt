@@ -6,8 +6,8 @@ import com.jillesvangurp.jsondsl.json
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-class SnapshotRepository : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
-    class Settings : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class SnapshotRepository : JsonDsl() {
+    class Settings : JsonDsl() {
         var bucket by property<String>()
         var endPoint by property<String>()
         var protocol by property<String>()

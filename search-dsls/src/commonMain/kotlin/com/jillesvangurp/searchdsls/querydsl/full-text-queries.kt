@@ -13,7 +13,7 @@ enum class MatchOperator { AND, OR }
 enum class ZeroTermsQuery { all, none }
 
 @SearchDSLMarker
-class MatchQueryConfig : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class MatchQueryConfig : JsonDsl() {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()

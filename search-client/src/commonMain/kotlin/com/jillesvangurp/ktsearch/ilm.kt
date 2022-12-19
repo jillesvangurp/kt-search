@@ -9,7 +9,7 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 
-class ILMActions : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ILMActions : JsonDsl() {
     fun rollOver(maxPrimaryShardSizeGb: Int) {
         this["rollover"] = withJsonDsl {
             this["max_primary_shard_size"] = "${maxPrimaryShardSizeGb}gb"
@@ -29,11 +29,11 @@ class ILMActions : JsonDsl(namingConvention = PropertyNamingConvention.ConvertTo
     }
 
     fun delete() {
-        this["delete"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+        this["delete"] = JsonDsl()
     }
 }
 
-class ILMPhaseConfiguration : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ILMPhaseConfiguration : JsonDsl() {
     var minAge by property<String>()
     fun minAge(duration: Duration) {
         val m = duration.inWholeMinutes
@@ -57,7 +57,7 @@ class ILMPhaseConfiguration : JsonDsl(namingConvention = PropertyNamingConventio
 
 }
 
-class IMLPhases : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class IMLPhases : JsonDsl() {
     fun hot(block: ILMPhaseConfiguration.()->Unit) {
         this["hot"] = ILMPhaseConfiguration().apply(block)
     }
@@ -75,11 +75,11 @@ class IMLPhases : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToS
     }
 }
 
-class IMLPolicy : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class IMLPolicy : JsonDsl() {
     var phases by property(defaultValue = IMLPhases())
 }
 
-class ILMConfiguration: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ILMConfiguration: JsonDsl() {
     var policy by property(defaultValue = IMLPolicy())
 }
 

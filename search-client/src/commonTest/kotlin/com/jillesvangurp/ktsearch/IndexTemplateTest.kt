@@ -25,7 +25,7 @@ class IndexTemplateTest: SearchTestBase() {
         }
         client.createIndexTemplate(templateId) {
             indexPatterns = listOf("logs*")
-            dataStream = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+            dataStream = JsonDsl()
             composedOf = listOf(settingsTemplateId, mappingsTemplateId)
         }
 

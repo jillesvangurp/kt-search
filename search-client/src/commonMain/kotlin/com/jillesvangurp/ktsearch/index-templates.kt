@@ -6,7 +6,7 @@ import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.json.JsonObject
 
-class ComponentTemplate: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class ComponentTemplate: JsonDsl() {
     var template by property<IndexSettingsAndMappingsDSL>(defaultValue = IndexSettingsAndMappingsDSL())
 }
 
@@ -25,7 +25,7 @@ suspend fun SearchClient.deleteComponentTemplate(templateId: String): JsonObject
     }.parseJsonObject()
 }
 
-class IndexTemplate: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class IndexTemplate: JsonDsl() {
     var indexPatterns by property(defaultValue = listOf<String>())
     var dataStream by property<JsonDsl>()
     var composedOf by property(defaultValue = listOf<String>())

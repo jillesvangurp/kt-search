@@ -11,7 +11,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonObject
 
 @Suppress("unused")
-class AliasAction: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class AliasAction: JsonDsl() {
     var alias by property<String>()
     var aliases by property<List<String>>()
     var index by property<String>()
@@ -19,7 +19,7 @@ class AliasAction: JsonDsl(namingConvention = PropertyNamingConvention.ConvertTo
     var filter by property<ESQuery>()
 }
 
-class AliasUpdateRequest: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class AliasUpdateRequest: JsonDsl() {
     private var actions by property(mutableListOf<JsonDsl>())
     fun add(block: AliasAction.()->Unit) {
         actions.add(withJsonDsl {
