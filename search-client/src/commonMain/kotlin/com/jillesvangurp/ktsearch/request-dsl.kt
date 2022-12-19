@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl

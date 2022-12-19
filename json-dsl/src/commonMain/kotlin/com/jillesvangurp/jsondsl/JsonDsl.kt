@@ -30,7 +30,7 @@ fun String.convertPropertyName(namingConvention: PropertyNamingConvention):Strin
 @JsonDslMarker
 open class JsonDsl(
     private val namingConvention: PropertyNamingConvention = PropertyNamingConvention.ConvertToSnakeCase,
-    internal val _properties: MutableMap<String, Any> = mutableMapOf(),
+    @Suppress("PropertyName") internal val _properties: MutableMap<String, Any> = mutableMapOf(),
 ) : MutableMap<String, Any> by _properties, IJsonDsl {
     override val defaultNamingConvention: PropertyNamingConvention = namingConvention
 

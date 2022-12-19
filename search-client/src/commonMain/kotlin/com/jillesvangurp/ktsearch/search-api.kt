@@ -4,9 +4,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
-import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchType
 import com.jillesvangurp.searchdsls.querydsl.SortOrder
@@ -48,7 +46,7 @@ suspend fun SearchClient.search(
     seqNoPrimaryTerm: Boolean? = null,
     size: Int? = null,
     sort: String? = null,
-    _source: String? = null,
+    @Suppress("LocalVariableName") _source: String? = null,
     sourceExcludes: String? = null,
     sourceIncludes: String? = null,
     stats: String? = null,

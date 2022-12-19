@@ -300,7 +300,7 @@ fun <T : Any> SearchClient.repository(
     indexReadAlias: String = indexWriteAlias,
     defaultParameters: Map<String, String>? = null,
 
-    ) = IndexRepository<T>(
+    ) = IndexRepository(
     indexName = indexName,
     client = this,
     serializer = this.ktorModelSerializer(serializer),

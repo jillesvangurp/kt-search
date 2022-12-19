@@ -1,3 +1,5 @@
+@file:Suppress("UnusedReceiverParameter", "unused")
+
 package documentation.manual.extending
 
 import com.jillesvangurp.jsondsl.JsonDsl

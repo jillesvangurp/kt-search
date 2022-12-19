@@ -3,8 +3,6 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.JsonDslMarker
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)

@@ -174,6 +174,16 @@ tasks.withType<Test> {
         )
     }
     useJUnitPlatform()
+    // run tests in parallel
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = "true"
+    // executes test classes concurrently
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+    // executes tests inside a class concurrently
+    systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
+    systemProperties["junit.jupiter.execution.parallel.config.strategy"] = "dynamic"
+    // random order of test class execution
+    systemProperties["junit.jupiter.testclass.order.default"] = "org.junit.jupiter.api.ClassOrderer\$Random"
+
     testLogging.exceptionFormat = FULL
     testLogging.events = setOf(
         FAILED,

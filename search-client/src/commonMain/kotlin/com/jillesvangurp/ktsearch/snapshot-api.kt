@@ -1,7 +1,8 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes

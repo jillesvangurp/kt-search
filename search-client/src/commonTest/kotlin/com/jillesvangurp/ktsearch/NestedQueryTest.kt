@@ -62,6 +62,7 @@ data class NestedTestDocument(
         }
     }
 
+    @Suppress("unused")
     fun json(pretty: Boolean = false): String {
         return if (pretty)
             DEFAULT_PRETTY_JSON.encodeToString(serializer(), this)

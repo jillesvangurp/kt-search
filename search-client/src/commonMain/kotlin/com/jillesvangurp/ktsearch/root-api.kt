@@ -55,6 +55,7 @@ data class SearchEngineInformation(
  * You can get this from [SearchEngineInformation] to figure out which
  * search engine your client is connected to.
  */
+@Suppress("unused")
 data class VariantInfo(
     val variant: SearchEngineVariant,
     val versionString: String,

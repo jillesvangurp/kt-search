@@ -1,7 +1,6 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import kotlin.test.Test
 
 class IndexTemplateTest: SearchTestBase() {

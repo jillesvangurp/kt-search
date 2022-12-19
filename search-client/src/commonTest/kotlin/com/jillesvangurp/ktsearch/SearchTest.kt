@@ -3,7 +3,6 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.searchdsls.querydsl.*
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.count
 import kotlin.test.Test
