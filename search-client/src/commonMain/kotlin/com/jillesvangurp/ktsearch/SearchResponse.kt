@@ -71,7 +71,7 @@ inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = sea
 }
 
 inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T? {
-    return this.source?.parse<T>()
+    return this.source?.parse<T>(json = json)
 }
 
 inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(this)
