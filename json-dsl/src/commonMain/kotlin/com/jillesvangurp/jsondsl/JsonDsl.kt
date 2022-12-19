@@ -110,7 +110,7 @@ open class JsonDsl(
 }
 
 fun JsonDsl.json(pretty: Boolean=false): String {
-    return SimpleSerializer().serialize(this,pretty)
+    return SimpleJsonSerializer().serialize(this,pretty)
 }
 
 fun withJsonDsl(namingConvention: PropertyNamingConvention = PropertyNamingConvention.AsIs, block: JsonDsl.() -> Unit) = JsonDsl(namingConvention=namingConvention).apply {
