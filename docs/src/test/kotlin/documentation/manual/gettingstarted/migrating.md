@@ -1,13 +1,8 @@
 Migrating from the old es-kotlin-client is quite easy but it is going to involve a bit of work:
 
-- The search dsl has been extracted from the old client but is otherwise largely backwards compatible. So your queries should work with the new client.
-- As the java `RestHighLevelClient` is no longer used, all of the kotlin APIs have changed. And that of course includes model classes for API responses.
+- Packages have been renamed. This allows you to use the old client side by side with the new client.
+- The search dsl has been extracted from the old client but is otherwise largely backwards compatible. So your queries should mostly work with the new client after fixing the package names.
+- As the java `RestHighLevelClient` is no longer used, the kotlin APIs have changed. And that of course includes model classes for API responses that can no longer rely or depend on the old Java classes that came with the java client.
 - Unlike the es-kotlin-client which generated kotlin `suspend` functions close to 100 api end points in the `RestHighLevelClient`, Kt Search only includes a handful of APIs for indexing, document crud, and of course searching. We have no intention to support the REST API in its entirety at this point. It's easy to support more of the REST API yourself using the `RestClient`.
+- All APIs in `kt-search` are suspend only. Supporting blocking IO is not a priority and this gets rid of a lot of code duplication.
 
-## Using the legacy client
-
-To faciliate migrating to the new client, the old es-kotlin-client is preserved in the form of the legacy-client. It is largely the same code as the es-kotlin-client but with some changes to use the new search-dsl module.
-
-You can use the legacy-client next to the kt-search client and gradually get rid of usages of the legacy-client. Once you are done, remove the dependency on the legacy-client
-
-Alternatively, you can stick with the old client but bring in the search-dsls module to benefit from the new and improved json DSLs for mappings, querying, template management etc. and try to use those with the old extension functions against the `RestHighLevelClient`. Or, vice versa, use the old DSL with the new client.
