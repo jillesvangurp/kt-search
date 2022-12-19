@@ -9,8 +9,8 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
 @Suppress("LeakingThis")
-class Analysis : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
-    class Analyzer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class Analysis : JsonDsl() {
+    class Analyzer : JsonDsl() {
         var type by property<String>()
         var tokenizer by property<String>()
         var filter by property<List<String>>()
@@ -18,27 +18,27 @@ class Analysis : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSn
         var positionIncrementGap by property<Int>()
     }
 
-    class Normalizer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    class Normalizer : JsonDsl() {
         var type by property<String>()
         var filter by property<List<String>>()
         var charFilter by property<List<String>>()
     }
 
-    open class Tokenizer : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    open class Tokenizer : JsonDsl() {
         var type by property<String>()
     }
 
-    open class CharFilter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    open class CharFilter : JsonDsl() {
         var type by property<String>()
 
     }
 
-    open class Filter : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    open class Filter : JsonDsl() {
         var type by property<String>()
     }
 
     private fun addConfig(type: String, name: String, json: JsonDsl) {
-        val objects = this[type] as JsonDsl? ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
+        val objects = this[type] as JsonDsl? ?: JsonDsl().also {
             this[type] = it
         }
         objects[name] = json
@@ -67,7 +67,7 @@ class Analysis : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSn
 }
 
 @JsonDslMarker
-class IndexSettings : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class IndexSettings : JsonDsl() {
     var replicas: Int by property("index.number_of_replicas")
     var shards: Int by property("index.number_of_shards")
 
@@ -77,7 +77,7 @@ class IndexSettings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
 }
 
 @JsonDslMarker
-class FieldMappingConfig(typeName: String) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class FieldMappingConfig(typeName: String) : JsonDsl() {
     var type by property<String>()
     var boost by property<Double>()
     var store by property<Boolean>()
@@ -112,7 +112,7 @@ class FieldMappingConfig(typeName: String) : JsonDsl(namingConvention = Property
 
 @Suppress("MemberVisibilityCanBePrivate")
 @JsonDslMarker
-class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class FieldMappings : JsonDsl() {
     fun text(name: String) = field(name, "text") {}
     fun text(property: KProperty<*>) = field(property.name, "text") {}
     fun text(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "text", block)
@@ -198,7 +198,7 @@ class FieldMappings : JsonDsl(namingConvention = PropertyNamingConvention.Conver
         field(property.name, type, block)
 }
 
-class DynamicTemplateDefinition : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class DynamicTemplateDefinition : JsonDsl() {
     var matchMappingType by property<String>()
     var match by property<String>()
     var unmatch by property<String>()
@@ -213,7 +213,7 @@ class DynamicTemplateDefinition : JsonDsl(namingConvention = PropertyNamingConve
 }
 
 class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = false) :
-    JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    JsonDsl() {
     private var settings by property<IndexSettings>()
     private var mappings by property<JsonDsl>()
 
@@ -225,19 +225,19 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
     }
 
     fun meta(block: JsonDsl.() -> Unit) {
-        val newMeta = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+        val newMeta = JsonDsl()
         block.invoke(newMeta)
         if (containsKey("mappings")) {
             mappings["_meta"] = newMeta
         } else {
-            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply { this["_meta"] = newMeta }
+            mappings = JsonDsl().apply { this["_meta"] = newMeta }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun dynamicTemplate(dynamicTemplateId: String, block: DynamicTemplateDefinition.() -> Unit) {
         if (!containsKey("mappings")) {
-            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+            mappings = JsonDsl()
         }
         if (mappings["dynamic_templates"] == null) {
             mappings["dynamic_templates"] = mutableListOf<JsonDsl>()
@@ -253,7 +253,7 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
     fun mappings(dynamicEnabled: Boolean? = null, block: FieldMappings.() -> Unit) {
         val properties = FieldMappings()
         if (!containsKey("mappings")) {
-            mappings = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+            mappings = JsonDsl()
         }
         dynamicEnabled?.let {
             mappings["dynamic"] = dynamicEnabled.toString()

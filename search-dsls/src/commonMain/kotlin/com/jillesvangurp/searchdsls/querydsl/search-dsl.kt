@@ -12,7 +12,7 @@ annotation class SearchDSLMarker
 @SearchDSLMarker
 open class ESQuery(
     val name: String,
-    val queryDetails: JsonDsl = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase)
+    val queryDetails: JsonDsl = JsonDsl()
 ) : IJsonDsl by queryDetails {
 
     fun toMap(): Map<String, Any> = dslObject { this[name] = queryDetails }
@@ -44,7 +44,7 @@ fun customQuery(name: String, block: JsonDsl.() -> Unit): ESQuery {
 }
 
 @Suppress("UNCHECKED_CAST")
-class SearchDSL : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class SearchDSL : JsonDsl() {
     var from: Int by property()
     var trackTotalHits: String by property()
 
@@ -123,12 +123,12 @@ fun SearchDSL.sort(block: SortBuilder.() -> Unit) {
 }
 
 class Collapse(
-) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+) : JsonDsl() {
     var field: String by property()
     var innerHits: InnerHits by property()
 
     class InnerHits(
-    ) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+    ) : JsonDsl() {
         var name: String by property()
         var resultSize: Int by property("size")
         var collapse: Collapse? by property()
@@ -175,7 +175,7 @@ enum class ExpandWildCards { all, open, closed, hidden, none }
 enum class SearchType { query_then_fetch, dfs_query_then_fetch }
 
 @Suppress("SpellCheckingInspection")
-class MultiSearchHeader : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class MultiSearchHeader : JsonDsl() {
     var allowNoIndices by property<Boolean>()
     var ccsMinimizeRoundtrips by property<Boolean>()
     var expandWildcards by property<ExpandWildCards>()

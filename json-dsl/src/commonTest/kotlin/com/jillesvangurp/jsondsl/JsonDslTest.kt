@@ -3,7 +3,7 @@ package com.jillesvangurp.jsondsl
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class MyDsl:JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class MyDsl:JsonDsl() {
     var foo by property<String>()
     // will be snake_cased in the json
     var meaningOfLife by property<Int>()
@@ -49,7 +49,7 @@ class JsonDslTest {
 
     @Test
     fun shouldIndentCorrectly() {
-        JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+        JsonDsl().apply {
             this["f"]= mapOf("f" to mapOf("f" to 1))
         }.json(true) shouldBe """
             {
@@ -61,9 +61,9 @@ class JsonDslTest {
             }
         """.trimIndent()
 
-        JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+        JsonDsl().apply {
             this["f1"] = 1
-            this["f2"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+            this["f2"] = JsonDsl().apply {
                 this["f1"] = 1
             }
         }.json(true) shouldBe """

@@ -9,13 +9,13 @@ import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)
 private fun JsonDsl.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
+    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
         this["aggs"]=it
     }
 }
 
 private fun AggQuery.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).also {
+    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
         this["aggs"]=it
     }
 }
@@ -28,7 +28,7 @@ fun AggQuery.agg(name:String, aggQuery: AggQuery) {
     aggs()[name] = aggQuery
 }
 
-class TermsAggConfig: JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class TermsAggConfig: JsonDsl() {
     var field by property<String>()
     var aggSize by property<Long>("size") // can't redefine Map.size sadly
     var minSize by property<Long>("min_size")
@@ -46,7 +46,7 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)?=null): Agg
     }
 }
 
-class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl() {
     var min by property<String>()
     var max by property<String>()
 

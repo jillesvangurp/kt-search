@@ -390,7 +390,7 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
     return restClient.delete {
         path("_pit")
-        body = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+        body = JsonDsl().apply {
             this["id"] = id
         }.json()
     }.parse(JsonObject.serializer())
@@ -423,7 +423,7 @@ suspend fun SearchClient.searchAfter(
         SearchEngineVariant.ES8
     )
     var pitId = createPointInTime(target, keepAlive)
-    query["pit"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+    query["pit"] = JsonDsl().apply {
         this["id"] = pitId
     }
     if (!query.containsKey("sort")) {
@@ -445,7 +445,7 @@ suspend fun SearchClient.searchAfter(
             }
             resp.pitId?.let { id ->
                 pitId = id
-                query["pit"] = JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase).apply {
+                query["pit"] = JsonDsl().apply {
                     this["id"] = pitId
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }

@@ -19,7 +19,7 @@ You add elements to your DSL via property delegation. Additionally, you can crea
 This minimal example defines a simple DSL.
 
 ```kotlin
-class MyDsl:JsonDsl(namingConvention = PropertyNamingConvention.ConvertToSnakeCase) {
+class MyDsl:JsonDsl() {
     var foo by property<String>()
     // will be snake_cased in the json
     var meaningOfLife by property<Int>()
