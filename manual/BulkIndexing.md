@@ -69,7 +69,7 @@ client.bulk(
 Of course the `IndexRepository` supports bulk sessions as well.
 
 ```kotlin
-val repo = client.repository<Foo>("test", Foo.serializer())
+val repo = client.repository("test", Foo.serializer())
 
 repo.bulk {
   create(Foo("will go into the test index"))
