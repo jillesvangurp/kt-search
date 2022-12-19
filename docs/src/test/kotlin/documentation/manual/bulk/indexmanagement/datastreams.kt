@@ -1,12 +1,10 @@
 package documentation.manual.bulk.indexmanagement
 
-import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
 import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.sourceGitRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.hours
 

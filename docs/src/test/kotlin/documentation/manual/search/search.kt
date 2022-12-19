@@ -1,7 +1,6 @@
 package documentation.manual.search
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*

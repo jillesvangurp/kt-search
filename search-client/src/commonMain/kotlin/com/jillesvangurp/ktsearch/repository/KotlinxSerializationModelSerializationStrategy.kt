@@ -20,4 +20,4 @@ class KotlinxSerializationModelSerializationStrategy<T : Any>(
 }
 
 fun <T : Any> SearchClient.ktorModelSerializer(serializer: KSerializer<T>, customJson: Json? = null) =
-    KotlinxSerializationModelSerializationStrategy<T>(serializer, customJson ?: json)
+    KotlinxSerializationModelSerializationStrategy(serializer, customJson ?: json)

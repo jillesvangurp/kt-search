@@ -2,8 +2,8 @@ package documentation.manual
 
 import documentation.*
 import documentation.manual.bulk.bulkMd
-import documentation.manual.bulk.indexmanagement.indexManagementMd
 import documentation.manual.bulk.indexmanagement.dataStreamsMd
+import documentation.manual.bulk.indexmanagement.indexManagementMd
 import documentation.manual.crud.crudMd
 import documentation.manual.extending.extendingMd
 import documentation.manual.gettingstarted.gettingStartedMd
@@ -12,7 +12,6 @@ import documentation.manual.indexrepo.indexRepoMd
 import documentation.manual.scripting.scriptingMd
 import documentation.manual.search.deepPagingMd
 import documentation.manual.search.searchMd
-import documentation.manualOutputDir
 
 enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),

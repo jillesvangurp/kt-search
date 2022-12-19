@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.searchdsls.querydsl
 
 import kotlin.reflect.KProperty

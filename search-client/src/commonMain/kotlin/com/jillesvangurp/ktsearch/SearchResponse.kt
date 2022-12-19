@@ -1,6 +1,5 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.searchdsls.querydsl.Collapse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -8,6 +7,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
+@Suppress("unused")
 @Serializable
 data class SearchResponse(
     val took: Long,

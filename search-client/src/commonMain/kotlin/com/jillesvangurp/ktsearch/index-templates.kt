@@ -1,13 +1,14 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.json.JsonObject
 
 class ComponentTemplate: JsonDsl() {
-    var template by property<IndexSettingsAndMappingsDSL>(defaultValue = IndexSettingsAndMappingsDSL())
+    var template by property(defaultValue = IndexSettingsAndMappingsDSL())
 }
 
 suspend fun SearchClient.updateComponentTemplate(templateId: String, block: IndexSettingsAndMappingsDSL.()->Unit): JsonObject {

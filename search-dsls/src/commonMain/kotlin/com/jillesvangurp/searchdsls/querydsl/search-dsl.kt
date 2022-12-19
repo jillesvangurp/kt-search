@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "UnusedReceiverParameter")
 
 package com.jillesvangurp.searchdsls.querydsl
 
@@ -122,13 +122,11 @@ fun SearchDSL.sort(block: SortBuilder.() -> Unit) {
     this["sort"] = builder.sortFields
 }
 
-class Collapse(
-) : JsonDsl() {
+class Collapse : JsonDsl() {
     var field: String by property()
     var innerHits: InnerHits by property()
 
-    class InnerHits(
-    ) : JsonDsl() {
+    class InnerHits : JsonDsl() {
         var name: String by property()
         var resultSize: Int by property("size")
         var collapse: Collapse? by property()

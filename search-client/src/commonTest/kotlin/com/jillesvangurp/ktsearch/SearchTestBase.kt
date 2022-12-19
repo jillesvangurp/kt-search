@@ -20,7 +20,7 @@ private var versionInfo: SearchEngineInformation?=null
  * It will talk to whatever runs on port 9999. That's intentionally different
  * from the default port, so you don't fill your production cluster with test data.
  */
-open class SearchTestBase() {
+open class SearchTestBase {
     // make sure we use the same client in all tests
     val client by lazy { SearchClient(sharedClient) }
 

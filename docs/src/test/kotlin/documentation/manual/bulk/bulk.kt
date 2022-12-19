@@ -88,7 +88,7 @@ val bulkMd = sourceGitRepository.md {
         """.trimIndent()
 
         suspendingBlock(false) {
-            val repo = client.repository<Foo>("test", Foo.serializer())
+            val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
                 create(Foo("will go into the test index"))

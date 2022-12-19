@@ -1,4 +1,4 @@
-@file:Suppress("unused", "UNCHECKED_CAST")
+@file:Suppress("unused", "UNCHECKED_CAST", "UnusedReceiverParameter")
 
 package com.jillesvangurp.searchdsls.querydsl
 

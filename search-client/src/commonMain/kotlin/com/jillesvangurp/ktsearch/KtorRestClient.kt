@@ -5,7 +5,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
-import kotlin.random.Random
 
 expect fun defaultKtorHttpClient(
     logging: Boolean = false,

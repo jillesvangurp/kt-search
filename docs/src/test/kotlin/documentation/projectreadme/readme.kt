@@ -53,7 +53,7 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
         """.trimIndent()
 
 
-        block() {
+        block {
             @Serializable
             data class TestDocument(
                 val name: String,

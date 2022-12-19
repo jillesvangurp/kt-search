@@ -25,10 +25,7 @@ class IlmTest: SearchTestBase()  {
                     }
                 }
             }
-            client.getIlmPolicy("my-ilm").let { p ->
-                println(p)
-
-            }
+            println(client.getIlmPolicy("my-ilm"))
             client.deleteIlmPolicy("my-ilm")
             shouldThrow<RestException> {
                 client.getIlmPolicy("my-ilm")

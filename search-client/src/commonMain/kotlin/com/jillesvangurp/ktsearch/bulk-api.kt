@@ -1,8 +1,8 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.json
+import io.ktor.utils.io.core.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -134,7 +134,7 @@ class BulkSession internal constructor(
     val sourceIncludes: String? = null,
     val extraParameters: Map<String, String>? = null,
     val closeOnRequestError: Boolean = true
-) {
+) : Closeable {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 
@@ -255,7 +255,7 @@ class BulkSession internal constructor(
      *
      * Attempts to add more operations or flush, will fail after this is called.
      */
-    fun close() {
+    override fun close() {
         closed = true
     }
 }
@@ -373,7 +373,7 @@ suspend fun SearchClient.bulk(
     session.flush()
 }
 
-suspend fun SearchClient.bulkSession(
+fun SearchClient.bulkSession(
     bulkSize: Int = 100,
     target: String? = null,
     pipeline: String? = null,

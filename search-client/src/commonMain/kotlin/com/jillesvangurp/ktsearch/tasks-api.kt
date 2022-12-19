@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import kotlinx.serialization.json.JsonObject
