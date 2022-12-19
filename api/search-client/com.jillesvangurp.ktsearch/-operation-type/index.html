@@ -6,10 +6,18 @@
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
     <script>var pathToRoot = "../../../";</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-const savedDarkMode = storage ? JSON.parse(storage) : false
-if(savedDarkMode === true){
-    document.getElementsByTagName("html")[0].classList.add("theme-dark")
-}</script>
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
 <link href="../../../styles/style.css" rel="Stylesheet">
 <link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
@@ -21,6 +29,7 @@ if(savedDarkMode === true){
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
 <div class="navigation-wrapper" id="navigation-wrapper">
@@ -33,9 +42,9 @@ if(savedDarkMode === true){
     <div>
 2.0.0-SNAPSHOT    </div>
     <div class="pull-right d-flex">
-            <div class="filter-section" id="filter-section">
-                    <button class="platform-tag platform-selector common-like" data-active="" data-filter=":search-client:dokkaHtml/commonMain">common</button>
-            </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":search-client:dokkaHtml/commonMain">common</button>
+        </div>
         <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
         <div id="searchBar"></div>
     </div>
@@ -46,47 +55,26 @@ if(savedDarkMode === true){
     </div>
     <div id="main">
 <div class="main-content" id="content" pageIds="search-client::com.jillesvangurp.ktsearch/OperationType///PointingToDeclaration//-814856848">
-  <div class="breadcrumbs"><a href="../../../index.html">search-client</a><span class="delimiter">/</span><a href="../index.html">com.jillesvangurp.ktsearch</a><span class="delimiter">/</span><a href="index.html">OperationType</a></div>
+  <div class="breadcrumbs"><a href="../../../index.html">search-client</a><span class="delimiter">/</span><a href="../index.html">com.jillesvangurp.ktsearch</a><span class="delimiter">/</span><span class="current">OperationType</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Operation</span><wbr></wbr><span><span>Type</span></span></h1>
-    <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">OperationType</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">OperationType</a><span class="token operator">&gt; </span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>    </div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">OperationType</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">OperationType</a><span class="token operator">&gt; </span></div></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Entries">Entries</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Entries">Entries</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="Extensions">Extensions</button></div>
     <div class="tabs-section-body">
       <h2 class="tabbedcontent">Entries</h2>
-      <div class="table" data-togglable="Entries"><a data-name="-411258895%2FClasslikes%2F-814856848" anchor-label="Delete" id="-411258895%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+      <div class="table" data-togglable="Entries"><a data-name="1878154114%2FClasslikes%2F-814856848" anchor-label="Create" id="1878154114%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
         <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
           <div class="main-subrow keyValue ">
             <div class=""><span class="inline-flex">
-                <div><a href="-delete/index.html">Delete</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-411258895%2FClasslikes%2F-814856848"></span>
+                <div><a href="-create/index.html">Create</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1878154114%2FClasslikes%2F-814856848"></span>
                   <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-delete/index.html">Delete</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-<a data-name="-1757629809%2FClasslikes%2F-814856848" anchor-label="Update" id="-1757629809%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="-update/index.html">Update</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1757629809%2FClasslikes%2F-814856848"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-update/index.html">Update</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-create/index.html">Create</a></div></div></div></div>
               </div>
             </div>
           </div>
@@ -101,26 +89,69 @@ if(savedDarkMode === true){
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-index/index.html">Index</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-index/index.html">Index</a></div></div></div></div>
               </div>
             </div>
           </div>
         </div>
-<a data-name="1878154114%2FClasslikes%2F-814856848" anchor-label="Create" id="1878154114%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+<a data-name="-1757629809%2FClasslikes%2F-814856848" anchor-label="Update" id="-1757629809%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
         <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
           <div class="main-subrow keyValue ">
             <div class=""><span class="inline-flex">
-                <div><a href="-create/index.html">Create</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1878154114%2FClasslikes%2F-814856848"></span>
+                <div><a href="-update/index.html">Update</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1757629809%2FClasslikes%2F-814856848"></span>
                   <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-create/index.html">Create</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-update/index.html">Update</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-411258895%2FClasslikes%2F-814856848" anchor-label="Delete" id="-411258895%2FClasslikes%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-delete/index.html">Delete</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-411258895%2FClasslikes%2F-814856848"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><a href="-delete/index.html">Delete</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="399030172%2FFunctions%2F-814856848" anchor-label="valueOf" id="399030172%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="value-of.html"><span>value</span><wbr></wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="399030172%2FFunctions%2F-814856848"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="value-of.html"><span class="token function">valueOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">OperationType</a></div><div class="brief "><p class="paragraph">Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="882099624%2FFunctions%2F-814856848" anchor-label="values" id="882099624%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="values.html"><span><span>values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="882099624%2FFunctions%2F-814856848"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="values.html"><span class="token function">values</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">OperationType</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an array containing the constants of this enum type, in the order they're declared.</p></div></div></div>
               </div>
             </div>
           </div>
@@ -131,15 +162,13 @@ if(savedDarkMode === true){
         <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
           <div class="main-subrow keyValue ">
             <div class=""><span class="inline-flex">
-                <div><a href="../-suggest-mode/always/index.html#-372974862%2FProperties%2F-814856848">name</a></div>
+                <div><a href="../-suggest-mode/popular/index.html#-372974862%2FProperties%2F-814856848"><span><span>name</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372974862%2FProperties%2F-814856848"></span>
                   <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted" data-togglable="Properties">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><a data-name="-372974862%2FProperties%2F-814856848" anchor-label="name" id="-372974862%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-suggest-mode/always/index.html#-372974862%2FProperties%2F-814856848">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><a data-name="-372974862%2FProperties%2F-814856848" anchor-label="name" id="-372974862%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-suggest-mode/popular/index.html#-372974862%2FProperties%2F-814856848">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
               </div>
             </div>
           </div>
@@ -148,15 +177,30 @@ if(savedDarkMode === true){
         <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
           <div class="main-subrow keyValue ">
             <div class=""><span class="inline-flex">
-                <div><a href="../-suggest-mode/always/index.html#-739389684%2FProperties%2F-814856848">ordinal</a></div>
+                <div><a href="../-suggest-mode/popular/index.html#-739389684%2FProperties%2F-814856848"><span><span>ordinal</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-739389684%2FProperties%2F-814856848"></span>
                   <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted" data-togglable="Properties">
-                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain" data-active="" data-toggle=":search-client:dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><a data-name="-739389684%2FProperties%2F-814856848" anchor-label="ordinal" id="-739389684%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-suggest-mode/always/index.html#-739389684%2FProperties%2F-814856848">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><a data-name="-739389684%2FProperties%2F-814856848" anchor-label="ordinal" id="-739389684%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-suggest-mode/popular/index.html#-739389684%2FProperties%2F-814856848">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="tabbedcontent">Extensions</h2>
+      <div class="table" data-togglable="Extensions"><a data-name="68700087%2FExtensions%2F-814856848" anchor-label="snakeCase" id="68700087%2FExtensions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../snake-case.html"><span>snake</span><wbr></wbr><span><span>Case</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="68700087%2FExtensions%2F-814856848"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="../snake-case.html"><span class="token function">snakeCase</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
               </div>
             </div>
           </div>
@@ -165,10 +209,11 @@ if(savedDarkMode === true){
     </div>
   </div>
 </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span
                 class="pull-right"><span>Generated by </span><a
                 href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
-        </div>
+      </div>
     </div>
 </div>
 </body>
