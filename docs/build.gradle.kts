@@ -31,7 +31,6 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
         freeCompilerArgs += "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
     }
-    this.sourceFilesExtensions
 }
 
 val searchEngine: String = getProperty("searchEngine", "es-7").toString()
