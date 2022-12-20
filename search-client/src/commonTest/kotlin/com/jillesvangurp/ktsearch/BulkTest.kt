@@ -6,7 +6,7 @@ import kotlin.test.Test
 class BulkTest: SearchTestBase() {
 
     @Test
-    fun shouldBulkIndex() = coTest {
+    fun shouldBulkIndex() = coRun {
         val index=testDocumentIndex()
 
         client.bulk(refresh = Refresh.WaitFor, bulkSize = 4, target = index) {
@@ -20,7 +20,7 @@ class BulkTest: SearchTestBase() {
     }
 
     @Test
-    fun shouldCallback() = coTest {
+    fun shouldCallback() = coRun {
         val index = testDocumentIndex()
         var success=0
         var failed=0

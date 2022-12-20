@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.minutes
 class SearchTest : SearchTestBase() {
 
     @Test
-    fun shouldSearch() = coTest {
+    fun shouldSearch() = coRun {
         val index = testDocumentIndex()
         client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor)
         client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor)
@@ -25,7 +25,7 @@ class SearchTest : SearchTestBase() {
     }
 
     @Test
-    fun shouldDoIdSearch() = coTest {
+    fun shouldDoIdSearch() = coRun {
         val index = testDocumentIndex()
         client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
         client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
@@ -37,7 +37,7 @@ class SearchTest : SearchTestBase() {
     }
 
     @Test
-    fun shouldDoScrollingSearch() = coTest {
+    fun shouldDoScrollingSearch() = coRun {
         val index = testDocumentIndex()
         client.bulk(target = index, refresh = Refresh.WaitFor) {
             (1..20).forEach {
@@ -52,7 +52,7 @@ class SearchTest : SearchTestBase() {
     }
 
     @Test
-    fun shouldDoSearchAfter() = coTest {
+    fun shouldDoSearchAfter() = coRun {
         onlyOn(
             "opensearch implemented search_after with v2",
             SearchEngineVariant.OS2,
@@ -75,13 +75,13 @@ class SearchTest : SearchTestBase() {
         }
     }
     @Test
-    fun shouldWorkWithoutTotalHits() = coTest {
+    fun shouldWorkWithoutTotalHits() = coRun {
         val index = testDocumentIndex()
         client.search(target = index, trackTotalHits = false)
     }
 
     @Test
-    fun shouldCollapseResults() = coTest {
+    fun shouldCollapseResults() = coRun {
         val index = testDocumentIndex()
         client.bulk(target = index, refresh = Refresh.WaitFor) {
             index(TestDocument("doc 1", tags = listOf("group1")).json())

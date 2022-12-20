@@ -59,7 +59,7 @@ class SearchDSL : JsonDsl() {
             return ESQuery(name, queryDetails)
         }
         set(value) {
-            this["query"] = value.toMap()
+            this.put("query", value)
         }
 
     var postFilter: ESQuery
@@ -69,8 +69,12 @@ class SearchDSL : JsonDsl() {
             return ESQuery(name, queryDetails)
         }
         set(value) {
-            this["post_filter"] = value.toMap()
+            this.put("post_filter", value)
         }
+
+    var aggs: JsonDsl
+        get() = this["aggs"] as JsonDsl
+        set(value) = this.put("aggs", value)
 }
 
 enum class SortOrder { ASC, DESC }

@@ -2,7 +2,7 @@ package com.jillesvangurp.ktsearch.repository
 
 import com.jillesvangurp.ktsearch.SearchTestBase
 import com.jillesvangurp.ktsearch.TestDocument
-import com.jillesvangurp.ktsearch.coTest
+import com.jillesvangurp.ktsearch.coRun
 import com.jillesvangurp.ktsearch.total
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -11,7 +11,7 @@ import kotlin.test.Test
 class IndexRepositoryTest : SearchTestBase() {
 
     @Test
-    fun shouldDoCrudWithRepo() = coTest {
+    fun shouldDoCrudWithRepo() = coRun {
         val d = repo.index(TestDocument("1"))
         d.shards.successful shouldBeGreaterThan 0
         val (doc,_)= repo.get(d.id)
@@ -26,7 +26,7 @@ class IndexRepositoryTest : SearchTestBase() {
     }
 
     @Test
-    fun shouldDoBulkWithRepo() = coTest{
+    fun shouldDoBulkWithRepo() = coRun{
         repo.createIndex {}
         repo.bulk {
             index(TestDocument("1").json())

@@ -1,11 +1,11 @@
 package com.jillesvangurp.ktsearch
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+interface AggregationsHolder {
+    val aggregations: JsonObject?
+}
 
 @Suppress("unused")
 @Serializable
@@ -17,12 +17,12 @@ data class SearchResponse(
     val timedOut: Boolean,
     val hits: Hits?,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
-    val aggregations: Map<String, JsonObject> = mapOf(),
+    override val aggregations: JsonObject?,
     @SerialName("_scroll_id")
     val scrollId: String?,
     @SerialName("pit_id")
     val pitId: String?
-) {
+) : AggregationsHolder {
     @Serializable
     data class Hit(
         @SerialName("_index")
@@ -38,7 +38,7 @@ data class SearchResponse(
         val fields: JsonObject?,
         val sort: JsonArray?,
         @SerialName("inner_hits")
-        val innerHits: Map<String,HitsContainer>?,
+        val innerHits: Map<String, HitsContainer>?,
     )
 
     @Serializable
@@ -80,20 +80,29 @@ val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
 @Serializable
-data class Bucket(
+data class TermsBucket(
     val key: String,
-    @SerialName("doc_count") val docCount: Long
+    @SerialName("key_as_string")
+    val keyAsString: String?,
+    @SerialName("doc_count") val docCount: Long,
 )
 
+interface BucketAggregationResult<T> {
+    val buckets: List<JsonObject>
+}
+
+inline fun <reified T> BucketAggregationResult<T>.decodeBuckets(json: Json = DEFAULT_JSON) = buckets.map { json.decodeFromJsonElement<T>(it) }
+
 @Serializable
-data class BucketAggregationResult(
+data class TermsAggregationResult(
     @SerialName("doc_count_error_upper_bound")
     val docCountErrorUpperBound: Long,
     @SerialName("sum_other_doc_count")
     val sumOtherDocCount: Long,
-    val buckets: List<Bucket>
-)
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<TermsBucket>
 
-fun List<Bucket>.counts() = this.associate { it.key to it.docCount }
+fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
-fun JsonObject.asBucketAggregationResult() = DEFAULT_JSON.decodeFromJsonElement<BucketAggregationResult>(this)
+fun JsonObject?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult? =
+    this?.get(name)?.let { json.decodeFromJsonElement(TermsAggregationResult.serializer(), it) }

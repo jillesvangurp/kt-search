@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.hours
 
 class IlmTest: SearchTestBase()  {
     @Test
-    fun shouldSetUpIlmPolicy() = coTest {
+    fun shouldSetUpIlmPolicy() = coRun {
         onlyOn("ilm only works on elasticsearch",
             SearchEngineVariant.ES7,
             SearchEngineVariant.ES8) {

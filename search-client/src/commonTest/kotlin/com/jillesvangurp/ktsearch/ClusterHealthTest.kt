@@ -6,7 +6,7 @@ import kotlin.test.Test
 class ClusterHealthTest : SearchTestBase()  {
 
     @Test
-    fun clusterShouldBeHealthy() = coTest {
+    fun clusterShouldBeHealthy() = coRun {
         client.clusterHealth().status shouldNotBe ClusterStatus.Red
     }
 

@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 class NestedQueryTest : SearchTestBase() {
     @Test
-    fun shouldCreatedMappingWithNestedFieldAndQuery() = coTest {
+    fun shouldCreatedMappingWithNestedFieldAndQuery() = coRun {
         val index = randomIndexName()
         client.createIndex(index, NestedTestDocument.mapping)
         println(NestedTestDocument.mapping)

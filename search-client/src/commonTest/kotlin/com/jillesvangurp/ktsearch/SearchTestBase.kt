@@ -9,7 +9,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 
-expect fun coTest(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
+expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
 
 private val logger = KotlinLogging.logger {  }
 private var versionInfo: SearchEngineInformation?=null
