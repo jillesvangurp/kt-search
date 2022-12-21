@@ -6,6 +6,7 @@
 - [Getting Started](GettingStarted.md)
 - [Indices, settings, mappings, and aliases](IndexManagement.md)
 - [Search and Queries](Search.md)
+- [Aggregations](Aggregations.md)
 - [Deep paging using search_after and scroll](DeepPaging.md)
 - [Document Manipulation](DocumentManipulation.md)
 - [Index Repository](IndexRepository.md)
