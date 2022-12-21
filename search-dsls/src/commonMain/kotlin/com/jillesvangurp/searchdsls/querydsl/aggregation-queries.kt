@@ -36,7 +36,7 @@ fun AggQuery.agg(name: String, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=
 class TermsAggConfig : JsonDsl() {
     var field by property<String>()
     var aggSize by property<Long>("size") // can't redefine Map.size sadly
-    var minSize by property<Long>("min_size")
+    var minDocCount by property<Long>("min_doc_count")
     var shardSize by property<Long>("shard_size")
     var showTermDocCountError by property<Long>("show_term_doc_count_error")
 }

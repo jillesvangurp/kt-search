@@ -4,15 +4,15 @@ package com.jillesvangurp.searchdsls.querydsl
 
 @SearchDSLMarker
 class BoolQuery : ESQuery(name = "bool") {
-    fun should(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("should").addAll(q.map { it.toMap() })
-    fun must(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("must").addAll(q.map { it.toMap() })
-    fun mustNot(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("must_not").addAll(q.map { it.toMap() })
-    fun filter(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("filter").addAll(q.map { it.toMap() })
+    fun should(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("should").addAll(q.map { it.wrapWithName() })
+    fun must(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("must").addAll(q.map { it.wrapWithName() })
+    fun mustNot(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("must_not").addAll(q.map { it.wrapWithName() })
+    fun filter(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("filter").addAll(q.map { it.wrapWithName() })
 
-    fun should(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("should").addAll(q.map { it.toMap() })
-    fun must(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("must").addAll(q.map { it.toMap() })
-    fun mustNot(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("must_not").addAll(q.map { it.toMap() })
-    fun filter(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("filter").addAll(q.map { it.toMap() })
+    fun should(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("should").addAll(q.map { it.wrapWithName() })
+    fun must(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("must").addAll(q.map { it.wrapWithName() })
+    fun mustNot(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("must_not").addAll(q.map { it.wrapWithName() })
+    fun filter(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("filter").addAll(q.map { it.wrapWithName() })
 
     var boost by queryDetails.property<Double>()
 }
@@ -51,8 +51,8 @@ fun SearchDSL.constantScore(block: ConstantScoreQuery.() -> Unit): ConstantScore
 
 @SearchDSLMarker
 class DisMaxQuery : ESQuery(name = "dis_max") {
-    fun queries(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("queries").addAll(q.map { it.toMap() })
-    fun queries(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("queries").addAll(q.map { it.toMap() })
+    fun queries(vararg q: ESQuery) = queryDetails.getOrCreateMutableList("queries").addAll(q.map { it.wrapWithName() })
+    fun queries(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("queries").addAll(q.map { it.wrapWithName() })
     var tieBreaker: Double by queryDetails.property()
     var boost: Double by queryDetails.property()
 }

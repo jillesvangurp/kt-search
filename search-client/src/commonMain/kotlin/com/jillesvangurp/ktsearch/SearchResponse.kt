@@ -102,8 +102,7 @@ data class TermsAggregationResult(
 fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
 fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult =
-    // nullability here would be annoying; better to just throw an exception
-    this?.get(name)?.let { json.decodeFromJsonElement(TermsAggregationResult.serializer(), it) } ?: error("no such agg $name")
+    getAggResult(name, json)
 
 @Serializable
 data class DateHistogramBucket(
@@ -121,7 +120,8 @@ data class DateHistogramAggregationResult(
 inline fun <reified T> Aggregations?.getAggResult(
     name: String,
     json: Json = DEFAULT_JSON
-): T = this?.get(name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
+): T = // nullability here would be annoying; better to just throw an exception
+    this?.get(name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
 
 fun Aggregations?.dateHistogramResult(name: String, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
     getAggResult(name, json)
