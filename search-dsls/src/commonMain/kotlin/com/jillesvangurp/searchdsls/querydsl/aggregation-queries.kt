@@ -87,9 +87,6 @@ class ExtendedStatsBucketAgg(
 }
 
 class BucketsPath(block: BucketsPath.() -> Unit) : JsonDsl() {
-    var min by property<String>()
-    var max by property<String>()
-
     init {
         block()
     }

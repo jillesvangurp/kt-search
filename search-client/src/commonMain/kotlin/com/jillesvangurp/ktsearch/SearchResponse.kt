@@ -3,9 +3,7 @@ package com.jillesvangurp.ktsearch
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-interface AggregationsHolder {
-    val aggregations: JsonObject?
-}
+typealias Aggregations = JsonObject
 
 @Suppress("unused")
 @Serializable
@@ -17,12 +15,12 @@ data class SearchResponse(
     val timedOut: Boolean,
     val hits: Hits?,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
-    override val aggregations: JsonObject?,
+    val aggregations: Aggregations?,
     @SerialName("_scroll_id")
     val scrollId: String?,
     @SerialName("pit_id")
     val pitId: String?
-) : AggregationsHolder {
+)  {
     @Serializable
     data class Hit(
         @SerialName("_index")
@@ -79,19 +77,18 @@ inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decode
 val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
 
-@Serializable
-data class TermsBucket(
-    val key: String,
-    @SerialName("key_as_string")
-    val keyAsString: String?,
-    @SerialName("doc_count") val docCount: Long,
-)
-
 interface BucketAggregationResult<T> {
     val buckets: List<JsonObject>
 }
 
 inline fun <reified T> BucketAggregationResult<T>.decodeBuckets(json: Json = DEFAULT_JSON) = buckets.map { json.decodeFromJsonElement<T>(it) }
+
+@Serializable
+data class TermsBucket(
+    val key: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+)
 
 @Serializable
 data class TermsAggregationResult(
@@ -104,5 +101,82 @@ data class TermsAggregationResult(
 
 fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
-fun JsonObject?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult? =
-    this?.get(name)?.let { json.decodeFromJsonElement(TermsAggregationResult.serializer(), it) }
+fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult =
+    // nullability here would be annoying; better to just throw an exception
+    this?.get(name)?.let { json.decodeFromJsonElement(TermsAggregationResult.serializer(), it) } ?: error("no such agg $name")
+
+@Serializable
+data class DateHistogramBucket(
+    val key: Long,
+    @SerialName("key_as_string")
+    val keyAsString: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+    )
+
+@Serializable
+data class DateHistogramAggregationResult(
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<DateHistogramBucket>
+inline fun <reified T> Aggregations?.getAggResult(
+    name: String,
+    json: Json = DEFAULT_JSON
+): T = this?.get(name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
+
+fun Aggregations?.dateHistogramResult(name: String, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
+    getAggResult(name, json)
+
+@Serializable
+data class NumericAggregationResult(
+    val value: Double,
+    @SerialName("value_as_string")
+    val valueAsString: String?,
+)
+
+fun Aggregations?.minResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+fun Aggregations?.maxResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+fun Aggregations?.bucketScriptResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+
+@Serializable
+data class ExtendedStatsBucketResult(
+    val count: Int,
+    val min: Double,
+    val max: Double,
+    val avg: Double,
+    val sum: Double,
+    @SerialName("sum_of_squares")
+    val sumOfSquares: Double,
+    val variance: Double,
+    @SerialName("variance_population")
+    val variancePopulation: Double,
+    @SerialName("variance_sampling")
+    val varianceSampling: Double,
+    @SerialName("std_deviation")
+    val stdDeviation: Double,
+    @SerialName("std_deviation_population")
+    val stdDeviationPopulation: Double,
+    @SerialName("std_deviation_sampling")
+    val stdDeviationSampling: Double,
+    @SerialName("std_deviation_bounds")
+    val stdDeviationBounds: Bounds
+) {
+    @Serializable
+    data class Bounds(
+        val upper: Double,
+        val lower: Double,
+        @SerialName("upper_population")
+        val upperPopulation: Double,
+        @SerialName("lower_population")
+        val lowerPopulation: Double,
+        @SerialName("upper_sampling")
+        val upperSampling: Double,
+        @SerialName("lower_sampling")
+        val lowerSampling: Double,
+    )
+}
+
+fun Aggregations?.extendedStatsBucketResult(name: String, json: Json = DEFAULT_JSON): ExtendedStatsBucketResult =
+    getAggResult(name, json)
