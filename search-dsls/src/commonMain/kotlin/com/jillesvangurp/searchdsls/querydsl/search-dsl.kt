@@ -15,10 +15,10 @@ open class ESQuery(
     val queryDetails: JsonDsl = JsonDsl()
 ) : IJsonDsl by queryDetails {
 
-    fun toMap(): Map<String, Any> = dslObject { this[name] = queryDetails }
+    fun wrapWithName(): Map<String, Any> = dslObject { this[name] = queryDetails }
 
     override fun toString(): String {
-        return toMap().toString()
+        return wrapWithName().toString()
     }
 }
 
@@ -32,7 +32,7 @@ fun JsonDsl.esQueryProperty(): ReadWriteProperty<Any, ESQuery> {
         }
 
         override fun setValue(thisRef: Any, property: KProperty<*>, value: ESQuery) {
-            this@esQueryProperty[property.name] = value.toMap()
+            this@esQueryProperty[property.name] = value.wrapWithName()
         }
     }
 }
@@ -59,7 +59,7 @@ class SearchDSL : JsonDsl() {
             return ESQuery(name, queryDetails)
         }
         set(value) {
-            this.put("query", value)
+            this["query"] = value.wrapWithName()
         }
 
     var postFilter: ESQuery
@@ -69,7 +69,7 @@ class SearchDSL : JsonDsl() {
             return ESQuery(name, queryDetails)
         }
         set(value) {
-            this.put("post_filter", value)
+            this["post_filter"] = value.wrapWithName()
         }
 
     var aggs: JsonDsl
