@@ -175,6 +175,9 @@ val aggregationsMd = sourceGitRepository.md {
             val response = repo.search {
                 resultSize = 0 // we only care about the aggs
                 // allows us to use the aggSpec after the query runs
+                agg("by_date", DateHistogramAgg(MockDoc::timestamp) {
+                    calendarInterval = "1d"
+                })
                 agg("by_color", TermsAgg(MockDoc::color)) {
                     agg("min_time", MinAgg(MockDoc::timestamp))
                     agg("max_time", MaxAgg(MockDoc::timestamp))
@@ -191,14 +194,23 @@ val aggregationsMd = sourceGitRepository.md {
                 })
             }
 
+
             response.aggregations.termsResult("by_color").buckets.forEach { b ->
                 val tb = b.parse<TermsBucket>()
                 println("${tb.key}: ${tb.docCount}")
-                println(b.minResult("min_time"))
-                println(b.minResult("max_time"))
-                println(b.bucketScriptResult("time_span"))
+                println("  Min: ${b.minResult("max_time").value}")
+                println("  Max: ${b.minResult("max_time").value}")
+                println("  Time span: ${b.bucketScriptResult("time_span").value}")
             }
-            println(response.aggregations.extendedStatsBucketResult("span_stats"))
+            // date_histogram works very similar to the terms aggregation
+            response.aggregations.dateHistogramResult("by_date")
+                .decodeBuckets().forEach { b ->
+                    println("${b.keyAsString}: ${b.docCount}")
+                }
+            println("Avg time span: ${
+                response.aggregations
+                        .extendedStatsBucketResult("span_stats").avg
+            }")
 
         }
     }
@@ -221,7 +233,6 @@ val aggregationsMd = sourceGitRepository.md {
             // the termsResult function we used before is short for this:
             val tags = response.aggregations
                 .getAggResult<TermsAggregationResult>("by_tag")
-            println(tags)
         }
 
         +"""
