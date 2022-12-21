@@ -6,7 +6,7 @@ import kotlin.test.Test
 class IndexTemplateTest: SearchTestBase() {
 
     @Test
-    fun shouldCreateDataStream() = coTest {
+    fun shouldCreateDataStream() = coRun {
         val settingsTemplateId = "my-settings"
         val mappingsTemplateId = "my-mappings"
         val templateId = "my-template"

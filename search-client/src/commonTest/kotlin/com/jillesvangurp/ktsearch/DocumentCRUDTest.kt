@@ -7,7 +7,7 @@ import kotlin.test.fail
 class DocumentCRUDTest: SearchTestBase() {
 
     @Test
-    fun shouldDoDocumentCrud() = coTest {
+    fun shouldDoDocumentCrud() = coRun {
         val index = testDocumentIndex()
         client.indexDocument(index, TestDocument("xx").json(false)).also { createResponse ->
             createResponse.index shouldBe index

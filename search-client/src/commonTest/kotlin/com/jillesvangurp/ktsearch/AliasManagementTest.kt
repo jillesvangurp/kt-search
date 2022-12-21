@@ -6,7 +6,7 @@ import kotlin.test.Test
 class AliasManagementTest: SearchTestBase() {
 
     @Test
-    fun addRemoveAliases() = coTest{
+    fun addRemoveAliases() = coRun{
         client.createIndex("foo-1") {
 
         }

@@ -2,7 +2,7 @@ package com.jillesvangurp.ktsearch
 
 class AuthenticationTest {
 //    @Test run manually with correct credentials to test if auth is working FIXME better auth test than this but seems to work now
-    fun shouldAddBasicAuth() = coTest {
+    fun shouldAddBasicAuth() = coRun {
 
         val client = SearchClient(
             KtorRestClient(

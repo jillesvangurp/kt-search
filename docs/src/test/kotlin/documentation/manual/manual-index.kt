@@ -10,6 +10,7 @@ import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
 import documentation.manual.scripting.scriptingMd
+import documentation.manual.search.aggregationsMd
 import documentation.manual.search.deepPagingMd
 import documentation.manual.search.searchMd
 
@@ -17,6 +18,7 @@ enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),
     GettingStarted("Getting Started"),
     Search("Search and Queries"),
+    Aggregations("Aggregations"),
     DeepPaging("Deep paging using search_after and scroll"),
     DocumentManipulation("Document Manipulation"),
     IndexRepository("Index Repository"),
@@ -39,6 +41,7 @@ val manualPages = listOf(
     ManualPages.GettingStarted.page to gettingStartedMd,
     ManualPages.IndexManagement.page to indexManagementMd,
     ManualPages.Search.page to searchMd,
+    ManualPages.Aggregations.page to aggregationsMd,
     ManualPages.DeepPaging.page to deepPagingMd,
     ManualPages.DocumentManipulation.page to crudMd,
     ManualPages.IndexRepository.page to indexRepoMd,
