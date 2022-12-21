@@ -54,8 +54,8 @@ class AggQueryTest : SearchTestBase() {
         }
     }
 
-    @BeforeTest
-    fun before() = coRun {
+    // FIXME @BeforeTest does not seem to work with mocha / node.js and async suspend; so call directly
+    suspend fun before()  {
         repository.createIndex(MockDoc.mapping)
         repository.bulk {
             val now = Clock.System.now()
@@ -68,6 +68,7 @@ class AggQueryTest : SearchTestBase() {
 
     @Test
     fun shouldDoTermsAgg() = coRun {
+        before()
         val response = repository.search {
             resultSize = 0 // we only care about the aggs
             // allows us to use the aggSpec after the query runs
@@ -89,6 +90,7 @@ class AggQueryTest : SearchTestBase() {
 
     @Test
     fun nestedAggregationQuery() = coRun {
+        before()
         val response = repository.search {
             resultSize = 0 // we only care about the aggs
             // allows us to use the aggSpec after the query runs
@@ -109,6 +111,7 @@ class AggQueryTest : SearchTestBase() {
 
     @Test
     fun dateHistogramAgg() = coRun {
+        before()
         val response = repository.search {
             resultSize = 0 // we only care about the aggs
             // allows us to use the aggSpec after the query runs
@@ -130,6 +133,7 @@ class AggQueryTest : SearchTestBase() {
 
     @Test
     fun minMaxScriptAgg() = coRun {
+        before()
         val response = repository.search {
             resultSize = 0 // we only care about the aggs
             // allows us to use the aggSpec after the query runs
