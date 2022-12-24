@@ -53,7 +53,7 @@ runBlocking {
 Captured Output:
 
 ```
-ES7: 7.17.4
+ES7: 7.17.5
 docker-test-cluster is Green
 
 ```
