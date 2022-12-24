@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 
 @Suppress("NAME_SHADOWING")
 val searchMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient("localhost", 9999, logging=false))
 
     @Serializable
     data class TestDoc(val id: String, val name: String, val tags: List<String> = listOf(), val price: Double)
@@ -260,6 +260,65 @@ val searchMd = sourceGitRepository.md {
                         }
                     }
                 }.print("Boosting query.")
+            }
+
+            +"""
+                The last compound query is the function_score query. **Warning**: you may want to consider using the 
+                simpler `distance_rank` function instead as function_score is one of the more complex things to
+                reason about in Elasticsearch. Howwever, if you need it, kt-search supports it.
+            """.trimIndent()
+
+            suspendingBlock() {
+                client.search(indexName) {
+                    query = functionScore {
+                        query = matchAll()
+                        // you can add multiple functions
+                        function {
+                            weight = 0.42
+                            exp("price") {
+                                origin = ".5"
+                                scale = "0.25"
+                                decay = 0.1
+                            }
+                        }
+                        function {
+                            filter = this@search.range(TestDoc::price) {
+                                gte = 0.6
+                            }
+                            weight = 0.1
+                        }
+                        function {
+                            weight = 0.25
+                            randomScore {
+                                seed = 10
+                                field = "_seq_no"
+                            }
+                        }
+                        function {
+                            fieldValueFactor {
+                                field(TestDoc::price)
+                                factor = 0.666
+                                missing = 0.01
+                                modifier =
+                                  FieldValueFactorConfig.FieldValueFactorModifier.log2p
+                            }
+                        }
+                        function {
+                            weight=0.1
+                            scriptScore {
+                                params = withJsonDsl {
+                                    this["a"] = 42
+                                }
+                                source = """params.a * doc["price"].value """
+                            }
+                        }
+                        // and influence the score like this
+                        boostMode = FunctionScoreQuery.BoostMode.avg
+                        // IMPORTANT, if any of your functions return 0, the score is 0!
+                        scoreMode = FunctionScoreQuery.ScoreMode.multiply
+                        boost = 0.9
+                    }
+                }.print("Function score")
             }
         }
     }
