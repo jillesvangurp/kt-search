@@ -29,6 +29,12 @@ class BoostingQuery : ESQuery(name = "boosting") {
     var negative: ESQuery by queryDetails.esQueryProperty()
     var negativeBoost: Double by queryDetails.property()
     var boost: Double by queryDetails.property()
+
+    init {
+        // default that you can override
+        // won't work without a value though
+        negativeBoost = 0.5
+    }
 }
 
 fun SearchDSL.boosting(block: BoostingQuery.() -> Unit): BoostingQuery {

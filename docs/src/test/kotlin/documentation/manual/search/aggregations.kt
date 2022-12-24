@@ -1,4 +1,4 @@
-@file:Suppress("NAME_SHADOWING")
+@file:Suppress("NAME_SHADOWING", "UNUSED_VARIABLE")
 
 package documentation.manual.search
 
@@ -32,7 +32,7 @@ val aggregationsMd = sourceGitRepository.md {
     runBlocking {
         try {
             client.deleteIndex(indexName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
     }
 
@@ -152,7 +152,7 @@ val aggregationsMd = sourceGitRepository.md {
             val tags = response.aggregations.termsResult("by_tag")
 
             // since buckets can contain sub aggregations, those too are JsonObjects
-            println("Number of buckets" + tags.buckets.size)
+            println("Number of buckets: " + tags.buckets.size)
             tags.buckets.forEach { b ->
                 // of course we can parse that to a TermsBucket
                 val tb = b.parse<TermsBucket>()
@@ -194,6 +194,11 @@ val aggregationsMd = sourceGitRepository.md {
                 })
             }
 
+            // date_histogram works very similar to the terms aggregation
+            response.aggregations.dateHistogramResult("by_date")
+                .decodeBuckets().forEach { b ->
+                    println("${b.keyAsString}: ${b.docCount}")
+                }
 
             response.aggregations.termsResult("by_color").buckets.forEach { b ->
                 val tb = b.parse<TermsBucket>()
@@ -202,11 +207,7 @@ val aggregationsMd = sourceGitRepository.md {
                 println("  Max: ${b.minResult("max_time").value}")
                 println("  Time span: ${b.bucketScriptResult("time_span").value}")
             }
-            // date_histogram works very similar to the terms aggregation
-            response.aggregations.dateHistogramResult("by_date")
-                .decodeBuckets().forEach { b ->
-                    println("${b.keyAsString}: ${b.docCount}")
-                }
+
             println("Avg time span: ${
                 response.aggregations
                         .extendedStatsBucketResult("span_stats").avg
