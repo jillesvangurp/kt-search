@@ -23,22 +23,25 @@ val docs = listOf(
   TestDoc(
     id = "1",
     name = "Apple",
-    tags = listOf("fruit")
+    tags = listOf("fruit"),
+    price = 0.50
   ),
   TestDoc(
     id = "2",
     name = "Banana",
-    tags = listOf("fruit")
+    tags = listOf("fruit"),
+    price = 0.80
   ),
   TestDoc(
     id = "3",
     name = "Beans",
-    tags = listOf("legumes")
+    tags = listOf("legumes"),
+    price = 1.20
   )
 )
 docs.forEach { d ->
   client.indexDocument(
-    target=indexName,
+    target = indexName,
     document = d,
     id = d.id,
     refresh = Refresh.WaitFor
@@ -69,8 +72,9 @@ client.search(indexName).ids
 Of course normally, you'd specify some kind of query. One way is to simply pass that as a string.
 
 ```kotlin
-val term="legumes"
-client.search(indexName, rawJson = """
+val term = "legumes"
+client.search(
+  indexName, rawJson = """
   {
     "query": {
       "term": {
@@ -80,7 +84,8 @@ client.search(indexName, rawJson = """
       }
     }
   }
-""".trimIndent()).ids
+""".trimIndent()
+).ids
 ```
 
 ->
@@ -116,14 +121,14 @@ you would do the term query that way:
 ```kotlin
 client.search(indexName) {
   // you can assign maps, lists, primitives, etc.
-  this["query"] =  mapOf(
+  this["query"] = mapOf(
     // of course JsonDsl is just a map
     "term" to withJsonDsl {
       // and withJsonDsl is just short for this:
       this[TestDoc::tags.name] = JsonDsl(
         namingConvention = ConvertToSnakeCase
       ).apply {
-         this["value"] = "legumes"
+        this["value"] = "legumes"
       }
     }
   )
@@ -185,4 +190,111 @@ use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to s
 data structure. This is something we use in multiple places.
 
 It uses some sane defaults for parsing that you can learn more about here: [Getting Started](GettingStarted.md)
+
+## Compound queries
+
+You've already seen the `bool` query. There are several other compound queries that you can use. We'll
+use this extension function to print the results:
+
+```kotlin
+fun SearchResponse.print(message: String) {
+  parseHits<TestDoc>().let { testDocs ->
+    println(
+      "$message Found ${testDocs.size} results:\n" +
+          "${testDocs.map { h -> "- ${h?.name}\n" }}"
+    )
+  }
+}
+```
+
+Dismax may be used as an alternative to bool with a bit more control over the scoring.
+
+```kotlin
+client.search(indexName) {
+  query = disMax {
+    queries(
+      matchPhrasePrefix(TestDoc::name, "app"),
+      matchPhrasePrefix(TestDoc::name, "banana"),
+      range(TestDoc::price) {
+        lte = 0.95
+      }
+    )
+    tieBreaker = 0.75
+  }
+}.print("Dismax query.")
+```
+
+Instead of completely disregarding expensive items, we can use a boosting 
+query with a negative boost on the price if it is too high. This 
+will cause expensive items to be ranked lower.
+
+```kotlin
+
+client.search(indexName) {
+  // all fruits but with negative score on high prices
+  query = boosting {
+    positive = match(TestDoc::tags, "fruit")
+    negative = range(TestDoc::price) {
+      gte = 0.6
+    }
+  }
+}.print("Boosting query.")
+```
+
+The last compound query is the function_score query. **Warning**: you may want to consider using the 
+simpler `distance_rank` function instead as function_score is one of the more complex things to
+reason about in Elasticsearch. Howwever, if you need it, kt-search supports it.
+
+```kotlin
+client.search(indexName) {
+  query = functionScore {
+    query = matchAll()
+    // you can add multiple functions
+    function {
+      weight = 0.42
+      exp("price") {
+        origin = ".5"
+        scale = "0.25"
+        decay = 0.1
+      }
+    }
+    function {
+      filter = this@search.range(TestDoc::price) {
+        gte = 0.6
+      }
+      weight = 0.1
+    }
+    function {
+      weight = 0.25
+      randomScore {
+        seed = 10
+        field = "_seq_no"
+      }
+    }
+    function {
+      fieldValueFactor {
+        field(TestDoc::price)
+        factor = 0.666
+        missing = 0.01
+        modifier =
+          FieldValueFactorConfig.FieldValueFactorModifier.log2p
+      }
+    }
+    function {
+      weight=0.1
+      scriptScore {
+        params = withJsonDsl {
+          this["a"] = 42
+        }
+        source = """params.a * doc["price"].value """
+      }
+    }
+    // and influence the score like this
+    boostMode = FunctionScoreQuery.BoostMode.avg
+    // IMPORTANT, if any of your functions return 0, the score is 0!
+    scoreMode = FunctionScoreQuery.ScoreMode.multiply
+    boost = 0.9
+  }
+}.print("Function score")
+```
 

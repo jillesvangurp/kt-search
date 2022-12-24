@@ -21,7 +21,7 @@ repositories {
 Then add the latest version:
 
 ```kotlin
-implementation("com.github.jillesvangurp.kt-search:search-client:1.99.14")
+implementation("com.github.jillesvangurp.kt-search:search-client:1.99.18")
 ```
 
 **Check the [releases](https://github.com/jillesvangurp/kt-search/releases) page** for the latest release tag.
