@@ -55,7 +55,7 @@ fun SearchDSL.match(
 ) = MatchQuery(field, query, block = block)
 // END MATCH_QUERY
 
-class MatchPhraseQueryConfig : JsonDsl(PropertyNamingConvention.ConvertToSnakeCase) {
+class MatchPhraseQueryConfig : JsonDsl() {
     var query by property<String>()
     var boost by property<Double>()
     var analyzer by property<String>()
