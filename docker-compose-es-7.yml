@@ -1,7 +1,7 @@
 version: '2.2'
 services:
   es7:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
