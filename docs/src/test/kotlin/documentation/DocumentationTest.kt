@@ -31,9 +31,10 @@ val sourceGitRepository = SourceRepository(
 
 internal const val manualOutputDir = "build/manual"
 
+val manualRootPage = Page("KT Search Manual", "README.md", manualOutputDir)
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    Page("KT Search Manual", "README.md", manualOutputDir) to manualIndexMd,
+    manualRootPage to manualIndexMd,
 )
 
 fun loadMd(fileName: String) = sourceGitRepository.md {
@@ -48,8 +49,28 @@ class DocumentationTest {
         readmePages.forEach { (page, md) ->
             page.write(md.value)
         }
-        manualPages.forEach { (page, md) ->
-            page.write(md.value)
+        val pagesWithNav = manualPages.indices.map { index ->
+            val (previousPage,_)=if(index>0) {
+                 manualPages[index-1]
+            } else {
+                null to null
+            }
+            val (nextPage,_)=if(index< manualPages.size-1) {
+                 manualPages[index+1]
+            } else {
+                null to null
+            }
+            val navigation = """
+                ---
+                
+                | ${manualRootPage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
+            """.trimIndent()
+
+            val (page,md) = manualPages[index]
+            page to (md.value+navigation)
+        }
+        pagesWithNav.forEach { (page, md) ->
+            page.write(md)
         }
     }
 }

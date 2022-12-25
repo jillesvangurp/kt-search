@@ -1,0 +1,5 @@
+## Related Links
+
+- [jillesvangurp/kt-search](https://github.com/jillesvangurp/kt-search) - the main Github project for kt-search.
+- [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts) - Kotlin scripting support for `kt-search`. Uses `kotlinx-cli` to make scripting really easy and enables you to write your own `.main.kts` files. Combined with the out of the box support for managing snapshots, creating template mappings, bulk indexing, data-streams, etc. this is the perfect companion to script all your index operations. Additionally, it's a great tool to e.g. query your data, or build some health checks against your production indices.
+- [kt-search-logback-appender](https://github.com/jillesvangurp/kt-search-logback-appender) - this is a logback appender that bulk indexes log events straight to elasticsearch. Nice if you are using a jvm based project and want to aggregate your logs to elasticsearch/kibana.

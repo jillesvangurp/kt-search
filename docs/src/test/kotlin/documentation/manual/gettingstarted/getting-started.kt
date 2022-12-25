@@ -22,29 +22,23 @@ val gettingStartedMd = sourceGitRepository.md {
     includeMdFile("../../projectreadme/gradle.md")
     section("Create a Client") {
         +"""
-            First you have to create a client. Similar to what the Elastic and Opensearch Java client do, there is a
+            To use `kt-search` you need a `SearchClient` instance. Similar to what the Elastic and Opensearch Java client do, there is a
             simple `RestClient` interface that currently has a default implementation based on `ktor-client`. This client
             takes care of sending HTTP calls to your search cluster.
         """.trimIndent()
         block {
+            // creates a client with the default RestClient
             val client = SearchClient()
         }
 
         // test server runs on 9999, so we need to override
         val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
-        block {
-            runBlocking {
-                // all apis are `suspend` functions, so you need a co-routine scope
-                client.root().let { resp ->
-                    println("${resp.variantInfo.variant}: ${resp.version.number}")
-                }
-                client.clusterHealth().let { resp ->
-                    println(resp.clusterName + " is " + resp.status)
-                }
-            }
-        }
-    }
-    section("Alternative ways to create a client") {
+
+        +"""
+            After creating the client, you can use it. Since kt-search uses non blocking IO via ktor client, all 
+            calls are suspending and have to be inside a co-routine.
+        """.trimIndent()
+
         +"""
             You may want to override some of the default parameter values. For example, this is how you would
             connect to your cluster in Elastic Cloud.
@@ -66,39 +60,77 @@ val gettingStartedMd = sourceGitRepository.md {
         block {
             val client3 = SearchClient(KtorRestClient("127.0.0.1", 9200))
         }
-    }
-    section("JSON handling") {
-        +"""
-                The `SearchClient` has a json parameter with the kotlinx.serialization `Json` 
-                that has a default value with a carefully constructed instance that is configured
-                to be lenient and do the right thing with e.g. nulls and default values. But you 
-                can of course use your own instance should you need to.
-                           
-                There are two instances included with this library that are used by default that you may use here:
-                
-                - `DEFAULT_JSON` this is what is used by default
-                - `DEFAULT_PRETTY_JSON` a pretty printing variant of DEFAULT_JSON that otherwise has the same settings.
-            """.trimIndent()
-    }
 
-    block {
-        val DEFAULT_JSON = Json {
-            // don't rely on external systems being written in kotlin
-            // or even having a language with default values
-            // the default of false is insane and dangerous
-            encodeDefaults = true
-            // save space
-            prettyPrint = false
-            // people adding things to the json is OK, we're forward compatible
-            // and will just ignore it
-            isLenient = true
-            // encoding nulls is meaningless and a waste of space.
-            explicitNulls = false
-            // adding enum values is OK even if older clients won't understand it
-            ignoreUnknownKeys = true
-            // will decode missing enum values as null
-            coerceInputValues = true
+        +"""
+            You can also use multiple nodes and use a node selection strategy.
+        """.trimIndent()
+
+        block {
+            val nodes= arrayOf(
+                Node("127.0.0.1", 9200),
+                Node("127.0.0.1", 9201),
+                Node("127.0.0.1", 9202)
+            )
+            val client4 = SearchClient(
+                KtorRestClient(
+                    nodes = nodes,
+                    nodeSelector = RoundRobinNodeSelector(nodes),
+                )
+            )
+        }
+        +"""
+            There are currently just one NodeSelector implementation that implements a simple round robin
+            strategy. Note, it currently does not attempt to detect failing nodes or implements any cluster 
+            sniffing. This is something that may be added later (pull requests welcome). 
+            
+            You can easily add your own node selection strategy by implementing the `NodeSelector` interface.
+        """.trimIndent()
+
+        block {
+            runBlocking {
+                client.root().let { resp ->
+                    println("${resp.variantInfo.variant}: ${resp.version.number}")
+                }
+                client.clusterHealth().let { resp ->
+                    println(resp.clusterName + " is " + resp.status)
+                }
+            }
         }
     }
 
+    section("JSON handling") {
+        +"""
+            The `SearchClient` has a `json` parameter with a kotlinx.serialization `Json`.
+            The default value for this is a carefully constructed instance that is configured
+            to be lenient and do the right thing with e.g. nulls and default values. But you 
+            can of course use your own instance should you need to. Note, the kotlinx.serialization defaults are pretty 
+            terrible for the real world. So, beware if you provide a custom instance.
+                       
+            There are two instances included with this library that are used by default that you may use here:
+            
+            - `DEFAULT_JSON` this is what is used by default
+            - `DEFAULT_PRETTY_JSON` a pretty printing variant of DEFAULT_JSON that otherwise has the same settings.
+        """.trimIndent()
+
+        block {
+            val DEFAULT_JSON = Json {
+                // don't rely on external systems being written in kotlin
+                // or even having a language with default values
+                // the default of false is insane and dangerous
+                encodeDefaults = true
+                // save space
+                prettyPrint = false
+                // people adding things to the json is OK, we're forward compatible
+                // and will just ignore it
+                isLenient = true
+                // encoding nulls is meaningless and a waste of space.
+                explicitNulls = false
+                // adding new enum values is OK even if older clients won't understand it
+                // they should be forward compatible
+                ignoreUnknownKeys = true
+                // decode missing enum values as null
+                coerceInputValues = true
+            }
+        }
+    }
 }

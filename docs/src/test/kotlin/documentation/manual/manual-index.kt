@@ -54,6 +54,9 @@ val manualPages = listOf(
 )
 
 val manualIndexMd = sourceGitRepository.md {
+    includeMdFile("../projectreadme/oneliner.md")
+
+    includeMdFile("intro.md")
     section("Table of contents") {
         +manualPages.joinToString("\n") { (p, _) -> "- " + p.mdLink }.trimIndent()
     }
