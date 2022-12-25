@@ -191,7 +191,7 @@ val searchMd = sourceGitRepository.md {
                     println("${hit.id} - ${hit.score}: ${doc.name} (${doc.price})")
                 }
             }
-            
+
             +"""
                 Note how we are parsing the hits back to TestDoc here. By default, the source
                 gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
