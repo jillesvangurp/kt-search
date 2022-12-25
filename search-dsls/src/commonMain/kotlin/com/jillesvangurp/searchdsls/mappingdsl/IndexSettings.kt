@@ -230,7 +230,7 @@ class IndexSettingsAndMappingsDSL(private val generateMetaFields: Boolean = fals
         if (containsKey("mappings")) {
             mappings["_meta"] = newMeta
         } else {
-            mappings = JsonDsl().apply { this["_meta"] = newMeta }
+            mappings = withJsonDsl  { this["_meta"] = newMeta }
         }
     }
 

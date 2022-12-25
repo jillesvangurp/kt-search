@@ -49,7 +49,7 @@ class JsonDslTest {
 
     @Test
     fun shouldIndentCorrectly() {
-        JsonDsl().apply {
+        withJsonDsl  {
             this["f"]= mapOf("f" to mapOf("f" to 1))
         }.json(true) shouldBe """
             {
@@ -61,9 +61,9 @@ class JsonDslTest {
             }
         """.trimIndent()
 
-        JsonDsl().apply {
+        withJsonDsl  {
             this["f1"] = 1
-            this["f2"] = JsonDsl().apply {
+            this["f2"] = withJsonDsl  {
                 this["f1"] = 1
             }
         }.json(true) shouldBe """

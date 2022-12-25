@@ -50,10 +50,16 @@ val extendingMd = sourceGitRepository.md {
             }
 
             class FooDSL : JsonDsl(
-                namingConvention = ConvertToSnakeCase
+                
             ) {
                 var foo by property<String>()
+                var bar by property<BarDsl>()
 
+                // calling this function is nicer than doing
+                // bar = BarDsl().apply {
+                //   ....
+                // }
+                // but both are possible
                 fun bar(block: BarDsl.() -> Unit) {
                     this["bar"] = BarDsl().apply(block)
                 }
@@ -70,7 +76,7 @@ val extendingMd = sourceGitRepository.md {
                     // you can just improvise things that aren't part of your DSL
                     this["zzz"] = listOf(1, 2, 3)
                     this["missingFeature"] = JsonDsl(
-                        namingConvention = ConvertToSnakeCase
+                        
                     ).apply {
                         this["another"] = " field"
                         put(
@@ -92,10 +98,11 @@ val extendingMd = sourceGitRepository.md {
         +"""
             Most of the DSLs in Elasticsearch use snake casing (lower case with underscores). Of course, this goes
             against the naming conventions in Kotlin, where using camel case is preferred. You can configure the naming
-            convention via the namingConvention parameter in JsonDSL.
+            convention via the namingConvention parameter in JsonDSL. It defaults to snake casing as this is so pervasive
+            in the Elasticsearch DSLs.
             
             Both the `SearchDSL` and the `IndexSettingsAndMappingsDSL` use the same names as the Elasticsearch DSLs 
-            they model whereever possible. Exceptions to this are Kotlin keywords and functions that are part of the 
+            they model where-ever possible. Exceptions to this are Kotlin keywords and functions that are part of the 
             `JsonDsl` parent class. For example, `size` is part of the `Map` interface it implements and therefore we 
             can't use it to e.g. specify the query size attribute.
         """.trimIndent()
@@ -107,7 +114,7 @@ val extendingMd = sourceGitRepository.md {
         """.trimIndent()
 
         block(false) {
-            class TermQueryConfig : JsonDsl(namingConvention = ConvertToSnakeCase) {
+            class TermQueryConfig : JsonDsl() {
                 var value by property<String>()
                 var boost by property<Double>()
             }
@@ -165,13 +172,16 @@ val extendingMd = sourceGitRepository.md {
                 data class MyDoc(val keyword: String)
                 query = bool {
                     should(
-                        term(MyDoc::keyword, "foo") {
-                            boost = 2.0
-                        },
                         term("keyword", "foo") {
                             boost = 2.0
                         },
-                        term("keyword", "foo")
+                        // we can use property references 
+                        // instead of string literals
+                        term(MyDoc::keyword, "foo") {
+                            boost = 2.0
+                        },
+                        // the block is optional
+                        term(MyDoc::keyword, "foo")
                     )
                 }
             }.json(pretty = true)

@@ -146,7 +146,7 @@ val searchMd = sourceGitRepository.md {
                     "term" to withJsonDsl {
                         // and withJsonDsl is just short for this:
                         this[TestDoc::tags.name] = JsonDsl(
-                            namingConvention = ConvertToSnakeCase
+                            
                         ).apply {
                             this["value"] = "legumes"
                         }

@@ -5,6 +5,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchType
 import com.jillesvangurp.searchdsls.querydsl.SortOrder
@@ -388,7 +389,7 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
     return restClient.delete {
         path("_pit")
-        body = JsonDsl().apply {
+        body = withJsonDsl  {
             this["id"] = id
         }.json()
     }.parse(JsonObject.serializer())
@@ -421,7 +422,7 @@ suspend fun SearchClient.searchAfter(
         SearchEngineVariant.ES8
     )
     var pitId = createPointInTime(target, keepAlive)
-    query["pit"] = JsonDsl().apply {
+    query["pit"] = withJsonDsl  {
         this["id"] = pitId
     }
     if (!query.containsKey("sort")) {
@@ -443,7 +444,7 @@ suspend fun SearchClient.searchAfter(
             }
             resp.pitId?.let { id ->
                 pitId = id
-                query["pit"] = JsonDsl().apply {
+                query["pit"] = withJsonDsl  {
                     this["id"] = pitId
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }
