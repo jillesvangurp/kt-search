@@ -74,7 +74,9 @@ class SearchDSL : JsonDsl() {
 
     var aggs: JsonDsl
         get() = this["aggs"] as JsonDsl
-        set(value) = this.put("aggs", value)
+        set(value) {
+            this["aggs"] = value
+        }
 }
 
 enum class SortOrder { ASC, DESC }

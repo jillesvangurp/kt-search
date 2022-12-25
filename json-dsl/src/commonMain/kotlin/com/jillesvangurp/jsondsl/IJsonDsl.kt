@@ -19,6 +19,9 @@ interface IJsonDsl : MutableMap<String, Any> {
         namingConvention: PropertyNamingConvention = PropertyNamingConvention.ConvertToSnakeCase
     )
 
+    operator fun <T> get(key: String,namingConvention: PropertyNamingConvention=defaultNamingConvention): T?
+    fun <T> get(key: KProperty<*>, namingConvention: PropertyNamingConvention=defaultNamingConvention): T?
+
     /**
      * Property delegate that stores the value in the MapBackedProperties. Use this to create type safe
      * properties.
