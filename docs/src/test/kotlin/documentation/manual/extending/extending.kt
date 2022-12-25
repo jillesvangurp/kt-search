@@ -6,6 +6,7 @@ import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
 import kotlin.reflect.KProperty
@@ -67,7 +68,6 @@ val extendingMd = sourceGitRepository.md {
 
             fun foo(block: FooDSL.() -> Unit) = FooDSL().apply(block)
 
-
             foo {
                 foo = "Hello World"
                 bar {
@@ -75,18 +75,28 @@ val extendingMd = sourceGitRepository.md {
                     yYy = false
                     // you can just improvise things that aren't part of your DSL
                     this["zzz"] = listOf(1, 2, 3)
-                    this["missingFeature"] = JsonDsl(
-                        
-                    ).apply {
+                    this["missingFeature"] = JsonDsl().apply {
                         this["another"] = " field"
+                        // if you need to you can override naming per field
                         put(
                             key = "camelCasing",
                             value = "may be forced",
                             namingConvention = PropertyNamingConvention.AsIs
                         )
-                        // you can also refer class properties
+                        // and you can use class properties
                         // if you want to keep things type safe
                         put(FooDSL::foo, "bar")
+                    }
+                    // you can also use withJsonDsl as a short hand
+                    // for JsonDsl().apply
+                    this["anotherObject"] = withJsonDsl {
+                        this["value"] = "Priceless!"
+                        // you can go completely schemaless if you need to
+                        this["list"] = arrayOf(1,2,3)
+                        this["list2"] = listOf(1,2,3)
+                        // json list elements don't have to be of the
+                        // same type even
+                        this["map"] = mapOf("foo" to listOf(1,"2",3.0))
                     }
                 }
             }.let {
