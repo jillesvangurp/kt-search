@@ -58,3 +58,6 @@ passed in between when you fetched the document and when you update it. The abov
 fetches the document, applies your update, and then stores it. In case of a version conflict,
 it re-fetches and retries this a configurable number of times before failing.            
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently ingest content using Bulk Indexing](BulkIndexing.md) |

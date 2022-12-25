@@ -133,3 +133,6 @@ Bulk failures you might want to log or retry.
 data class Thing(val name: String, val amount: Long = 42)
 ```
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Index Repository](IndexRepository.md) | Next: [Creating Data Streams](DataStreams.md) |

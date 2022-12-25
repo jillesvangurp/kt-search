@@ -5,7 +5,7 @@ The process is the same for both jvm and kotlin-js.
 
 ## Gradle
 
-Add the [tryformation](https://tryformation.com) maven repository:
+Add the Jitpack repository:
 
 ```kotlin
 repositories {
@@ -18,7 +18,7 @@ repositories {
 }
 ```
 
-Then add the latest version:
+And then add the latest version:
 
 ```kotlin
 implementation("com.github.jillesvangurp.kt-search:search-client:1.99.18")
@@ -26,39 +26,21 @@ implementation("com.github.jillesvangurp.kt-search:search-client:1.99.18")
 
 **Check the [releases](https://github.com/jillesvangurp/kt-search/releases) page** for the latest release tag.
 
-Note, we may at some point try to push this to maven-central. For now, please use Jitpack. All the pre-releases will have the `1.99.x` prefix. Despite this, the project can at this point be considered stable, feature complete, and usable. I'm holding off on labeling this as a 2.0 until I've had a chance to use it in anger on my own projects. Until then, some API refinement may happen once in a while. I will try to minimize breakage between releases.
+The 1.99.x releases are intended as release candidates for an eventual 2.0 release. At this point the API is stable and the library is feature complete. A 2.0 release will happen very soon now.
 
 ## Create a Client
 
-First you have to create a client. Similar to what the Elastic and Opensearch Java client do, there is a
+To use `kt-search` you need a `SearchClient` instance. Similar to what the Elastic and Opensearch Java client do, there is a
 simple `RestClient` interface that currently has a default implementation based on `ktor-client`. This client
 takes care of sending HTTP calls to your search cluster.
 
 ```kotlin
+// creates a client with the default RestClient
 val client = SearchClient()
 ```
 
-```kotlin
-runBlocking {
-  // all apis are `suspend` functions, so you need a co-routine scope
-  client.root().let { resp ->
-    println("${resp.variantInfo.variant}: ${resp.version.number}")
-  }
-  client.clusterHealth().let { resp ->
-    println(resp.clusterName + " is " + resp.status)
-  }
-}
-```
-
-Captured Output:
-
-```
-ES7: 7.17.5
-docker-test-cluster is Green
-
-```
-
-## Alternative ways to create a client
+After creating the client, you can use it. Since kt-search uses non blocking IO via ktor client, all 
+calls are suspending and have to be inside a co-routine.
 
 You may want to override some of the default parameter values. For example, this is how you would
 connect to your cluster in Elastic Cloud.
@@ -81,12 +63,54 @@ val client2 = SearchClient(
 val client3 = SearchClient(KtorRestClient("127.0.0.1", 9200))
 ```
 
+You can also use multiple nodes and use a node selection strategy.
+
+```kotlin
+val nodes= arrayOf(
+  Node("127.0.0.1", 9200),
+  Node("127.0.0.1", 9201),
+  Node("127.0.0.1", 9202)
+)
+val client4 = SearchClient(
+  KtorRestClient(
+    nodes = nodes,
+    nodeSelector = RoundRobinNodeSelector(nodes),
+  )
+)
+```
+
+There are currently just one NodeSelector implementation that implements a simple round robin
+strategy. Note, it currently does not attempt to detect failing nodes or implements any cluster 
+sniffing. This is something that may be added later (pull requests welcome). 
+
+You can easily add your own node selection strategy by implementing the `NodeSelector` interface.
+
+```kotlin
+runBlocking {
+  client.root().let { resp ->
+    println("${resp.variantInfo.variant}: ${resp.version.number}")
+  }
+  client.clusterHealth().let { resp ->
+    println(resp.clusterName + " is " + resp.status)
+  }
+}
+```
+
+Captured Output:
+
+```
+ES7: 7.17.5
+docker-test-cluster is Green
+
+```
+
 ## JSON handling
 
-The `SearchClient` has a json parameter with the kotlinx.serialization `Json` 
-that has a default value with a carefully constructed instance that is configured
+The `SearchClient` has a `json` parameter with a kotlinx.serialization `Json`.
+The default value for this is a carefully constructed instance that is configured
 to be lenient and do the right thing with e.g. nulls and default values. But you 
-can of course use your own instance should you need to.
+can of course use your own instance should you need to. Note, the kotlinx.serialization defaults are pretty 
+terrible for the real world. So, beware if you provide a custom instance.
            
 There are two instances included with this library that are used by default that you may use here:
 
@@ -106,10 +130,14 @@ val DEFAULT_JSON = Json {
   isLenient = true
   // encoding nulls is meaningless and a waste of space.
   explicitNulls = false
-  // adding enum values is OK even if older clients won't understand it
+  // adding new enum values is OK even if older clients won't understand it
+  // they should be forward compatible
   ignoreUnknownKeys = true
-  // will decode missing enum values as null
+  // decode missing enum values as null
   coerceInputValues = true
 }
 ```
 
+---
+
+| [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, settings, mappings, and aliases](IndexManagement.md) |

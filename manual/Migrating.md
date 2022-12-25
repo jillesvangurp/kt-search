@@ -9,3 +9,6 @@ Migrating from the old es-kotlin-client is quite easy but it is going to involve
 - All APIs in `kt-search` are suspend only. Supporting blocking IO is not a priority and this gets rid of a lot of code duplication.
 
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |

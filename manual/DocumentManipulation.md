@@ -41,3 +41,6 @@ that accepts a json String instead of the TestDoc.
 
 Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: [Efficiently ingest content using Bulk Indexing](BulkIndexing.md).
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Deep paging using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |

@@ -125,3 +125,6 @@ this will direct linux/mac to use kotlin to run the script with kotlin
 - intellij does not reliably reload the script context when you 
 modify the dependencies: closing and re-opening the IDE seems to work.
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |

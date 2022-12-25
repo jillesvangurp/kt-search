@@ -80,3 +80,6 @@ client.setIlmPolicy("my-ilm") {
 }
 ```
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Efficiently ingest content using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |

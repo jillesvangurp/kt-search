@@ -195,3 +195,6 @@ found 3 results
 
 ```
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Document Manipulation](DocumentManipulation.md) |

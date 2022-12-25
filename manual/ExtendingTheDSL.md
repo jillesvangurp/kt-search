@@ -216,3 +216,6 @@ SearchDSL().apply {
 }
 ```
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |

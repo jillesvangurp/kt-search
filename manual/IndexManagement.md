@@ -172,3 +172,6 @@ Note. you may also want to consider using data streams instead: [Creating Data S
  
 Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
 
+---
+
+| [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
