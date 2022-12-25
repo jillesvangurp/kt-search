@@ -100,10 +100,11 @@ val gettingStartedMd = sourceGitRepository.md {
 
     section("JSON handling") {
         +"""
-            The `SearchClient` has a json parameter with the kotlinx.serialization `Json` 
-            that has a default value with a carefully constructed instance that is configured
+            The `SearchClient` has a `json` parameter with a kotlinx.serialization `Json`.
+            The default value for this is a carefully constructed instance that is configured
             to be lenient and do the right thing with e.g. nulls and default values. But you 
-            can of course use your own instance should you need to.
+            can of course use your own instance should you need to. Note, the kotlinx.serialization defaults are pretty 
+            terrible for the real world. So, beware if you provide a custom instance.
                        
             There are two instances included with this library that are used by default that you may use here:
             
@@ -124,9 +125,10 @@ val gettingStartedMd = sourceGitRepository.md {
                 isLenient = true
                 // encoding nulls is meaningless and a waste of space.
                 explicitNulls = false
-                // adding enum values is OK even if older clients won't understand it
+                // adding new enum values is OK even if older clients won't understand it
+                // they should be forward compatible
                 ignoreUnknownKeys = true
-                // will decode missing enum values as null
+                // decode missing enum values as null
                 coerceInputValues = true
             }
         }
