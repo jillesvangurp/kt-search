@@ -7,7 +7,7 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
 
 ## Gradle
 
-Add the [tryformation](https://tryformation.com) maven repository:
+Add the Jitpack repository:
 
 ```kotlin
 repositories {
@@ -20,7 +20,7 @@ repositories {
 }
 ```
 
-Then add the latest version:
+And then add the latest version:
 
 ```kotlin
 implementation("com.github.jillesvangurp.kt-search:search-client:1.99.18")
@@ -28,7 +28,19 @@ implementation("com.github.jillesvangurp.kt-search:search-client:1.99.18")
 
 **Check the [releases](https://github.com/jillesvangurp/kt-search/releases) page** for the latest release tag.
 
-Note, we may at some point try to push this to maven-central. For now, please use Jitpack. All the pre-releases will have the `1.99.x` prefix. Despite this, the project can at this point be considered stable, feature complete, and usable. I'm holding off on labeling this as a 2.0 until I've had a chance to use it in anger on my own projects. Until then, some API refinement may happen once in a while. I will try to minimize breakage between releases.
+The 1.99.x releases are intended as release candidates for an eventual 2.0 release. At this point the API is stable and the library is feature complete. A 2.0 release will happen very soon now.
+
+## License
+
+This project is [licensed](LICENSE) under the MIT license.
+
+## Learn more
+
+- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
+- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
+- You can also learn a lot by looking at the integration tests in the `search-client` module.
+- The code sample below should help you figure out the basics.
 
 ## Use cases
 
@@ -42,19 +54,6 @@ Integrate **advanced search** capabilities in your Kotlin applications. Whether 
 The goal for kt-search is to be the **most convenient way to use opensearch and elasticsearch from Kotlin** on any platform where Kotlin is usable.
 
 Kt-search is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
-
-## Learn more
-
-- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
-- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
-- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
-- You can also learn a lot by looking at the integration tests in the `search-client` module.
-- The code sample below should help you figure out the basics.
-
-
-
-
-
 
 ## Usage
 
@@ -184,10 +183,6 @@ There are several libraries that build on kt-search:
 
 - [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts) - this library combines `kt-search` with `kotlinx-cli` to make scripting really easy. Combined with the out of the box support for managing snapshots, creating template mappings, bulk indexing, data-streams, etc. this is the perfect companion to script all your index operations. Additionally, it's a great tool to e.g. query your data, or build some health checks against your production indices.
 - [kt-search-logback-appender](https://github.com/jillesvangurp/kt-search-logback-appender) - this is a logback appender that bulk indexes log events straight to elasticsearch.
-
-## License
-
-This project is [licensed](LICENSE) under the MIT license.
 
 ## Compatibility
 
