@@ -1,3 +1,15 @@
+## License
+
+This project is [licensed](LICENSE) under the MIT license.
+
+## Learn more
+
+- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
+- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
+- You can also learn a lot by looking at the integration tests in the `search-client` module.
+- The code sample below should help you figure out the basics.
+
 ## Use cases
 
 Integrate **advanced search** capabilities in your Kotlin applications. Whether you want to build a web based dashboard, an advanced ETL pipeline or simply exposing a search endpoint in as a microservice, this library has you covered. 
@@ -10,16 +22,3 @@ Integrate **advanced search** capabilities in your Kotlin applications. Whether 
 The goal for kt-search is to be the **most convenient way to use opensearch and elasticsearch from Kotlin** on any platform where Kotlin is usable.
 
 Kt-search is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
-
-## Learn more
-
-- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
-- [Manual](https://jillesvangurp.github.io/kt-search/manual) - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
-- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
-- You can also learn a lot by looking at the integration tests in the `search-client` module.
-- The code sample below should help you figure out the basics.
-
-
-
-
-
