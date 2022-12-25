@@ -35,17 +35,22 @@ class BarDsl : JsonDsl(
 }
 
 class FooDSL : JsonDsl(
-  namingConvention = ConvertToSnakeCase
+  
 ) {
   var foo by property<String>()
+  var bar by property<BarDsl>()
 
+  // calling this function is nicer than doing
+  // bar = BarDsl().apply {
+  //   ....
+  // }
+  // but both are possible
   fun bar(block: BarDsl.() -> Unit) {
     this["bar"] = BarDsl().apply(block)
   }
 }
 
 fun foo(block: FooDSL.() -> Unit) = FooDSL().apply(block)
-
 
 foo {
   foo = "Hello World"
@@ -54,18 +59,28 @@ foo {
     yYy = false
     // you can just improvise things that aren't part of your DSL
     this["zzz"] = listOf(1, 2, 3)
-    this["missingFeature"] = JsonDsl(
-      namingConvention = ConvertToSnakeCase
-    ).apply {
+    this["missingFeature"] = JsonDsl().apply {
       this["another"] = " field"
+      // if you need to you can override naming per field
       put(
         key = "camelCasing",
         value = "may be forced",
         namingConvention = PropertyNamingConvention.AsIs
       )
-      // you can also refer class properties
+      // and you can use class properties
       // if you want to keep things type safe
       put(FooDSL::foo, "bar")
+    }
+    // you can also use withJsonDsl as a short hand
+    // for JsonDsl().apply
+    this["anotherObject"] = withJsonDsl {
+      this["value"] = "Priceless!"
+      // you can go completely schemaless if you need to
+      this["list"] = arrayOf(1,2,3)
+      this["list2"] = listOf(1,2,3)
+      // json list elements don't have to be of the
+      // same type even
+      this["map"] = mapOf("foo" to listOf(1,"2",3.0))
     }
   }
 }.let {
@@ -90,6 +105,26 @@ Captured Output:
     "another": " field",
     "camelCasing": "may be forced",
     "foo": "bar"
+  },
+  "anotherObject": {
+    "value": "Priceless!",
+    "list": [
+    1, 
+    2, 
+    3
+    ],
+    "list2": [
+    1, 
+    2, 
+    3
+    ],
+    "map": {
+    "foo": [
+      1, 
+      "2", 
+      3.0
+    ]
+    }
   }
   }
 }
@@ -100,10 +135,11 @@ Captured Output:
 
 Most of the DSLs in Elasticsearch use snake casing (lower case with underscores). Of course, this goes
 against the naming conventions in Kotlin, where using camel case is preferred. You can configure the naming
-convention via the namingConvention parameter in JsonDSL.
+convention via the namingConvention parameter in JsonDSL. It defaults to snake casing as this is so pervasive
+in the Elasticsearch DSLs.
 
 Both the `SearchDSL` and the `IndexSettingsAndMappingsDSL` use the same names as the Elasticsearch DSLs 
-they model whereever possible. Exceptions to this are Kotlin keywords and functions that are part of the 
+they model where-ever possible. Exceptions to this are Kotlin keywords and functions that are part of the 
 `JsonDsl` parent class. For example, `size` is part of the `Map` interface it implements and therefore we 
 can't use it to e.g. specify the query size attribute.
 
@@ -112,7 +148,7 @@ can't use it to e.g. specify the query size attribute.
 As an example, we'll use the `term` query implementation in this library.                       
 
 ```kotlin
-class TermQueryConfig : JsonDsl(namingConvention = ConvertToSnakeCase) {
+class TermQueryConfig : JsonDsl() {
   var value by property<String>()
   var boost by property<Double>()
 }
@@ -168,13 +204,16 @@ SearchDSL().apply {
   data class MyDoc(val keyword: String)
   query = bool {
     should(
-      term(MyDoc::keyword, "foo") {
-        boost = 2.0
-      },
       term("keyword", "foo") {
         boost = 2.0
       },
-      term("keyword", "foo")
+      // we can use property references 
+      // instead of string literals
+      term(MyDoc::keyword, "foo") {
+        boost = 2.0
+      },
+      // the block is optional
+      term(MyDoc::keyword, "foo")
     )
   }
 }.json(pretty = true)

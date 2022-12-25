@@ -69,7 +69,7 @@ client.bulk(refresh = Refresh.WaitFor) {
   flow.onEach { hit ->
     val doc = hit.parseHit<TestDoc>()
     // modify the name and put it in our new index
-    index(doc?.copy(name= "${doc.name} v2"), index=newIndex)
+    index(doc.copy(name= "${doc.name} v2"), index=newIndex)
   }.collect()
 }
 println("$newIndex has ${client.search(newIndex).total} documents")
@@ -122,9 +122,7 @@ val q = SearchDSL().apply {
   query = matchAll()
 
   // this is not part of the DSL
-  this["pit"] = JsonDsl(
-    namingConvention = ConvertToSnakeCase
-  ).apply {
+  this["pit"] = withJsonDsl  {
     this["id"] = pit
   }
   // it's recommended to sort on _shard_doc
@@ -143,9 +141,7 @@ resp.hits?.hits?.last()?.sort?.let { sort ->
 }
 // the response will include a pit id
 resp.pitId?.let { pid ->
-  q["pit"] = JsonDsl(
-    namingConvention = ConvertToSnakeCase
-  ).apply {
+  q["pit"] = withJsonDsl  {
     this["id"] = pid
     this["keep_alive"] = "60s"
   }
