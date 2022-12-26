@@ -1,9 +1,9 @@
 # Using Kotlin Scripting 
 
-                | [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
+| [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                One interesting use of kt-search is to script common operations around Elasticsearch.
+---                
+One interesting use of kt-search is to script common operations around Elasticsearch.
 
 For this we have a companion library [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/) 
 that makes integrating `kt-search` into your `.main.kts` scripts very easy.
@@ -129,6 +129,6 @@ this will direct linux/mac to use kotlin to run the script with kotlin
 modify the dependencies: closing and re-opening the IDE seems to work.
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
+---
+| [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

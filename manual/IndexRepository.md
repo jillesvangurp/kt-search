@@ -1,9 +1,9 @@
 # Index Repository 
 
-                | [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
+| [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                To cut down on the amount of copy pasting of aliases and index names, kt-search includes 
+---                
+To cut down on the amount of copy pasting of aliases and index names, kt-search includes 
 a useful abstraction: the `IndexRepository`.
 
 An `IndexRepository` allows you to work with a specific index. You can perform document CRUD, query,
@@ -62,6 +62,6 @@ fetches the document, applies your update, and then stores it. In case of a vers
 it re-fetches and retries this a configurable number of times before failing.            
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
+---
+| [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

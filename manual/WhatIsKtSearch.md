@@ -1,9 +1,9 @@
 # What is Kt-Search 
 
-                | [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
+| [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                Kt-search is a Kotlin library that allows users to interact with Opensearch and Elasticsearch. It is a Kotlin multiplatform library that can be used on any platform that Kotlin can compile to. Currently, the jvm and js platforms are supported. 
+---                
+Kt-search is a Kotlin library that allows users to interact with Opensearch and Elasticsearch. It is a Kotlin multiplatform library that can be used on any platform that Kotlin can compile to. Currently, the jvm and js platforms are supported. 
 
 ## Why a new client?
 
@@ -31,6 +31,6 @@ A few years of development on the es-kotlin-client has produced quite a few lear
 - Kt-search is now asynchronous only. Blocking IO in Kotlin just doesn't make a lot of sense and it's easy to make everything suspending. If you really need blocking behavior, just surround it with a `runBlocking`.
 
 
-                ---
-                | [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
+---
+| [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

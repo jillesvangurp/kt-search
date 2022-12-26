@@ -1,9 +1,9 @@
 # Indices, Settings, Mappings, and Aliases 
 
-                | [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
+| [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                ## Creating Indices
+---                
+## Creating Indices
 
 A Crucial part of working with Elasticsearch is creating and managing indices, mappings, and settings.
         
@@ -176,6 +176,6 @@ Note. you may also want to consider using data streams instead: [Creating Data S
 Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
+---
+| [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

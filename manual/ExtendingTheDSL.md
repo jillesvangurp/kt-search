@@ -1,9 +1,9 @@
 # Extending the Json DSLs 
 
-                | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
+| [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                This library includes Kotlin DSLs for querying, mapping and other functionality in Elasticsearch. 
+---                
+This library includes Kotlin DSLs for querying, mapping and other functionality in Elasticsearch. 
 ELasticsearch has a very rich set of features and new ones are constantly being added. Keeping up with 
 that is hard and instead of doing that, we designed the Kotlin DSL to be easily extensible so that users 
 don't get stuck when e.g. a field is missing in the Kotlin DSL or when we have simply not gotten around
@@ -259,6 +259,6 @@ SearchDSL().apply {
 ```
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
+---
+| [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

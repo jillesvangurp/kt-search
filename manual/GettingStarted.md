@@ -1,9 +1,9 @@
 # Getting Started 
 
-                | [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) |
+| [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                To get started, simply add the dependency to your project and create a client. 
+---                
+To get started, simply add the dependency to your project and create a client. 
 The process is the same for both jvm and kotlin-js.
 
 ## Gradle
@@ -142,6 +142,6 @@ val DEFAULT_JSON = Json {
 ```
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) |
+---
+| [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

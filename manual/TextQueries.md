@@ -1,9 +1,9 @@
 # Text Queries 
 
-                | [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
+| [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
-                ---                
-                If you are doing textual search, Elasticsearch offers a lot of functionality out of the box. We'll cover only
+---                
+If you are doing textual search, Elasticsearch offers a lot of functionality out of the box. We'll cover only
 the basics here. Please refer to the Opensearch and Elasticsearch manuals for full coverage of all the options 
 and parameters.
 
@@ -149,6 +149,6 @@ Multi Match Found 2 results:
 ## Combined fields query
 
 
-                ---
-                | [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
+---
+| [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
