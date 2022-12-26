@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 Mostly, you will use bulk indexing to manipulate documents in Elasticsearch. However, 
 sometimes it is useful to be able to manipulate individual documents with the 
 Create, Read, Update, and Delete (CRUD) APIs.
@@ -45,6 +47,8 @@ that accepts a json String instead of the TestDoc.
 Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md).
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

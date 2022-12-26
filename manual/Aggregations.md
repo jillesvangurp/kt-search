@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 The aggregations DSL in Elasticsearch is both very complicated and vast. This is an area where
 using Kotlin can vastly simplify things for programmers.
 
@@ -90,7 +92,7 @@ Captured Output:
 
 ```
 {
-  "took": 60,
+  "took": 51,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -273,12 +275,12 @@ Captured Output:
 2022-12-25T00:00:00.000Z: 1
 2022-12-26T00:00:00.000Z: 1
 green: 2
-  Min: 1.67207134745E12
-  Max: 1.67207134745E12
+  Min: 1.672071690053E12
+  Max: 1.672071690053E12
   Time span: 8.64E8
 red: 2
-  Min: 1.67198494745E12
-  Max: 1.67198494745E12
+  Min: 1.671985290053E12
+  Max: 1.671985290053E12
   Time span: 3.456E8
 Avg time span: 6.048E8
 
@@ -340,6 +342,8 @@ This should be implemented on all bucket aggregations. The `T` parameter allows 
  on `BucketAggregationResult`.
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

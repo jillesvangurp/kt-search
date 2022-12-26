@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 This library includes Kotlin DSLs for querying, mapping and other functionality in Elasticsearch. 
 ELasticsearch has a very rich set of features and new ones are constantly being added. Keeping up with 
 that is hard and instead of doing that, we designed the Kotlin DSL to be easily extensible so that users 
@@ -259,6 +261,8 @@ SearchDSL().apply {
 ```
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

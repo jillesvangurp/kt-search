@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 Elasticsearch has several query varieties that you can use to combine other queries. These are called compound queries.
 We'll use this extension function on `SearchResponse` to print the results and the same `TestDoc` class that 
 we used before.
@@ -187,6 +189,8 @@ Function score Found 3 results:
 ```
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

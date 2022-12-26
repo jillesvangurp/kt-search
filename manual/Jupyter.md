@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Using Kotlin Scripting](Scripting.md) | - |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 Using kt-search from jupyter and the kotlin kernel is easy! See the `jupyter-example` directory in the kt-search project.
 
 ## Install conda
@@ -62,6 +64,8 @@ Note, you need to use `runBlocking` to use suspending calls on the client.
 Otherwise, see the documentation for how to use the kotlin scripting support.
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Using Kotlin Scripting](Scripting.md) | - |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

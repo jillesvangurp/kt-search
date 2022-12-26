@@ -2,7 +2,9 @@
 
 | [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+
 ---                
+
 You can page through results using the `from` and `size` parameters (called `resultSize` in the DSL because
 the name clashes with `Map.size`). However, this has performance issues and for that result, the from is 
 limited to 10000. To retrieve more than that number of results, you need deep paging.
@@ -195,6 +197,8 @@ found 3 results
 ```
 
 
+
 ---
+
 | [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
