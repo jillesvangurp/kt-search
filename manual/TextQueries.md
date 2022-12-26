@@ -1,0 +1,150 @@
+# Text Queries 
+
+If you are doing textual search, Elasticsearch offers a lot of functionality out of the box. We'll cover only
+the basics here. Please refer to the Opensearch and Elasticsearch manuals for full coverage of all the options 
+and parameters.
+
+## Match
+
+```kotlin
+client.search(indexName) {
+  // will match on beans
+  query = match(TestDoc::name, "red beans") {
+    boost = 2.0
+    lenient = true
+    autoGenerateSynonymsPhraseQuery = true
+  }
+}.pretty("Match query").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Match query Found 1 results:
+- 1.6285465 3 Green Beans
+
+```
+
+## Match Phrase
+
+```kotlin
+client.search(indexName) {
+  // will match on "green beans"
+  query = matchPhrase(TestDoc::name, "green beans") {
+    boost = 2.0
+    slop = 2
+    zeroTermsQuery = ZeroTermsQuery.none
+  }
+}.pretty("Match Phrase query").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Match Phrase query Found 1 results:
+- 3.257093 3 Green Beans
+
+```
+
+## Match Phrase Prefix
+
+```kotlin
+client.search(indexName) {
+  // will match on "green beans"
+  query = matchPhrasePrefix(TestDoc::name, "green bea") {
+    boost = 2.0
+    slop = 2
+    zeroTermsQuery = ZeroTermsQuery.none
+  }
+}.pretty("Match Phrase Prefix query").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Match Phrase Prefix query Found 1 results:
+- 3.257093 3 Green Beans
+
+```
+
+## Multi Match
+
+```kotlin
+client.search(indexName) {
+  // will match on "green beans"
+  query = multiMatch("banana beans",
+    "name", "tags.txt") {
+    type = MultiMatchType.best_fields
+    tieBreaker = 0.3
+    operator = MatchOperator.OR
+  }
+}.pretty("Multi Match").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Multi Match Found 2 results:
+- 1.0925692 2 Banana
+- 0.81427324 3 Green Beans
+
+```
+
+## Simple Query String
+
+A simple query string parser that can query multiple fields
+
+```kotlin
+client.search(indexName) {
+  query = simpleQueryString( "beans OR fruit", "name", "tags.txt" )
+}.pretty("Multi Match").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Multi Match Found 3 results:
+- 0.81427324 3 Green Beans
+- 0.4700036 1 Apple
+- 0.4700036 2 Banana
+
+```
+
+## Query String Query
+
+Similar to simple query string but with a more strict query language and less leniency.
+
+```kotlin
+client.search(indexName) {
+  query = queryString( "(banana) OR (apple)", TestDoc::name)
+}.pretty("Multi Match").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Multi Match Found 2 results:
+- 1.0925692 1 Apple
+- 1.0925692 2 Banana
+
+```
+
+## Intervals query
+
+## Combined fields query
+
+---
+
+| [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |

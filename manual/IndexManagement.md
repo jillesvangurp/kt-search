@@ -1,4 +1,4 @@
-# Indices, settings, mappings, and aliases 
+# Indices, Settings, Mappings, and Aliases 
 
 ## Creating Indices
 

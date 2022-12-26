@@ -39,8 +39,8 @@ The index API has a lot more parameters that are supported here as well
 via nullable parameters. You can also use a variant of the index API
 that accepts a json String instead of the TestDoc.
 
-Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: [Efficiently ingest content using Bulk Indexing](BulkIndexing.md).
+Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md).
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Deep paging using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |
+| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |

@@ -1,4 +1,4 @@
-# Efficiently ingest content using Bulk Indexing 
+# Efficiently Ingest Content Using Bulk Indexing 
 
 An important part of working with Elasticsearch is adding content. While the CRUD support is useful
 for manipulating individual objects in an index, it is not suitable for sending large amounts of data.

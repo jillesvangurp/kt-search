@@ -140,4 +140,4 @@ val DEFAULT_JSON = Json {
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, settings, mappings, and aliases](IndexManagement.md) |
+| [KT Search Manual](README.md) | Previous: [What is Kt-Search](WhatIsKtSearch.md) | Next: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) |

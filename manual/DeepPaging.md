@@ -1,4 +1,4 @@
-# Deep paging using search_after and scroll 
+# Deep Paging Using search_after and scroll 
 
 You can page through results using the `from` and `size` parameters (called `resultSize` in the DSL because
 the name clashes with `Map.size`). However, this has performance issues and for that result, the from is 

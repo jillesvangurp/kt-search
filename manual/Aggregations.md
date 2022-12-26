@@ -87,7 +87,7 @@ Captured Output:
 
 ```
 {
-  "took": 92,
+  "took": 76,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -258,24 +258,24 @@ println("Avg time span: ${
 Captured Output:
 
 ```
-2022-12-15T00:00:00.000Z: 1
-2022-12-16T00:00:00.000Z: 0
+2022-12-16T00:00:00.000Z: 1
 2022-12-17T00:00:00.000Z: 0
 2022-12-18T00:00:00.000Z: 0
 2022-12-19T00:00:00.000Z: 0
-2022-12-20T00:00:00.000Z: 1
-2022-12-21T00:00:00.000Z: 0
+2022-12-20T00:00:00.000Z: 0
+2022-12-21T00:00:00.000Z: 1
 2022-12-22T00:00:00.000Z: 0
 2022-12-23T00:00:00.000Z: 0
-2022-12-24T00:00:00.000Z: 1
+2022-12-24T00:00:00.000Z: 0
 2022-12-25T00:00:00.000Z: 1
+2022-12-26T00:00:00.000Z: 1
 green: 2
-  Min: 1.671967990462E12
-  Max: 1.671967990462E12
+  Min: 1.672066623893E12
+  Max: 1.672066623893E12
   Time span: 8.64E8
 red: 2
-  Min: 1.671881590462E12
-  Max: 1.671881590462E12
+  Min: 1.671980223893E12
+  Max: 1.671980223893E12
   Time span: 3.456E8
 Avg time span: 6.048E8
 
@@ -338,4 +338,4 @@ This should be implemented on all bucket aggregations. The `T` parameter allows 
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Deep paging using search_after and scroll](DeepPaging.md) |
+| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |

@@ -60,4 +60,4 @@ it re-fetches and retries this a configurable number of times before failing.
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently ingest content using Bulk Indexing](BulkIndexing.md) |
+| [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
