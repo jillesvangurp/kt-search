@@ -144,27 +144,28 @@ class RegExpQueryConfig : JsonDsl() {
 class RegExpQuery(
     field: String,
     value: String,
-    regExpQueryConfig: RegExpQueryConfig = RegExpQueryConfig(),
+    regExpQueryConfig: RegExpQueryConfig? = null,
     block: (RegExpQueryConfig.() -> Unit)? = null
 ) : ESQuery("regexp") {
     init {
-        put(field, regExpQueryConfig, PropertyNamingConvention.AsIs)
-        regExpQueryConfig.value = value
-        block?.invoke(regExpQueryConfig)
+        val reConfig = regExpQueryConfig ?: RegExpQueryConfig()
+        put(field, reConfig, PropertyNamingConvention.AsIs)
+        reConfig.value = value
+        block?.invoke(reConfig)
     }
 }
 
 fun SearchDSL.regExp(
     field: KProperty<*>,
     value: String,
-    block: RegExpQueryConfig.() -> Unit
+    block: (RegExpQueryConfig.() -> Unit)?=null
 ) =
     RegExpQuery(field.name,value, block = block)
 
 fun SearchDSL.regExp(
     field: String,
     value: String,
-    block: RegExpQueryConfig.() -> Unit
+    block: (RegExpQueryConfig.() -> Unit)?=null
 ) =
     RegExpQuery(field,value, block = block)
 

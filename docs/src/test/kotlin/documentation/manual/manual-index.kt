@@ -16,8 +16,9 @@ enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),
     GettingStarted("Getting Started"),
     Search("Search and Queries"),
-    CompoundQueries("Compound Queries"),
     TextQueries("Text Queries"),
+    TermLevelQueries("Term Level Queries"),
+    CompoundQueries("Compound Queries"),
     Aggregations("Aggregations"),
     DeepPaging("Deep Paging Using search_after and scroll"),
     DocumentManipulation("Document Manipulation"),
@@ -37,23 +38,24 @@ enum class ManualPages(title: String = "") {
 }
 
 val manualPages = listOf(
-    ManualPages.WhatIsKtSearch.page to whatIsKtSearchMd,
-    ManualPages.GettingStarted.page to gettingStartedMd,
-    ManualPages.IndexManagement.page to indexManagementMd,
-    ManualPages.Search.page to searchMd,
-    ManualPages.CompoundQueries.page to compoundQueriesMd,
-    ManualPages.TextQueries.page to textQueriesMd,
-    ManualPages.Aggregations.page to aggregationsMd,
-    ManualPages.DeepPaging.page to deepPagingMd,
-    ManualPages.DocumentManipulation.page to crudMd,
-    ManualPages.IndexRepository.page to indexRepoMd,
-    ManualPages.BulkIndexing.page to bulkMd,
-    ManualPages.DataStreams.page to dataStreamsMd,
-    ManualPages.Migrating.page to loadMd("manual/gettingstarted/migrating.md"),
-    ManualPages.ExtendingTheDSL.page to extendingMd,
-    ManualPages.Scripting.page to scriptingMd,
-    ManualPages.Jupyter.page to loadMd("manual/jupyter/jupyter.md"),
-)
+    ManualPages.WhatIsKtSearch to whatIsKtSearchMd,
+    ManualPages.GettingStarted to gettingStartedMd,
+    ManualPages.IndexManagement to indexManagementMd,
+    ManualPages.Search to searchMd,
+    ManualPages.TextQueries to textQueriesMd,
+    ManualPages.TermLevelQueries to termLevelQueriesMd,
+    ManualPages.CompoundQueries to compoundQueriesMd,
+    ManualPages.Aggregations to aggregationsMd,
+    ManualPages.DeepPaging to deepPagingMd,
+    ManualPages.DocumentManipulation to crudMd,
+    ManualPages.IndexRepository to indexRepoMd,
+    ManualPages.BulkIndexing to bulkMd,
+    ManualPages.DataStreams to dataStreamsMd,
+    ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
+    ManualPages.ExtendingTheDSL to extendingMd,
+    ManualPages.Scripting to scriptingMd,
+    ManualPages.Jupyter to loadMd("manual/jupyter/jupyter.md"),
+).map {(mp,md)-> mp.page to md}
 
 val manualIndexMd = sourceGitRepository.md {
     includeMdFile("../projectreadme/oneliner.md")

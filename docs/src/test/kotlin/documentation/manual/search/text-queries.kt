@@ -101,4 +101,10 @@ val textQueriesMd = sourceGitRepository.md {
             }
         }
     }
+    section("Intervals query") {
+        // FIXME not implemented yet
+    }
+    section("Combined fields query") {
+        // FIXME not implemented yet
+    }
 }
