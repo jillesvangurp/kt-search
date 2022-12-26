@@ -7,6 +7,9 @@ import documentation.projectreadme.projectReadme
 import org.junit.jupiter.api.Test
 import java.io.File
 
+const val githubLink = "https://github.com/jillesvangurp/kt-search"
+const val jitpackLink = "[![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search)"
+
 data class Page(
     val title: String,
     val fileName: String,
@@ -25,7 +28,7 @@ fun Page.write(content: String) {
 }
 
 val sourceGitRepository = SourceRepository(
-    repoUrl = "https://github.com/jillesvangurp/kt-search",
+    repoUrl = githubLink,
     sourcePaths = setOf("src/main/kotlin", "src/test/kotlin")
 )
 
@@ -64,7 +67,7 @@ class DocumentationTest {
                 ---
                 
                 | ${manualRootPage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
-                | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+                | [Github]($githubLink) | &copy; Jilles van Gurp | $jitpackLink |
             """.trimIndent()
 
             val (page,md) = manualPages[index]

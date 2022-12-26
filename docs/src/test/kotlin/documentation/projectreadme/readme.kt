@@ -6,6 +6,8 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.bool
 import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
 import com.jillesvangurp.searchdsls.querydsl.term
+import documentation.githubLink
+import documentation.jitpackLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -13,8 +15,8 @@ import kotlinx.serialization.Serializable
 
 val projectReadme = sourceGitRepository.md {
     +"""
-[![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
-[![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search)
+[![matrix-test-and-deploy-docs]($githubLink/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)]($githubLink/actions/workflows/deploy-docs-and-test.yml)
+$jitpackLink
     """.trimIndent()
     includeMdFile("oneliner.md")
 
