@@ -71,9 +71,13 @@ class DocumentationTest {
             val (page,md) = manualPages[index]
             page to ("""
 $navigation
+
 ---                
+
 ${md.value}
+
 ---
+
 $navigation
 """.trimIndent())
         }
