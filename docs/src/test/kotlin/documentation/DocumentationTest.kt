@@ -64,14 +64,17 @@ class DocumentationTest {
                 null to null
             }
             val navigation = """
-                ---
-                
                 | ${manualRootPage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
                 | [Github]($githubLink) | &copy; Jilles van Gurp | $jitpackLink |
             """.trimIndent()
 
             val (page,md) = manualPages[index]
-            page to (md.value+navigation)
+            page to ("""
+                $navigation
+                ---                
+                ${md.value}
+                ---
+                $navigation""".trimIndent())
         }
         pagesWithNav.forEach { (page, md) ->
             page.write(md)
