@@ -70,11 +70,12 @@ class DocumentationTest {
 
             val (page,md) = manualPages[index]
             page to ("""
-                $navigation
-                ---                
-                ${md.value}
-                ---
-                $navigation""".trimIndent())
+$navigation
+---                
+${md.value}
+---
+$navigation
+""".trimIndent())
         }
         pagesWithNav.forEach { (page, md) ->
             page.write(md)
