@@ -10,20 +10,21 @@ import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
 import documentation.manual.scripting.scriptingMd
-import documentation.manual.search.aggregationsMd
-import documentation.manual.search.deepPagingMd
-import documentation.manual.search.searchMd
+import documentation.manual.search.*
 
 enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),
     GettingStarted("Getting Started"),
     Search("Search and Queries"),
+    TextQueries("Text Queries"),
+    TermLevelQueries("Term Level Queries"),
+    CompoundQueries("Compound Queries"),
     Aggregations("Aggregations"),
-    DeepPaging("Deep paging using search_after and scroll"),
+    DeepPaging("Deep Paging Using search_after and scroll"),
     DocumentManipulation("Document Manipulation"),
     IndexRepository("Index Repository"),
-    BulkIndexing("Efficiently ingest content using Bulk Indexing"),
-    IndexManagement("Indices, settings, mappings, and aliases"),
+    BulkIndexing("Efficiently Ingest Content Using Bulk Indexing"),
+    IndexManagement("Indices, Settings, Mappings, and Aliases"),
     DataStreams("Creating Data Streams"),
     Migrating("Migrating from the old Es Kotlin Client"),
     ExtendingTheDSL("Extending the Json DSLs"),
@@ -37,21 +38,24 @@ enum class ManualPages(title: String = "") {
 }
 
 val manualPages = listOf(
-    ManualPages.WhatIsKtSearch.page to whatIsKtSearchMd,
-    ManualPages.GettingStarted.page to gettingStartedMd,
-    ManualPages.IndexManagement.page to indexManagementMd,
-    ManualPages.Search.page to searchMd,
-    ManualPages.Aggregations.page to aggregationsMd,
-    ManualPages.DeepPaging.page to deepPagingMd,
-    ManualPages.DocumentManipulation.page to crudMd,
-    ManualPages.IndexRepository.page to indexRepoMd,
-    ManualPages.BulkIndexing.page to bulkMd,
-    ManualPages.DataStreams.page to dataStreamsMd,
-    ManualPages.Migrating.page to loadMd("manual/gettingstarted/migrating.md"),
-    ManualPages.ExtendingTheDSL.page to extendingMd,
-    ManualPages.Scripting.page to scriptingMd,
-    ManualPages.Jupyter.page to loadMd("manual/jupyter/jupyter.md"),
-)
+    ManualPages.WhatIsKtSearch to whatIsKtSearchMd,
+    ManualPages.GettingStarted to gettingStartedMd,
+    ManualPages.IndexManagement to indexManagementMd,
+    ManualPages.Search to searchMd,
+    ManualPages.TextQueries to textQueriesMd,
+    ManualPages.TermLevelQueries to termLevelQueriesMd,
+    ManualPages.CompoundQueries to compoundQueriesMd,
+    ManualPages.Aggregations to aggregationsMd,
+    ManualPages.DeepPaging to deepPagingMd,
+    ManualPages.DocumentManipulation to crudMd,
+    ManualPages.IndexRepository to indexRepoMd,
+    ManualPages.BulkIndexing to bulkMd,
+    ManualPages.DataStreams to dataStreamsMd,
+    ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
+    ManualPages.ExtendingTheDSL to extendingMd,
+    ManualPages.Scripting to scriptingMd,
+    ManualPages.Jupyter to loadMd("manual/jupyter/jupyter.md"),
+).map {(mp,md)-> mp.page to md}
 
 val manualIndexMd = sourceGitRepository.md {
     includeMdFile("../projectreadme/oneliner.md")
