@@ -1,6 +1,9 @@
 # Term Level Queries 
 
-The most basic queries in Elasticsearch are queries on individual terms.
+                | [KT Search Manual](README.md) | Previous: [Text Queries](TextQueries.md) | Next: [Compound Queries](CompoundQueries.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+                ---                
+                The most basic queries in Elasticsearch are queries on individual terms.
 
 ## Term query
 
@@ -171,6 +174,7 @@ Range Query. Found 3 results:
 // FIXME not implemented yet
 ```
 
----
 
-| [KT Search Manual](README.md) | Previous: [Text Queries](TextQueries.md) | Next: [Compound Queries](CompoundQueries.md) |
+                ---
+                | [KT Search Manual](README.md) | Previous: [Text Queries](TextQueries.md) | Next: [Compound Queries](CompoundQueries.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

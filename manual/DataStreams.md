@@ -1,6 +1,9 @@
 # Creating Data Streams 
 
-Particularly for large volume time series data, you can use data streams to make the management of 
+                | [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+                ---                
+                Particularly for large volume time series data, you can use data streams to make the management of 
 indices a bit easier. Data streams allow you to automate a lot of the things you would otherwise do manually 
 with manually [Indices, Settings, Mappings, and Aliases](IndexManagement.md).          
 
@@ -80,6 +83,7 @@ client.setIlmPolicy("my-ilm") {
 }
 ```
 
----
 
-| [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
+                ---
+                | [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

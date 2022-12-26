@@ -1,6 +1,9 @@
 # Migrating from the old Es Kotlin Client 
 
-Migrating from the old es-kotlin-client is quite easy but it is going to involve a bit of work:
+                | [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+                ---                
+                Migrating from the old es-kotlin-client is quite easy but it is going to involve a bit of work:
 
 - Packages have been renamed. This allows you to use the old client side by side with the new client.
 - The search dsl has been extracted from the old client but is otherwise largely backwards compatible. So your queries should mostly work with the new client after fixing the package names.
@@ -9,6 +12,7 @@ Migrating from the old es-kotlin-client is quite easy but it is going to involve
 - All APIs in `kt-search` are suspend only. Supporting blocking IO is not a priority and this gets rid of a lot of code duplication.
 
 
----
 
-| [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
+                ---
+                | [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |

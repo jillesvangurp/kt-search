@@ -1,6 +1,9 @@
 # Search and Queries 
 
-Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
+                | [KT Search Manual](README.md) | Previous: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) | Next: [Text Queries](TextQueries.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+                ---                
+                Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
 with a rich Kotlin DSL. However, you can also use string literals to search.
 
 The advantage of using a Kotlin DSL for writing your queries is that you can rely on Kotlin's type safety
@@ -210,6 +213,7 @@ gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you 
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
 data structure. This is something we use in multiple places.
 
----
 
-| [KT Search Manual](README.md) | Previous: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) | Next: [Text Queries](TextQueries.md) |
+                ---
+                | [KT Search Manual](README.md) | Previous: [Indices, Settings, Mappings, and Aliases](IndexManagement.md) | Next: [Text Queries](TextQueries.md) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
