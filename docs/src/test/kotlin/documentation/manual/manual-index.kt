@@ -10,20 +10,20 @@ import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
 import documentation.manual.scripting.scriptingMd
-import documentation.manual.search.aggregationsMd
-import documentation.manual.search.deepPagingMd
-import documentation.manual.search.searchMd
+import documentation.manual.search.*
 
 enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),
     GettingStarted("Getting Started"),
     Search("Search and Queries"),
+    CompoundQueries("Compound Queries"),
+    TextQueries("Text Queries"),
     Aggregations("Aggregations"),
-    DeepPaging("Deep paging using search_after and scroll"),
+    DeepPaging("Deep Paging Using search_after and scroll"),
     DocumentManipulation("Document Manipulation"),
     IndexRepository("Index Repository"),
-    BulkIndexing("Efficiently ingest content using Bulk Indexing"),
-    IndexManagement("Indices, settings, mappings, and aliases"),
+    BulkIndexing("Efficiently Ingest Content Using Bulk Indexing"),
+    IndexManagement("Indices, Settings, Mappings, and Aliases"),
     DataStreams("Creating Data Streams"),
     Migrating("Migrating from the old Es Kotlin Client"),
     ExtendingTheDSL("Extending the Json DSLs"),
@@ -41,6 +41,8 @@ val manualPages = listOf(
     ManualPages.GettingStarted.page to gettingStartedMd,
     ManualPages.IndexManagement.page to indexManagementMd,
     ManualPages.Search.page to searchMd,
+    ManualPages.CompoundQueries.page to compoundQueriesMd,
+    ManualPages.TextQueries.page to textQueriesMd,
     ManualPages.Aggregations.page to aggregationsMd,
     ManualPages.DeepPaging.page to deepPagingMd,
     ManualPages.DocumentManipulation.page to crudMd,

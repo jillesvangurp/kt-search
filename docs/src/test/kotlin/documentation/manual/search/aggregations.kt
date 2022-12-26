@@ -16,8 +16,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration.Companion.days
 
 val aggregationsMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
-
     val indexName = "docs-aggs-demo"
 
     @Serializable

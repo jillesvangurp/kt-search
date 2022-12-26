@@ -242,15 +242,17 @@ class QueryStringQuery(
 }
 
 fun SearchDSL.queryString(
-    field: KProperty<*>,
-    query: String, block: (QueryStringQuery.() -> Unit)? = null
-) = QueryStringQuery(field.name, query, block = block)
+    query: String,
+    vararg fields: KProperty<*>,
+    block: (QueryStringQuery.() -> Unit)? = null
+) = QueryStringQuery(query,fields=fields.map { it.name }.toTypedArray(), block = block)
 
 
 fun SearchDSL.queryString(
-    field: String,
-    query: String, block: (QueryStringQuery.() -> Unit)? = null
-) = QueryStringQuery(field, query, block = block)
+    query: String,
+    vararg fields: String,
+    block: (QueryStringQuery.() -> Unit)? = null
+) = QueryStringQuery(query, fields=fields, block = block)
 
 class SimpleQueryStringQuery(
     query: String,
