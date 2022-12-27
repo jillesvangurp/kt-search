@@ -294,3 +294,28 @@ fun SearchDSL.simpleQueryString(
 fun SearchDSL.simpleQueryString(
     query: String, vararg fields: String, block: (SimpleQueryStringQuery.() -> Unit)? = null
 ) = SimpleQueryStringQuery(query, *fields, block = block)
+
+
+class CombinedFieldsQuery(query: String, vararg fields: String, block: (CombinedFieldsQuery.() -> Unit)?=null): ESQuery("combined_fields") {
+    var operator by property<MatchOperator>()
+    var autoGenerateSynonymsPhraseQuery by property<Boolean>()
+    var minimumShouldMatch by property<String>()
+    var zeroTermsQuery by property<ZeroTermsQuery>()
+    init {
+        this["query"] = query
+        this["fields"] = fields
+
+        block?.invoke(this)
+    }
+}
+
+fun SearchDSL.combinedFields(query: String, vararg fields: String, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
+    query = query,
+    fields = fields,
+    block = block
+)
+fun SearchDSL.combinedFields(query: String, vararg fields: KProperty<*>, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
+    query = query,
+    fields = fields.map { it.name }.toTypedArray(),
+    block = block
+)
