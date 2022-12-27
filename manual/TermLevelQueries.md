@@ -173,7 +173,21 @@ Range Query. Found 3 results:
 ## Terms Set query
 
 ```kotlin
-// FIXME not implemented yet
+client.search(indexName) {
+  query = termsSet(TestDoc::tags, "fruit","legumes","foo") {
+    minimumShouldMatchScript = Script.create {
+      source = "2"
+    }
+  }
+}.pretty("Terms Set Query").let { println(it) }
+```
+
+Captured Output:
+
+```
+Terms Set Query Found 0 results:
+
+
 ```
 
 
