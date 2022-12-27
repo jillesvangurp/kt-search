@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.minutes
 class SearchTest : SearchTestBase() {
 
     @Test
-    fun shouldSearch() = coRun {
+    fun shouldSearchAndCount() = coRun {
         val index = testDocumentIndex()
         client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor)
         client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor)
@@ -22,6 +22,12 @@ class SearchTest : SearchTestBase() {
             trackTotalHits = "true"
             query = match(TestDocument::name, "bar")
         }.total shouldBe 1
+
+        client.count(index, MatchQuery(TestDocument::name.name, "bar")).count shouldBe 1
+        client.count(index).count shouldBe 2
+        client.count(index) {
+            query = match(TestDocument::name, "bar")
+        }.count shouldBe 1
     }
 
     @Test

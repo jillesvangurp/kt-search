@@ -6,12 +6,10 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
-import com.jillesvangurp.searchdsls.querydsl.SearchDSL
-import com.jillesvangurp.searchdsls.querydsl.SearchType
-import com.jillesvangurp.searchdsls.querydsl.SortOrder
-import com.jillesvangurp.searchdsls.querydsl.sort
+import com.jillesvangurp.searchdsls.querydsl.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
@@ -409,6 +407,7 @@ annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
  * @return a pair of the first response and a flow of hits that when consumed pages through
  * the results using the point in time id and the sort.
  */
+@OptIn(FlowPreview::class)
 @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.searchAfter(
     target: String,
@@ -463,4 +462,102 @@ suspend fun SearchClient.searchAfter(
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     val dsl = SearchDSL().apply(block?:{})
     return searchAfter(target,keepAlive,dsl)
+}
+
+@Serializable
+data class CountResponse(val count: Long, @SerialName("_shards") val shards: Shards)
+
+/**
+ * Variant of the _count api that takes an optional rawBody. Leaving the body empty means
+ * doing a match_all search.
+ */
+suspend fun SearchClient.count(
+    target: String? = null,
+    rawJson: String? = null,
+    allowNoIndices: Boolean? = null,
+    ignoreThrottled: Boolean? = null,
+    ignoreUnavailable: Boolean? = null,
+    minScore: Double? = null,
+    preference: String? = null,
+    routing: String? = null,
+    terminateAfter: Int? = null
+): CountResponse {
+    return restClient.post {
+        path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_count").toTypedArray())
+
+        parameter("allow_no_indices", allowNoIndices)
+        parameter("ignore_throttled", ignoreThrottled)
+        parameter("ignore_unavailable", ignoreUnavailable)
+        parameter("min_score", minScore)
+        parameter("preference", preference)
+        parameter("routing", routing)
+        parameter("terminate_after", terminateAfter)
+
+        rawJson?.let {
+            rawBody(rawJson)
+        }
+    }.parse(CountResponse.serializer())
+
+}
+
+/**
+ * Variant of the _count api that allows you to pass in an ESQuery object. It will be set as
+ * the query on the json body that is sent to _count.
+ */
+suspend fun SearchClient.count(
+    target: String? = null,
+    query: ESQuery,
+    allowNoIndices: Boolean? = null,
+    ignoreThrottled: Boolean? = null,
+    ignoreUnavailable: Boolean? = null,
+    minScore: Double? = null,
+    preference: String? = null,
+    routing: String? = null,
+    terminateAfter: Int? = null
+    ): CountResponse {
+    return count(
+        target = target,
+        rawJson = query?.let {
+            withJsonDsl {
+                this["query"] = query.wrapWithName()
+            }.json()
+        },
+        allowNoIndices = allowNoIndices,
+        ignoreThrottled = ignoreThrottled,
+        ignoreUnavailable = ignoreUnavailable,
+        minScore = minScore,
+        preference = preference,
+        routing = routing,
+        terminateAfter = terminateAfter,
+    )
+}
+
+/**
+ * Variant of the _count api that takes a search dsl block so you can set the query. Note, not all parts of the search dsl
+ * are supported by _count. E.g. adding sorting would be an error.
+ */
+suspend fun SearchClient.count(
+    target: String? = null,
+    allowNoIndices: Boolean? = null,
+    ignoreThrottled: Boolean? = null,
+    ignoreUnavailable: Boolean? = null,
+    minScore: Double? = null,
+    preference: String? = null,
+    routing: String? = null,
+    terminateAfter: Int? = null,
+    block: (SearchDSL.() -> Unit),
+    ): CountResponse {
+    return count(
+        target = target,
+        rawJson = block?.let {
+            SearchDSL().apply(it).json()
+        },
+        allowNoIndices = allowNoIndices,
+        ignoreThrottled = ignoreThrottled,
+        ignoreUnavailable = ignoreUnavailable,
+        minScore = minScore,
+        preference = preference,
+        routing = routing,
+        terminateAfter = terminateAfter,
+    )
 }
