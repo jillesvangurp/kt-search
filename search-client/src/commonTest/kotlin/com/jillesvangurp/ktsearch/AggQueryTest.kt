@@ -127,7 +127,7 @@ class AggQueryTest : SearchTestBase() {
         dt.decodeBuckets().forEach {
             it.docCount shouldBeGreaterThan 0
         }
-        val total = dt.let { dt -> dt.buckets.flatMap { b -> b.termsResult("by_color").decodeBuckets().map { tb -> tb.docCount } } }.sum()
+        val total = dt.let { result -> result.buckets.flatMap { b -> b.termsResult("by_color").decodeBuckets().map { tb -> tb.docCount } } }.sum()
         total shouldBe 4
     }
 
