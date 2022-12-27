@@ -277,7 +277,6 @@ fun SearchDSL.wildcard(
 
 
 class TermsSetQueryConfig: JsonDsl() {
-    var requiredMatches by property<Int>()
     var minimumShouldMatchField by property<String>()
     var minimumShouldMatchScript by property<Script>()
 

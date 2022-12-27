@@ -93,7 +93,9 @@ val termLevelQueriesMd = sourceGitRepository.md {
         suspendingBlock {
             client.search(indexName) {
                 query = termsSet(TestDoc::tags, "fruit","legumes","foo") {
-                    requiredMatches=2
+                    minimumShouldMatchScript = Script.create {
+                        source = "2"
+                    }
                 }
             }.pretty("Terms Set Query").let { println(it) }
         }
