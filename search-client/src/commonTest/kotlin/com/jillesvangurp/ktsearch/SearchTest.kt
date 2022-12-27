@@ -109,4 +109,28 @@ class SearchTest : SearchTestBase() {
             hit.innerHits?.get("by_tag")?.hits?.hits?.size!! shouldBeGreaterThan 0
         }
     }
+
+    @Test
+    fun msearchTest() = coRun {
+        val indexName = testDocumentIndex()
+        client.bulk(target = indexName, refresh = Refresh.WaitFor) {
+            index(TestDocument("doc 1", tags = listOf("group1")).json())
+            index(TestDocument("doc 2", tags = listOf("group1")).json())
+            index(TestDocument("doc 3", tags = listOf("group2")).json())
+        }
+        client.msearch(indexName) {
+            add {
+                from=0
+                resultSize=100
+                query=matchAll()
+            }
+            add(msearchHeader {
+                allowNoIndices=true
+                index = "*"
+            }) {
+                resultSize=0
+                trackTotalHits = "true"
+            }
+        }
+    }
 }

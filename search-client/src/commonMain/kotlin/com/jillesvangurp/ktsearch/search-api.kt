@@ -387,7 +387,7 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
     return restClient.delete {
         path("_pit")
-        body = withJsonDsl  {
+        body = withJsonDsl {
             this["id"] = id
         }.json()
     }.parse(JsonObject.serializer())
@@ -421,7 +421,7 @@ suspend fun SearchClient.searchAfter(
         SearchEngineVariant.ES8
     )
     var pitId = createPointInTime(target, keepAlive)
-    query["pit"] = withJsonDsl  {
+    query["pit"] = withJsonDsl {
         this["id"] = pitId
     }
     if (!query.containsKey("sort")) {
@@ -443,7 +443,7 @@ suspend fun SearchClient.searchAfter(
             }
             resp.pitId?.let { id ->
                 pitId = id
-                query["pit"] = withJsonDsl  {
+                query["pit"] = withJsonDsl {
                     this["id"] = pitId
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }
@@ -460,8 +460,8 @@ suspend fun SearchClient.searchAfter(
     keepAlive: Duration = 1.minutes,
     block: (SearchDSL.() -> Unit)? = null
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
-    val dsl = SearchDSL().apply(block?:{})
-    return searchAfter(target,keepAlive,dsl)
+    val dsl = SearchDSL().apply(block ?: {})
+    return searchAfter(target, keepAlive, dsl)
 }
 
 @Serializable
@@ -475,6 +475,7 @@ suspend fun SearchClient.count(
     target: String? = null,
     rawJson: String? = null,
     allowNoIndices: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
     minScore: Double? = null,
@@ -486,6 +487,7 @@ suspend fun SearchClient.count(
         path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_count").toTypedArray())
 
         parameter("allow_no_indices", allowNoIndices)
+        parameter("expand_wildcards", expandWildcards)
         parameter("ignore_throttled", ignoreThrottled)
         parameter("ignore_unavailable", ignoreUnavailable)
         parameter("min_score", minScore)
@@ -508,13 +510,14 @@ suspend fun SearchClient.count(
     target: String? = null,
     query: ESQuery,
     allowNoIndices: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
     minScore: Double? = null,
     preference: String? = null,
     routing: String? = null,
     terminateAfter: Int? = null
-    ): CountResponse {
+): CountResponse {
     return count(
         target = target,
         rawJson = query?.let {
@@ -523,6 +526,7 @@ suspend fun SearchClient.count(
             }.json()
         },
         allowNoIndices = allowNoIndices,
+        expandWildcards = expandWildcards,
         ignoreThrottled = ignoreThrottled,
         ignoreUnavailable = ignoreUnavailable,
         minScore = minScore,
@@ -539,6 +543,7 @@ suspend fun SearchClient.count(
 suspend fun SearchClient.count(
     target: String? = null,
     allowNoIndices: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
     minScore: Double? = null,
@@ -546,18 +551,119 @@ suspend fun SearchClient.count(
     routing: String? = null,
     terminateAfter: Int? = null,
     block: (SearchDSL.() -> Unit),
-    ): CountResponse {
+): CountResponse {
     return count(
         target = target,
         rawJson = block?.let {
             SearchDSL().apply(it).json()
         },
         allowNoIndices = allowNoIndices,
+        expandWildcards = expandWildcards,
         ignoreThrottled = ignoreThrottled,
         ignoreUnavailable = ignoreUnavailable,
         minScore = minScore,
         preference = preference,
         routing = routing,
         terminateAfter = terminateAfter,
+    )
+}
+
+suspend fun SearchClient.msearch(
+    target: String?=null,
+    body: String?,
+    allowNoIndices: Boolean? = null,
+    cssMinimizeRoundtrips: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
+    ignoreThrottled: Boolean? = null,
+    ignoreUnavailable: Boolean? = null,
+    maxConcurrentSearches: Int? = null,
+    maxConcurrentShardRequests: Int? = null,
+    preFilterShardSize: Int? = null,
+    routing: String? = null,
+    searchType: SearchType? = null,
+    typedKeys: Boolean? = null,
+
+    ): List<SearchResponse> {
+    return restClient.post {
+        path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_msearch").toTypedArray())
+
+        parameter("allow_no_indices", allowNoIndices)
+        parameter("ccs_minimize_roundtrips", cssMinimizeRoundtrips)
+        parameter("expand_wildcards", expandWildcards)
+        parameter("ignore_throttled", ignoreThrottled)
+        parameter("ignore_unavailable", ignoreUnavailable)
+        parameter("max_concurrent_searches", maxConcurrentSearches)
+        parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
+        parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
+        parameter("pre_filter_shard_size", preFilterShardSize)
+        parameter("routing", routing)
+        parameter("search_type", searchType)
+        parameter("typed_keys", typedKeys)
+
+        body?.let {
+            rawBody(body)
+        }
+    }.getOrThrow().text.lines().map {
+        DEFAULT_JSON.decodeFromString(SearchResponse.serializer(), it)
+    }
+}
+
+class MsearchHeader : JsonDsl() {
+    var allowNoIndices by property<Boolean>()
+    var expandWildcards by property<ExpandWildCards>()
+    var ignoreUnavailable by property<Boolean>()
+    var index by property<String>()
+    var preference by property<String>()
+    var requestCache by property<Boolean>()
+    var routing by property<String>()
+    var searchType by property<SearchType>()
+}
+
+fun msearchHeader(block: MsearchHeader.() -> Unit): MsearchHeader {
+    return MsearchHeader().apply(block)
+}
+
+class MsearchRequest() {
+    private val headersAndRequests: MutableList<Pair<MsearchHeader, SearchDSL>> = mutableListOf()
+
+    fun add(header: MsearchHeader = MsearchHeader(), block: SearchDSL.() -> Unit) {
+        headersAndRequests.add(header to SearchDSL().apply(block))
+    }
+    fun toMsearchBody() = headersAndRequests.joinToString("\n") {(h,q) ->
+        "${h.json()}\n${q.json()}"
+    } + "\n" // trailing new line is required ...
+}
+
+suspend fun SearchClient.msearch(
+    target: String?,
+    allowNoIndices: Boolean? = null,
+    cssMinimizeRoundtrips: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
+    ignoreThrottled: Boolean? = null,
+    ignoreUnavailable: Boolean? = null,
+    maxConcurrentSearches: Int? = null,
+    maxConcurrentShardRequests: Int? = null,
+    preFilterShardSize: Int? = null,
+    routing: String? = null,
+    searchType: SearchType? = null,
+    typedKeys: Boolean? = null,
+    block: MsearchRequest.() -> Unit,
+
+    ): List<SearchResponse> {
+
+    return msearch(
+        target = target,
+        body = MsearchRequest().apply(block).toMsearchBody(),
+        allowNoIndices = allowNoIndices,
+        cssMinimizeRoundtrips = cssMinimizeRoundtrips,
+        expandWildcards = expandWildcards,
+        ignoreThrottled = ignoreThrottled,
+        ignoreUnavailable = ignoreUnavailable,
+        maxConcurrentSearches = maxConcurrentSearches,
+        maxConcurrentShardRequests = maxConcurrentShardRequests,
+        preFilterShardSize = preFilterShardSize,
+        routing = routing,
+        searchType = searchType,
+        typedKeys = typedKeys
     )
 }

@@ -10,9 +10,9 @@ typealias Aggregations = JsonObject
 data class SearchResponse(
     val took: Long,
     @SerialName("_shards")
-    val shards: Shards,
+    val shards: Shards?,
     @SerialName("timed_out")
-    val timedOut: Boolean,
+    val timedOut: Boolean?,
     val hits: Hits?,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
     val aggregations: Aggregations?,
