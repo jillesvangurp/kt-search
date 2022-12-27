@@ -172,65 +172,7 @@ fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit
 
 fun SearchDSL.matchAll() = ESQuery("match_all")
 
-@Suppress("EnumEntryName")
-enum class ExpandWildCards { all, open, closed, hidden, none }
-
-@Suppress("EnumEntryName")
-enum class SearchType { query_then_fetch, dfs_query_then_fetch }
-
-@Suppress("SpellCheckingInspection")
-class MultiSearchHeader : JsonDsl() {
-    var allowNoIndices by property<Boolean>()
-    var ccsMinimizeRoundtrips by property<Boolean>()
-    var expandWildcards by property<ExpandWildCards>()
-    var ignoreThrottled by property<Boolean>()
-    var ignoreUnavailable by property<Boolean>()
-    var maxConcurrentSearches by property<Int>()
-    var maxConcurrentShardRequests by property<Int>()
-    var preFilterShardSize by property<Int>()
-    var restTotalHitsAsInt by property<Int>()
-    var routing by property<String>()
-    var searchType by property<SearchType>()
-    var typedKeys by property<Boolean>()
-}
-
-class MultiSearchDSL(internal val jsonDslSerializer: JsonDslSerializer) {
-    private val json = mutableListOf<String>()
-    fun add(header: MultiSearchHeader, query: SearchDSL) {
-        json.add(jsonDslSerializer.serialize(header))
-        json.add(jsonDslSerializer.serialize(query))
-    }
-
-    fun add(header: MultiSearchHeader, queryBlock: SearchDSL.() -> Unit) {
-        val dsl = SearchDSL()
-        queryBlock.invoke(dsl)
-        json.add(jsonDslSerializer.serialize(header))
-        json.add(jsonDslSerializer.serialize(dsl))
-    }
-
-    fun header(headerBlock: MultiSearchHeader.() -> Unit): MultiSearchHeader {
-        val header = MultiSearchHeader()
-        headerBlock.invoke(header)
-        return header
-    }
-
-    infix fun MultiSearchHeader.withQuery(queryBlock: SearchDSL.() -> Unit) {
-        val dsl = SearchDSL()
-        queryBlock.invoke(dsl)
-        add(this, dsl)
-    }
-
-    fun withQuery(queryBlock: SearchDSL.() -> Unit) {
-        val dsl = SearchDSL()
-        queryBlock.invoke(dsl)
-        add(MultiSearchHeader(), dsl)
-    }
-
-    fun requestBody(): String {
-        return json.joinToString("\n") + "\n"
-    }
-
-    override fun toString(): String {
-        return requestBody()
-    }
+class Script: JsonDsl() {
+    var source by property<String>()
+    var params by property<Map<String,Any>>()
 }

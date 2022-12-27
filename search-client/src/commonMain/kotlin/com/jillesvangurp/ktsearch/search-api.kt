@@ -16,6 +16,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+
 suspend fun SearchClient.search(
     target: String?,
     allowNoIndices: Boolean? = null,
@@ -211,6 +212,8 @@ suspend fun SearchClient.search(
 
 enum class SearchOperator { AND, OR }
 enum class ExpandWildCards { all, open, closed, hidden, none }
+@Suppress("EnumEntryName")
+enum class SearchType { query_then_fetch, dfs_query_then_fetch }
 
 enum class SuggestMode { always, missing, popular }
 
