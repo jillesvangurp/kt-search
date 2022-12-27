@@ -33,7 +33,7 @@ val searchMd = sourceGitRepository.md {
             data class TestDoc(val name: String, val tags: List<String> = listOf())
         }
 
-        snippetFromSourceFile("documentation/manual/search/helpers.kt","INITTESTFIXTURE")
+        snippetFromSourceFile("documentation/manual/search/helpers.kt", "INITTESTFIXTURE")
         +"""
             This creates a simple index with a custom mapping and adds some documents using our API.
             
@@ -105,7 +105,7 @@ val searchMd = sourceGitRepository.md {
                     "term" to withJsonDsl {
                         // and withJsonDsl is just short for this:
                         this[TestDoc::tags.name] = JsonDsl(
-                            
+
                         ).apply {
                             this["value"] = "legumes"
                         }
@@ -139,7 +139,7 @@ val searchMd = sourceGitRepository.md {
                     }
                 }
                 // deserializes all the hits
-                val hits=resp.parseHits<TestDoc>().map { it.name }
+                val hits = resp.parseHits<TestDoc>().map { it.name }
 
                 println(hits.joinToString("\n"))
 
@@ -171,6 +171,57 @@ val searchMd = sourceGitRepository.md {
             println("Number of docs" + client.count(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.count)
+        }
+    }
+    section("Multi Search") {
+        +"""
+            Kt-search also includes DSL support for doing multi searches. The msearch API has a similar API as the 
+            bulk API in the sense that it takes a body that has headers and search requests interleaved. Each line
+            of the body is a json object. Likewise, the response is in ndjson form and contains a search response
+            for each of the search requests.
+            
+            The msearch DSL in kt-search makes this very easy to do:
+        """.trimIndent()
+
+        suspendingBlock {
+            client.msearch(indexName) {
+                // the header is optional, this will simply add
+                // {} as the header
+                add {
+                    // the full search dsl is supported here
+                    // will query indexName for everything
+                    query = matchAll()
+                }
+                add(msearchHeader {
+                    // overrides the indexName and queries
+                    // everything in the cluster
+                    allowNoIndices = true
+                    index = "*"
+                }) {
+                    from = 0
+                    resultSize = 100
+                    query = matchAll()
+                }
+            }.forEach { searchResponse ->
+                // will print document count for both searches
+                println("document count ${searchResponse.total}")
+            }
+        }
+        +"""
+            Similar to the normal search, you can also construct your body manually
+        """.trimIndent()
+
+        suspendingBlock {
+            val resp = client.msearch(
+                body = """
+                {"index":"$indexName"}
+                {"query":{"match_all":{}}}
+                
+            """.trimIndent() // the extra new line is required by ES
+            )
+            println("Doc counts: ${
+                resp.joinToString { it.total.toString() }
+            }")
         }
     }
 }
