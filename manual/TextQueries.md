@@ -150,6 +150,24 @@ Multi Match Found 2 results:
 
 ## Combined fields query
 
+```kotlin
+client.search(indexName) {
+  query = combinedFields( "banana fruit", "name^2","tags.txt") {
+    operator = MatchOperator.AND
+  }
+}.pretty("Combined fields").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Combined fields Found 1 results:
+- 2.2153876 2 Banana
+
+```
+
 
 
 ---
