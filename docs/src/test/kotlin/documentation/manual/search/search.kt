@@ -1,14 +1,12 @@
 package documentation.manual.search
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.sourceGitRepository
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 
 
@@ -160,6 +158,19 @@ val searchMd = sourceGitRepository.md {
                 data structure. This is something we use in multiple places.
             """.trimIndent()
 
+        }
+    }
+    section("Count API") {
+        +"""
+            Elasticsearch also has a more limited _count API dedicated to simply counting results.
+        """.trimIndent()
+        suspendingBlock {
+            // count all documents
+            println("Number of docs" + client.count(indexName).count)
+            // or with a query
+            println("Number of docs" + client.count(indexName) {
+                query = term(TestDoc::tags, "fruit")
+            }.count)
         }
     }
 }
