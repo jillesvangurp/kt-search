@@ -91,7 +91,13 @@ val termLevelQueriesMd = sourceGitRepository.md {
     }
     section("Terms Set query") {
         suspendingBlock {
-            // FIXME not implemented yet
+            client.search(indexName) {
+                query = termsSet(TestDoc::tags, "fruit","legumes","foo") {
+                    minimumShouldMatchScript = Script.create {
+                        source = "2"
+                    }
+                }
+            }.pretty("Terms Set Query").let { println(it) }
         }
 
     }

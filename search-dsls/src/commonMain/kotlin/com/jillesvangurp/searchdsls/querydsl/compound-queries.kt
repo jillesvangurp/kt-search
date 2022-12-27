@@ -103,11 +103,6 @@ class DecayFunctionConfig : JsonDsl() {
     var decay by property<Double>()
 }
 
-class ScriptScoreConfig : JsonDsl() {
-    var source by property<String>()
-    var params by property<JsonDsl>()
-}
-
 @SearchDSLMarker
 class FunctionScoreFunctionConfig : JsonDsl() {
     var weight by property<Double>()
@@ -155,9 +150,9 @@ class FunctionScoreFunctionConfig : JsonDsl() {
 
     fun gauss(field: KProperty<*>, block: DecayFunctionConfig.() -> Unit) = gauss(field.name, block)
 
-    fun scriptScore(block: ScriptScoreConfig.() -> Unit) {
+    fun scriptScore(block: Script.() -> Unit) {
         this["script_score"] = withJsonDsl {
-            this["script"] = ScriptScoreConfig().apply(block)
+            this["script"] = Script().apply(block)
         }
     }
 

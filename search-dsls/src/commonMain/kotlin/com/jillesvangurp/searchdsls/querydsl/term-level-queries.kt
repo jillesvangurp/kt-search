@@ -275,3 +275,22 @@ fun SearchDSL.wildcard(
 ) =
     WildCardQuery(field,value, block = block)
 
+
+class TermsSetQueryConfig: JsonDsl() {
+    var minimumShouldMatchField by property<String>()
+    var minimumShouldMatchScript by property<Script>()
+
+    var boost by property<Double>()
+}
+class TermsSetQuery(field: String, vararg terms: String, block: (TermsSetQueryConfig.() -> Unit)?=null): ESQuery("terms_set") {
+    init {
+        this[field] = TermsSetQueryConfig().apply {
+            this["terms"] = terms
+            block?.invoke(this)
+        }
+    }
+}
+
+fun SearchDSL.termsSet(field: String, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field,terms=terms,block)
+fun SearchDSL.termsSet(field: KProperty<*>, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field.name,terms=terms,block)
+
