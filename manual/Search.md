@@ -215,6 +215,27 @@ gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you 
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
 data structure. This is something we use in multiple places.
 
+## Count API
+
+Elasticsearch also has a more limited _count API dedicated to simply counting results.
+
+```kotlin
+// count all documents
+println("Number of docs" + client.count(indexName).count)
+// or with a query
+println("Number of docs" + client.count(indexName) {
+  query = term(TestDoc::tags, "fruit")
+}.count)
+```
+
+Captured Output:
+
+```
+Number of docs3
+Number of docs2
+
+```
+
 
 
 ---
