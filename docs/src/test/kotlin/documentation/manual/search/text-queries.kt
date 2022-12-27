@@ -105,6 +105,14 @@ val textQueriesMd = sourceGitRepository.md {
         // FIXME not implemented yet
     }
     section("Combined fields query") {
-        // FIXME not implemented yet
+        suspendingBlock {
+            client.search(indexName) {
+                query = combinedFields( "banana fruit", "name^2","tags.txt") {
+                    operator = MatchOperator.AND
+                }
+            }.pretty("Combined fields").let {
+                println(it)
+            }
+        }
     }
 }
