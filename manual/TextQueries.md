@@ -148,6 +148,67 @@ Multi Match Found 2 results:
 
 ## Intervals query
 
+The intervals query is a powerful but also complicated query. Be sure to refer to the Elasticsearch
+manual. It allows you to query for terms using interval based match rules. These rules can get
+quite complicated and you need to be careful with how they interact. For example the order matters
+and the most minimal interval "wins". 
+
+Here is a simple example
+
+```kotlin
+client.search(indexName) {
+  query = intervals("name") {
+    matchRule {
+      query="green beans"
+      maxGaps = 1
+    }
+  }
+}.pretty("Combined fields").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Combined fields Found 1 results:
+- 0.5 3 Green Beans
+
+```
+
+You can combine multiple rules with `any_of`, or `all_of`.
+
+```kotlin
+client.search(indexName) {
+  query = intervals("name") {
+    allOfRule {
+      intervals(
+        matchRule {
+          query = "green beans"
+          maxGaps = 1
+          withFilter {
+            notContaining(matchRule { query="red" })
+          }
+        },
+        prefixRule {
+          prefix = "gr"
+        }
+      )
+    }
+  }
+}.pretty("Combined fields").let {
+  println(it)
+}
+```
+
+Captured Output:
+
+```
+Combined fields Found 1 results:
+- 0.5 3 Green Beans
+
+```
+
 ## Combined fields query
 
 ```kotlin
