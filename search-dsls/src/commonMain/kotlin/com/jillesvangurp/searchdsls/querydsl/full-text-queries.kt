@@ -4,6 +4,7 @@ package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.PropertyNamingConvention
+import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
 // Begin MATCH_QUERY
@@ -319,3 +320,114 @@ fun SearchDSL.combinedFields(query: String, vararg fields: KProperty<*>, block: 
     fields = fields.map { it.name }.toTypedArray(),
     block = block
 )
+
+sealed class IntervalsRule(val name: String) : JsonDsl() {
+
+    class Match : IntervalsRule("match") {
+        var query by property<String>()
+        var maxGaps by property<Int>()
+        var ordered by property<Boolean>()
+        var analyzer by property<String>()
+        fun withFilter(block: IntervalsFilter.() -> Unit) {
+            // can't be called filter because that clashes with Map.filter ...
+            this["filter"] = IntervalsFilter().apply(block)
+        }
+    }
+    class Prefix : IntervalsRule("prefix") {
+        var prefix by property<String>()
+        var analyzer by property<String>()
+        var useField by property<String>()
+    }
+
+    class Wildcard : IntervalsRule("wildcard") {
+        var pattern by property<String>()
+        var analyzer by property<String>()
+        var useField by property<String>()
+    }
+    class Fuzzy : IntervalsRule("fuzzy") {
+        var term by property<String>()
+        var prefixLength by property<Int>()
+        var transpositions by property<Boolean>()
+        var fuzziness by property<String>()
+        var analyzer by property<String>()
+        var useField by property<String>()
+
+    }
+    class AllOf : IntervalsRule("all_of") {
+        fun intervals(vararg rules:IntervalsRule) = getOrCreateMutableList("intervals").addAll(rules.map { withJsonDsl { this[it.name] = it } })
+        var maxGaps by property<Int>()
+        var ordered by property<Boolean>()
+        fun withFilter(block: IntervalsFilter.() -> Unit) {
+            // can't be called filter because that clashes with Map.filter ...
+            this["filter"] = IntervalsFilter().apply(block)
+        }
+    }
+    class AnyOf : IntervalsRule("any_of") {
+        fun intervals(vararg rules:IntervalsRule) = getOrCreateMutableList("intervals").addAll(rules.map { withJsonDsl { this[it.name] = it } })
+        fun withFilter(block: IntervalsFilter.() -> Unit) {
+            // can't be called filter because that clashes with Map.filter ...
+            this["filter"] = IntervalsFilter().apply(block)
+        }
+    }
+
+}
+
+class IntervalsFilter: JsonDsl() {
+    fun after(query: IntervalsRule) {
+        this["after"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun before(query: IntervalsRule) {
+        this["before"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun containedBy(query: IntervalsRule) {
+        this["contained_by"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun containing(query: IntervalsRule) {
+        this["containing"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun notContainedBy(query: IntervalsRule) {
+        this["not_contained_by"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun notContaining(query: IntervalsRule) {
+        this["not_containing"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun notOverlapping(query: IntervalsRule) {
+        this["not_overlapping"] = withJsonDsl { this[query.name] = query }
+    }
+
+    fun overlapping(query: IntervalsRule) {
+        this["overlapping"] = withJsonDsl { this[query.name] = query }
+    }
+
+    var script by property<Script>()
+}
+
+
+@Suppress("IdentifierGrammar")
+class IntervalsQuery(val field: String) :ESQuery("intervals") {
+
+    fun rule(rule: IntervalsRule) {
+        this[field] = withJsonDsl {
+            this[rule.name] = rule
+        }
+    }
+
+    fun matchRule(block: IntervalsRule.Match.() -> Unit) = IntervalsRule.Match().apply(block)
+    fun prefixRule(block: IntervalsRule.Prefix.() -> Unit) = IntervalsRule.Prefix().apply(block)
+    fun wildcardRule(block: IntervalsRule.Wildcard.() -> Unit) = IntervalsRule.Wildcard().apply(block)
+    fun fuzzyRule(block: IntervalsRule.Fuzzy.() -> Unit) = IntervalsRule.Fuzzy().apply(block)
+    fun allOfRule(block: IntervalsRule.AllOf.() -> Unit) = IntervalsRule.AllOf().apply(block)
+    fun anyOfRule(block: IntervalsRule.AnyOf.() -> Unit) = IntervalsRule.AnyOf().apply(block)
+}
+
+fun SearchDSL.intervals(field: String, block: IntervalsQuery.() -> IntervalsRule): IntervalsQuery {
+    return IntervalsQuery(field).apply {
+        rule(block.invoke(this))
+    }
+}
