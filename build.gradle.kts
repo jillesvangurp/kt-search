@@ -99,34 +99,34 @@ subprojects {
                     name = "FormationPublic"
                 }
             }
-
-            publications {
-                create<MavenPublication>("mavenJava") {
-
-                    pom {
-                        description.set("Kts extensions for kt-search. Easily script operations for Elasticsearch and Opensearch with .main.kts scripts")
-                        name.set(artifactId)
-                        url.set("https://github.com/jillesvangurp/kt-search")
-                        licenses {
-                            license {
-                                name.set("MIT")
-                                url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
-                                distribution.set("repo")
-                            }
-                        }
-                        developers {
-                            developer {
-                                id.set("jillesvangurp")
-                                name.set("Jilles van Gurp")
-                            }
-                        }
-                        scm {
-                            url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
-                        }
-                    }
-
-                }
-            }
+// TODO figure out how to set this without conflicts between the multiplatform magic and the publish plugin
+//            publications {
+//                create<MavenPublication>("mavenJava") {
+//
+//                    pom {
+//                        description.set("Kts extensions for kt-search. Easily script operations for Elasticsearch and Opensearch with .main.kts scripts")
+//                        name.set(artifactId)
+//                        url.set("https://github.com/jillesvangurp/kt-search")
+//                        licenses {
+//                            license {
+//                                name.set("MIT")
+//                                url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
+//                                distribution.set("repo")
+//                            }
+//                        }
+//                        developers {
+//                            developer {
+//                                id.set("jillesvangurp")
+//                                name.set("Jilles van Gurp")
+//                            }
+//                        }
+//                        scm {
+//                            url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
+//                        }
+//                    }
+//
+//                }
+//            }
 
 //            publications.withType<MavenPublication> {
 //                artifact(dokkaJar)
