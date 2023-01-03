@@ -151,15 +151,35 @@ val aggregationsMd = sourceGitRepository.md {
 
             // since buckets can contain sub aggregations, those too are JsonObjects
             println("Number of buckets: " + tags.buckets.size)
-            tags.buckets.forEach { b ->
-                // of course we can parse that to a TermsBucket
-                val tb = b.parse<TermsBucket>()
+            // buckets is a List<JsonObject>
+            tags.buckets.forEach { jsonObject ->
+                // but we can parse that to a TermsBucket
+                val tb = jsonObject.parse<TermsBucket>()
                 println("${tb.key}: ${tb.docCount}")
-                val colors = b.termsResult("by_color")
-                // you can also use decodeBuckets to get a type safe TermsBucket
-                colors.decodeBuckets().forEach { cb ->
-                    println("  ${cb.key}: ${cb.docCount}")
+                // and we can get named sub aggregations from jsonObject
+                val colors = jsonObject.termsResult("by_color")
+                // you can also use parsedBuckets to the type safe TermsBucket
+                colors.buckets.forEach { colorBucketObject ->
+                    val tb = colorBucketObject.parse<TermsBucket>()
+                    println("  ${tb.key}: ${tb.docCount}")
                 }
+            }
+        }
+
+        +"""
+            With some extension function magic we can make this a bit nicer.
+        """.trimIndent()
+        suspendingBlock {
+            val tags = response.aggregations.termsResult("by_tag")
+            // use parsedBucket to get a Bucket<TermsBucket>
+            // this allows us to get to the TermsBucket and the aggregations
+            tags.parsedBuckets.forEach { tagBucket  ->
+                println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
+                tagBucket.aggregations
+                    .termsResult("by_color")
+                    .parsedBuckets.forEach { colorBucket ->
+                        println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
+                    }
             }
         }
     }
@@ -194,8 +214,8 @@ val aggregationsMd = sourceGitRepository.md {
 
             // date_histogram works very similar to the terms aggregation
             response.aggregations.dateHistogramResult("by_date")
-                .decodeBuckets().forEach { b ->
-                    println("${b.keyAsString}: ${b.docCount}")
+                .parsedBuckets.map { it.parsed }.forEach { db ->
+                    println("${db.keyAsString}: ${db.docCount}")
                 }
 
             response.aggregations.termsResult("by_color").buckets.forEach { b ->
@@ -268,7 +288,7 @@ val aggregationsMd = sourceGitRepository.md {
             ```
             
             This should be implemented on all bucket aggregations. The `T` parameter allows us to deserialize the 
-             bucket `JsonObject` instances easily with either `parse` or `decodeBuckets`, which is an extension function
+             bucket `JsonObject` instances easily with either `parse` or `parsedBuckets`, which is an extension function
              on `BucketAggregationResult`.
         """.trimIndent()
     }
