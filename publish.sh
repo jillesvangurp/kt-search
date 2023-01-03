@@ -13,7 +13,7 @@ echo $1 | grep -E -q '^[0-9]+\.[0-9]+(\.[0-9]+).*?$' || die "Semantic Version ar
 
 export TAG=$1
 
-gradle -PlibraryVersion="$TAG" publish
+gradle -Pversion="$TAG" publish
 
 #echo "upload to gcloud"
 #gsutil -m rsync -r localRepo gs://mvn-public-tryformation/releases
