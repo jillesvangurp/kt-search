@@ -7,7 +7,7 @@ die () {
 }
 
 [ "$#" -eq 1 ] || die "1 argument required, $# provided"
-echo "$1" | grep -E -q '^[0-9]+\.[0-9]+(\.[0-9]+)$' || die "Semantic Version argument required, $1 provided"
+echo $1 | grep -E -q '^[0-9]+\.[0-9]+(\.[0-9]+).*?$' || die "Semantic Version argument required, $1 provided"
 
 [[ -z $(git status -s) ]] || die "git status is not clean"
 
