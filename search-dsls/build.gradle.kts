@@ -9,10 +9,6 @@ repositories {
     mavenCentral()
 }
 
-version = project.property("libraryVersion") as String
-println("project: $path")
-println("version: $version")
-println("group: $group")
 
 // Stub secrets to let the project sync and build without the publication values set up
 ext["signing.keyId"] = null
@@ -52,7 +48,7 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 kotlin {
     jvm {
     }
-    js(BOTH) {
+    js(IR) {
         nodejs {
             testTask {
                 useMocha {

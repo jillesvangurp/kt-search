@@ -5,7 +5,7 @@ plugins {
 kotlin {
     jvm {
     }
-    js(BOTH) {
+    js(IR) {
         nodejs {
             testTask {
                 useMocha {

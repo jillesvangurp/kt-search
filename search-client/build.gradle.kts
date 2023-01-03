@@ -51,13 +51,6 @@ repositories {
     mavenCentral()
 }
 
-// publishing
-//apply(plugin = "maven-publish")
-//apply(plugin = "org.jetbrains.dokka")
-
-//version = project.property("libraryVersion") as String
-
-
 val searchEngine = getStringProperty("searchEngine", "es-7")
 
 kotlin {

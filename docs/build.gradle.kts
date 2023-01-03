@@ -25,14 +25,6 @@ repositories {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-        freeCompilerArgs += "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-    }
-}
-
 val searchEngine: String = getProperty("searchEngine", "es-7").toString()
 
 dependencies {

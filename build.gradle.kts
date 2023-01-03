@@ -1,18 +1,8 @@
-//buildscript {
-//    repositories {
-//        mavenCentral()
-//        maven("https://jitpack.io") {
-//            content {
-//                includeGroup("com.github.jillesvangurp")
-//            }
-//        }
-//    }
-//}
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("multiplatform") apply false
     id("org.jetbrains.dokka") apply false
-//    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 println("project: $path")
@@ -20,17 +10,25 @@ println("version: $version")
 println("group: $group")
 
 subprojects {
-    version = project.property("libraryVersion") as String
-
     repositories {
         mavenCentral()
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
+    tasks.withType<KotlinJvmCompile> {
         kotlinOptions {
-            jvmTarget = "11"
-            languageVersion = "1.6"
+            jvmTarget = "17"
+            languageVersion = "1.7"
         }
+    }
+
+    tasks.register("versionCheck") {
+        if(rootProject.version == "unspecified") {
+            error("call with -Pversion=x.y.z to set a version and make sure it lines up with the current tag")
+        }
+    }
+
+    tasks.withType<PublishToMavenRepository> {
+        dependsOn("versionCheck")
     }
 
     tasks.withType<Test> {
@@ -74,7 +72,7 @@ subprojects {
         })
     }
 
-    apply(plugin = "signing")
+//    apply(plugin = "signing")
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.dokka")
 
@@ -86,16 +84,53 @@ subprojects {
         }
 
         configure<PublishingExtension> {
+            // use this for testing configuration changes to publishing
+//            repositories {
+//                maven {
+//                    println("file://$rootDir/localRepo")
+//                    url = uri("file://$rootDir/localRepo")
+//                }
+//            }
             repositories {
                 maven {
-                    println("file://$rootDir/localRepo")
-                    url = uri("file://$rootDir/localRepo")
+                    // GOOGLE_APPLICATION_CREDENTIALS env var must be set for this to work
+                    // public repository is at https://maven.tryformation.com/releases
+                    url = uri("gcs://mvn-public-tryformation/releases")
+                    name = "FormationPublic"
                 }
             }
 
-            publications.withType<MavenPublication> {
-                artifact(dokkaJar)
+            publications {
+                create<MavenPublication>("mavenJava") {
+
+                    pom {
+                        description.set("Kts extensions for kt-search. Easily script operations for Elasticsearch and Opensearch with .main.kts scripts")
+                        name.set(artifactId)
+                        url.set("https://github.com/jillesvangurp/kt-search")
+                        licenses {
+                            license {
+                                name.set("MIT")
+                                url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
+                                distribution.set("repo")
+                            }
+                        }
+                        developers {
+                            developer {
+                                id.set("jillesvangurp")
+                                name.set("Jilles van Gurp")
+                            }
+                        }
+                        scm {
+                            url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
+                        }
+                    }
+
+                }
             }
+
+//            publications.withType<MavenPublication> {
+//                artifact(dokkaJar)
+//            }
         }
     }
 }
