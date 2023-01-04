@@ -81,7 +81,7 @@ class AggQueryTest : SearchTestBase() {
 
         val terms = response.aggregations.termsResult("by_tag")
         terms shouldNotBe null
-        val buckets = terms.decodeBuckets()
+        val buckets = terms.parsedBuckets.map { it.parsed }
 
         buckets.size shouldBe 3
         buckets.counts()[Tags.bar] shouldBe 2
@@ -124,10 +124,10 @@ class AggQueryTest : SearchTestBase() {
         }
         val dt = response.aggregations.dateHistogramResult("by_day")
         dt shouldNotBe null
-        dt.decodeBuckets().forEach {
-            it.docCount shouldBeGreaterThan 0
+        dt.parsedBuckets.forEach {
+            it.parsed.docCount shouldBeGreaterThan 0
         }
-        val total = dt.let { result -> result.buckets.flatMap { b -> b.termsResult("by_color").decodeBuckets().map { tb -> tb.docCount } } }.sum()
+        val total = dt.let { result -> result.parsedBuckets.flatMap { b -> b.aggregations.termsResult("by_color").parsedBuckets.map { tb -> tb.parsed.docCount } } }.sum()
         total shouldBe 4
     }
 

@@ -20,7 +20,7 @@ data class SearchResponse(
     val scrollId: String?,
     @SerialName("pit_id")
     val pitId: String?
-)  {
+) {
     @Serializable
     data class Hit(
         @SerialName("_index")
@@ -73,6 +73,8 @@ inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T
 }
 
 inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(this)
+fun <T> JsonObject.parse(json: Json = DEFAULT_JSON, deserializationStrategy: DeserializationStrategy<T>) =
+    json.decodeFromJsonElement(deserializationStrategy, this)
 
 val SearchResponse.ids get() = this.hits?.hits?.map { it.id } ?: listOf()
 val SearchResponse.total get() = this.hits?.total?.value ?: 0
@@ -81,7 +83,13 @@ interface BucketAggregationResult<T> {
     val buckets: List<JsonObject>
 }
 
-inline fun <reified T> BucketAggregationResult<T>.decodeBuckets(json: Json = DEFAULT_JSON) = buckets.map { json.decodeFromJsonElement<T>(it) }
+class Bucket<T>(
+    val aggregations: Aggregations,
+    private val deserializationStrategy: DeserializationStrategy<T>,
+    private val json: Json = DEFAULT_JSON
+) {
+    val parsed by lazy { aggregations.parse(json, deserializationStrategy) }
+}
 
 @Serializable
 data class TermsBucket(
@@ -99,11 +107,14 @@ data class TermsAggregationResult(
     override val buckets: List<JsonObject>
 ) : BucketAggregationResult<TermsBucket>
 
+val TermsAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, TermsBucket.serializer()) }
+
 fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
 fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
-
+fun Aggregations?.termsResult(name: Enum<*>, json: Json = DEFAULT_JSON): TermsAggregationResult =
+    getAggResult(name, json)
 @Serializable
 data class DateHistogramBucket(
     val key: Long,
@@ -111,20 +122,31 @@ data class DateHistogramBucket(
     val keyAsString: String,
     @SerialName("doc_count")
     val docCount: Long,
-    )
+)
 
 @Serializable
 data class DateHistogramAggregationResult(
     override val buckets: List<JsonObject>
 ) : BucketAggregationResult<DateHistogramBucket>
+
 inline fun <reified T> Aggregations?.getAggResult(
     name: String,
     json: Json = DEFAULT_JSON
 ): T = // nullability here would be annoying; better to just throw an exception
     this?.get(name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
 
+inline fun <reified T> Aggregations?.getAggResult(
+    name: Enum<*>,
+    json: Json = DEFAULT_JSON
+) : T = // nullability here would be annoying; better to just throw an exception
+    this?.get(name.name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
+
 fun Aggregations?.dateHistogramResult(name: String, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
     getAggResult(name, json)
+fun Aggregations?.dateHistogramResult(name: Enum<*>, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
+    getAggResult(name, json)
+
+val DateHistogramAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, DateHistogramBucket.serializer()) }
 
 @Serializable
 data class NumericAggregationResult(
@@ -133,11 +155,20 @@ data class NumericAggregationResult(
     val valueAsString: String?,
 )
 
-fun Aggregations?.minResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.minResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
     getAggResult(name, json)
-fun Aggregations?.maxResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.minResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
     getAggResult(name, json)
-fun Aggregations?.bucketScriptResult(name: String,json: Json = DEFAULT_JSON): NumericAggregationResult =
+
+fun Aggregations?.maxResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.maxResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.bucketScriptResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
+    getAggResult(name, json)
+fun Aggregations?.bucketScriptResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
     getAggResult(name, json)
 
 @Serializable
@@ -179,4 +210,7 @@ data class ExtendedStatsBucketResult(
 }
 
 fun Aggregations?.extendedStatsBucketResult(name: String, json: Json = DEFAULT_JSON): ExtendedStatsBucketResult =
+    getAggResult(name, json)
+
+fun Aggregations?.extendedStatsBucketResult(name: Enum<*>, json: Json = DEFAULT_JSON): ExtendedStatsBucketResult =
     getAggResult(name, json)
