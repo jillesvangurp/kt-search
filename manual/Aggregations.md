@@ -69,16 +69,16 @@ repo.bulk {
 
 ## Picking apart aggregation results
 
-Probably the most used aggregation is the terms aggregation. 
+Probably the most used aggregation is the terms aggregation. We'll use this query as an example.
 
 ```kotlin
 val response = client.search(indexName) {
   // we don't care about the results here
   resultSize = 0
 
-  agg("by_tag", TermsAgg("tags")) {
+  agg(MyAggNames.BY_TAG, TermsAgg(MockDoc::tags)) {
     // aggregations can be nested
-    agg("by_color", TermsAgg("tags") {
+    agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
       minDocCount = 1
       aggSize = 3
     })
@@ -92,7 +92,7 @@ Captured Output:
 
 ```
 {
-  "took": 109,
+  "took": 67,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -109,23 +109,23 @@ Captured Output:
     ]
   },
   "aggregations": {
-    "by_tag": {
+    "BY_TAG": {
       "doc_count_error_upper_bound": 0,
       "sum_other_doc_count": 0,
       "buckets": [
         {
           "key": "bar",
           "doc_count": 2,
-          "by_color": {
+          "BY_COLOR": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
               {
-                "key": "bar",
-                "doc_count": 2
+                "key": "green",
+                "doc_count": 1
               },
               {
-                "key": "foo",
+                "key": "red",
                 "doc_count": 1
               }
             ]
@@ -134,17 +134,13 @@ Captured Output:
         {
           "key": "foo",
           "doc_count": 2,
-          "by_color": {
+          "BY_COLOR": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
               {
-                "key": "foo",
+                "key": "red",
                 "doc_count": 2
-              },
-              {
-                "key": "bar",
-                "doc_count": 1
               }
             ]
           }
@@ -152,12 +148,12 @@ Captured Output:
         {
           "key": "foobar",
           "doc_count": 1,
-          "by_color": {
+          "BY_COLOR": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
               {
-                "key": "foobar",
+                "key": "green",
                 "doc_count": 1
               }
             ]
@@ -170,6 +166,22 @@ Captured Output:
 
 ```
 
+Note that we are using enum values for the  aggregation names. Here is the enum we are using:
+
+```kotlin
+enum class MyAggNames {
+  BY_COLOR,
+  BY_TAG,
+  BY_DATE,
+  MIN_TIME,
+  MAX_TIME,
+  TIME_SPAN,
+  SPAN_STATS
+}
+```
+
+You can also use string literals of course.
+
 As you can see from the captured output, parsing this to a type safe structure is a bit of a challenge 
 because the response mixes aggregation names that we specified with aggregation query specific objects.
 
@@ -180,18 +192,21 @@ ability to deserialize those into custom model classes. In this case we have `Te
 
 ```kotlin
 // this is how you look up a TermsAggregationResult
-val tags = response.aggregations.termsResult("by_tag")
+val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
 
 // since buckets can contain sub aggregations, those too are JsonObjects
 println("Number of buckets: " + tags.buckets.size)
-tags.buckets.forEach { b ->
-  // of course we can parse that to a TermsBucket
-  val tb = b.parse<TermsBucket>()
+// buckets is a List<JsonObject>
+tags.buckets.forEach { jsonObject ->
+  // but we can parse that to a TermsBucket
+  val tb = jsonObject.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
-  val colors = b.termsResult("by_color")
-  // you can also use decodeBuckets to get a type safe TermsBucket
-  colors.decodeBuckets().forEach { cb ->
-    println("  ${cb.key}: ${cb.docCount}")
+  // and we can get named sub aggregations from jsonObject
+  val colors = jsonObject.termsResult(MyAggNames.BY_COLOR)
+  // you can also use parsedBuckets to the type safe TermsBucket
+  colors.buckets.forEach { colorBucketObject ->
+    val tb = colorBucketObject.parse<TermsBucket>()
+    println("  ${tb.key}: ${tb.docCount}")
   }
 }
 ```
@@ -201,13 +216,41 @@ Captured Output:
 ```
 Number of buckets: 3
 bar: 2
-  bar: 2
-  foo: 1
+  green: 1
+  red: 1
 foo: 2
-  foo: 2
-  bar: 1
+  red: 2
 foobar: 1
-  foobar: 1
+  green: 1
+
+```
+
+With some extension function magic we can make this a bit nicer.
+
+```kotlin
+val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
+// use parsedBucket to get a Bucket<TermsBucket>
+// this allows us to get to the TermsBucket and the aggregations
+tags.parsedBuckets.forEach { tagBucket  ->
+  println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
+  tagBucket.aggregations
+    .termsResult(MyAggNames.BY_COLOR)
+    .parsedBuckets.forEach { colorBucket ->
+      println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
+    }
+}
+```
+
+Captured Output:
+
+```
+bar: 2
+  green: 1
+  red: 1
+foo: 2
+  red: 2
+foobar: 1
+  green: 1
 
 ```
 
@@ -220,42 +263,42 @@ then do a stats aggregation on that.
 val response = repo.search {
   resultSize = 0 // we only care about the aggs
   // allows us to use the aggSpec after the query runs
-  agg("by_date", DateHistogramAgg(MockDoc::timestamp) {
+  agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
     calendarInterval = "1d"
   })
-  agg("by_color", TermsAgg(MockDoc::color)) {
-    agg("min_time", MinAgg(MockDoc::timestamp))
-    agg("max_time", MaxAgg(MockDoc::timestamp))
-    agg("time_span", BucketScriptAgg {
+  agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color)) {
+    agg(MyAggNames.MIN_TIME, MinAgg(MockDoc::timestamp))
+    agg(MyAggNames.MAX_TIME, MaxAgg(MockDoc::timestamp))
+    agg(MyAggNames.TIME_SPAN, BucketScriptAgg {
       script = "params.max - params.min"
       bucketsPath = BucketsPath {
-        this["min"] = "min_time"
-        this["max"] = "max_time"
+        this["min"] = MyAggNames.MIN_TIME
+        this["max"] = MyAggNames.MIN_TIME
       }
     })
   }
-  agg("span_stats", ExtendedStatsBucketAgg {
-    bucketsPath = "by_color>time_span"
+  agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
+    bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
   })
 }
 
 // date_histogram works very similar to the terms aggregation
-response.aggregations.dateHistogramResult("by_date")
-  .decodeBuckets().forEach { b ->
-    println("${b.keyAsString}: ${b.docCount}")
+response.aggregations.dateHistogramResult(MyAggNames.BY_DATE)
+  .parsedBuckets.map { it.parsed }.forEach { db ->
+    println("${db.keyAsString}: ${db.docCount}")
   }
 
-response.aggregations.termsResult("by_color").buckets.forEach { b ->
+response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
   val tb = b.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
-  println("  Min: ${b.minResult("max_time").value}")
-  println("  Max: ${b.minResult("max_time").value}")
-  println("  Time span: ${b.bucketScriptResult("time_span").value}")
+  println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
+  println("  Max: ${b.minResult(MyAggNames.MAX_TIME).value}")
+  println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
 }
 
 println("Avg time span: ${
   response.aggregations
-      .extendedStatsBucketResult("span_stats").avg
+      .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
 }")
 
 ```
@@ -263,26 +306,26 @@ println("Avg time span: ${
 Captured Output:
 
 ```
-2022-12-24T00:00:00.000Z: 1
-2022-12-25T00:00:00.000Z: 0
+2022-12-25T00:00:00.000Z: 1
 2022-12-26T00:00:00.000Z: 0
 2022-12-27T00:00:00.000Z: 0
 2022-12-28T00:00:00.000Z: 0
-2022-12-29T00:00:00.000Z: 1
-2022-12-30T00:00:00.000Z: 0
+2022-12-29T00:00:00.000Z: 0
+2022-12-30T00:00:00.000Z: 1
 2022-12-31T00:00:00.000Z: 0
 2023-01-01T00:00:00.000Z: 0
-2023-01-02T00:00:00.000Z: 1
+2023-01-02T00:00:00.000Z: 0
 2023-01-03T00:00:00.000Z: 1
+2023-01-04T00:00:00.000Z: 1
 green: 2
-  Min: 1.672761232288E12
-  Max: 1.672761232288E12
-  Time span: 8.64E8
+  Min: 1.671960191555E12
+  Max: 1.672824191555E12
+  Time span: 0.0
 red: 2
-  Min: 1.672674832288E12
-  Max: 1.672674832288E12
-  Time span: 3.456E8
-Avg time span: 6.048E8
+  Min: 1.672392191555E12
+  Max: 1.672737791555E12
+  Time span: 0.0
+Avg time span: 0.0
 
 ```
 
@@ -300,11 +343,11 @@ val response = client.search(indexName) {
   // we don't care about the results here
   resultSize = 0
 
-  agg("by_tag", TermsAgg("tags"))
+  agg(MyAggNames.BY_TAG, TermsAgg("tags"))
 }
 // the termsResult function we used before is short for this:
 val tags = response.aggregations
-  .getAggResult<TermsAggregationResult>("by_tag")
+  .getAggResult<TermsAggregationResult>(MyAggNames.BY_TAG)
 ```
 
 We need two classes for picking apart terms aggregation results:
@@ -338,7 +381,7 @@ The generic`BucketAggregationResult` interface that we implement looks like this
 ```
 
 This should be implemented on all bucket aggregations. The `T` parameter allows us to deserialize the 
- bucket `JsonObject` instances easily with either `parse` or `decodeBuckets`, which is an extension function
+ bucket `JsonObject` instances easily with either `parse` or `parsedBuckets`, which is an extension function
  on `BucketAggregationResult`.
 
 
