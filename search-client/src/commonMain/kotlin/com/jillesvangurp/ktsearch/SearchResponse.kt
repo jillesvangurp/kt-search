@@ -149,26 +149,39 @@ fun Aggregations?.dateHistogramResult(name: Enum<*>, json: Json = DEFAULT_JSON):
 val DateHistogramAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, DateHistogramBucket.serializer()) }
 
 @Serializable
-data class NumericAggregationResult(
+data class DoubleValueAggregationResult(
     val value: Double,
     @SerialName("value_as_string")
     val valueAsString: String?,
 )
 
-fun Aggregations?.minResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
+@Serializable
+data class LongValueAggregationResult(
+    val value: Long,
+    @SerialName("value_as_string")
+    val valueAsString: String?,
+)
+
+fun Aggregations?.minResult(name: String, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
-fun Aggregations?.minResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.minResult(name: Enum<*>, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
-fun Aggregations?.maxResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.maxResult(name: String, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
-fun Aggregations?.maxResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.maxResult(name: Enum<*>, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
-fun Aggregations?.bucketScriptResult(name: String, json: Json = DEFAULT_JSON): NumericAggregationResult =
+fun Aggregations?.cardinalityResult(name: String, json: Json = DEFAULT_JSON): LongValueAggregationResult =
     getAggResult(name, json)
-fun Aggregations?.bucketScriptResult(name: Enum<*>, json: Json = DEFAULT_JSON): NumericAggregationResult =
+
+fun Aggregations?.cardinalityResult(name: Enum<*>, json: Json = DEFAULT_JSON): LongValueAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.bucketScriptResult(name: String, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
+    getAggResult(name, json)
+fun Aggregations?.bucketScriptResult(name: Enum<*>, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
 @Serializable

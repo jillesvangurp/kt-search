@@ -23,7 +23,8 @@ enum class MyAggNames {
     MIN_TIME,
     MAX_TIME,
     TIME_SPAN,
-    SPAN_STATS
+    SPAN_STATS,
+    TAG_CARDINALITY
 }
 // end MyAggNamesDef
 
@@ -224,13 +225,14 @@ val aggregationsMd = sourceGitRepository.md {
                         script = "params.max - params.min"
                         bucketsPath = BucketsPath {
                             this["min"] = MyAggNames.MIN_TIME
-                            this["max"] = MyAggNames.MIN_TIME
+                            this["max"] = MyAggNames.MAX_TIME
                         }
                     })
                 }
                 agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
                     bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
                 })
+                agg(MyAggNames.TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
             }
 
             // date_histogram works very similar to the terms aggregation
@@ -243,13 +245,16 @@ val aggregationsMd = sourceGitRepository.md {
                 val tb = b.parse<TermsBucket>()
                 println("${tb.key}: ${tb.docCount}")
                 println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
-                println("  Max: ${b.minResult(MyAggNames.MAX_TIME).value}")
+                println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
                 println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
             }
 
             println("Avg time span: ${
                 response.aggregations
                         .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
+            }")
+            println("Tag cardinality: ${
+                response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
             }")
 
         }
