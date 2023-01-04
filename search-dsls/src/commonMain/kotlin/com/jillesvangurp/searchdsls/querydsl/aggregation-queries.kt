@@ -3,6 +3,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.json
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -12,13 +13,13 @@ inline fun <reified T : AggQuery> JsonDsl.add(name: String, aggQuery: T) {
 }
 
 private fun SearchDSL.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
+    return (this["aggs"]?.let { it as JsonDsl } ?: JsonDsl()).also {
         this["aggs"] = it
     }
 }
 
 private fun AggQuery.aggs(): JsonDsl {
-    return this["aggs"]?.let { it as JsonDsl } ?: JsonDsl().also {
+    return (this["aggs"]?.let { it as JsonDsl } ?: JsonDsl()).also {
         this["aggs"] = it
     }
 }
@@ -32,6 +33,9 @@ fun AggQuery.agg(name: String, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=
     aggs().add(name, aggQuery)
     block?.invoke(aggQuery)
 }
+
+fun SearchDSL.agg(name: Enum<*>, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=null) = agg(name.name, aggQuery,block)
+fun AggQuery.agg(name: Enum<*>, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=null) = agg(name.name, aggQuery,block)
 
 class TermsAggConfig : JsonDsl() {
     var field by property<String>()
