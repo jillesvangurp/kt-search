@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 const val githubLink = "https://github.com/jillesvangurp/kt-search"
-const val jitpackLink = "[![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search)"
+//const val jitpackLink = "[![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search)"
 
 data class Page(
     val title: String,
@@ -65,7 +65,7 @@ class DocumentationTest {
             }
             val navigation = """
                 | ${manualRootPage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
-                | [Github]($githubLink) | &copy; Jilles van Gurp | $jitpackLink |
+                | [Github]($githubLink) | &copy; Jilles van Gurp |  |
             """.trimIndent()
 
             val (page,md) = manualPages[index]
