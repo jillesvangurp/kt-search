@@ -92,7 +92,7 @@ Captured Output:
 
 ```
 {
-  "took": 50,
+  "took": 64,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -176,7 +176,8 @@ enum class MyAggNames {
   MIN_TIME,
   MAX_TIME,
   TIME_SPAN,
-  SPAN_STATS
+  SPAN_STATS,
+  TAG_CARDINALITY
 }
 ```
 
@@ -273,13 +274,14 @@ val response = repo.search {
       script = "params.max - params.min"
       bucketsPath = BucketsPath {
         this["min"] = MyAggNames.MIN_TIME
-        this["max"] = MyAggNames.MIN_TIME
+        this["max"] = MyAggNames.MAX_TIME
       }
     })
   }
   agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
     bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
   })
+  agg(MyAggNames.TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
 }
 
 // date_histogram works very similar to the terms aggregation
@@ -292,13 +294,16 @@ response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
   val tb = b.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
   println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
-  println("  Max: ${b.minResult(MyAggNames.MAX_TIME).value}")
+  println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
   println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
 }
 
 println("Avg time span: ${
   response.aggregations
       .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
+}")
+println("Tag cardinality: ${
+  response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
 }")
 
 ```
@@ -318,14 +323,15 @@ Captured Output:
 2023-01-03T00:00:00.000Z: 1
 2023-01-04T00:00:00.000Z: 1
 green: 2
-  Min: 1.671962387167E12
-  Max: 1.672826387167E12
-  Time span: 0.0
+  Min: 1.67196855086E12
+  Max: 1.67283255086E12
+  Time span: 8.64E8
 red: 2
-  Min: 1.672394387167E12
-  Max: 1.672739987167E12
-  Time span: 0.0
-Avg time span: 0.0
+  Min: 1.67240055086E12
+  Max: 1.67274615086E12
+  Time span: 3.456E8
+Avg time span: 6.048E8
+Tag cardinality: 3
 
 ```
 
