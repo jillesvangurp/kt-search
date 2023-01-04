@@ -1,7 +1,7 @@
 # Document Manipulation 
 
 | [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -51,4 +51,4 @@ Note, for inserting large amounts of documents you should of course use the bulk
 ---
 
 | [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Index Repository](IndexRepository.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

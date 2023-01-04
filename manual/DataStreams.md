@@ -1,7 +1,7 @@
 # Creating Data Streams 
 
 | [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -90,4 +90,4 @@ client.setIlmPolicy("my-ilm") {
 ---
 
 | [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

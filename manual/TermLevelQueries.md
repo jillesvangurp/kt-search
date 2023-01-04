@@ -1,7 +1,7 @@
 # Term Level Queries 
 
 | [KT Search Manual](README.md) | Previous: [Text Queries](TextQueries.md) | Next: [Compound Queries](CompoundQueries.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -195,4 +195,4 @@ Terms Set Query Found 0 results:
 ---
 
 | [KT Search Manual](README.md) | Previous: [Text Queries](TextQueries.md) | Next: [Compound Queries](CompoundQueries.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

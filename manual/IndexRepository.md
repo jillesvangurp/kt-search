@@ -1,7 +1,7 @@
 # Index Repository 
 
 | [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -68,4 +68,4 @@ it re-fetches and retries this a configurable number of times before failing.
 ---
 
 | [KT Search Manual](README.md) | Previous: [Document Manipulation](DocumentManipulation.md) | Next: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

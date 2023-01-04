@@ -1,7 +1,7 @@
 # Deep Paging Using search_after and scroll 
 
 | [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Document Manipulation](DocumentManipulation.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -201,4 +201,4 @@ found 3 results
 ---
 
 | [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Document Manipulation](DocumentManipulation.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

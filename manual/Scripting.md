@@ -1,7 +1,7 @@
 # Using Kotlin Scripting 
 
 | [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -135,4 +135,4 @@ modify the dependencies: closing and re-opening the IDE seems to work.
 ---
 
 | [KT Search Manual](README.md) | Previous: [Extending the Json DSLs](ExtendingTheDSL.md) | Next: [Jupyter Notebooks](Jupyter.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

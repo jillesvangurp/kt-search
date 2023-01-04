@@ -1,7 +1,7 @@
 # Migrating from the old Es Kotlin Client 
 
 | [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -19,4 +19,4 @@ Migrating from the old es-kotlin-client is quite easy but it is going to involve
 ---
 
 | [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

@@ -1,7 +1,7 @@
 # Jupyter Notebooks 
 
 | [KT Search Manual](README.md) | Previous: [Using Kotlin Scripting](Scripting.md) | - |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -68,4 +68,4 @@ Otherwise, see the documentation for how to use the kotlin scripting support.
 ---
 
 | [KT Search Manual](README.md) | Previous: [Using Kotlin Scripting](Scripting.md) | - |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

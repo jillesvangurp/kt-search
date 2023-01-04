@@ -1,7 +1,7 @@
 # Efficiently Ingest Content Using Bulk Indexing 
 
 | [KT Search Manual](README.md) | Previous: [Index Repository](IndexRepository.md) | Next: [Creating Data Streams](DataStreams.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -143,4 +143,4 @@ data class Thing(val name: String, val amount: Long = 42)
 ---
 
 | [KT Search Manual](README.md) | Previous: [Index Repository](IndexRepository.md) | Next: [Creating Data Streams](DataStreams.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

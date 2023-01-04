@@ -1,7 +1,7 @@
 # What is Kt-Search 
 
 | [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -37,4 +37,4 @@ A few years of development on the es-kotlin-client has produced quite a few lear
 ---
 
 | [KT Search Manual](README.md) | - | Next: [Getting Started](GettingStarted.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

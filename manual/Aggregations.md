@@ -1,7 +1,7 @@
 # Aggregations 
 
 | [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -92,7 +92,7 @@ Captured Output:
 
 ```
 {
-  "took": 67,
+  "took": 50,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -318,12 +318,12 @@ Captured Output:
 2023-01-03T00:00:00.000Z: 1
 2023-01-04T00:00:00.000Z: 1
 green: 2
-  Min: 1.671960191555E12
-  Max: 1.672824191555E12
+  Min: 1.671962387167E12
+  Max: 1.672826387167E12
   Time span: 0.0
 red: 2
-  Min: 1.672392191555E12
-  Max: 1.672737791555E12
+  Min: 1.672394387167E12
+  Max: 1.672739987167E12
   Time span: 0.0
 Avg time span: 0.0
 
@@ -389,4 +389,4 @@ This should be implemented on all bucket aggregations. The `T` parameter allows 
 ---
 
 | [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

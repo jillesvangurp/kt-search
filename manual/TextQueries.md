@@ -1,7 +1,7 @@
 # Text Queries 
 
 | [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -234,4 +234,4 @@ Combined fields Found 1 results:
 ---
 
 | [KT Search Manual](README.md) | Previous: [Search and Queries](Search.md) | Next: [Term Level Queries](TermLevelQueries.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

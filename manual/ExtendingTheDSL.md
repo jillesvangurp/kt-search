@@ -1,7 +1,7 @@
 # Extending the Json DSLs 
 
 | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -265,4 +265,4 @@ SearchDSL().apply {
 ---
 
 | [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

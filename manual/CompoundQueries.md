@@ -1,7 +1,7 @@
 # Compound Queries 
 
 | [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
 
@@ -193,4 +193,4 @@ Function score Found 3 results:
 ---
 
 | [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
-| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp | [![](https://jitpack.io/v/jillesvangurp/kt-search.svg)](https://jitpack.io/#jillesvangurp/kt-search) |
+| [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
