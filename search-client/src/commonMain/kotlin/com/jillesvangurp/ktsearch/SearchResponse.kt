@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -123,6 +124,8 @@ data class DateHistogramBucket(
     @SerialName("doc_count")
     val docCount: Long,
 )
+
+val DateHistogramBucket.keyAsInstant get() = Instant.fromEpochMilliseconds(key)
 
 @Serializable
 data class DateHistogramAggregationResult(
