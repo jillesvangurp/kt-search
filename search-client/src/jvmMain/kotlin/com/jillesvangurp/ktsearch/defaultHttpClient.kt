@@ -29,6 +29,9 @@ actual fun defaultKtorHttpClient(
                     credentials {
                         BasicAuthCredentials(user,password)
                     }
+                    sendWithoutRequest {
+                        true
+                    }
                 }
             }
         }
