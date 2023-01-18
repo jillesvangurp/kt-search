@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 plugins {
     kotlin("multiplatform")
 }
@@ -10,7 +12,7 @@ kotlin {
             testTask {
                 useMocha {
                     // javascript is a lot slower than Java, we hit the default timeout of 2000
-                    timeout = "20000"
+                    timeout = "20s"
                 }
             }
         }
