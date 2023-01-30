@@ -27,6 +27,8 @@ val DEFAULT_JSON: Json = Json {
     ignoreUnknownKeys=true
     // make sure new enum values don't break deserialization (will be null)
     coerceInputValues=true
+    // elasticsearch can return NaN values
+    allowSpecialFloatingPointValues=true
 }
 
 /**
