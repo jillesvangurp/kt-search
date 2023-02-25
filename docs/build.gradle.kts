@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 val localProperties = Properties().apply {
@@ -7,7 +6,9 @@ val localProperties = Properties().apply {
     }
 }
 
-fun getProperty(propertyName: String, defaultValue: Any?=null) = (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+fun getProperty(propertyName: String, defaultValue: Any? = null) =
+    (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 
 
