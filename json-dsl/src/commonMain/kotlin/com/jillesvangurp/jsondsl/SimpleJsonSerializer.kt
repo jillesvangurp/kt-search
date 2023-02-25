@@ -36,7 +36,13 @@ class SimpleJsonSerializer: JsonDslSerializer {
                     entry.key.toString().escapeJson(buf)
                     buf.append("\":")
                     buf.space(pretty)
-                    write(buf = buf, indent = indent + 1, indentStep = indentStep, pretty = pretty, obj = entry.value)
+                    write(
+                        buf = buf,
+                        indent = indent + 1,
+                        indentStep = indentStep,
+                        pretty = pretty,
+                        obj = entry.value
+                    )
                     if(iterator.hasNext()) {
                         buf.append(',')
                     }

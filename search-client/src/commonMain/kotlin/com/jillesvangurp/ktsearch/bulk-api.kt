@@ -1,8 +1,8 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
+import com.jillesvangurp.searchdsls.querydsl.Script
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -50,6 +50,16 @@ data class BulkResponse(
     }
 
     @Serializable
+    data class ItemError(
+        val type: String? = null,
+        val reason: String? = null,
+        @SerialName("index_uuid")
+        val indexUuid: String? = null,
+        val shard: String? = null,
+        val index: String? = null,
+    )
+
+    @Serializable
     data class ItemDetails(
         @SerialName("_index")
         val index: String,
@@ -66,7 +76,10 @@ data class BulkResponse(
         val seqNo: Long?,
         @SerialName("_primary_term")
         val primaryTerm: Long?,
-        val status: Int
+        val status: Int,
+        val error: ItemError?=null,
+        @SerialName("_source")
+        val source: JsonObject?=null,
     )
 }
 
@@ -140,8 +153,8 @@ class BulkSession internal constructor(
     private var closed: Boolean = false
 
     suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = withJsonDsl  {
-            this["create"] = withJsonDsl  {
+        val opDsl = withJsonDsl {
+            this["create"] = withJsonDsl {
                 index?.let {
                     this["_index"] = index
                 }
@@ -157,8 +170,8 @@ class BulkSession internal constructor(
     }
 
     suspend fun index(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = withJsonDsl  {
-            this["index"] = withJsonDsl  {
+        val opDsl = withJsonDsl {
+            this["index"] = withJsonDsl {
                 index?.let {
                     this["_index"] = index
                 }
@@ -174,8 +187,8 @@ class BulkSession internal constructor(
     }
 
     suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null) {
-        val opDsl = withJsonDsl  {
-            this["delete"] = withJsonDsl  {
+        val opDsl = withJsonDsl {
+            this["delete"] = withJsonDsl {
                 this["_id"] = id
                 index?.let {
                     this["_index"] = index
@@ -186,6 +199,79 @@ class BulkSession internal constructor(
             }
         }
         operation(opDsl.json())
+    }
+
+    suspend fun update(
+        script: Script,
+        id: String,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        upsert: JsonObject? = null
+    ) {
+        val opDsl = withJsonDsl {
+            this["update"] = withJsonDsl {
+                index?.let {
+                    this["_index"] = index
+                }
+                id.let {
+                    this["_id"] = id
+                }
+                requireAlias?.let {
+                    this["require_alias"] = requireAlias
+                }
+            }
+        }
+
+        // we can't rely on the JsonDsl serializer here because it does not handle kotlinx serialization
+        val json = """{"script":${script.json()}${upsert?.let { """, "upsert":${DEFAULT_JSON.encodeToString(upsert)}}""" }?:""}}""".trimIndent()
+
+        operation(opDsl.json(), json)
+    }
+
+    suspend fun update(
+        id: String,
+        doc: String,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null
+    ) {
+        update(
+            id = id,
+            doc = DEFAULT_JSON.decodeFromString(JsonObject.serializer(), doc),
+            index = index,
+            requireAlias = requireAlias,
+            docAsUpsert = docAsUpsert
+        )
+    }
+
+    suspend fun update(
+        id: String,
+        doc: JsonObject,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null
+    ) {
+        val opDsl = withJsonDsl {
+            this["update"] = withJsonDsl {
+                index?.let {
+                    this["_index"] = index
+                }
+                id.let {
+                    this["_id"] = id
+                }
+                requireAlias?.let {
+                    this["require_alias"] = requireAlias
+                }
+            }
+        }
+
+        val json = """{"doc":${DEFAULT_JSON.encodeToString(doc)}${docAsUpsert?.let { ""","doc_as_upsert":true""" }?:""}}"""
+        operation(opDsl.json(), withJsonDsl {
+            this["doc"] = doc
+            if (docAsUpsert == true) {
+                this["doc_as_upsert"] = true
+            }
+        }.json())
     }
 
     suspend fun operation(operation: String, source: String? = null) {
@@ -221,7 +307,7 @@ class BulkSession internal constructor(
                 // give user a chance to recover from a failed flush
                 // like sleep and resend a few times before permanently failing
                 callBack?.bulkRequestFailed(e, ops)
-                if(closeOnRequestError) {
+                if (closeOnRequestError) {
                     closed = true
                     throw e
                 }
@@ -279,6 +365,37 @@ suspend inline fun <reified T> BulkSession.index(
     index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
+suspend inline fun <reified T> BulkSession.update(
+    script: Script,
+    id: String,
+    upsert: T,
+    index: String? = null,
+    requireAlias: Boolean? = null,
+) {
+    update(
+        script,
+        id,
+        index,
+        requireAlias,
+        DEFAULT_JSON.encodeToString(upsert).let {
+            DEFAULT_JSON.decodeFromString(JsonObject.serializer(), it)
+        }
+    )
+}
+
+suspend inline fun <reified T> BulkSession.update(
+    doc: T,
+    id: String,
+    index: String? = null,
+    requireAlias: Boolean? = null,
+    docAsUpsert: Boolean? = null,
+) {
+    val obj = DEFAULT_JSON.encodeToString(doc).let {
+        DEFAULT_JSON.decodeFromString(JsonObject.serializer(), it)
+    }
+    update(id, obj, index, requireAlias, docAsUpsert)
+}
+
 /**
  * Send a single bulk request. Consider using the variant that creates a BulkSession.
  */
@@ -309,9 +426,9 @@ suspend fun SearchClient.bulk(
         parameter("timeout", timeout)
         parameter("wait_for_active_shards", waitForActiveShards)
         parameter("require_alias", requireAlias)
-        parameter("source", source)
-        parameter("source_excludes", sourceExcludes)
-        parameter("source_includes", sourceIncludes)
+        parameter("_source", source)
+        parameter("_source_excludes", sourceExcludes)
+        parameter("_source_includes", sourceIncludes)
         parameters(extraParameters)
 
         rawBody(payload)
