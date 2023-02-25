@@ -81,6 +81,51 @@ repo.bulk {
 }
 ```
 
+## Bulk Updates
+
+```kotlin
+val repo = client.repository("test", Foo.serializer())
+
+repo.bulk {
+  index(
+    doc = Foo("foo"),
+    id = "foo-1"
+  )
+  update(
+    id = "foo-1",
+    doc = """{"foo":"bar"}""",
+    docAsUpsert = true,
+  )
+}
+val(doc,resp) = repo.get("foo-1")
+// will print bar
+println(doc.foo)
+
+repo.bulk {
+  update(
+    id = "foo-1",
+    script = Script.create {
+      source="ctx._source.foo = params.p1"
+      params= mapOf(
+        "p1" to "foobar"
+      )
+    }
+  )
+}
+repo.get("foo-1").let { (doc,_)->
+  // prints foobar
+  println(doc.foo)
+}
+```
+
+Captured Output:
+
+```
+"bar"
+foobar
+
+```
+
 ## Error handling with callbacks
 
 One of the trickier things with the bulk API is error handling.

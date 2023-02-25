@@ -40,6 +40,45 @@ client.indexDocument(
 client.deleteDocument("myindex", resp.id)
 ```
 
+Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
+
+```kotlin
+client.indexDocument(
+  target = "myindex",
+  document = TestDoc("42", "x"),
+  id = "42"
+)
+var resp = client.updateDocument(
+  target = "myindex",
+  id = "42",
+  docJson = """{"name":"changed"}""",
+  source = "true"
+)
+println(resp.get?.source)
+
+resp = client.updateDocument(
+  target = "myindex",
+  id = "42",
+  script = Script.create {
+    source = """ctx._source.name = params.p1 """
+    params = mapOf(
+      "p1" to "again"
+    )
+  },
+  source = "true"
+)
+println(resp.get?.source)
+
+```
+
+Captured Output:
+
+```
+{"id":"42","name":"changed","tags":[]}
+{"id":"42","name":"again","tags":[]}
+
+```
+
 The index API has a lot more parameters that are supported here as well
 via nullable parameters. You can also use a variant of the index API
 that accepts a json String instead of the TestDoc.

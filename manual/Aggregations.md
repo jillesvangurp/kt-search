@@ -92,7 +92,7 @@ Captured Output:
 
 ```
 {
-  "took": 70,
+  "took": 79,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -323,12 +323,12 @@ Captured Output:
 2023-02-24T00:00:00.000Z: 1
 2023-02-25T00:00:00.000Z: 1
 green: 2
-  Min: 1.676458543339E12
-  Max: 1.677322543339E12
+  Min: 1.676463804494E12
+  Max: 1.677327804494E12
   Time span: 8.64E8
 red: 2
-  Min: 1.676890543339E12
-  Max: 1.677236143339E12
+  Min: 1.676895804494E12
+  Max: 1.677241404494E12
   Time span: 3.456E8
 Avg time span: 6.048E8
 Tag cardinality: 3
