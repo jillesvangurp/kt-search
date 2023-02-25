@@ -180,3 +180,14 @@ class Script: JsonDsl() {
         fun create(block: (Script.() -> Unit)) = Script().apply(block)
     }
 }
+
+/**
+ * Constructs dotted path out of KProperty, enums, and string literals.
+ */
+fun SearchDSL.dotted(vararg elements: Any) = elements.joinToString(".") { pathComponent ->
+    when (pathComponent) {
+        is Enum<*> -> pathComponent.name
+        is KProperty<*> -> pathComponent.name
+        else -> pathComponent.toString()
+    }
+}

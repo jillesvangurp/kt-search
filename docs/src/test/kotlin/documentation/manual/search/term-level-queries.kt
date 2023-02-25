@@ -99,6 +99,5 @@ val termLevelQueriesMd = sourceGitRepository.md {
                 }
             }.pretty("Terms Set Query").let { println(it) }
         }
-
     }
 }
