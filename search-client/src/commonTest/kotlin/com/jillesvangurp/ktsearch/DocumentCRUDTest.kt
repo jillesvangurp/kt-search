@@ -1,6 +1,8 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.querydsl.Script
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 import kotlin.test.fail
 
@@ -33,7 +35,51 @@ class DocumentCRUDTest: SearchTestBase() {
                 // not a problem
             }
         }
+    }
 
+    @Test
+    fun shouldSupportDocumentUpdates() = coRun {
+        val index = testDocumentIndex()
+        client.indexDocument(index,TestDocument("foo"),"1")
 
+        client.updateDocument(index,"1", TestDocument("bar")).let { resp ->
+            resp.result shouldBe "updated"
+        }
+        client.updateDocument(index,"1", TestDocument("bar"), detectNoop = true).let { resp ->
+            resp.result shouldBe "noop"
+        }
+    }
+
+    @Test
+    fun shouldSupportScriptUpdates() = coRun {
+        val index = testDocumentIndex()
+        client.updateDocument(
+            target = index,
+            id = "1",
+            script = Script.create {
+                source = "ctx._source.number += params.param1"
+                params = mapOf(
+                    "param1" to 1
+                )
+            },
+            upsertJson = TestDocument("foo", number = 0),
+        )
+        client.updateDocument(
+            target = index,
+            id = "1",
+            script = Script.create {
+                source = "ctx._source.number += params.param1"
+                params = mapOf(
+                    "param1" to 1
+                )
+            },
+            upsertJson = TestDocument("foo", number = 0),
+            source = "true"
+        ).let { resp ->
+            resp.get?.source shouldNotBe null
+            DEFAULT_JSON.decodeFromJsonElement(TestDocument.serializer(),resp.get?.source!!).let {
+                it.number shouldBe 1
+            }
+        }
     }
 }

@@ -265,7 +265,7 @@ class BulkSession internal constructor(
             }
         }
 
-        val json = """{"doc":${DEFAULT_JSON.encodeToString(doc)}${docAsUpsert?.let { ""","doc_as_upsert":true""" }?:""}}"""
+        val json = """{"doc":${DEFAULT_JSON.encodeToString(doc)}${docAsUpsert?.let { ""","doc_as_upsert":$docAsUpsert""" }?:""}}"""
         operation(opDsl.json(), withJsonDsl {
             this["doc"] = doc
             if (docAsUpsert == true) {

@@ -24,7 +24,9 @@ data class DocumentIndexResponse(
     @SerialName("_seq_no")
     val seqNo: Int,
     @SerialName("_primary_term")
-    val primaryTerm: Int
+    val primaryTerm: Int,
+    @SerialName("_source")
+    val source: String?=null,
 )
 
 suspend inline fun <reified T> SearchClient.indexDocument(
@@ -104,6 +106,8 @@ suspend fun SearchClient.indexDocument(
         rawBody(serializedJson)
     }.parse(DocumentIndexResponse.serializer(), json)
 }
+
+
 
 @Serializable
 data class GetDocumentResponse(
