@@ -53,6 +53,20 @@ suspend fun SearchClient.createDataStream(name: String): JsonObject {
         path("_data_stream", name)
     }.parseJsonObject()
 }
+
+suspend fun SearchClient.exists(name: String): Boolean {
+    restClient.head {
+        path(name)
+    }.let {
+        if(it.status<300) {
+            return true
+        } else if(it.status==404) {
+            return false
+        } else {
+            throw it.asResult().exceptionOrNull()?: error("should have an exception")
+        }
+    }
+}
 suspend fun SearchClient.deleteDataStream(name: String): JsonObject {
     return restClient.delete {
         path("_data_stream", name)

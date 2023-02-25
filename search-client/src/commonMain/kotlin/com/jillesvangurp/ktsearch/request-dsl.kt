@@ -70,6 +70,17 @@ data class SearchAPIRequest(
     }
 }
 
+suspend fun RestClient.head(block: SearchAPIRequest.() -> Unit): RestResponse {
+    val request = SearchAPIRequest()
+    block.invoke(request)
+    return doRequest(
+        pathComponents = listOf("/" + request.pathComponents.joinToString("/")),
+        httpMethod = HttpMethod.Head,
+        parameters = request.parameters,
+        headers = request.headers
+    )
+}
+
 suspend fun RestClient.post(block: SearchAPIRequest.() -> Unit): Result<RestResponse.Status2XX> {
     val request = SearchAPIRequest()
     block.invoke(request)
