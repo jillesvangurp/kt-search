@@ -202,8 +202,8 @@ class BulkSession internal constructor(
     }
 
     suspend fun update(
-        script: Script,
         id: String,
+        script: Script,
         index: String? = null,
         requireAlias: Boolean? = null,
         upsert: JsonObject? = null
@@ -373,8 +373,8 @@ suspend inline fun <reified T> BulkSession.update(
     requireAlias: Boolean? = null,
 ) {
     update(
-        script,
         id,
+        script,
         index,
         requireAlias,
         DEFAULT_JSON.encodeToString(upsert).let {

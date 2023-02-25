@@ -4,6 +4,7 @@ package documentation.manual.bulk
 
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
+import com.jillesvangurp.searchdsls.querydsl.Script
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
@@ -94,6 +95,44 @@ val bulkMd = sourceGitRepository.md {
                 create(Foo("will go into the test index"))
             }
         }
+    }
+
+    section("Bulk Updates") {
+        suspendingBlock() {
+            val repo = client.repository("test", Foo.serializer())
+
+            repo.bulk {
+                index(
+                    doc = Foo("foo"),
+                    id = "foo-1"
+                )
+                update(
+                    id = "foo-1",
+                    doc = """{"foo":"bar"}""",
+                    docAsUpsert = true,
+                )
+            }
+            val(doc,resp) = repo.get("foo-1")
+            // will print bar
+            println(doc.foo)
+
+            repo.bulk {
+                update(
+                    id = "foo-1",
+                    script = Script.create {
+                        source="ctx._source.foo = params.p1"
+                        params= mapOf(
+                            "p1" to "foobar"
+                        )
+                    }
+                )
+            }
+            repo.get("foo-1").let { (doc,_)->
+                // prints foobar
+                println(doc.foo)
+            }
+        }
+
     }
 
     section("Error handling with callbacks") {
