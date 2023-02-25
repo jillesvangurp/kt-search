@@ -1,6 +1,7 @@
 package documentation.manual.crud
 
 import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.searchdsls.querydsl.Script
 import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.sourceGitRepository
@@ -46,6 +47,39 @@ val crudMd = sourceGitRepository.md {
 
         // delete
         client.deleteDocument("myindex", resp.id)
+    }
+
+    +"""
+        Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
+    """.trimIndent()
+
+    suspendingBlock {
+        client.indexDocument(
+            target = "myindex",
+            document = TestDoc("42", "x"),
+            id = "42"
+        )
+        var resp = client.updateDocument(
+            target = "myindex",
+            id = "42",
+            docJson = """{"name":"changed"}""",
+            source = "true"
+        )
+        println(resp.get?.source)
+
+        resp = client.updateDocument(
+            target = "myindex",
+            id = "42",
+            script = Script.create {
+                source = """ctx._source.name = params.p1 """
+                params = mapOf(
+                    "p1" to "again"
+                )
+            },
+            source = "true"
+        )
+        println(resp.get?.source)
+
     }
 
     +"""
