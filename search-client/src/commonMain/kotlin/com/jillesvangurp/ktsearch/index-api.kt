@@ -18,6 +18,26 @@ data class IndexCreateResponse(
 
 suspend fun SearchClient.createIndex(
     name: String,
+    mappingAndSettings: String,
+    waitForActiveShards: Int? = null,
+    masterTimeOut: Duration? = null,
+    timeout: Duration? = null,
+    extraParameters: Map<String, String>? = null,
+
+    ): IndexCreateResponse {
+    return restClient.put {
+        path(name)
+
+        parameter("wait_for_active_shards", waitForActiveShards)
+        parameter("master_timeout", masterTimeOut)
+        parameter("timeout", timeout)
+        parameters(extraParameters)
+        rawBody(mappingAndSettings)
+    }.parse(IndexCreateResponse.serializer(), json)
+}
+
+suspend fun SearchClient.createIndex(
+    name: String,
     mapping: IndexSettingsAndMappingsDSL,
     waitForActiveShards: Int? = null,
     masterTimeOut: Duration? = null,
