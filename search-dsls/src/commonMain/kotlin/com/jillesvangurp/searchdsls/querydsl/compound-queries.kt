@@ -27,6 +27,10 @@ fun SearchDSL.bool(block: BoolQuery.() -> Unit): BoolQuery {
     return q
 }
 
+fun SearchDSL.or(queries: List<ESQuery>) = bool { should(queries) }
+fun SearchDSL.and(queries: List<ESQuery>) = bool { filter(queries) }
+fun SearchDSL.not(queries: List<ESQuery>) = bool { mustNot(queries) }
+
 @SearchDSLMarker
 class BoostingQuery : ESQuery(name = "boosting") {
     var positive: ESQuery by queryDetails.esQueryProperty()
