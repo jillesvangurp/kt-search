@@ -8,6 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlin.time.Duration
 
@@ -265,13 +266,11 @@ class BulkSession internal constructor(
             }
         }
 
-        val json = """{"doc":${DEFAULT_JSON.encodeToString(doc)}${docAsUpsert?.let { ""","doc_as_upsert":$docAsUpsert""" }?:""}}"""
-        operation(opDsl.json(), withJsonDsl {
-            this["doc"] = doc
-            if (docAsUpsert == true) {
-                this["doc_as_upsert"] = true
-            }
-        }.json())
+        operation(
+            opDsl.json(),
+            // ugly but jsondsl doesn't know how to deal with JsonObject
+            """{"doc":${DEFAULT_JSON.encodeToString(doc)}${docAsUpsert?.let { ""","doc_as_upsert":$docAsUpsert""" } ?: ""}}"""
+        )
     }
 
     suspend fun operation(operation: String, source: String? = null) {
@@ -390,9 +389,14 @@ suspend inline fun <reified T> BulkSession.update(
     requireAlias: Boolean? = null,
     docAsUpsert: Boolean? = null,
 ) {
-    val obj = DEFAULT_JSON.encodeToString(doc).let {
-        DEFAULT_JSON.decodeFromString(JsonObject.serializer(), it)
-    }
+    val obj = DEFAULT_JSON.encodeToJsonElement(doc).jsonObject
+    this.update(
+        id = id,
+        doc = obj,
+        index = index,
+        requireAlias = requireAlias,
+        docAsUpsert = docAsUpsert
+    )
     update(id, obj, index, requireAlias, docAsUpsert)
 }
 

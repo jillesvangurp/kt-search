@@ -75,4 +75,18 @@ class BulkTest : SearchTestBase() {
             }, id = "1", upsert = TestDocument("counter", number = 0))
         }
     }
+
+    @Test
+    fun shouldAcceptSerializedUpdate() = coRun {
+        val index = testDocumentIndex()
+        client.bulk(target = index, source="true") {
+            // will get initialized to 0 by the upsert
+
+            create(TestDocument("original"), id = "42")
+            // now the script runs
+            update(TestDocument("changed"), id = "42")
+        }
+        val resp = client.getDocument(index,"42").source.parse<TestDocument>()
+        resp.name shouldBe "changed"
+    }
 }
