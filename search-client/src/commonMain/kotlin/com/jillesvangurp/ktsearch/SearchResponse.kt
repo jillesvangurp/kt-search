@@ -69,11 +69,22 @@ inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = sea
     it.parseHit<T>(json)
 }
 
+fun <T> SearchResponse.parseHits(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) = searchHits.map {
+    it.parseHit(deserializationStrategy,json)
+}
+
 inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T {
     return this.source?.parse<T>(json = json) ?: error("no source found")
 }
 
+fun <T> SearchResponse.Hit.parseHit(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON): T {
+    return this.source?.parse(deserializationStrategy,json = json) ?: error("no source found")
+}
+
 inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(this)
+
+fun <T> JsonObject.parse(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) = json.decodeFromJsonElement(deserializationStrategy,this)
+
 fun <T> JsonObject.parse(json: Json = DEFAULT_JSON, deserializationStrategy: DeserializationStrategy<T>) =
     json.decodeFromJsonElement(deserializationStrategy, this)
 
