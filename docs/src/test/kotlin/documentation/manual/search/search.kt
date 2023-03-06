@@ -202,7 +202,7 @@ val searchMd = sourceGitRepository.md {
                     resultSize = 100
                     query = matchAll()
                 }
-            }.forEach { searchResponse ->
+            }.responses.forEach { searchResponse ->
                 // will print document count for both searches
                 println("document count ${searchResponse.total}")
             }
@@ -220,7 +220,7 @@ val searchMd = sourceGitRepository.md {
             """.trimIndent() // the extra new line is required by ES
             )
             println("Doc counts: ${
-                resp.joinToString { it.total.toString() }
+                resp.responses.joinToString { it.total.toString() }
             }")
         }
     }

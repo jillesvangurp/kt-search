@@ -586,7 +586,7 @@ suspend fun SearchClient.msearch(
     searchType: SearchType? = null,
     typedKeys: Boolean? = null,
 
-    ): List<SearchResponse> {
+    ): MultiSearchResponse {
     return restClient.post {
         path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_msearch").toTypedArray())
 
@@ -606,9 +606,7 @@ suspend fun SearchClient.msearch(
         body?.let {
             rawBody(body)
         }
-    }.getOrThrow().text.lines().map {
-        DEFAULT_JSON.decodeFromString(SearchResponse.serializer(), it)
-    }
+    }.parse(MultiSearchResponse.serializer(), json = json)
 }
 
 class MsearchHeader : JsonDsl() {
@@ -652,7 +650,7 @@ suspend fun SearchClient.msearch(
     typedKeys: Boolean? = null,
     block: MsearchRequest.() -> Unit,
 
-    ): List<SearchResponse> {
+    ): MultiSearchResponse {
 
     return msearch(
         target = target,
@@ -670,3 +668,6 @@ suspend fun SearchClient.msearch(
         typedKeys = typedKeys
     )
 }
+
+@Serializable
+data class MultiSearchResponse(val took: Long, val responses: List<SearchResponse>)

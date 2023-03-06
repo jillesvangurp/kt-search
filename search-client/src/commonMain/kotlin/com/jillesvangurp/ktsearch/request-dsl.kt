@@ -89,7 +89,8 @@ suspend fun RestClient.post(block: SearchAPIRequest.() -> Unit): Result<RestResp
         payload = request.body,
         httpMethod = HttpMethod.Post,
         parameters = request.parameters,
-        headers = request.headers
+        headers = request.headers,
+        contentType= request.contentType,
 
     ).asResult()
 }
@@ -125,6 +126,7 @@ suspend fun RestClient.put(block: SearchAPIRequest.() -> Unit): Result<RestRespo
         payload = request.body,
         httpMethod = HttpMethod.Put,
         parameters = request.parameters,
-        headers = request.headers
+        headers = request.headers,
+        contentType= request.contentType,
     ).asResult()
 }

@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.*
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -118,7 +119,7 @@ class SearchTest : SearchTestBase() {
             index(TestDocument("doc 2", tags = listOf("group1")).json())
             index(TestDocument("doc 3", tags = listOf("group2")).json())
         }
-        client.msearch(indexName) {
+        val response = client.msearch(indexName) {
             add {
                 from=0
                 resultSize=100
@@ -132,5 +133,7 @@ class SearchTest : SearchTestBase() {
                 trackTotalHits = "true"
             }
         }
+        response.responses shouldHaveSize  2
+
     }
 }
