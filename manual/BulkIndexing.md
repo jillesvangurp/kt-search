@@ -121,7 +121,7 @@ repo.get("foo-1").let { (doc,_)->
 Captured Output:
 
 ```
-"bar"
+bar
 foobar
 
 ```
