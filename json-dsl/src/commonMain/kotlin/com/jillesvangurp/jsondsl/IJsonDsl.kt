@@ -9,13 +9,13 @@ import kotlin.reflect.KProperty
  *
  * See `SearchDsl` for an example of this.
  */
-interface IJsonDsl : MutableMap<String, Any> {
+interface IJsonDsl : MutableMap<String, Any?> {
     val defaultNamingConvention: PropertyNamingConvention
-    fun put(key: String, value: Any, namingConvention: PropertyNamingConvention=defaultNamingConvention)
+    fun put(key: String, value: Any?, namingConvention: PropertyNamingConvention=defaultNamingConvention)
 
     fun put(
         key: KProperty<*>,
-        value: Any,
+        value: Any?,
         namingConvention: PropertyNamingConvention = PropertyNamingConvention.ConvertToSnakeCase
     )
 

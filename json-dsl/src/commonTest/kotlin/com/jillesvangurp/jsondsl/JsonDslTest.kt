@@ -1,6 +1,7 @@
 package com.jillesvangurp.jsondsl
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import kotlin.test.Test
 
 class MyDsl:JsonDsl() {
@@ -74,5 +75,13 @@ class JsonDslTest {
               }
             }
         """.trimIndent()
+    }
+
+    @Test
+    fun shouldNotSerializeNullValues() {
+        withJsonDsl {
+            this["foo"] = null
+            this["bar"] = 42
+        }.json(true) shouldNotContain "foo"
     }
 }

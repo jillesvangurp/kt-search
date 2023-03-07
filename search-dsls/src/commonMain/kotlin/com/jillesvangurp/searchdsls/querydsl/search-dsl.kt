@@ -15,7 +15,7 @@ open class ESQuery(
     val queryDetails: JsonDsl = JsonDsl()
 ) : IJsonDsl by queryDetails {
 
-    fun wrapWithName(): Map<String, Any> = dslObject { this[name] = queryDetails }
+    fun wrapWithName(): Map<String, Any?> = dslObject { this[name] = queryDetails }
 
     override fun toString(): String {
         return wrapWithName().toString()
@@ -174,7 +174,7 @@ fun SearchDSL.matchAll() = ESQuery("match_all")
 
 class Script: JsonDsl() {
     var source by property<String>()
-    var params by property<Map<String,Any>>()
+    var params by property<Map<String,Any?>>()
     var lang by property<String>()
 
     companion object {
