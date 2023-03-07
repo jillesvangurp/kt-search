@@ -127,6 +127,8 @@ $dokka.location:com.jillesvangurp.ktsearch//snakeCase/kotlin.Enum[*]#/PointingTo
 $dokka.location:com.jillesvangurp.ktsearch//takeSnapshot/com.jillesvangurp.ktsearch.SearchClient#kotlin.String#kotlin.String#kotlin.Boolean#kotlin.time.Duration/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/take-snapshot.html
 $dokka.location:com.jillesvangurp.ktsearch//termsResult/kotlinx.serialization.json.JsonObject?#kotlin.Enum[*]#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/terms-result.html
 $dokka.location:com.jillesvangurp.ktsearch//termsResult/kotlinx.serialization.json.JsonObject?#kotlin.String#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/terms-result.html
+$dokka.location:com.jillesvangurp.ktsearch//topHitResult/kotlinx.serialization.json.JsonObject?#kotlin.Enum[*]#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/top-hit-result.html
+$dokka.location:com.jillesvangurp.ktsearch//topHitResult/kotlinx.serialization.json.JsonObject?#kotlin.String#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/top-hit-result.html
 $dokka.location:com.jillesvangurp.ktsearch//total/com.jillesvangurp.ktsearch.SearchResponse#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/total.html
 $dokka.location:com.jillesvangurp.ktsearch//update/com.jillesvangurp.ktsearch.BulkSession#TypeParam(bounds=[kotlin.Any?])#kotlin.String#kotlin.String?#kotlin.Boolean?#kotlin.Boolean?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/update.html
 $dokka.location:com.jillesvangurp.ktsearch//update/com.jillesvangurp.ktsearch.BulkSession#com.jillesvangurp.searchdsls.querydsl.Script#kotlin.String#TypeParam(bounds=[kotlin.Any?])#kotlin.String?#kotlin.Boolean?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/update.html
@@ -624,6 +626,9 @@ $dokka.location:com.jillesvangurp.ktsearch/TermsBucket///PointingToDeclaration/
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket/TermsBucket/#kotlin.String#kotlin.Long/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/-terms-bucket.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket/docCount/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/doc-count.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket/key/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/key.html
+$dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/index.html
+$dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult/TopHitsAggregationResult/#com.jillesvangurp.ktsearch.SearchResponse.Hits/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/-top-hits-aggregation-result.html
+$dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult/hits/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/hits.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/index.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo/VariantInfo/#com.jillesvangurp.ktsearch.SearchEngineVariant#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/-variant-info.html
 $dokka.location:com.jillesvangurp.ktsearch/VariantInfo/majorVersion/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-variant-info/major-version.html
