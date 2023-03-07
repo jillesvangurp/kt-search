@@ -147,7 +147,7 @@ runBlocking {
     .first()
     // hits don't always include source
     // in that case it will be a null document
-    ?.let {
+    .let {
       println("doc ${it.name}")
     }
   // you can also get the JsonObject if you don't
@@ -241,7 +241,7 @@ However, Elasticsearch and Opensearch still share the same REST API with only ve
 
 Kt-search, removes the dependency on the Java client entirely. This in turn makes it possible to use all the wonderful new libraries in the Kotlin ecosystem. Therefore, it also is a **Kotlin multi-platform library**. This is a feature we get for free simply by using what is there. Kotlin-multi platform makes it possible to use Elasticsearch or Opensearch on any platform where you can compile this library.
 
-Currently, that includes the **jvm** and **kotlin-js** compilers. However, it should be straightforward to compile this for e.g. IOS or linux as well using the **kotlin-native** compiler. I just lack a project to test this properly. And, I'm looking forward to supporting the Kotlin WASM compiler, which is currently being developed and available as an experimental part of Kotlin 1.7.x.
+Currently, that includes the **jvm** and **kotlin-js** compilers. However, it should be straightforward to compile this for e.g. IOS or linux as well using the **kotlin-native** compiler and the new **wasm** compiler. I just lack a project to test all this properly.
 
 You can use kt-search in Spring servers, Ktor servers, AWS lambda functions, node-js servers, web applications running in a browser, or native applications running on IOS and Android. I expect, people will mostly stick to using servers on the JVM, at least short term. But I have some uses in mind for building small dashboard UIs as web applications as well. Let me know what you do with this!
 
