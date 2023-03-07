@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlin.reflect.KProperty
 
 typealias Aggregations = JsonObject
 
@@ -241,3 +242,14 @@ fun Aggregations?.extendedStatsBucketResult(name: String, json: Json = DEFAULT_J
 
 fun Aggregations?.extendedStatsBucketResult(name: Enum<*>, json: Json = DEFAULT_JSON): ExtendedStatsBucketResult =
     getAggResult(name, json)
+
+@Serializable
+data class TopHitsAggregationResult(
+    val hits: SearchResponse.Hits,
+)
+fun Aggregations?.topHitResult(name: String, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.topHitResult(name: Enum<*>, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
+    getAggResult(name.name, json)
+

@@ -186,5 +186,25 @@ class MinAgg(
     }
 }
 
+class TopHitsAggConfig : JsonDsl() {
+    // can't redefine Map.size sadly
+    var resultSize by property<Long>("size")
+    var from by property<Long>()
+    var sort by property<List<SortField>>()
+
+    fun sort(block: SortBuilder.() -> Unit) {
+        val builder = SortBuilder()
+        block.invoke(builder)
+        this["sort"] = builder.sortFields
+    }
+}
+class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_hits") {
+    init {
+        val config = TopHitsAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 
 

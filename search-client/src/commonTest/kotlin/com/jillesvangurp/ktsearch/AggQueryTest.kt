@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.*
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeGreaterThan
@@ -157,5 +158,21 @@ class AggQueryTest : SearchTestBase() {
             b.bucketScriptResult("time_span").value shouldBeGreaterThan 0.0
         }
         response.aggregations.extendedStatsBucketResult("span_stats").avg shouldBeGreaterThan 0.0
+    }
+
+    @Test
+    fun topHitsAgg() = coRun {
+        before()
+        val response = repository.search {
+            resultSize = 0
+            agg("by_color", TermsAgg(MockDoc::color)) {
+                agg("top", TopHitsAgg() {
+                    this.resultSize = 5
+                })
+            }
+        }
+        response.aggregations.termsResult("by_color").buckets.forEach { b ->
+            b.topHitResult("top").hits.hits.size shouldBeGreaterThan 0
+        }
     }
 }
