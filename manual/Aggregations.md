@@ -8,7 +8,14 @@
 The aggregations DSL in Elasticsearch is both very complicated and vast. This is an area where
 using Kotlin can vastly simplify things for programmers.
 
-First lets create some sample documents:
+The search dsl provides several levels of convenience here:
+
+- we can use enum values to name the aggregations and class properties to name fields
+- our dsl support allows us to easily nest aggregations 
+in a more compact way than with json
+- we can pick apart nested bucket aggregation results with extension functions.
+
+First lets create some sample documents to aggregate on:
 
 ```kotlin
 @Serializable
@@ -69,7 +76,7 @@ repo.bulk {
 
 ## Picking apart aggregation results
 
-Probably the most used aggregation is the terms aggregation. We'll use this query as an example.
+Probably the most used aggregation is the `terms` aggregation:
 
 ```kotlin
 val response = client.search(indexName) {
@@ -92,7 +99,7 @@ Captured Output:
 
 ```
 {
-  "took": 65,
+  "took": 8,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -166,7 +173,7 @@ Captured Output:
 
 ```
 
-Note that we are using enum values for the  aggregation names. Here is the enum we are using:
+Note that we are using enum values for the aggregation names. Here is the enum we are using:
 
 ```kotlin
 enum class MyAggNames {
@@ -177,7 +184,8 @@ enum class MyAggNames {
   MAX_TIME,
   TIME_SPAN,
   SPAN_STATS,
-  TAG_CARDINALITY
+  TAG_CARDINALITY,
+  TOP_RESULTS,
 }
 ```
 
@@ -186,23 +194,26 @@ You can also use string literals of course.
 As you can see from the captured output, parsing this to a type safe structure is a bit of a challenge 
 because the response mixes aggregation names that we specified with aggregation query specific objects.
 
-The solution for this has to be a bit more complicated than for regular searches. 
+So, coming up with a model class that captures that is a challenge. The solution for this has to 
+be a bit more complicated than that. 
 However, `kotlinx.serialization` gives us a way out in the form of the schema less `JsonObject` and the 
 ability to deserialize those into custom model classes. In this case we have `TermsAggregationResult` and
-`TermsBucket` classes that we can use for picking apart a terms aggregation.
+`TermsBucket` classes that we can use for picking apart a terms aggregation using extension functions.
 
 ```kotlin
-// this is how you look up a TermsAggregationResult
+// response.aggregations is a JsonObject?
+// termsResult(name) extracts a TermsAggregationResult from there
 val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
 
-// since buckets can contain sub aggregations, those too are JsonObjects
 println("Number of buckets: " + tags.buckets.size)
+// since buckets can contain sub aggregations, those too are JsonObjects
 // buckets is a List<JsonObject>
 tags.buckets.forEach { jsonObject ->
-  // but we can parse that to a TermsBucket
+  // but we can parse those to a TermsBucket
+  // with another extension function
   val tb = jsonObject.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
-  // and we can get named sub aggregations from jsonObject
+  // and we can get to the named sub aggregations from jsonObject
   val colors = jsonObject.termsResult(MyAggNames.BY_COLOR)
   // you can also use parsedBuckets to the type safe TermsBucket
   colors.buckets.forEach { colorBucketObject ->
@@ -226,7 +237,7 @@ foobar: 1
 
 ```
 
-With some extension function magic we can make this a bit nicer.
+With some more extension function magic we can make this a bit nicer.
 
 ```kotlin
 val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
@@ -257,19 +268,21 @@ foobar: 1
 
 ## Other aggregations
 
-Here is a more complicated example where we use scripting to calculate a timespan and 
-then do a stats aggregation on that.
+Here is a more complicated example where we use various other aggregations.
+
+Note, we do not support all aggregations currently but it's easy to add
+support for more as needed. Pull requests for this are welcome.
 
 ```kotlin
 val response = repo.search {
   resultSize = 0 // we only care about the aggs
-  // allows us to use the aggSpec after the query runs
   agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
     calendarInterval = "1d"
   })
   agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color)) {
     agg(MyAggNames.MIN_TIME, MinAgg(MockDoc::timestamp))
     agg(MyAggNames.MAX_TIME, MaxAgg(MockDoc::timestamp))
+    // this is a cool way to calculate duration
     agg(MyAggNames.TIME_SPAN, BucketScriptAgg {
       script = "params.max - params.min"
       bucketsPath = BucketsPath {
@@ -277,7 +290,11 @@ val response = repo.search {
         this["max"] = MyAggNames.MAX_TIME
       }
     })
+    // throw in a top_hits aggregation as well
+    agg(MyAggNames.TOP_RESULTS, TopHitsAgg())
+
   }
+  // we can do some stats on the calculated duration!
   agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
     bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
   })
@@ -290,12 +307,20 @@ response.aggregations.dateHistogramResult(MyAggNames.BY_DATE)
     println("${db.keyAsString}: ${db.docCount}")
   }
 
+// We have extension functions for picking apart
+// each of the aggregation results.
 response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
   val tb = b.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
   println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
   println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
   println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
+  // top_hits returns the hits part of a normal search response
+  println("  Top: [${b.topHitResult(MyAggNames.TOP_RESULTS)
+    .hits.hits.map {
+      it.source?.parse<MockDoc>()?.name
+    }.joinToString(",")
+  }]")
 }
 
 println("Avg time span: ${
@@ -323,13 +348,15 @@ Captured Output:
 2023-03-06T00:00:00.000Z: 1
 2023-03-07T00:00:00.000Z: 1
 green: 2
-  Min: 1.677300453705E12
-  Max: 1.678164453705E12
+  Min: 1.677304592712E12
+  Max: 1.678168592712E12
   Time span: 8.64E8
+  Top: [1,4]
 red: 2
-  Min: 1.677732453705E12
-  Max: 1.678078053705E12
+  Min: 1.677736592712E12
+  Max: 1.678082192712E12
   Time span: 3.456E8
+  Top: [2,3]
 Avg time span: 6.048E8
 Tag cardinality: 3
 
@@ -337,10 +364,12 @@ Tag cardinality: 3
 
 ## Extending the Aggregation support
 
-Like with the Search DSL, we do not strive to provide full coverage of all the features and instead provide
-implementations for commonly used aggregations only and make it really easy to extend this. 
+Like with the Search DSL, we do not provide exhaustive coverage of all the features and instead provide
+implementations for commonly used aggregations and make it really easy to extend this. 
 
-You can easily add your own classes to deal with aggregation results. We'll illustrate that by showing
+So, if you get stuck without support for something you need, you should be able to fix it easily yourself.
+
+You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing
 how the Terms aggregation works:
 
 ```kotlin
@@ -389,6 +418,38 @@ The generic`BucketAggregationResult` interface that we implement looks like this
 This should be implemented on all bucket aggregations. The `T` parameter allows us to deserialize the 
  bucket `JsonObject` instances easily with either `parse` or `parsedBuckets`, which is an extension function
  on `BucketAggregationResult`.
+ 
+ Now all that's left to do is add some extension functions:
+ 
+ ```kotlin
+    val TermsAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, TermsBucket.serializer()) }
+ ```
+ 
+ `parsedBuckets` is an extension property on TermsAggregationResult that returns a Bucket<TermsBucket>
+ 
+ Using that, we can add some more convenience:
+
+```kotlin
+// counts as a map of key to count
+fun List<TermsBucket>.counts() =
+  this.associate { it.key to it.docCount }
+
+// extract terms result by name
+fun Aggregations?.termsResult(
+  name: String,
+  json: Json = DEFAULT_JSON
+): TermsAggregationResult =
+  getAggResult(name, json)
+
+// and by enum value
+fun Aggregations?.termsResult(
+  name: Enum<*>,
+  json: Json = DEFAULT_JSON
+): TermsAggregationResult =
+  getAggResult(name, json)
+```
+
+For more examples for other aggregations, refer to the source code.
 
 
 
