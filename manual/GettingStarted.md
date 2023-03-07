@@ -26,8 +26,8 @@ repositories {
 And then the dependency:
 
 ```kotlin
-    // check the latest release tag for the current version
-    implementation("com.jillesvangurp:search-client:2.0.0-RC-2")
+    // check the latest release tag for the latest version
+    implementation("com.jillesvangurp:search-client:2.x.y")
 ```
 
 **IMPORTANT** We've switched maven repositories a couple of times now. Recently we switched back from jitpack.io to using our own repository. Jitpack is just too flaky for us to depend on and somehow they keep on having regressions with kotlin multi-platform projects.
