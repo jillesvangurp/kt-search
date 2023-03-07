@@ -11,11 +11,12 @@ jobs:
     - name: Checkout the code
       uses: actions/checkout@master
     - name: Setup Java
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v3
       with:
+        distribution: temurin
         java-version: '17'
     - name: Cache build .gradle dir
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle
