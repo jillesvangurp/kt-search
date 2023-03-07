@@ -24,4 +24,4 @@ And then the dependency:
 
 **This also means the groupId has changed**. It's now `com.jillesvangurp` instead of `com.github.jillesvangurp.kt-search`.
 
-We'd like to get this on maven central. Except I've had a really hard time getting that working and am giving up on that for now. The issue seems to be that I always hit some weird very unspecific error and their documentation + plugins just never seem to quite work as advertised. Multi platform, multi module, and kotlin scripting are three things that tend to make things complicated. If anyone wants to support me with this, please reach out. Otherwise use our private repository
+I of course would like to get this on maven central eventually. However, I've had a really hard time getting that working and am giving up on that for now. The issue seems to be that I always hit some weird and very unspecific error and their documentation + plugins just never seem to quite work as advertised. Multi platform, multi module, and kotlin scripting are three things that tend to make things complicated apparently. If anyone wants to support me with this, please reach out. Otherwise use our private repository for now.

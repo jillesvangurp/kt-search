@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 package documentation.manual.crud
 
 import com.jillesvangurp.ktsearch.*

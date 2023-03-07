@@ -18,9 +18,10 @@ val projectReadme = sourceGitRepository.md {
     """.trimIndent()
     includeMdFile("oneliner.md")
 
+    includeMdFile("readme-intro.md")
+
     includeMdFile("gradle.md")
 
-    includeMdFile("readme-intro.md")
     section("Usage") {
         // our test server runs on port 9999
         val client = SearchClient(
@@ -129,7 +130,7 @@ val projectReadme = sourceGitRepository.md {
                     .first()
                     // hits don't always include source
                     // in that case it will be a null document
-                    ?.let {
+                    .let {
                         println("doc ${it.name}")
                     }
                 // you can also get the JsonObject if you don't
@@ -153,7 +154,7 @@ val projectReadme = sourceGitRepository.md {
             - You can use kotlinx.serialization for your documents but you don't have to. When using `kt-search` on the
             jvm you might want to use alternative json frameworks.
             
-            For more details, refer to the manual.
+            For more details, refer to the [manual](https://jillesvangurp.github.io/kt-search/manual).
         """.trimIndent()
     }
 
