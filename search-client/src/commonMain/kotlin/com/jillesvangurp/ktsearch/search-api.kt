@@ -523,7 +523,7 @@ suspend fun SearchClient.count(
 ): CountResponse {
     return count(
         target = target,
-        rawJson = query?.let {
+        rawJson = query.let {
             withJsonDsl {
                 this["query"] = query.wrapWithName()
             }.json()
@@ -557,7 +557,7 @@ suspend fun SearchClient.count(
 ): CountResponse {
     return count(
         target = target,
-        rawJson = block?.let {
+        rawJson = block.let {
             SearchDSL().apply(it).json()
         },
         allowNoIndices = allowNoIndices,
