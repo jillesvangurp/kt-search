@@ -86,6 +86,8 @@ client.search(indexName).ids
 [1, 2, 3]
 ```
 
+The `ids` extension property, extracts a list of ids from the hits in the response.
+
 Of course normally, you'd specify some kind of query. One valid way is to simply pass that as a string.
 Kotlin of course has multiline strings that can be templated as well. So, this may be all you need.
 
@@ -113,13 +115,12 @@ client.search(
 [3]
 ```
 
-Note how we are using templated strings here. With some hand crafted queries, this style of querying may be very useful.
-
-Another advantage is that you can paste queries straight from the Kibana development console.
+With some hand crafted queries, this style of querying may be useful. Another advantage is that 
+you can paste queries straight from the Kibana development console.
 
 ## Using the SearchDSL
 
-Of course it is much nicer to query using a Kotlin Search DSL (Domain Specific Language). 
+Of course it is nicer to query using a Kotlin Search DSL (Domain Specific Language). 
 Here is the same query using the `SearchDSL`.
 
 ```kotlin
@@ -134,23 +135,34 @@ client.search(indexName) {
 [3]
 ```
 
-`client.search` takes a block that has a `SearchDSL` object as its receiver. You can use this to customize
-your query and add e.g. sorting, aggregations, queries, paging, etc. Most commonly used features are supported
-and anything that isn't supported, you can still add by using the map functionality. For example, this is how
-you would do the term query that way:
+
+
+The `client.search` function takes a block that has a `SearchDSL` object as its receiver. You can use this to customize
+your query and add e.g. sorting, aggregations, queries, paging, etc.  
+
+The following sections describe (most) of the query dsl:
+
+- [Text Queries](TextQueries.md)
+- [Term Level Queries](TermLevelQueries.md)
+- [Compound Queries](CompoundQueries.md)
+- [Aggregations](Aggregations.md)
+- [Deep Paging Using search_after and scroll](DeepPaging.md)
+
+Most commonly used query types are supported
+and anything that isn't supported, you can still add by using the map functionality.          
+For example, this is how you would construct the term query using the underlying map:
 
 ```kotlin
 client.search(indexName) {
   // you can assign maps, lists, primitives, etc.
   this["query"] = mapOf(
-    // of course JsonDsl is just a map
+    // JsonDsl is what the SearchDsl uses as its basis.
     "term" to withJsonDsl {
       // and withJsonDsl is just short for this:
-      this[TestDoc::tags.name] = JsonDsl(
-
-      ).apply {
+      this[TestDoc::tags.name] = JsonDsl().apply {
         this["value"] = "legumes"
       }
+      // the advantage over a map is more flexible put functions
     }
   )
 }.ids
@@ -162,10 +174,12 @@ client.search(indexName) {
 [3]
 ```
 
+For more information on how to extend the DSL or how to create your own DSL see [Extending the Json DSLs](ExtendingTheDSL.md)
+
 ## Picking apart the results
 
 Of course a key reason for querying is to get the documents you indexed back and 
-deserializing those back to your model classes.
+deserializing those back to your model classes so that you can do things with them.
 
 Here is a more complex query that returns fruit with `ban` as the name prefix.
 
@@ -186,13 +200,12 @@ val resp = client.search(indexName) {
     )
   }
 }
-// deserializes all the hits
-val hits = resp.parseHits<TestDoc>().map { it.name }
+// deserializes all the hits and extract the name
+val names = resp.parseHits<TestDoc>().map { it.name }
 
-println(hits.joinToString("\n"))
+println(names.joinToString("\n"))
 
-// you can also do something like this:
-println(resp.total)
+// you can also parse individual hits:
 resp.hits?.hits?.forEach { hit ->
   val doc = hit.parseHit<TestDoc>()
   println("${hit.id} - ${hit.score}: ${doc.name} (${doc.price})")
@@ -204,16 +217,15 @@ Captured Output:
 ```
 Banana
 Apple
-2
 2 - 1.0925692: Banana (0.8)
 1 - 0.0: Apple (0.5)
 
 ```
 
-Note how we are parsing the hits back to TestDoc here. By default, the source
-gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
+By default, the source gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
-data structure. This is something we use in multiple places.
+data structure. This is something we use in multiple places and it gives us the flexibility to
+be schema less when we need to and use a rich model when want to.
 
 ## Count API
 
@@ -278,7 +290,7 @@ document count 6
 
 ```
 
-Similar to the normal search, you can also construct your body manually
+Similar to the normal search, you can also construct your body manually. The format is ndjson
 
 ```kotlin
 val resp = client.msearch(
@@ -286,7 +298,7 @@ val resp = client.msearch(
   {"index":"$indexName"}
   {"query":{"match_all":{}}}
   
-""".trimIndent() // the extra new line is required by ES
+  """.trimIndent() // the extra new line is required by ES
 )
 println("Doc counts: ${
   resp.responses.joinToString { it.total.toString() }
