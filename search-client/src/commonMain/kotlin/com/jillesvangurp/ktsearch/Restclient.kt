@@ -33,50 +33,49 @@ sealed class RestResponse(open val status: Int) {
         Other
     }
 
-    abstract val bytes: ByteArray
+    abstract val text: String
     abstract val responseCategory: ResponseCategory
 
     val completedNormally by lazy { responseCategory == ResponseCategory.Success }
-    val text by lazy { bytes.decodeToString() }
 
     abstract class Status2XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.Success) :
         RestResponse(status) {
-        class OK(override val bytes: ByteArray) : Status2XX(200)
-        class Created(override val bytes: ByteArray) : Status2XX(201)
-        class Accepted(override val bytes: ByteArray) : Status2XX(202)
-        class Gone(override val bytes: ByteArray) : Status2XX(204)
+        class OK(override val text: String) : Status2XX(200)
+        class Created(override val text: String) : Status2XX(201)
+        class Accepted(override val text: String) : Status2XX(202)
+        class Gone(override val text: String) : Status2XX(204)
     }
 
     abstract class Status3XX(override val status: Int,override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
         RestResponse(status) {
         open val location: String? = null
 
-        class PermanentRedirect(override val bytes: ByteArray, override val location: String?) :
+        class PermanentRedirect(override val text: String, override val location: String?) :
             Status3XX(301)
 
-        class TemporaryRedirect(override val bytes: ByteArray, override val location: String?) :
+        class TemporaryRedirect(override val text: String, override val location: String?) :
             Status3XX(303)
-        class NotModified(override val bytes: ByteArray) :
+        class NotModified(override val text: String) :
             Status3XX(304)
     }
 
     abstract class Status4XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
         RestResponse(status) {
-        class BadRequest(override val bytes: ByteArray) : Status4XX(400)
-        class NotFound(override val bytes: ByteArray) : Status4XX(404)
-        class UnAuthorized(override val bytes: ByteArray) : Status4XX(401)
-        class Forbidden(override val bytes: ByteArray) : Status4XX(403)
+        class BadRequest(override val text: String) : Status4XX(400)
+        class NotFound(override val text: String) : Status4XX(404)
+        class UnAuthorized(override val text: String) : Status4XX(401)
+        class Forbidden(override val text: String) : Status4XX(403)
     }
 
     abstract class Status5xx(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.ServerProblem) :
         RestResponse(status) {
-        class InternalServerError(override val bytes: ByteArray) : Status5xx(500)
-        class ServiceUnavailable(override val bytes: ByteArray) : Status5xx(503)
-        class GatewayTimeout(override val bytes: ByteArray) : Status5xx(502)
+        class InternalServerError(override val text: String) : Status5xx(500)
+        class ServiceUnavailable(override val text: String) : Status5xx(503)
+        class GatewayTimeout(override val text: String) : Status5xx(502)
     }
 
     class UnexpectedStatus(
-        override val bytes: ByteArray, override val status:  Int,
+        override val text: String, override val status:  Int,
         override val responseCategory: ResponseCategory = ResponseCategory.Other
     ) : RestResponse(status)
 }
