@@ -134,6 +134,5 @@ class SearchTest : SearchTestBase() {
             }
         }
         response.responses shouldHaveSize  2
-
     }
 }

@@ -279,6 +279,10 @@ class IndexRepository<T : Any>(
         return client.search(target = indexReadAlias, block = block)
     }
 
+    suspend fun deleteByQuery(block: SearchDSL.() -> Unit): DeleteByQueryResponse {
+        return client.deleteByQuery(target = indexWriteAlias, block = block)
+    }
+
     fun deserialize(response: SearchResponse) =
         response.hits?.hits?.map {
             it.source?.let { source -> serializer.deSerialize(source) }
