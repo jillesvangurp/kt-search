@@ -471,6 +471,7 @@ suspend fun SearchClient.bulk(
     failOnFirstError: Boolean = false,
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
+    extraParameters: Map<String, String>? = null,
     block: suspend BulkSession.() -> Unit
 ) {
     val session = bulkSession(
@@ -487,7 +488,8 @@ suspend fun SearchClient.bulk(
         sourceExcludes = sourceExcludes,
         sourceIncludes = sourceIncludes,
         target = target,
-        closeOnRequestError = closeOnRequestError
+        closeOnRequestError = closeOnRequestError,
+        extraParameters = extraParameters
     )
 
     block.invoke(session)
@@ -510,6 +512,7 @@ fun SearchClient.bulkSession(
     failOnFirstError: Boolean = false,
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
+    extraParameters: Map<String, String>? = null,
 ): BulkSession {
     return BulkSession(
         searchClient = this,
@@ -526,7 +529,8 @@ fun SearchClient.bulkSession(
         sourceExcludes = sourceExcludes,
         sourceIncludes = sourceIncludes,
         target = target,
-        closeOnRequestError = closeOnRequestError
+        closeOnRequestError = closeOnRequestError,
+        extraParameters = extraParameters
     )
 }
 
