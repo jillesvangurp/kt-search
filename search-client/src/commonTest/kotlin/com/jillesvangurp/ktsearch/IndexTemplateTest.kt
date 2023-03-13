@@ -4,17 +4,25 @@ import com.jillesvangurp.jsondsl.JsonDsl
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class IndexTemplateTest: SearchTestBase() {
+class IndexTemplateTest : SearchTestBase() {
 
     @Test
     fun shouldCreateDataStream() = coRun {
+
+
         val settingsTemplateId = "my-settings"
         val mappingsTemplateId = "my-mappings"
         val templateId = "my-template"
         val dataStreamName = "logs"
+
+        runCatching { client.deleteDataStream("logs") }
+        runCatching { client.deleteIndexTemplate(templateId) }
+        runCatching { client.deleteComponentTemplate(mappingsTemplateId) }
+        runCatching { client.deleteComponentTemplate(settingsTemplateId) }
+
         client.updateComponentTemplate(settingsTemplateId) {
             settings {
-                replicas=4
+                replicas = 4
             }
         }
         client.updateComponentTemplate(mappingsTemplateId) {
