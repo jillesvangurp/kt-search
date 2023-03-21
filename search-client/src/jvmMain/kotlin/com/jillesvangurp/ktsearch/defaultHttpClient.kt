@@ -2,46 +2,92 @@ package com.jillesvangurp.ktsearch
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.java.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
+import java.time.Duration
+
 
 actual fun defaultKtorHttpClient(
     logging: Boolean,
     user: String?,
-    password: String?
+    password: String?,
+
+    ): HttpClient {
+    // We experienced some threading issues with CIO. Java engine seems more stable currently.
+    return ktorClientWithJavaEngine(logging, user, password)
+}
+fun ktorClientWithJavaEngine(
+    logging: Boolean,
+    user: String?,
+    password: String?,
 ): HttpClient {
-    return HttpClient(CIO) {
+    return HttpClient(Java) {
         engine {
-            maxConnectionsCount = 100
-            endpoint {
-                keepAliveTime = 100_000
-                connectTimeout = 5_000
-                requestTimeout = 30_000
-                connectAttempts = 3
+            config {
+                connectTimeout(Duration.ofSeconds(5))
             }
+            pipelining = true
+            threadsCount = 20
         }
-        if (!user.isNullOrBlank() && !password.isNullOrBlank()) {
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(user,password)
-                    }
-                    sendWithoutRequest {
-                        true
-                    }
+        if(!user.isNullOrBlank() && !password.isNullOrBlank())
+        install(Auth) {
+            basic {
+                credentials {
+                    BasicAuthCredentials(user, password)
+                }
+                sendWithoutRequest {
+                    true
                 }
             }
+        }
+        install(ContentNegotiation) {
+            json(DEFAULT_JSON)
         }
         if (logging) {
             install(Logging) {
                 level = LogLevel.ALL
             }
         }
-        install(ContentNegotiation) {
-            json()
+
+    }
+}
+
+fun ktorClientWithCIOEngine(
+    logging: Boolean,
+    user: String?,
+    password: String?,
+) = HttpClient(CIO) {
+    engine {
+        maxConnectionsCount = 100
+        endpoint {
+            keepAliveTime = 100_000
+            connectTimeout = 5_000
+            requestTimeout = 30_000
+            connectAttempts = 3
         }
+    }
+    if (!user.isNullOrBlank() && !password.isNullOrBlank()) {
+        install(Auth) {
+            basic {
+                credentials {
+                    BasicAuthCredentials(user, password)
+                }
+                sendWithoutRequest {
+                    true
+                }
+            }
+        }
+    }
+    if (logging) {
+        install(Logging) {
+            level = LogLevel.ALL
+        }
+    }
+    install(ContentNegotiation) {
+        json(DEFAULT_JSON)
     }
 }

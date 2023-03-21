@@ -29,6 +29,8 @@ val DEFAULT_JSON: Json = Json {
     coerceInputValues=true
     // elasticsearch can return NaN values
     allowSpecialFloatingPointValues=true
+    // handle NaN and itinity
+    allowSpecialFloatingPointValues=true
 }
 
 /**
@@ -43,5 +45,6 @@ val DEFAULT_PRETTY_JSON: Json = Json {
     explicitNulls = false
     ignoreUnknownKeys=true
     coerceInputValues=true
+    allowSpecialFloatingPointValues=true
 }
 
