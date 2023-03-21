@@ -112,6 +112,17 @@ docker-test-cluster is Green
 
 ```
 
+## Customizing the ktor rest client
+
+One of the parameters on `KtorRestClient` is the client parameter which has a default value
+that depends on a default with actual implementations for Javascript and Jvm targets. Of course,
+you can override this to further customize this. 
+
+On the JVM, you can choose from several engines. We recently switched from the CIO engine to the 
+Java engine that was added in Java 11. This is a non blocking IO http client.
+ 
+The old CIO client is also still included.
+
 ## JSON handling
 
 The `SearchClient` has a `json` parameter with a kotlinx.serialization `Json`.
