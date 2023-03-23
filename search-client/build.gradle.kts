@@ -51,7 +51,7 @@ repositories {
     mavenCentral()
 }
 
-val searchEngine = getStringProperty("searchEngine", "es-7")
+val searchEngine = getStringProperty("searchEngine", "es-8")
 
 kotlin {
     jvm {
