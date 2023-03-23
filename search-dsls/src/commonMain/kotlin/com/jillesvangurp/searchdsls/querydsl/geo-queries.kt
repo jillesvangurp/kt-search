@@ -61,7 +61,25 @@ class GeoBoundingBoxQuery(val field: String, block: GeoBoundingBoxQueryConfig.()
 
 }
 
-// geo distance
+class GeoDistanceQuery private constructor(val field: String, distance: String, point: Any): ESQuery("geo_distance") {
+    constructor(field: String, distance: String, latitude: Double, longitude: Double) : this(
+        field, distance,
+        mapOf("lon" to longitude, "lat" to latitude)
+    )
+    constructor(field: KProperty<*>,  distance: String, point: String) : this(field.name,distance,point)
+    constructor(field: KProperty<*>,  distance: String, point: List<Double>) : this(field.name,distance,point)
+    constructor(field: KProperty<*>,  distance: String, point: Array<Double>) : this(field.name,distance,point)
+    constructor(field: KProperty<*>,  distance: String, latitude: Double, longitude: Double) : this(field.name,distance,
+        mapOf("lon" to longitude, "lat" to latitude)
+    )
+
+    var distance by property<String>()
+    init {
+        this[field] = point
+        this.distance = distance
+    }
+}
+
 // geo grid
 // geo polygon
 // geo shape
