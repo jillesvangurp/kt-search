@@ -10,12 +10,12 @@ class IndexTemplateTest : SearchTestBase() {
     fun shouldCreateDataStream() = coRun {
 
 
-        val settingsTemplateId = "my-settings"
-        val mappingsTemplateId = "my-mappings"
-        val templateId = "my-template"
-        val dataStreamName = "logs"
+        val settingsTemplateId = "test-settings"
+        val mappingsTemplateId = "test-mappings"
+        val templateId = "test-template"
+        val dataStreamName = "test-logs"
 
-        runCatching { client.deleteDataStream("logs") }
+        runCatching { client.deleteDataStream(dataStreamName) }
         runCatching { client.deleteIndexTemplate(templateId) }
         runCatching { client.deleteComponentTemplate(mappingsTemplateId) }
         runCatching { client.deleteComponentTemplate(settingsTemplateId) }
@@ -32,7 +32,7 @@ class IndexTemplateTest : SearchTestBase() {
             }
         }
         client.createIndexTemplate(templateId) {
-            indexPatterns = listOf("logs*")
+            indexPatterns = listOf("test-logs*")
             dataStream = JsonDsl()
             composedOf = listOf(settingsTemplateId, mappingsTemplateId)
         }

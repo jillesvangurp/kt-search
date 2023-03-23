@@ -86,12 +86,12 @@ val dataStreamsMd = sourceGitRepository.md {
             }
             // now create the template
             client.createIndexTemplate("my-logs-template") {
-                indexPatterns = listOf("logs*")
+                indexPatterns = listOf("my-logs*")
                 // make sure to specify an empty object for data_stream
                 dataStream = withJsonDsl {
                     // the elastic docs are a bit vague on what goes here
                 }
-                composedOf = listOf("logs-settings", "logs-mappings")
+                composedOf = listOf("my-logs-settings", "my-logs-mappings")
 
                 // in case multiple templates can be applied, the ones
                 // with the highest priority wins. The managed ones
@@ -99,7 +99,7 @@ val dataStreamsMd = sourceGitRepository.md {
                 priority = 200
             }
 
-            client.createDataStream("logs")
+            client.createDataStream("my-logs")
         }
         cleanup(client)
     }
@@ -107,7 +107,7 @@ val dataStreamsMd = sourceGitRepository.md {
 
 private fun cleanup(client: SearchClient) {
     runBlocking {
-        runCatching { client.deleteDataStream("logs") }
+        runCatching { client.deleteDataStream("my-logs") }
         runCatching { client.deleteIndexTemplate("my-logs-template") }
         runCatching { client.deleteComponentTemplate("my-logs-settings") }
         runCatching { client.deleteComponentTemplate("my-logs-mappings") }
