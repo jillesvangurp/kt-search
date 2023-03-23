@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.GeoBoundingBoxQuery
 import com.jillesvangurp.searchdsls.querydsl.GeoDistanceQuery
+import com.jillesvangurp.searchdsls.querydsl.GeoGridQuery
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -35,7 +36,26 @@ class GeoSpatialQueriesTest : SearchTestBase() {
         client.search(index) {
             query = GeoDistanceQuery(TestDocument::point, "1km","POINT (13.0 51.0)")
         }.total shouldBe 0
+    }
 
+    @Test
+    fun shouldDoGridQuery() = coRun {
+        onlyOn(
+            "elasticsearch only feature that was introduced in recent 8.x releases",
+            SearchEngineVariant.ES8
+        ) {
+            val index = geoTestFixture()
+            client.search(index) {
+                query = GeoGridQuery(TestDocument::point) {
+                    geohash = "u31p"
+                }
+            }.total shouldBe 1
+            client.search(index) {
+                query = GeoGridQuery(TestDocument::point) {
+                    geohash = "sr3n"
+                }
+            }.total shouldBe 0
+        }
     }
 
     private suspend fun geoTestFixture(): String {

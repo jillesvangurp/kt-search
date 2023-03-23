@@ -81,5 +81,21 @@ class GeoDistanceQuery private constructor(val field: String, distance: String, 
 }
 
 // geo grid
+
+class GeoGridQueryConfig : JsonDsl() {
+    var geohash by property<String>()
+    var geotile by property<String>("geotile")
+    var geohex by property<String>()
+
+}
+class GeoGridQuery(val field: String, block: GeoGridQueryConfig.()-> Unit): ESQuery("geo_grid") {
+    constructor(field: KProperty<*>, block: GeoGridQueryConfig.()-> Unit) : this(field.name,block)
+
+    init {
+        this[field] = GeoGridQueryConfig().apply(block)
+    }
+
+}
+
 // geo polygon
 // geo shape
