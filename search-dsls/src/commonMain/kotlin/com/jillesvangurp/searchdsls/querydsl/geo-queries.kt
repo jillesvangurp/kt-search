@@ -80,8 +80,6 @@ class GeoDistanceQuery private constructor(val field: String, distance: String, 
     }
 }
 
-// geo grid
-
 class GeoGridQueryConfig : JsonDsl() {
     var geohash by property<String>()
     var geotile by property<String>("geotile")
@@ -97,5 +95,77 @@ class GeoGridQuery(val field: String, block: GeoGridQueryConfig.()-> Unit): ESQu
 
 }
 
-// geo polygon
-// geo shape
+// geo polygon -> deprecated, not implementing this
+
+
+sealed class Shape : JsonDsl() {
+    class Envelope(envelope: List<List<Double>>): Shape() {
+        init {
+            // elasticsearch specific geometry not part of the geojson spec
+            // basically a bounding box with top left, bottom right
+            this["type"] = "envelope"
+            this["coordinates"] = envelope
+        }
+    }
+    class Point(point: List<Double>): Shape() {
+        init {
+            this["type"] = "point"
+            this["coordinates"] = point
+        }
+    }
+    class LineString(points: List<List<Double>>): Shape() {
+        init {
+            this["type"] = "linestring"
+            this["coordinates"] = points
+        }
+    }
+    class MultiLineString(points: List<List<List<Double>>>): Shape() {
+        init {
+            this["type"] = "multilinestring"
+            this["coordinates"] = points
+        }
+    }
+    class Polygon(points: List<List<List<Double>>>): Shape() {
+        init {
+            this["type"] = "polygon"
+            this["coordinates"] = points
+        }
+    }
+    class MultiPolygon(points: List<List<List<List<Double>>>>): Shape() {
+        init {
+            this["type"] = "multipolygon"
+            this["coordinates"] = points
+        }
+    }
+}
+
+class GeoShapeQueryConfig : JsonDsl() {
+    class IndexedShape : JsonDsl() {
+        var index by property<String>()
+        var id by property<String>()
+        var path by property<String>()
+    }
+
+    var shape by property<JsonDsl>()
+
+    fun indexedShape(block: IndexedShape.()->Unit) {
+        this["indexed_shape"] = IndexedShape().apply(block)
+    }
+
+    var relation by property<GeoShapeQuery.Relation>(defaultValue = GeoShapeQuery.Relation.intersects)
+}
+class GeoShapeQuery(val field: String, block: GeoShapeQueryConfig.()-> Unit): ESQuery("geo_shape") {
+    @Suppress("EnumEntryName")
+    enum class Relation {
+        intersects,
+        disjoint,
+        within,
+        contains
+    }
+    constructor(field: KProperty<*>, block: GeoShapeQueryConfig.()-> Unit) : this(field.name,block)
+
+    init {
+        this[field] = GeoShapeQueryConfig().apply(block)
+    }
+
+}

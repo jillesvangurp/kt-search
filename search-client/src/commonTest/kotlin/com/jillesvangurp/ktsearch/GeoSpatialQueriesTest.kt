@@ -1,8 +1,6 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.searchdsls.querydsl.GeoBoundingBoxQuery
-import com.jillesvangurp.searchdsls.querydsl.GeoDistanceQuery
-import com.jillesvangurp.searchdsls.querydsl.GeoGridQuery
+import com.jillesvangurp.searchdsls.querydsl.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,10 +29,10 @@ class GeoSpatialQueriesTest : SearchTestBase() {
     fun shouldDoDistanceSearch() = coRun {
         val index = geoTestFixture()
         client.search(index) {
-            query = GeoDistanceQuery(TestDocument::point, "1000km","POINT (13.0 51.0)")
+            query = GeoDistanceQuery(TestDocument::point, "1000km", "POINT (13.0 51.0)")
         }.total shouldBe 1
         client.search(index) {
-            query = GeoDistanceQuery(TestDocument::point, "1km","POINT (13.0 51.0)")
+            query = GeoDistanceQuery(TestDocument::point, "1km", "POINT (13.0 51.0)")
         }.total shouldBe 0
     }
 
@@ -47,7 +45,7 @@ class GeoSpatialQueriesTest : SearchTestBase() {
             val index = geoTestFixture()
             client.search(index) {
                 query = GeoGridQuery(TestDocument::point) {
-                    geohash = "u31p"
+                    geohash = "u33d"
                 }
             }.total shouldBe 1
             client.search(index) {
@@ -58,10 +56,32 @@ class GeoSpatialQueriesTest : SearchTestBase() {
         }
     }
 
+    @Test
+    fun shouldDoGeoShapeQuery() = coRun {
+        val index = geoTestFixture()
+        client.search(index) {
+            query = GeoShapeQuery(TestDocument::point) {
+                shape = Shape.Envelope(listOf(listOf(12.0,53.0), listOf(14.0,51.0)))
+            }
+        }.total shouldBe 1
+
+        client.search(index) {
+            query = GeoShapeQuery(TestDocument::point) {
+                shape = Shape.Envelope(listOf(listOf(2.0,53.0), listOf(4.0,51.0)))
+            }
+        }.total shouldBe 0
+
+    }
+
     private suspend fun geoTestFixture(): String {
         val index = testDocumentIndex()
         client.bulk(target = index, refresh = Refresh.WaitFor) {
-            create(TestDocument("1", point = listOf(13.0, 52.0)))
+            // Fun fact, I contributed documentation
+            // to Elasticsearch 1.x for geojson based searches back in 2013. The POI
+            // used here refers to a coffee bar / vegan restaurant / and cocktail bar
+            // that no longer exist that we used as our office while writing that documentation.
+            // Somehow, the modern day Elastic documentation still uses this point. ;-)
+            create(TestDocument("Wind und Wetter, Berlin, Germany", point = listOf(13.400544, 52.530286)))
         }
         return index
     }
