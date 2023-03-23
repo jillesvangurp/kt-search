@@ -34,7 +34,7 @@ interface IJsonDsl : MutableMap<String, Any?> {
      * with a kotlin keyword or super class property or method. For example, "size" is also a method on
      * MapBackedProperties and thus cannot be used as a kotlin property name in a Kotlin class implementing Map.
      */
-    fun <T : Any?> property(customPropertyName: String, defaultValue: T?=null): ReadWriteProperty<JsonDsl, T>
+    fun <T : Any?> property(customPropertyName: String, defaultValue: T?=null): ReadWriteProperty<Any, T>
 
     /**
      * Helper to manipulate list value objects.

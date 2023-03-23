@@ -72,9 +72,9 @@ open class JsonDsl(
      * with a kotlin keyword or super class property or method. For example, "size" is also a method on
      * MapBackedProperties and thus cannot be used as a kotlin property name in a Kotlin class implementing Map.
      */
-    override fun <T : Any?> property(customPropertyName: String, defaultValue: T?): ReadWriteProperty<JsonDsl, T> {
-        return object : ReadWriteProperty<JsonDsl, T> {
-            override fun getValue(thisRef: JsonDsl, property: KProperty<*>): T {
+    override fun <T : Any?> property(customPropertyName: String, defaultValue: T?): ReadWriteProperty<Any, T> {
+        return object : ReadWriteProperty<Any, T> {
+            override fun getValue(thisRef: Any, property: KProperty<*>): T {
                 return _properties[customPropertyName].let {
                     if(it == null && defaultValue != null) {
                         _properties[customPropertyName] = defaultValue
@@ -83,7 +83,7 @@ open class JsonDsl(
                 } as T
             }
 
-            override fun setValue(thisRef: JsonDsl, property: KProperty<*>, value: T) {
+            override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
                 _properties[customPropertyName] = value as Any // cast is needed here apparently
             }
         }

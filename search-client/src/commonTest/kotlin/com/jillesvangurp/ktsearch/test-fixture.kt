@@ -8,7 +8,8 @@ data class TestDocument(
     val name: String,
     val description: String? = null,
     val number: Long? = null,
-    val tags: List<String>? = null
+    val tags: List<String>? = null,
+    val point: List<Double>? = null,
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
@@ -17,6 +18,7 @@ data class TestDocument(
                 text(TestDocument::description)
                 number<Long>(TestDocument::number)
                 keyword(TestDocument::tags)
+                geoPoint(TestDocument::point)
             }
         }
     }
