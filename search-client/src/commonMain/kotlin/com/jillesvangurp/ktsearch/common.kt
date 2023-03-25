@@ -28,8 +28,6 @@ fun Enum<*>.snakeCase() = this.name.camelCase2SnakeCase()
 @Serializable
 data class Shards(val total: Int, val successful: Int, val failed: Int, val skipped: Int?=null)
 
-enum class SearchEngineVariant { ES7, ES8, OS1, OS2 }
-
 private fun Int.formatTwoChars() = if(this<10) "0$this" else this
 fun formatTimestamp(): String {
     val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)

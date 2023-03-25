@@ -2,6 +2,8 @@ package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.RawJson
+import com.jillesvangurp.searchdsls.SearchEngineVariant
+import com.jillesvangurp.searchdsls.VariantRestriction
 import kotlin.reflect.KProperty
 
 
@@ -107,6 +109,8 @@ class GeoGridQueryConfig : JsonDsl() {
 
 }
 
+// only works on Elasticsearch 8
+@VariantRestriction(SearchEngineVariant.ES8)
 class GeoGridQuery(val field: String, block: GeoGridQueryConfig.() -> Unit) : ESQuery("geo_grid") {
     constructor(field: KProperty<*>, block: GeoGridQueryConfig.() -> Unit) : this(field.name, block)
 

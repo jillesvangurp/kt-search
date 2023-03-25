@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

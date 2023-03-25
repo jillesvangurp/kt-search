@@ -6,6 +6,8 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
+import com.jillesvangurp.searchdsls.SearchEngineVariant
+import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -397,7 +399,6 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
 }
 
 
-annotation class VariantRestriction(vararg val variant: SearchEngineVariant)
 
 /**
  * Perform a deep paging search using point in time and search after.

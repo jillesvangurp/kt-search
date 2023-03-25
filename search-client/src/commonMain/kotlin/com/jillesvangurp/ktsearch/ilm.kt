@@ -5,6 +5,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 

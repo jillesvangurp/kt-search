@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -37,7 +38,7 @@ data class SearchEngineInformation(
             variant =
             when {
                 // opensearch added the distribution
-                this.version.distribution == "opensearch" && this.version.number.startsWith("1.") ->SearchEngineVariant.OS1
+                this.version.distribution == "opensearch" && this.version.number.startsWith("1.") -> SearchEngineVariant.OS1
                     this.version.distribution == "opensearch" && this.version.number.startsWith("2.") ->SearchEngineVariant.OS1
                 this.version.number.startsWith("7.") -> SearchEngineVariant.ES7
                 this.version.number.startsWith("8.") -> SearchEngineVariant.ES8
