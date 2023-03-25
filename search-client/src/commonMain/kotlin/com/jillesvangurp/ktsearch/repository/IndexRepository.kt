@@ -235,7 +235,7 @@ class IndexRepository<T : Any>(
     suspend fun bulk(
         bulkSize: Int = 100,
         pipeline: String? = null,
-        refresh: Refresh? = null,
+        refresh: Refresh? = Refresh.WaitFor,
         routing: String? = null,
         timeout: Duration? = null,
         waitForActiveShards: String? = null,

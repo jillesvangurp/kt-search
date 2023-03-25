@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import kotlinx.coroutines.test.TestResult
 import mu.KotlinLogging
 import kotlin.random.Random

@@ -460,7 +460,7 @@ suspend fun SearchClient.bulk(
     bulkSize: Int = 100,
     target: String? = null,
     pipeline: String? = null,
-    refresh: Refresh? = null,
+    refresh: Refresh? = Refresh.WaitFor, // useful default; change it if you don't like it
     routing: String? = null,
     timeout: Duration? = null,
     waitForActiveShards: String? = null,

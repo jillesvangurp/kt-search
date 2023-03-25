@@ -2,11 +2,8 @@
 
 package documentation.manual.extending
 
-import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
+import com.jillesvangurp.jsondsl.*
 import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
-import com.jillesvangurp.jsondsl.json
-import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
 import kotlin.reflect.KProperty
@@ -86,6 +83,9 @@ val extendingMd = sourceGitRepository.md {
                         // and you can use class properties
                         // if you want to keep things type safe
                         put(FooDSL::foo, "bar")
+                        // and of course you can mix this with string literals
+                        // via the RawJson value class
+                        this["raw"] = RawJson("""{"foo":"bar"}""")
                     }
                     // you can also use withJsonDsl as a short hand
                     // for JsonDsl().apply
@@ -96,7 +96,8 @@ val extendingMd = sourceGitRepository.md {
                         this["list2"] = listOf(1,2,3)
                         // json list elements don't have to be of the
                         // same type even
-                        this["map"] = mapOf("foo" to listOf(1,"2",3.0))
+                        this["map"] = mapOf("foo" to listOf(1,"2",3.0,
+                            RawJson("""{"n":42}""")))
                     }
                 }
             }.let {

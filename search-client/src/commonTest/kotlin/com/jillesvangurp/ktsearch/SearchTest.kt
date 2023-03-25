@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.querydsl.*
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.ints.shouldBeGreaterThan

@@ -2,6 +2,7 @@
 
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.SearchEngineVariant
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -37,7 +38,7 @@ class SearchClient(val restClient: RestClient=KtorRestClient(), val json: Json =
         return info
     }
 
-    suspend fun validateEngine(message: String, vararg supportedVariants:SearchEngineVariant) {
+    suspend fun validateEngine(message: String, vararg supportedVariants: SearchEngineVariant) {
         val variant = engineInfo().variantInfo.variant
         if(!supportedVariants.contains(variant)) {
             throw UnsupportedOperationException("$variant is not supported; requires one of ${supportedVariants.joinToString(", ")}. $message")
