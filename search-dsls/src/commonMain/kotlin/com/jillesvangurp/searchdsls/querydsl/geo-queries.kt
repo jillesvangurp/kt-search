@@ -1,6 +1,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.RawJson
 import kotlin.reflect.KProperty
 
 
@@ -20,6 +21,13 @@ class GeoBoundingBoxQueryConfig : JsonDsl() {
      * GeoJson style point of longitude followed by latitude
      */
     fun topLeft(point: Array<Double>) {
+        this["top_left"] = point
+    }
+
+    /**
+     * GeoJson style point of longitude followed by latitude
+     */
+    fun topLeft(point: List<Double>) {
         this["top_left"] = point
     }
 
@@ -45,6 +53,13 @@ class GeoBoundingBoxQueryConfig : JsonDsl() {
     }
 
     /**
+     * GeoJson style point of longitude followed by latitude
+     */
+    fun bottomRight(point: List<Double>) {
+        this["bottom_right"] = point
+    }
+
+    /**
      * Geohash or POINT (lat,Lon)
      */
     fun bottomRight(bottomRight: String) {
@@ -52,8 +67,10 @@ class GeoBoundingBoxQueryConfig : JsonDsl() {
     }
 
 }
-class GeoBoundingBoxQuery(val field: String, block: GeoBoundingBoxQueryConfig.()-> Unit): ESQuery("geo_bounding_box") {
-    constructor(field: KProperty<*>, block: GeoBoundingBoxQueryConfig.()-> Unit) : this(field.name,block)
+
+class GeoBoundingBoxQuery(val field: String, block: GeoBoundingBoxQueryConfig.() -> Unit) :
+    ESQuery("geo_bounding_box") {
+    constructor(field: KProperty<*>, block: GeoBoundingBoxQueryConfig.() -> Unit) : this(field.name, block)
 
     init {
         this[field] = GeoBoundingBoxQueryConfig().apply(block)
@@ -61,19 +78,22 @@ class GeoBoundingBoxQuery(val field: String, block: GeoBoundingBoxQueryConfig.()
 
 }
 
-class GeoDistanceQuery private constructor(val field: String, distance: String, point: Any): ESQuery("geo_distance") {
+class GeoDistanceQuery private constructor(val field: String, distance: String, point: Any) : ESQuery("geo_distance") {
     constructor(field: String, distance: String, latitude: Double, longitude: Double) : this(
         field, distance,
         mapOf("lon" to longitude, "lat" to latitude)
     )
-    constructor(field: KProperty<*>,  distance: String, point: String) : this(field.name,distance,point)
-    constructor(field: KProperty<*>,  distance: String, point: List<Double>) : this(field.name,distance,point)
-    constructor(field: KProperty<*>,  distance: String, point: Array<Double>) : this(field.name,distance,point)
-    constructor(field: KProperty<*>,  distance: String, latitude: Double, longitude: Double) : this(field.name,distance,
+
+    constructor(field: KProperty<*>, distance: String, point: String) : this(field.name, distance, point)
+    constructor(field: KProperty<*>, distance: String, point: List<Double>) : this(field.name, distance, point)
+    constructor(field: KProperty<*>, distance: String, point: Array<Double>) : this(field.name, distance, point)
+    constructor(field: KProperty<*>, distance: String, latitude: Double, longitude: Double) : this(
+        field.name, distance,
         mapOf("lon" to longitude, "lat" to latitude)
     )
 
     var distance by property<String>()
+
     init {
         this[field] = point
         this.distance = distance
@@ -86,8 +106,9 @@ class GeoGridQueryConfig : JsonDsl() {
     var geohex by property<String>()
 
 }
-class GeoGridQuery(val field: String, block: GeoGridQueryConfig.()-> Unit): ESQuery("geo_grid") {
-    constructor(field: KProperty<*>, block: GeoGridQueryConfig.()-> Unit) : this(field.name,block)
+
+class GeoGridQuery(val field: String, block: GeoGridQueryConfig.() -> Unit) : ESQuery("geo_grid") {
+    constructor(field: KProperty<*>, block: GeoGridQueryConfig.() -> Unit) : this(field.name, block)
 
     init {
         this[field] = GeoGridQueryConfig().apply(block)
@@ -99,41 +120,46 @@ class GeoGridQuery(val field: String, block: GeoGridQueryConfig.()-> Unit): ESQu
 
 
 sealed class Shape : JsonDsl() {
-    class Envelope(envelope: List<List<Double>>): Shape() {
+    class Envelope(envelope: List<List<Double>>) : Shape() {
         init {
             // elasticsearch specific geometry not part of the geojson spec
             // basically a bounding box with top left, bottom right
-            this["type"] = "envelope"
+            this["type"] = "Envelope"
             this["coordinates"] = envelope
         }
     }
-    class Point(point: List<Double>): Shape() {
+
+    class Point(point: List<Double>) : Shape() {
         init {
-            this["type"] = "point"
+            this["type"] = "Point"
             this["coordinates"] = point
         }
     }
-    class LineString(points: List<List<Double>>): Shape() {
+
+    class LineString(points: List<List<Double>>) : Shape() {
         init {
-            this["type"] = "linestring"
+            this["type"] = "LineString"
             this["coordinates"] = points
         }
     }
-    class MultiLineString(points: List<List<List<Double>>>): Shape() {
+
+    class MultiLineString(points: List<List<List<Double>>>) : Shape() {
         init {
-            this["type"] = "multilinestring"
+            this["type"] = "MultiLineString"
             this["coordinates"] = points
         }
     }
-    class Polygon(points: List<List<List<Double>>>): Shape() {
+
+    class Polygon(points: List<List<List<Double>>>) : Shape() {
         init {
-            this["type"] = "polygon"
+            this["type"] = "Polygon"
             this["coordinates"] = points
         }
     }
-    class MultiPolygon(points: List<List<List<List<Double>>>>): Shape() {
+
+    class MultiPolygon(points: List<List<List<List<Double>>>>) : Shape() {
         init {
-            this["type"] = "multipolygon"
+            this["type"] = "MultiPolygon"
             this["coordinates"] = points
         }
     }
@@ -148,13 +174,17 @@ class GeoShapeQueryConfig : JsonDsl() {
 
     var shape by property<JsonDsl>()
 
-    fun indexedShape(block: IndexedShape.()->Unit) {
+    fun indexedShape(block: IndexedShape.() -> Unit) {
         this["indexed_shape"] = IndexedShape().apply(block)
     }
 
+    fun shape(rawJson: String) {
+        this["shape"] = RawJson(rawJson)
+    }
     var relation by property<GeoShapeQuery.Relation>(defaultValue = GeoShapeQuery.Relation.intersects)
 }
-class GeoShapeQuery(val field: String, block: GeoShapeQueryConfig.()-> Unit): ESQuery("geo_shape") {
+
+class GeoShapeQuery(val field: String, block: GeoShapeQueryConfig.() -> Unit) : ESQuery("geo_shape") {
     @Suppress("EnumEntryName")
     enum class Relation {
         intersects,
@@ -162,7 +192,8 @@ class GeoShapeQuery(val field: String, block: GeoShapeQueryConfig.()-> Unit): ES
         within,
         contains
     }
-    constructor(field: KProperty<*>, block: GeoShapeQueryConfig.()-> Unit) : this(field.name,block)
+
+    constructor(field: KProperty<*>, block: GeoShapeQueryConfig.() -> Unit) : this(field.name, block)
 
     init {
         this[field] = GeoShapeQueryConfig().apply(block)
