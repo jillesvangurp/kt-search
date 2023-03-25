@@ -1,5 +1,6 @@
 package com.jillesvangurp.jsondsl
 
+import kotlin.jvm.JvmInline
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -114,4 +115,6 @@ fun withJsonDsl(namingConvention: PropertyNamingConvention = PropertyNamingConve
     block.invoke(this)
 }
 
+@JvmInline
+value class RawJson(val value: String)
 

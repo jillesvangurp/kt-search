@@ -14,6 +14,7 @@ class SimpleJsonSerializer: JsonDslSerializer {
     private fun write(buf: StringBuilder, indent: Int, indentStep: Int = 2, pretty: Boolean, obj: Any?) {
         when(obj) {
             null -> buf.append("null")
+            is RawJson -> buf.append(obj.value)
             is Number -> buf.append(obj.toString())
             is CharSequence -> {
                 buf.append('"')
