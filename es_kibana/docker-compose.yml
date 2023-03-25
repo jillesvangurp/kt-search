@@ -13,8 +13,8 @@ services:
       - "xpack.security.enabled=false"
       - "ES_TEMP=/tmp"
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "9200:9200"
+      - "9300:9300"
     ulimits:
       memlock:
         soft: -1
@@ -27,7 +27,7 @@ services:
       SERVER_NAME: localhost
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
-      - 5601:5601
+      - "5601:5601"
 volumes:
   data:
     driver: local
