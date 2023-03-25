@@ -225,7 +225,7 @@ Captured Output:
 
 ```
 Combined fields Found 1 results:
-- 2.2153876 2 Banana
+- 1.9290931 2 Banana
 
 ```
 

@@ -73,12 +73,12 @@ client.updateComponentTemplate("my-logs-mappings") {
 }
 // now create the template
 client.createIndexTemplate("my-logs-template") {
-  indexPatterns = listOf("logs*")
+  indexPatterns = listOf("my-logs*")
   // make sure to specify an empty object for data_stream
   dataStream = withJsonDsl {
     // the elastic docs are a bit vague on what goes here
   }
-  composedOf = listOf("logs-settings", "logs-mappings")
+  composedOf = listOf("my-logs-settings", "my-logs-mappings")
 
   // in case multiple templates can be applied, the ones
   // with the highest priority wins. The managed ones
@@ -86,7 +86,7 @@ client.createIndexTemplate("my-logs-template") {
   priority = 200
 }
 
-client.createDataStream("logs")
+client.createDataStream("my-logs")
 ```
 
 ->

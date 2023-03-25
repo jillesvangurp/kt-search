@@ -1,6 +1,6 @@
 # Aggregations 
 
-| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
+| [KT Search Manual](README.md) | Previous: [Geo Spatial Queries](GeoQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -99,7 +99,7 @@ Captured Output:
 
 ```
 {
-  "took": 43,
+  "took": 61,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -336,25 +336,25 @@ println("Tag cardinality: ${
 Captured Output:
 
 ```
-2023-03-11T00:00:00.000Z: 1
-2023-03-12T00:00:00.000Z: 0
-2023-03-13T00:00:00.000Z: 0
-2023-03-14T00:00:00.000Z: 0
-2023-03-15T00:00:00.000Z: 0
-2023-03-16T00:00:00.000Z: 1
+2023-03-15T00:00:00.000Z: 1
+2023-03-16T00:00:00.000Z: 0
 2023-03-17T00:00:00.000Z: 0
 2023-03-18T00:00:00.000Z: 0
 2023-03-19T00:00:00.000Z: 0
 2023-03-20T00:00:00.000Z: 1
-2023-03-21T00:00:00.000Z: 1
+2023-03-21T00:00:00.000Z: 0
+2023-03-22T00:00:00.000Z: 0
+2023-03-23T00:00:00.000Z: 0
+2023-03-24T00:00:00.000Z: 1
+2023-03-25T00:00:00.000Z: 1
 green: 2
-  Min: 1.678531727902E12
-  Max: 1.679395727902E12
+  Min: 1.678874936022E12
+  Max: 1.679738936022E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.678963727902E12
-  Max: 1.679309327902E12
+  Min: 1.679306936022E12
+  Max: 1.679652536022E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
@@ -455,5 +455,5 @@ For more examples for other aggregations, refer to the source code.
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
+| [KT Search Manual](README.md) | Previous: [Geo Spatial Queries](GeoQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

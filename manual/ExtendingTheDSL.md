@@ -75,6 +75,9 @@ foo {
       // and you can use class properties
       // if you want to keep things type safe
       put(FooDSL::foo, "bar")
+      // and of course you can mix this with string literals
+      // via the RawJson value class
+      this["raw"] = RawJson("""{"foo":"bar"}""")
     }
     // you can also use withJsonDsl as a short hand
     // for JsonDsl().apply
@@ -85,7 +88,8 @@ foo {
       this["list2"] = listOf(1,2,3)
       // json list elements don't have to be of the
       // same type even
-      this["map"] = mapOf("foo" to listOf(1,"2",3.0))
+      this["map"] = mapOf("foo" to listOf(1,"2",3.0,
+        RawJson("""{"n":42}""")))
     }
   }
 }.let {
@@ -109,7 +113,8 @@ Captured Output:
   "missingFeature": {
     "another": " field",
     "camelCasing": "may be forced",
-    "foo": "bar"
+    "foo": "bar",
+    "raw": {"foo":"bar"}
   },
   "anotherObject": {
     "value": "Priceless!",
@@ -127,7 +132,8 @@ Captured Output:
     "foo": [
       1, 
       "2", 
-      3.0
+      3.0, 
+      {"n":42}
     ]
     }
   }

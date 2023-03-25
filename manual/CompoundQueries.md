@@ -1,6 +1,6 @@
 # Compound Queries 
 
-| [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
+| [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Geo Spatial Queries](GeoQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -192,5 +192,5 @@ Function score Found 3 results:
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Aggregations](Aggregations.md) |
+| [KT Search Manual](README.md) | Previous: [Term Level Queries](TermLevelQueries.md) | Next: [Geo Spatial Queries](GeoQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
