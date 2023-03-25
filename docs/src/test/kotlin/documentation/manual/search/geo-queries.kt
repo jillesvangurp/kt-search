@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package documentation.manual.search
 
 import com.jillesvangurp.ktsearch.*

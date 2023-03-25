@@ -1,3 +1,18 @@
+## Setting up a development environment
+
+Any recent version of Intellij should be able to import this project as is. 
+This project uses docker for testing and to avoid having the tests create a 
+mess in your existing elasticsearch cluster, it uses a different port than
+the default Elasticsearch port.
+
+If you want to save some time while developing, it helps to start docker manually.
+
+```bash
+docker-compose -f docker-compose-es-8.yml up -d
+```
+
+For additional details, refer to the build file.
+
 ## Related projects
 
 There are several libraries that build on kt-search:

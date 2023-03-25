@@ -181,6 +181,21 @@ jvm you might want to use alternative json frameworks.
 
 For more details, refer to the [manual](https://jillesvangurp.github.io/kt-search/manual).
 
+## Setting up a development environment
+
+Any recent version of Intellij should be able to import this project as is. 
+This project uses docker for testing and to avoid having the tests create a 
+mess in your existing elasticsearch cluster, it uses a different port than
+the default Elasticsearch port.
+
+If you want to save some time while developing, it helps to start docker manually.
+
+```bash
+docker-compose -f docker-compose-es-8.yml up -d
+```
+
+For additional details, refer to the build file.
+
 ## Related projects
 
 There are several libraries that build on kt-search:
@@ -247,23 +262,33 @@ You can use kt-search in Spring servers, Ktor servers, AWS lambda functions, nod
 
 ## Contributing
 
-Pull requests are very welcome! Please communicate your intentions in advance to avoid conflicts, or redundant work.
+Pull requests are very welcome! Please consider communicating your intentions in advance to avoid conflicts, or redundant work.
 
-Some suggestions:
+Some suggestions of things you could work on:
 
 - Extend the mapping or query DSLs. Our goal is to have coverage of all the common things we and other users need. The extensibility of `JsonDsl` always gives you the option to add whatever is not directly supported by manipulating the underlying map. But creating extension functions that do this properly is not har.
-- Add more API support for things in Opensearch/Elasticsearch that are not yet supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you to customize any requests.
+- Add more API support for things in Opensearch/Elasticsearch that are not currently supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you to customize any requests.
 - Work on one of the issues or suggest some new ones.
 
 ## Support and Community
 
 Please file issues if you find any or have any reasonable suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I can offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I can offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
 
-You can reach me via the issue tracker and I also lurk in the amazing [Kotlin Slack](https://kotlinlang.org/community/), [Elastic Slack](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy Slack](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) communities. And I have a [website](https://www.jillesvangurp.com).
+You can reach me via the issue tracker and I also lurk in the amazing [Kotlin Slack](https://kotlinlang.org/community/), [Elastic Slack](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy Slack](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) communities. And I have a [website](https://www.jillesvangurp.com) with more contact details.
 
 ## About this README
 
-It's generated using the same `kotlin4example` library that I also used for the old client documentation. It's great for including little code snippets that are actually executing as part of the tests and therefore know  correct. Also, I can refactor and have the documentation change as well without breaking.
+This readme is generated using the `kotlin4example`. I started developing this library a few years ago when 
+I realized that I was going to have to write a lot of documentation with code examples for my search library. By now,
+both the manual and this readme depend on this.
+
+Kotlin4example is great for including little code snippets that are actually executing as part of the tests and 
+therefore know  correct. Also, I can refactor and have the documentation change as well without breaking. It also has
+a few neat features that allow me to capture and show return values of the snippets or to show printed output.
+
+If you have projects of your own that need documentation, you might get some value out of using this. 
+
+
 
