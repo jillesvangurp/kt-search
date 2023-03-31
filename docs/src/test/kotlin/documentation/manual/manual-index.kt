@@ -35,40 +35,67 @@ enum class ManualPages(title: String = "") {
     ;
 
     val page by lazy {
-        Page(title,"${name}.md", manualOutputDir)
+        Page(title, "${name}.md", manualOutputDir)
     }
 }
 
-val manualPages = listOf(
-    ManualPages.WhatIsKtSearch to whatIsKtSearchMd,
-    ManualPages.GettingStarted to gettingStartedMd,
-    ManualPages.IndexManagement to indexManagementMd,
-    ManualPages.Search to searchMd,
-    ManualPages.TextQueries to textQueriesMd,
-    ManualPages.TermLevelQueries to termLevelQueriesMd,
-    ManualPages.CompoundQueries to compoundQueriesMd,
-    ManualPages.GeoQueries to geoQueriesMd,
-    ManualPages.Aggregations to aggregationsMd,
-    ManualPages.DeepPaging to deepPagingMd,
-    ManualPages.DeleteByQuery to deleteByQueryMd,
-    ManualPages.DocumentManipulation to crudMd,
-    ManualPages.IndexRepository to indexRepoMd,
-    ManualPages.BulkIndexing to bulkMd,
-    ManualPages.DataStreams to dataStreamsMd,
-    ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
-    ManualPages.ExtendingTheDSL to extendingMd,
-    ManualPages.Scripting to scriptingMd,
-    ManualPages.Jupyter to loadMd("manual/jupyter/jupyter.md"),
-).map {(mp,md)-> mp.page to md}
+data class Section(val title: String, val pages: List<Pair<ManualPages, Lazy<String>>>)
+
+val sections = listOf(
+    Section(
+        "Introduction", listOf(
+            ManualPages.WhatIsKtSearch to whatIsKtSearchMd,
+            ManualPages.GettingStarted to gettingStartedMd,
+            ManualPages.IndexManagement to indexManagementMd,
+        )
+    ),
+    Section(
+        "Search", listOf(
+            ManualPages.Search to searchMd,
+            ManualPages.TextQueries to textQueriesMd,
+            ManualPages.TermLevelQueries to termLevelQueriesMd,
+            ManualPages.CompoundQueries to compoundQueriesMd,
+            ManualPages.GeoQueries to geoQueriesMd,
+            ManualPages.Aggregations to aggregationsMd,
+            ManualPages.DeepPaging to deepPagingMd,
+        )
+    ),
+    Section("Indices and Documents", listOf(
+        ManualPages.DeleteByQuery to deleteByQueryMd,
+        ManualPages.DocumentManipulation to crudMd,
+        ManualPages.IndexRepository to indexRepoMd,
+        ManualPages.BulkIndexing to bulkMd,
+        ManualPages.DataStreams to dataStreamsMd,
+    )),
+    Section("Advanced Topics", listOf(
+        ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
+        ManualPages.ExtendingTheDSL to extendingMd,
+        ManualPages.Scripting to scriptingMd,
+        ManualPages.Jupyter to loadMd("manual/jupyter/jupyter.md"),
+    ))
+)
+
+val manualPages = sections.flatMap { it.pages }.map { (mp,md) -> mp.page to md }
 
 val manualIndexMd = sourceGitRepository.md {
     includeMdFile("../projectreadme/oneliner.md")
 
-    includeMdFile("intro.md")
     section("Table of contents") {
-        +manualPages.joinToString("\n") { (p, _) -> "- " + p.mdLink }.trimIndent()
+
+        sections.forEach {
+            +"""
+            ### ${it.title}
+                
+            """.trimIndent()
+            it.pages.forEach {(mp,_) ->
+                +"${mp.page.mdLink}\n"
+            }
+
+        }
     }
     section("About this Manual") {
         includeMdFile("outro.md")
     }
+
+    includeMdFile("../projectreadme/related.md")
 }

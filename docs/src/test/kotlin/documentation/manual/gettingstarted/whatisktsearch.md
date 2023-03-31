@@ -35,3 +35,19 @@ A few years of development on the es-kotlin-client has produced quite a few lear
 - All IO is now done using `suspend` functions and co-routines. I've found that I did not ever use the synchronous calls in the old es-kotlin-client and doing synchronous IO in Kotlin does not make a lot of sense. Especially not in a multi-platform library as the IO support for multi-platform kotlin is of course asynchronous only.
 - Functionality similar to the Repository class in the es-kotlin-client is also supported in Kt-Search. However, there were some API changes as we no longer can rely on Elastic's Java response model classes. Where needed, similar classes are provided for Kotlin and those are parsed with `kotlinx-serialization`.
 - Kt-search is now asynchronous only. Blocking IO in Kotlin just doesn't make a lot of sense and it's easy to make everything suspending. If you really need blocking behavior, just surround it with a `runBlocking`.
+
+## History of the project
+
+Kt-search 2.0 is the 2.0 release and fork of a project that started out being a full rewrite of es-kotlin-client. Development of that started in July 2018. Work on the 2.0 branch started in December 2021. The [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) project still exists but I no longer maintain it. As of April 2023, The 2.0 release is stable and the only thing I will support going forward.
+
+Before I created kt-search, I built various Java http clients for older versions of Elasticsearch dating back all the way to 2012, which is when I started using Elasticsearch while building my now defunct startup, localstre.am. This project builds on 10 years of using and working with Elasticsearch. At Inbot, we used our in house client for several years with Elasticsearch 1.x. I actually built an open source client for version 2.0, but we never upgraded to that version as version 5 was released soon after and broke compatibility. Later, I wrote another client on a customer project for version 5.x. This was before the Elastic's RestHighLevel client was finalized.
+
+The rewrite in `kt-search` 2.0 was necessitated by the deprecation of Elastic's RestHighLevelClient and the Opensearch fork of Elasticsearch created by Amazon. One of the things they forked is this deprecated `RestHighLevelClient` client. Except of course they changed all the package names, which makes supporting both very tedious.
+
+However, Elasticsearch and Opensearch still share the same REST API with only very minor variations mostly related to advanced features. For most common uses they are identical products.
+
+Kt-search, removes the dependency on the Java client entirely. This in turn makes it possible to use all the wonderful new libraries in the Kotlin ecosystem. Therefore, it also is a **Kotlin multi-platform library**. This is a feature we get for free simply by using what is there. Kotlin-multi platform makes it possible to use Elasticsearch or Opensearch on any platform where you can compile this library.
+
+Currently, that includes the **jvm** and **kotlin-js** compilers. However, it should be straightforward to compile this for e.g. IOS or linux as well using the **kotlin-native** compiler and the new **wasm** compiler. I just lack a project to test all this properly.
+
+You can use kt-search in Spring servers, Ktor servers, AWS lambda functions, node-js servers, web applications running in a browser, or native applications running on IOS and Android. I expect, people will mostly stick to using servers on the JVM, at least short term. But I have some uses in mind for building small dashboard UIs as web applications as well. Let me know what you do with this!
