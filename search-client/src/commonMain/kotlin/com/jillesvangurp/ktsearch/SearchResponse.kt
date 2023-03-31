@@ -39,6 +39,7 @@ data class SearchResponse(
         val sort: JsonArray?,
         @SerialName("inner_hits")
         val innerHits: Map<String, HitsContainer>?,
+        val highlight: JsonObject?,
     )
 
     @Serializable
