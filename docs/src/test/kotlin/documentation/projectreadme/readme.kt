@@ -142,19 +142,19 @@ val projectReadme = sourceGitRepository.md {
         +"""
             This example shows off a few nice features of this library:
             
-            - There is a convenient mapping and settings DSL (Domain Specific Language) that you can use to create indices.
-            - In the mappings and in your queries, you can use kotlin property references instead of
-            field names.
-            - We have a bulk DSL. The `bulk` block
+            - There is a convenient mapping and settings DSL (Domain Specific Language) that you can use to create 
+            indices, define analyers, set up mappings, etc..
+            - In the various DSLs, you can use kotlin property references instead of
+            field names. This makes it easy to refactor your code without breaking your queries.
+            - There is a bulk DSL that makes bulk indexing super easy, safe, and fast. The `bulk` block
             creates a `BulkSession` for you and it deals with sending bulk requests and picking
-            the responses apart for error handling. BulkSession has a lot of optional features that you can use: 
-            it has item callbacks, you can specify the refresh parameter, you can make it 
-            fail on the first item failure, etc. Alternatively, you can make it robust against
-            failures, implement error handling and retries, etc.
+            the responses apart for error handling.
             - You can use kotlinx.serialization for your documents but you don't have to. When using `kt-search` on the
             jvm you might want to use alternative json frameworks.
+            - Everything is extensible. You can use type safe constructs and mix those with schema less json.
             
-            For more details, refer to the [manual](https://jillesvangurp.github.io/kt-search/manual).
+            There are of course a lot more feature that this library supports. The 
+            [manual](https://jillesvangurp.github.io/kt-search/manual) covers all of those.
         """.trimIndent()
     }
 

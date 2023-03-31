@@ -102,7 +102,7 @@ I realized that I was going to have to write a lot of documentation with code ex
 both the manual and this readme depend on this.
 
 Kotlin4example is great for including little code snippets that are actually executing as part of the tests and 
-therefore know  correct. Also, I can refactor and have the documentation change as well without breaking. It also has
+therefore known to be correct. Also, I can refactor and have the documentation change as well without breaking. It also has
 a few neat features that allow me to capture and show return values of the snippets or to show printed output.
 
 If you have projects of your own that need documentation, you might get some value out of using this. 
