@@ -1,6 +1,6 @@
 # Creating Data Streams 
 
-| [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
+| [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [KNN Search](KnnSearch.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -99,5 +99,5 @@ client.createDataStream("my-logs")
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [Migrating from the old Es Kotlin Client](Migrating.md) |
+| [KT Search Manual](README.md) | Previous: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md) | Next: [KNN Search](KnnSearch.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

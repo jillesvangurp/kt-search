@@ -1,6 +1,6 @@
 # Migrating from the old Es Kotlin Client 
 
-| [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
+| [KT Search Manual](README.md) | Previous: [Jupyter Notebooks](Jupyter.md) | - |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -23,5 +23,5 @@ them a bit nicer using several of the new features.
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Creating Data Streams](DataStreams.md) | Next: [Extending the Json DSLs](ExtendingTheDSL.md) |
+| [KT Search Manual](README.md) | Previous: [Jupyter Notebooks](Jupyter.md) | - |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

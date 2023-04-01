@@ -1,6 +1,6 @@
 # Extending the Json DSLs 
 
-| [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
+| [KT Search Manual](README.md) | Previous: [KNN Search](KnnSearch.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -302,5 +302,5 @@ search DSL and easily build your own client using that.
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Migrating from the old Es Kotlin Client](Migrating.md) | Next: [Using Kotlin Scripting](Scripting.md) |
+| [KT Search Manual](README.md) | Previous: [KNN Search](KnnSearch.md) | Next: [Using Kotlin Scripting](Scripting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

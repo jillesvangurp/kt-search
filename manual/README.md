@@ -42,13 +42,15 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
 
 ### Advanced Topics
 
-[Migrating from the old Es Kotlin Client](Migrating.md)
+[KNN Search](KnnSearch.md)
 
 [Extending the Json DSLs](ExtendingTheDSL.md)
 
 [Using Kotlin Scripting](Scripting.md)
 
 [Jupyter Notebooks](Jupyter.md)
+
+[Migrating from the old Es Kotlin Client](Migrating.md)
 
 ## About this Manual
 
