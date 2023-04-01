@@ -9,6 +9,7 @@ import documentation.manual.extending.extendingMd
 import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
+import documentation.manual.knn.knnMd
 import documentation.manual.scripting.scriptingMd
 import documentation.manual.search.*
 
@@ -28,6 +29,7 @@ enum class ManualPages(title: String = "") {
     BulkIndexing("Efficiently Ingest Content Using Bulk Indexing"),
     IndexManagement("Indices, Settings, Mappings, and Aliases"),
     DataStreams("Creating Data Streams"),
+    KnnSearch("KNN Search"),
     Migrating("Migrating from the old Es Kotlin Client"),
     ExtendingTheDSL("Extending the Json DSLs"),
     Scripting("Using Kotlin Scripting"),
@@ -69,10 +71,11 @@ val sections = listOf(
         ManualPages.DataStreams to dataStreamsMd,
     )),
     Section("Advanced Topics", listOf(
-        ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
+        ManualPages.KnnSearch to knnMd,
         ManualPages.ExtendingTheDSL to extendingMd,
         ManualPages.Scripting to scriptingMd,
         ManualPages.Jupyter to loadMd("manual/jupyter/jupyter.md"),
+        ManualPages.Migrating to loadMd("manual/gettingstarted/migrating.md"),
     ))
 )
 

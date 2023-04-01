@@ -63,4 +63,6 @@ dependencies {
     testImplementation(Testing.junit.jupiter.engine)
 
     testImplementation("com.github.jillesvangurp:kotlin4example:_")
+    testImplementation("com.github.doyaaaaaken:kotlin-csv:_")
+
 }
