@@ -76,14 +76,12 @@ You can reach me via the issue tracker and I also lurk in the amazing [Kotlin Sl
 
 ## About this README
 
-This readme is generated using the `kotlin4example`. I started developing this library a few years ago when 
-I realized that I was going to have to write a lot of documentation with code examples for my search library. By now,
-both the manual and this readme depend on this.
+This readme is generated using my [kotlin4example](https://github.com/jillesvangurp/kotlin4example) library. I started developing that a few years ago when 
+I realized that I was going to have to write a lot of documentation with code examples for kt-search. By now,
+both the manual and this readme heavily depend on this and it makes maintaining and adding documentation super easy. 
 
-Kotlin4example is great for including little code snippets that are actually executing as part of the tests and 
-therefore known to be correct. Also, I can refactor and have the documentation change as well without breaking. It also has
-a few neat features that allow me to capture and show return values of the snippets or to show printed output.
+The way it works is that it provides a dsl for writing markdown that you use to write documentation. It allows you to include runnable code blocks and when it builds the documentation it figures out how to extract those from the kotlin source files and adds them as markdown code snippets. It can also intercept printed output and the return values of the blocks.
 
-If you have projects of your own that need documentation, you might get some value out of using this. 
+If you have projects of your own that need documentation, you might get some value out of using this as well. 
 
 
