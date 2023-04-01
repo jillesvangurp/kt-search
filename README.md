@@ -275,13 +275,15 @@ There are of course a lot more features that this library supports. The
 
 ### Advanced Topics
 
-- [Migrating from the old Es Kotlin Client](https://jillesvangurp.github.io/kt-search/manual/Migrating.html)
+- [KNN Search](https://jillesvangurp.github.io/kt-search/manual/KnnSearch.html)
 
 - [Extending the Json DSLs](https://jillesvangurp.github.io/kt-search/manual/ExtendingTheDSL.html)
 
 - [Using Kotlin Scripting](https://jillesvangurp.github.io/kt-search/manual/Scripting.html)
 
 - [Jupyter Notebooks](https://jillesvangurp.github.io/kt-search/manual/Jupyter.html)
+
+- [Migrating from the old Es Kotlin Client](https://jillesvangurp.github.io/kt-search/manual/Migrating.html)
 
 ## Related projects
 

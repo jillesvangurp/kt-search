@@ -2,10 +2,7 @@
 
 package com.jillesvangurp.searchdsls.mappingdsl
 
-import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.JsonDslMarker
-import com.jillesvangurp.jsondsl.PropertyNamingConvention
-import com.jillesvangurp.jsondsl.withJsonDsl
+import com.jillesvangurp.jsondsl.*
 import kotlin.reflect.KProperty
 
 @Suppress("LeakingThis")
@@ -111,6 +108,11 @@ class FieldMappingConfig(typeName: String) : JsonDsl() {
     }
 }
 
+enum class KnnSimilarity {
+    L2Norm,
+    Cosine,
+    DotProduct
+}
 @Suppress("MemberVisibilityCanBePrivate")
 @JsonDslMarker
 class FieldMappings : JsonDsl() {
@@ -185,6 +187,20 @@ class FieldMappings : JsonDsl() {
     }
 
     fun nestedField(property: KProperty<*>, block: FieldMappings.() -> Unit) = nestedField(property.name, block)
+
+    fun denseVector(name: String, dimensions: Int, index: Boolean = false, similarity: KnnSimilarity=KnnSimilarity.Cosine,block: (FieldMappingConfig.() -> Unit)? = null) {
+        field(name, "dense_vector") {
+            this["dims"] = dimensions
+            if(index) {
+                this["index"] = index
+                this["similarity"] = similarity.name.camelCase2SnakeCase()
+            }
+            block?.let { this.apply(it) }
+        }
+    }
+
+    fun denseVector(property: KProperty<*>, dimensions: Int,index: Boolean = false, similarity: KnnSimilarity=KnnSimilarity.Cosine,block: (FieldMappingConfig.() -> Unit)? = null) =
+        denseVector(property.name, dimensions,index,similarity,block)
 
     fun field(name: String, type: String) = field(name, type) {}
     fun field(property: KProperty<*>, type: String) = field(property.name, type) {}
