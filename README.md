@@ -102,6 +102,10 @@ client.createIndex(indexName) {
 }
 ```
 
+This creates the index and uses the mappings and settings DSL. With this DSL, you can map fields, 
+configure analyzers, etc. 
+You can read more about that [here](https://jillesvangurp.github.io/kt-search/manual/IndexManagement.html) 
+
 To fill the index with some content, we need to use bulk operations.
 
 In kt-search this is made very easy with a DSL that abstracts away the book keeping
@@ -224,12 +228,60 @@ need or maybe you want to work with raw json. Kt-search allows you to do both an
 schema less with type safe kotlin. You can add custom 
 properties to the DSL via `put` or you can use Kotlin string literals to pass in and template
 raw json.
-- Kt-search is designed to be [extensible]https://jillesvangurp.github.io/kt-search/manual/ExtendingTheDSL.html)). 
+- Kt-search is designed to be [extensible](https://jillesvangurp.github.io/kt-search/manual/ExtendingTheDSL.html). 
 It's easy to use the built in features. But you 
 can easily add your own features. 
 
+## Manual
+
 There are of course a lot more features that this library supports. The 
 [manual](https://jillesvangurp.github.io/kt-search/manual) covers all of those.
+
+### Introduction
+
+- [What is Kt-Search](https://jillesvangurp.github.io/kt-search/manual/WhatIsKtSearch.html)
+
+- [Getting Started](https://jillesvangurp.github.io/kt-search/manual/GettingStarted.html)
+
+- [Indices, Settings, Mappings, and Aliases](https://jillesvangurp.github.io/kt-search/manual/IndexManagement.html)
+
+### Search
+
+- [Search and Queries](https://jillesvangurp.github.io/kt-search/manual/Search.html)
+
+- [Text Queries](https://jillesvangurp.github.io/kt-search/manual/TextQueries.html)
+
+- [Term Level Queries](https://jillesvangurp.github.io/kt-search/manual/TermLevelQueries.html)
+
+- [Compound Queries](https://jillesvangurp.github.io/kt-search/manual/CompoundQueries.html)
+
+- [Geo Spatial Queries](https://jillesvangurp.github.io/kt-search/manual/GeoQueries.html)
+
+- [Aggregations](https://jillesvangurp.github.io/kt-search/manual/Aggregations.html)
+
+- [Deep Paging Using search_after and scroll](https://jillesvangurp.github.io/kt-search/manual/DeepPaging.html)
+
+### Indices and Documents
+
+- [Deleting by query](https://jillesvangurp.github.io/kt-search/manual/DeleteByQuery.html)
+
+- [Document Manipulation](https://jillesvangurp.github.io/kt-search/manual/DocumentManipulation.html)
+
+- [Index Repository](https://jillesvangurp.github.io/kt-search/manual/IndexRepository.html)
+
+- [Efficiently Ingest Content Using Bulk Indexing](https://jillesvangurp.github.io/kt-search/manual/BulkIndexing.html)
+
+- [Creating Data Streams](https://jillesvangurp.github.io/kt-search/manual/DataStreams.html)
+
+### Advanced Topics
+
+- [Migrating from the old Es Kotlin Client](https://jillesvangurp.github.io/kt-search/manual/Migrating.html)
+
+- [Extending the Json DSLs](https://jillesvangurp.github.io/kt-search/manual/ExtendingTheDSL.html)
+
+- [Using Kotlin Scripting](https://jillesvangurp.github.io/kt-search/manual/Scripting.html)
+
+- [Jupyter Notebooks](https://jillesvangurp.github.io/kt-search/manual/Jupyter.html)
 
 ## Related projects
 

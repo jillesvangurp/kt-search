@@ -6,6 +6,8 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.githubLink
 import documentation.manual.ManualPages
+import documentation.manual.sections
+import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -88,6 +90,10 @@ val projectReadme = sourceGitRepository.md {
         }
 
         +"""
+            This creates the index and uses the mappings and settings DSL. With this DSL, you can map fields, 
+            configure analyzers, etc. 
+            You can read more about that [here](${ManualPages.IndexManagement.publicLink}) 
+            
             To fill the index with some content, we need to use bulk operations.
             
             In kt-search this is made very easy with a DSL that abstracts away the book keeping
@@ -195,13 +201,26 @@ val projectReadme = sourceGitRepository.md {
             schema less with type safe kotlin. You can add custom 
             properties to the DSL via `put` or you can use Kotlin string literals to pass in and template
             raw json.
-            - Kt-search is designed to be [extensible]${ManualPages.ExtendingTheDSL.publicLink})). 
+            - Kt-search is designed to be [extensible](${ManualPages.ExtendingTheDSL.publicLink}). 
             It's easy to use the built in features. But you 
             can easily add your own features. 
             
+        """.trimIndent()
+    }
+    section("Manual") {
+        +"""
             There are of course a lot more features that this library supports. The 
             [manual](https://jillesvangurp.github.io/kt-search/manual) covers all of those.
         """.trimIndent()
+        sections.forEach {
+            +"""
+            ### ${it.title}
+                
+            """.trimIndent()
+            it.pages.forEach {(mp,_) ->
+                +"- [${mp.page.title}](${mp.publicLink})\n"
+            }
+        }
     }
 
     includeMdFile("related.md")
