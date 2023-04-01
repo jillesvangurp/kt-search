@@ -99,7 +99,7 @@ kotlin {
         val jvmMain by existing {
             dependencies {
                 implementation(Ktor.client.cio)
-                implementation(Ktor.client.java)
+                api(Ktor.client.java)
             }
         }
         val jvmTest by getting {
