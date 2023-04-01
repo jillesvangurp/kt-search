@@ -37,6 +37,7 @@ enum class ManualPages(title: String = "") {
     val page by lazy {
         Page(title, "${name}.md", manualOutputDir)
     }
+    val publicLink = "https://jillesvangurp.github.io/kt-search/manual/${name}.html"
 }
 
 data class Section(val title: String, val pages: List<Pair<ManualPages, Lazy<String>>>)
