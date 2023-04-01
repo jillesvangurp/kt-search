@@ -42,7 +42,7 @@ val scriptingMd = sourceGitRepository.md {
             You can use then import the client as normally. Because the client uses suspending
              functions, you have to surround your code with a `runBlocking {...}`
              
-            Note, be sure to use the latest version of [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/).a
+            Note, be sure to use the latest version of [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts/).
          """.trimIndent()
     }
     section("Some ideas for using kt-search on the cli") {
@@ -69,7 +69,7 @@ val scriptingMd = sourceGitRepository.md {
             Limitations:
 
             - your script name **MUST** end in `.main.kts`
-            - import handling is a bit limited especially for extension functions outside of 
+            - import and dependency handling is a bit limited especially for extension functions outside of 
               intellij. So, you may have to add the right imports manually.
             - KTS and compiler plugins are tricky. Since kt-search uses kotlinx-serialization 
               that means that defining new serializable data classes is not possible in 
@@ -83,10 +83,10 @@ val scriptingMd = sourceGitRepository.md {
               central as a repository explicitly if you need more dependencies
 
             ```kotlin
-            @file:Repository("https://repo1.maven.org/maven2")
-            @file:DependsOn("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
-            @file:Repository("https://jitpack.io")
-            @file:DependsOn("com.github.jillesvangurp:kt-search-kts:0.1.7")
+                @file:Repository("https://maven.tryformation.com/releases")
+                @file:Repository(" https://repo.maven.apache.org/maven2/")
+                @file:Repository("https://jitpack.io")
+                @file:DependsOn("com.github.jillesvangurp:kt-search-kts:1.0.7")
             ```            
             - make sure to add the shebang to your script `#!/usr/bin/env kotlin` and of 
             course make it executable `chmod 755 myscript.main.kts`
