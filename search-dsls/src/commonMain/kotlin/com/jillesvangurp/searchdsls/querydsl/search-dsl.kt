@@ -43,6 +43,37 @@ fun customQuery(name: String, block: JsonDsl.() -> Unit): ESQuery {
     return q
 }
 
+class KnnQuery(
+    field: String,
+    queryVector: List<Double>,
+    k: Int = 10,
+    numCandidates: Int = k,
+    block: (JsonDsl.() -> Unit)? = null
+) : JsonDsl() {
+    init {
+        this["field"] = field
+        this["query_vector"] = queryVector
+        this["k"] = k
+        this["num_candidates"] = numCandidates
+        block?.let { this.apply(it) }
+    }
+
+    constructor(
+        field: KProperty<*>,
+        queryVector: List<Double>,
+        k: Int = 10,
+        numCandidates: Int = k,
+        block: (JsonDsl.() -> Unit)? = null
+    ) :
+            this(
+                field = field.name,
+                queryVector = queryVector,
+                k = k,
+                numCandidates = numCandidates,
+                block = block
+            )
+}
+
 @Suppress("UNCHECKED_CAST")
 class SearchDSL : JsonDsl() {
     var from: Int by property()
@@ -72,6 +103,7 @@ class SearchDSL : JsonDsl() {
             this["post_filter"] = value.wrapWithName()
         }
 
+    var knn by property<KnnQuery>()
     var aggs: JsonDsl
         get() = this["aggs"] as JsonDsl
         set(value) {
@@ -172,9 +204,9 @@ fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit
 
 fun SearchDSL.matchAll() = ESQuery("match_all")
 
-class Script: JsonDsl() {
+class Script : JsonDsl() {
     var source by property<String>()
-    var params by property<Map<String,Any?>>()
+    var params by property<Map<String, Any?>>()
     var lang by property<String>()
 
     companion object {
