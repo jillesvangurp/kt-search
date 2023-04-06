@@ -143,7 +143,7 @@ val knnMd = sourceGitRepository.md {
     +"""
         This shows both the power and weakness of knn search:
         
-        - the matches are vaguely semantic. However, the openai model doesn't to perform very well.
+        - the matches are vaguely semantic. However, the openai model doesn't perform very well.
         - a few of the matches are clearly debatable or and the scoring seems a bit overly confident. For example, 
         it doesn't seem to understand that the cookie monster is a muppet. 
         - we are limited to a maximum dimension of 1024, this is why I selected text-similarity-ada-001 as the model.
