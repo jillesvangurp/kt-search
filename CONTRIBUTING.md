@@ -7,3 +7,5 @@ I try to be responsive processing PRs and critical issues. Otherwise, I have to 
 Where possible, please stick with conventions visible in the code for naming things, formatting things, etc. Generally, use extension functions amd other mechanisms whereever possible.
 
 As this is a multiplatform library, please be careful adding dependencies; especially platform specific ones.
+
+Generally for new features, please also consider adding some text to the manual on how to use it. I'm trying to keep that in sync with all the features implemented. Also, it kind of doubles as a simple test suite that ensures the features documented at least work somewhat.
