@@ -6,4 +6,6 @@ I try to be responsive processing PRs and critical issues. Otherwise, I have to 
 
 Where possible, please stick with conventions visible in the code for naming things, formatting things, etc. Generally, use extension functions amd other mechanisms whereever possible.
 
+Also, please consider updating the manual so it covers your new feature.
+
 As this is a multiplatform library, please be careful adding dependencies; especially platform specific ones.
