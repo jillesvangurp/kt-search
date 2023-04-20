@@ -26,8 +26,11 @@ val deepPagingMd = sourceGitRepository.md {
         // re-create the index
         client.deleteIndex(indexName)
         client.createIndex(indexName) {
-            mappings { text(TestDoc::name) }
-            mappings { keyword(TestDoc::tags) }
+            mappings {
+                keyword(TestDoc::id)
+                text(TestDoc::name)
+                keyword(TestDoc::tags)
+            }
         }
 
         val docs = listOf(
@@ -78,13 +81,6 @@ val deepPagingMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Search after") {
-        +"""
-            The main principle with using search_after is relying on the sort order of the results and specifying
-            the sort values of the last value you have processed as the `search_after`. Because you can sort on
-            multiple fields, this has to be an array. To guarantee consistency, `search_after` is generally used
-            in combination with the Point in Time API.           
-        """.trimIndent()
-
         suspendingBlock {
             val (resp,hitsFlow) = client.searchAfter(indexName,1.minutes) {
                 // 1 result per page
@@ -103,8 +99,38 @@ val deepPagingMd = sourceGitRepository.md {
             
             The `hitsFlow` is a flow that allows you to process all the results. Doing so, will 
             fetch page after page of result and you can process very large indices with this.                                 
+
+            The main principle with using search_after is relying on the sort order of the results and specifying
+            the sort values of the last value you have processed as the `search_after`.
+    
+            Because you can sort on multiple fields, this has to be an array. To guarantee consistency, `search_after`
+            is generally used in combination with the Point in Time API. Kt-search adds a sort on "_shard_doc" for you.
+
+            If you want to add your own sort, you have to opt-in to this and deal with any issues yourself as you can
+            easily break search_after this way.
         """.trimIndent()
+
+        suspendingBlock {
+            val (resp,hitsFlow) = client.searchAfter(
+                target = indexName,
+                keepAlive = 1.minutes,
+                optInToCustomSort = true
+            ) {
+                // 1 result per page
+                // use something higher obviously, 500 would be good
+                resultSize = 1
+                query = matchAll()
+
+                sort {
+                    add(TestDoc::id)
+                }
+            }
+            println("reported result set size ${resp.total}")
+            println("results in the hits flow: ${hitsFlow.count()}")
+        }
     }
+
+
 
     section("Reindexing using search_after and bulk") {
         +"""

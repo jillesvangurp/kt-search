@@ -1,7 +1,9 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.querydsl.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -9,6 +11,7 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.count
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class SearchTest : SearchTestBase() {
 
@@ -69,19 +72,71 @@ class SearchTest : SearchTestBase() {
         ) {
             val index = testDocumentIndex()
             client.bulk(target = index, refresh = Refresh.WaitFor) {
-                (1..20).forEach {
+                (1..200).forEach {
                     index(TestDocument("doc $it").json())
                 }
             }
-            val q = SearchDSL().apply {
+
+            val (resp, hits) = client.searchAfter(index, 10.seconds) {
                 resultSize = 3
                 query = matchAll()
             }
-            val (resp, hits) = client.searchAfter(index, 1.minutes, q)
-            resp.total shouldBe 20
-            hits.count() shouldBe 20
+            resp.total shouldBe 200
+            hits.count() shouldBe 200
         }
     }
+
+    @Test
+    fun shouldAllowCustomSortOnlyWithOptIn() = coRun {
+        onlyOn(
+            "opensearch implemented search_after with v2",
+            SearchEngineVariant.OS2,
+            SearchEngineVariant.ES7,
+            SearchEngineVariant.ES8
+        ) {
+            val index = testDocumentIndex()
+            val repo = client.repository(index, TestDocument.serializer())
+
+            repo.bulk {
+                (1..200).forEach {
+                    index(TestDocument("doc $it").json())
+                }
+            }
+            repo.searchAfter {
+                resultSize = 3
+                query = matchAll()
+                // no sort should add the implicit sort on _shard_doc
+            }
+
+            shouldThrow<Exception> {
+                repo.searchAfter {
+                    resultSize = 3
+                    query = matchAll()
+                    sort {
+                        // this would break search_after because tags are not unique
+                        // so we require an opt-in
+                        add(TestDocument::tags)
+                    }
+                }
+            }
+            val (res, hits) = repo.searchAfter(optInToCustomSort = true) {
+                resultSize = 3
+                query = matchAll()
+                sort {
+                    // be very careful with sorting, sorting on tags breaks search_after
+                    // sorting on id works because it is unique
+                    // sorting on the implicit _shard_doc works too and is what search_after does otherwise and probably what youb want
+                    // hence the required opt-in
+                    add(TestDocument::id)
+                }
+            }
+            res.total shouldBe 200
+            hits.count() shouldBe res.total
+
+        }
+
+    }
+
     @Test
     fun shouldWorkWithoutTotalHits() = coRun {
         val index = testDocumentIndex()
@@ -122,18 +177,18 @@ class SearchTest : SearchTestBase() {
         }
         val response = client.msearch(indexName) {
             add {
-                from=0
-                resultSize=100
-                query=matchAll()
+                from = 0
+                resultSize = 100
+                query = matchAll()
             }
             add(msearchHeader {
-                allowNoIndices=true
+                allowNoIndices = true
                 index = "*"
             }) {
-                resultSize=0
+                resultSize = 0
                 trackTotalHits = "true"
             }
         }
-        response.responses shouldHaveSize  2
+        response.responses shouldHaveSize 2
     }
 }

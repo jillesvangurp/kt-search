@@ -40,12 +40,12 @@ class DocumentCRUDTest: SearchTestBase() {
     @Test
     fun shouldSupportDocumentUpdates() = coRun {
         val index = testDocumentIndex()
-        client.indexDocument(index,TestDocument("foo"),"1")
+        client.indexDocument(index,TestDocument("foo", id=1),"1")
 
-        client.updateDocument(index,"1", TestDocument("bar")).let { resp ->
+        client.updateDocument(index,"1", TestDocument("bar",id=1)).let { resp ->
             resp.result shouldBe "updated"
         }
-        client.updateDocument(index,"1", TestDocument("bar"), detectNoop = true).let { resp ->
+        client.updateDocument(index,"1", TestDocument("bar",id=1), detectNoop = true).let { resp ->
             resp.result shouldBe "noop"
         }
     }

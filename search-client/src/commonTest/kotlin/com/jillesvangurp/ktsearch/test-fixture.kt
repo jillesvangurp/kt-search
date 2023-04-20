@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.Serializable
+import kotlin.random.Random
 
 @Serializable
 data class TestDocument(
@@ -10,10 +11,12 @@ data class TestDocument(
     val number: Long? = null,
     val tags: List<String>? = null,
     val point: List<Double>? = null,
+    val id : Long = Random.nextLong(),
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
             mappings(dynamicEnabled = false) {
+                number<Long>(TestDocument::id)
                 text(TestDocument::name)
                 text(TestDocument::description)
                 number<Long>(TestDocument::number)

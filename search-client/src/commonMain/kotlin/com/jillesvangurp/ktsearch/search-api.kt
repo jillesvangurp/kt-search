@@ -416,7 +416,8 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration,
-    query: SearchDSL
+    query: SearchDSL,
+    optInToCustomSort: Boolean = false,
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     validateEngine(
         "search_after does not Opensearch 1.x",
@@ -431,8 +432,16 @@ suspend fun SearchClient.searchAfter(
     if (!query.containsKey("sort")) {
         query.apply {
             sort {
+                // field is added implicitly, the sort isn't.
+                // so add it explicitly
                 add("_shard_doc", SortOrder.ASC)
             }
+        }
+    } else {
+        if(!optInToCustomSort) {
+            error("""Adding a custom sort with search_after can break in a few ways and is probably 
+                |not what you want. If you know what you are doing, you can disable this error by setting 
+                |optInToCustomSort to true.""".trimMargin())
         }
     }
 
@@ -462,10 +471,16 @@ suspend fun SearchClient.searchAfter(
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration = 1.minutes,
+    optInToCustomSort: Boolean = false,
     block: (SearchDSL.() -> Unit)? = null
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     val dsl = SearchDSL().apply(block ?: {})
-    return searchAfter(target, keepAlive, dsl)
+    return searchAfter(
+        target = target,
+        keepAlive = keepAlive,
+        query = dsl,
+        optInToCustomSort = optInToCustomSort
+    )
 }
 
 @Serializable

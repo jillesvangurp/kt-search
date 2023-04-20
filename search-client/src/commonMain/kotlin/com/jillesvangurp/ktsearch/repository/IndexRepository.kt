@@ -4,6 +4,8 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.KSerializer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -291,10 +293,24 @@ class IndexRepository<T : Any>(
 
     suspend fun searchAfter(
         keepAlive: Duration = 1.minutes,
+        optInToCustomSort: Boolean = false,
         block: SearchDSL.() -> Unit
     ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
-        return client.searchAfter(target = indexReadAlias, keepAlive = keepAlive, block = block)
+        return client.searchAfter(
+            target = indexReadAlias,
+            keepAlive = keepAlive,
+            block = block,
+            optInToCustomSort = optInToCustomSort
+        )
     }
+
+    // FIXME, future variant of this with context receivers would be nice
+    fun parse(hits: Flow<SearchResponse.Hit>): Flow<T> =
+        hits.mapNotNull { hit ->
+            hit.source?.let { src ->
+                serializer.deSerialize(src)
+            }
+        }
 }
 
 fun <T : Any> SearchClient.repository(
