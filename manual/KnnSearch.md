@@ -133,46 +133,46 @@ Captured Output:
 
 ```
 query for vector of rice:
-6vFemIcBMokf_ULZny0z - 0.9389602: chicken
-6PFemIcBMokf_ULZny0z - 0.91619456: chicken teriyaki with rice
-5PFemIcBMokf_ULZny0z - 0.9118491: apple pie
+UhQXnYcBc9rzenFedntN - 0.9389602: chicken
+UBQXnYcBc9rzenFedntN - 0.91619456: chicken teriyaki with rice
+TBQXnYcBc9rzenFedntN - 0.9118491: apple pie
 ---
 query for vector of gebak en taart:
-5_FemIcBMokf_ULZny0z - 0.90217876: pattiserie
-6fFemIcBMokf_ULZny0z - 0.9010899: tikka massala
-5PFemIcBMokf_ULZny0z - 0.8989133: apple pie
+TxQXnYcBc9rzenFedntN - 0.90217876: pattiserie
+URQXnYcBc9rzenFedntN - 0.9010899: tikka massala
+TBQXnYcBc9rzenFedntN - 0.8989133: apple pie
 ---
 query for vector of muppets:
-5PFemIcBMokf_ULZny0z - 0.91213405: apple pie
-6vFemIcBMokf_ULZny0z - 0.91064084: chicken
-5_FemIcBMokf_ULZny0z - 0.9038592: pattiserie
+TBQXnYcBc9rzenFedntN - 0.91213405: apple pie
+UhQXnYcBc9rzenFedntN - 0.91064084: chicken
+TxQXnYcBc9rzenFedntN - 0.9038592: pattiserie
 ---
 query for vector of artisanal baker:
-5fFemIcBMokf_ULZny0z - 0.91683334: chocolate chip cookie
-5vFemIcBMokf_ULZny0z - 0.90785366: the cookie monster
-4vFemIcBMokf_ULZny0y - 0.9031166: banana muffin with chocolate chips
+TRQXnYcBc9rzenFedntN - 0.91683334: chocolate chip cookie
+ThQXnYcBc9rzenFedntN - 0.90785366: the cookie monster
+ShQXnYcBc9rzenFedntN - 0.9031166: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-6vFemIcBMokf_ULZny0z - 0.9383267: chicken
-6PFemIcBMokf_ULZny0z - 0.93595827: chicken teriyaki with rice
-6fFemIcBMokf_ULZny0z - 0.9253382: tikka massala
+UhQXnYcBc9rzenFedntN - 0.9383267: chicken
+UBQXnYcBc9rzenFedntN - 0.93595827: chicken teriyaki with rice
+URQXnYcBc9rzenFedntN - 0.9253382: tikka massala
 ---
 query for vector of japanese food:
-6PFemIcBMokf_ULZny0z - 0.93372023: chicken teriyaki with rice
-6vFemIcBMokf_ULZny0z - 0.9329302: chicken
-5PFemIcBMokf_ULZny0z - 0.9222195: apple pie
+UBQXnYcBc9rzenFedntN - 0.93372023: chicken teriyaki with rice
+UhQXnYcBc9rzenFedntN - 0.9329302: chicken
+TBQXnYcBc9rzenFedntN - 0.9222195: apple pie
 ---
 query for vector of baked goods:
-5PFemIcBMokf_ULZny0z - 0.9228046: apple pie
-5fFemIcBMokf_ULZny0z - 0.91771066: chocolate chip cookie
-4_FemIcBMokf_ULZny0y - 0.91359603: apple crumble
+TBQXnYcBc9rzenFedntN - 0.9228046: apple pie
+TRQXnYcBc9rzenFedntN - 0.91771066: chocolate chip cookie
+SxQXnYcBc9rzenFedntN - 0.91359603: apple crumble
 ---
 
 ```
 
 This shows both the power and weakness of knn search:
 
-- the matches are vaguely semantic. However, the openai model doesn't to perform very well.
+- the matches are vaguely semantic. However, the openai model doesn't perform very well.
 - a few of the matches are clearly debatable or and the scoring seems a bit overly confident. For example, 
 it doesn't seem to understand that the cookie monster is a muppet. 
 - we are limited to a maximum dimension of 1024, this is why I selected text-similarity-ada-001 as the model.
