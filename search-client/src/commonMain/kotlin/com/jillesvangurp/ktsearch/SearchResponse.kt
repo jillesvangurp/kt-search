@@ -3,7 +3,6 @@ package com.jillesvangurp.ktsearch
 import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlin.reflect.KProperty
 
 typealias Aggregations = JsonObject
 
@@ -123,12 +122,57 @@ data class TermsAggregationResult(
 
 val TermsAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, TermsBucket.serializer()) }
 
+
 fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
 fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
 fun Aggregations?.termsResult(name: Enum<*>, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
+
+
+@Serializable
+data class FilterAggregationResult(
+    @SerialName("doc_count")
+    val docCount: Long,
+)
+fun Aggregations?.filterResult(name: String, json: Json= DEFAULT_JSON): FilterBucket? =
+    this?.get(name)?.let {
+        FilterBucket(
+            name = name,
+            docCount = it.jsonObject.get("doc_count")?.jsonPrimitive?.long?:0,
+            bucket = it.jsonObject
+        ) }
+
+
+data class FilterBucket(
+    val name: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+    val bucket: JsonObject
+)
+@Serializable
+data class FiltersAggregationResult(
+    val buckets: JsonObject
+)
+
+fun FiltersAggregationResult.bucket(name: String, json: Json): FilterBucket? =
+    buckets[name]?.let { json.decodeFromJsonElement(it) }
+
+val FiltersAggregationResult.namedBuckets get() = buckets.map { (n,e) ->
+    FilterBucket(
+        name = n,
+        docCount = e.jsonObject["doc_count"]?.jsonPrimitive?.long ?: 0,
+        bucket = e.jsonObject
+    )
+}
+
+
+fun Aggregations?.filtersResult(name: String, json: Json = DEFAULT_JSON): FiltersAggregationResult =
+    getAggResult(name,json)
+fun Aggregations?.filtersResult(name: Enum<*>, json: Json = DEFAULT_JSON): FiltersAggregationResult =
+    getAggResult(name,json)
+
 @Serializable
 data class DateHistogramBucket(
     val key: Long,

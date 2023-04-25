@@ -145,7 +145,7 @@ val aggregationsMd = sourceGitRepository.md {
             Note that we are using enum values for the aggregation names. Here is the enum we are using:
         """.trimIndent()
 
-        snippetFromSourceFile("/documentation/manual/search/aggregations.kt","MyAggNamesDef")
+        snippetFromSourceFile("/documentation/manual/search/aggregations.kt", "MyAggNamesDef")
 
 
         +"""
@@ -207,7 +207,7 @@ val aggregationsMd = sourceGitRepository.md {
             val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
             // use parsedBucket to get a Bucket<TermsBucket>
             // this allows us to get to the TermsBucket and the aggregations
-            tags.parsedBuckets.forEach { tagBucket  ->
+            tags.parsedBuckets.forEach { tagBucket ->
                 println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
                 tagBucket.aggregations
                     .termsResult(MyAggNames.BY_COLOR)
@@ -268,21 +268,76 @@ val aggregationsMd = sourceGitRepository.md {
                 println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
                 println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
                 // top_hits returns the hits part of a normal search response
-                println("  Top: [${b.topHitResult(MyAggNames.TOP_RESULTS)
-                    .hits.hits.map {
-                        it.source?.parse<MockDoc>()?.name
-                    }.joinToString(",")
-                }]")
+                println(
+                    "  Top: [${
+                        b.topHitResult(MyAggNames.TOP_RESULTS)
+                            .hits.hits.map {
+                                it.source?.parse<MockDoc>()?.name
+                            }.joinToString(",")
+                    }]"
+                )
             }
 
-            println("Avg time span: ${
-                response.aggregations
+            println(
+                "Avg time span: ${
+                    response.aggregations
                         .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
-            }")
-            println("Tag cardinality: ${
-                response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
-            }")
+                }"
+            )
+            println(
+                "Tag cardinality: ${
+                    response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
+                }"
+            )
 
+        }
+    }
+    section("Filter aggregations") {
+        +"""
+            You can use the filter aggregation to narrow down the results and do sub 
+            aggregations on the filtered results. 
+        """.trimIndent()
+        suspendingBlock {
+            repo.search {
+                resultSize = 0
+                agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+                    agg("colors", TermsAgg(MockDoc::color))
+                }
+            }.let {
+                it.aggregations.filterResult("filtered")?.let { fb ->
+                    println("filtered: ${fb.docCount}")
+                    fb.bucket.termsResult("colors")
+                        .parsedBuckets
+                        .forEach { b ->
+                            println("${b.parsed.key}: ${b.parsed.docCount}")
+                        }
+                }
+            }
+        }
+
+        +"""
+            You can also use the filters aggregation to use multiple named filter aggregations at the same time
+        """.trimIndent()
+        suspendingBlock {
+            repo.search {
+                resultSize = 0
+                agg("filtered", FiltersAgg {
+                    namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
+                    namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                }) {
+                    agg("colors", TermsAgg(MockDoc::color))
+                }
+            }.let {
+                it.aggregations
+                    .filtersResult("filtered")
+                    .namedBuckets.forEach { fb ->
+                        println("${fb.name}: ${fb.docCount}")
+                        println(fb.bucket.termsResult("colors")
+                            .parsedBuckets.joinToString(", ") { b ->
+                                b.parsed.key + ": " + b.parsed.docCount
+                            })
+                    }
+            }
         }
     }
     section("Extending the Aggregation support") {

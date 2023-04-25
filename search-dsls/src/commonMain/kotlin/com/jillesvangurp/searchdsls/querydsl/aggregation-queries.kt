@@ -3,8 +3,6 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
-import com.jillesvangurp.jsondsl.json
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)
@@ -203,6 +201,38 @@ class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_h
         val config = TopHitsAggConfig()
         block?.invoke(config)
         put(name, config)
+    }
+}
+
+
+class FilterConfig : JsonDsl() {
+    var query: ESQuery
+        get() {
+            val map = this["filter"] as Map<String, JsonDsl>
+            val (name, queryDetails) = map.entries.first()
+            return ESQuery(name, queryDetails)
+        }
+        set(value) {
+            this["query"] = value.wrapWithName()
+        }
+    fun namedFilter(name: String, query:ESQuery) {
+        val filters = this["filters"]?.let { it as JsonDsl} ?: JsonDsl()
+        this["filters"] = filters
+        filters[name]=query.wrapWithName()
+    }
+}
+
+class FiltersAgg(
+    block: FilterConfig.()->Unit
+) : AggQuery("filters") {
+    init {
+        this[name] = FilterConfig().apply(block)
+    }
+}
+
+class FilterAgg(filter: ESQuery): AggQuery("filter") {
+    init {
+        this[name]=filter.wrapWithName()
     }
 }
 

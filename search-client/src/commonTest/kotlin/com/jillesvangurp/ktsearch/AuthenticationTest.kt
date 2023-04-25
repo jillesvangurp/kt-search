@@ -11,7 +11,7 @@ class AuthenticationTest {
                 port = 9243,
                 user = "elastic",
                 password = "xxxxx",
-                logging = true
+                logging = false
             )
         )
         println(client.clusterHealth())

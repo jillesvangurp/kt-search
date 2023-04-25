@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TestDoc(val id: String, val name: String, val tags: List<String> = listOf(), val price: Double)
 
-val client by lazy { SearchClient(KtorRestClient("localhost", 9999, logging = false)) }
+val client by lazy { SearchClient(KtorRestClient("localhost", 9999, logging = true)) }
 
 fun SearchClient.indexTestFixture(indexName: String) = runBlocking {
     // begin INITTESTFIXTURE
