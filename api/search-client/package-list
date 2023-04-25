@@ -424,7 +424,7 @@ $dokka.location:com.jillesvangurp.ktsearch/MultiSearchResponse/MultiSearchRespon
 $dokka.location:com.jillesvangurp.ktsearch/MultiSearchResponse/responses/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-multi-search-response/responses.html
 $dokka.location:com.jillesvangurp.ktsearch/MultiSearchResponse/took/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-multi-search-response/took.html
 $dokka.location:com.jillesvangurp.ktsearch/Node///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/index.html
-$dokka.location:com.jillesvangurp.ktsearch/Node/Node/#kotlin.String#kotlin.Int/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/-node.html
+$dokka.location:com.jillesvangurp.ktsearch/Node/Node/#kotlin.String#kotlin.Int?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/-node.html
 $dokka.location:com.jillesvangurp.ktsearch/Node/host/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/host.html
 $dokka.location:com.jillesvangurp.ktsearch/Node/port/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node/port.html
 $dokka.location:com.jillesvangurp.ktsearch/NodeSelector///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-node-selector/index.html
