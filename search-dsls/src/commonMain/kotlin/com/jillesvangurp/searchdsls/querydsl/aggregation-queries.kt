@@ -58,6 +58,11 @@ class DateHistogramAggConfig : JsonDsl() {
     var field by property<String>()
     var calendarInterval by property<String>("calendar_interval") // can't redefine Map.size sadly
     var minDocCount by property<Long>("min_doc_count")
+    var format by property<String>()
+    var timeZone by property<String>("time_zone")
+    var offset by property<String>()
+    var missing by property<String>()
+    var keyed by property<Boolean>()
 }
 
 class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> Unit)? = null) :
