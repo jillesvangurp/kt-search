@@ -99,7 +99,7 @@ Captured Output:
 
 ```
 {
-  "took": 25,
+  "took": 16,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -243,7 +243,7 @@ With some more extension function magic we can make this a bit nicer.
 val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
 // use parsedBucket to get a Bucket<TermsBucket>
 // this allows us to get to the TermsBucket and the aggregations
-tags.parsedBuckets.forEach { tagBucket  ->
+tags.parsedBuckets.forEach { tagBucket ->
   println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
   tagBucket.aggregations
     .termsResult(MyAggNames.BY_COLOR)
@@ -316,20 +316,27 @@ response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
   println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
   println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
   // top_hits returns the hits part of a normal search response
-  println("  Top: [${b.topHitResult(MyAggNames.TOP_RESULTS)
-    .hits.hits.map {
-      it.source?.parse<MockDoc>()?.name
-    }.joinToString(",")
-  }]")
+  println(
+    "  Top: [${
+      b.topHitResult(MyAggNames.TOP_RESULTS)
+        .hits.hits.map {
+          it.source?.parse<MockDoc>()?.name
+        }.joinToString(",")
+    }]"
+  )
 }
 
-println("Avg time span: ${
-  response.aggregations
+println(
+  "Avg time span: ${
+    response.aggregations
       .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
-}")
-println("Tag cardinality: ${
-  response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
-}")
+  }"
+)
+println(
+  "Tag cardinality: ${
+    response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
+  }"
+)
 
 ```
 
@@ -348,17 +355,82 @@ Captured Output:
 2023-04-24T00:00:00.000Z: 1
 2023-04-25T00:00:00.000Z: 1
 green: 2
-  Min: 1.681573444286E12
-  Max: 1.682437444286E12
+  Min: 1.681578988746E12
+  Max: 1.682442988746E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.682005444286E12
-  Max: 1.682351044286E12
+  Min: 1.682010988746E12
+  Max: 1.682356588746E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
 Tag cardinality: 3
+
+```
+
+## Filter aggregations
+
+You can use the filter aggregation to narrow down the results and do sub 
+aggregations on the filtered results. 
+
+```kotlin
+repo.search {
+  resultSize = 0
+  agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+    agg("colors", TermsAgg(MockDoc::color))
+  }
+}.let {
+  it.aggregations.filterResult("filtered")?.let { fb ->
+    println("filtered: ${fb.docCount}")
+    fb.bucket.termsResult("colors")
+      .parsedBuckets
+      .forEach { b ->
+        println("${b.parsed.key}: ${b.parsed.docCount}")
+      }
+  }
+}
+```
+
+Captured Output:
+
+```
+filtered: 2
+red: 2
+
+```
+
+You can also use the filters aggregation to use multiple named filter aggregations at the same time
+
+```kotlin
+repo.search {
+  resultSize = 0
+  agg("filtered", FiltersAgg {
+    namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
+    namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+  }) {
+    agg("colors", TermsAgg(MockDoc::color))
+  }
+}.let {
+  it.aggregations
+    .filtersResult("filtered")
+    .namedBuckets.forEach { fb ->
+      println("${fb.name}: ${fb.docCount}")
+      println(fb.bucket.termsResult("colors")
+        .parsedBuckets.joinToString(", ") { b ->
+          b.parsed.key + ": " + b.parsed.docCount
+        })
+    }
+}
+```
+
+Captured Output:
+
+```
+bat: 2
+green: 1, red: 1
+foo: 2
+red: 2
 
 ```
 
