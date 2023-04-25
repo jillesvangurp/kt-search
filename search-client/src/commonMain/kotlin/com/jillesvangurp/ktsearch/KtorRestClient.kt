@@ -59,7 +59,9 @@ class KtorRestClient(
             method = httpMethod
             url {
                 host = node.host
-                port = node.port
+                node.port?.let {
+                    port = node.port
+                }
                 protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
                 path(pathComponents.joinToString("/"))
                 if (!parameters.isNullOrEmpty()) {

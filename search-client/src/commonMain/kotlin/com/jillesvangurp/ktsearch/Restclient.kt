@@ -2,7 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import io.ktor.http.*
 
-data class Node(val host: String, val port: Int)
+data class Node(val host: String, val port: Int?)
 interface NodeSelector {
     fun selectNode(): Node
 }
