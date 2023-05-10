@@ -412,7 +412,7 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
  * the results using the point in time id and the sort.
  */
 @OptIn(FlowPreview::class)
-@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration,
@@ -420,8 +420,7 @@ suspend fun SearchClient.searchAfter(
     optInToCustomSort: Boolean = false,
 ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     validateEngine(
-        "search_after does not Opensearch 1.x",
-        SearchEngineVariant.OS2,
+        "search_after and pit api work slightly different on Opensearch 2.x and not at all on OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8
     )
@@ -468,6 +467,7 @@ suspend fun SearchClient.searchAfter(
     return response to hitFlow
 }
 
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration = 1.minutes,

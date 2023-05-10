@@ -65,8 +65,7 @@ class SearchTest : SearchTestBase() {
     @Test
     fun shouldDoSearchAfter() = coRun {
         onlyOn(
-            "opensearch implemented search_after with v2",
-            SearchEngineVariant.OS2,
+            "opensearch implemented search_after with v2 later changed their _pit API",
             SearchEngineVariant.ES7,
             SearchEngineVariant.ES8
         ) {
@@ -89,8 +88,7 @@ class SearchTest : SearchTestBase() {
     @Test
     fun shouldAllowCustomSortOnlyWithOptIn() = coRun {
         onlyOn(
-            "opensearch implemented search_after with v2",
-            SearchEngineVariant.OS2,
+            "opensearch implemented search_after with v2 but then later changed their _pit API",
             SearchEngineVariant.ES7,
             SearchEngineVariant.ES8
         ) {

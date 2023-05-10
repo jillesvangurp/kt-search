@@ -108,6 +108,9 @@ val deepPagingMd = sourceGitRepository.md {
 
             If you want to add your own sort, you have to opt-in to this and deal with any issues yourself as you can
             easily break search_after this way.
+            
+            Note. Currently only works with Elasticsearch. Opensearch has a very similar implementation but it works 
+            slightly differently and currently kt-search only supports the elastic variant for this.
         """.trimIndent()
 
         suspendingBlock {

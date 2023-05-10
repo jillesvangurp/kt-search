@@ -1,6 +1,8 @@
 package com.jillesvangurp.ktsearch.repository
 
 import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.searchdsls.SearchEngineVariant
+import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlinx.coroutines.flow.Flow
@@ -291,6 +293,7 @@ class IndexRepository<T : Any>(
                 ?: error("cannot deserialize because hit has no source!")
         } ?: listOf()
 
+    @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
     suspend fun searchAfter(
         keepAlive: Duration = 1.minutes,
         optInToCustomSort: Boolean = false,
