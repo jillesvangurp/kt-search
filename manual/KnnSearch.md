@@ -133,39 +133,39 @@ Captured Output:
 
 ```
 query for vector of rice:
-vwTuBYgB77hUCxNJI2-U - 0.9389602: chicken
-vQTuBYgB77hUCxNJI2-U - 0.91619456: chicken teriyaki with rice
-uQTuBYgB77hUCxNJI2-U - 0.9118491: apple pie
+vTIIBogBD8gHKjlf5-Q9 - 0.9389602: chicken
+uzIIBogBD8gHKjlf5-Q9 - 0.91619456: chicken teriyaki with rice
+tzIIBogBD8gHKjlf5-Q9 - 0.9118491: apple pie
 ---
 query for vector of gebak en taart:
-vATuBYgB77hUCxNJI2-U - 0.90217876: pattiserie
-vgTuBYgB77hUCxNJI2-U - 0.9010899: tikka massala
-uQTuBYgB77hUCxNJI2-U - 0.8989133: apple pie
+ujIIBogBD8gHKjlf5-Q9 - 0.90217876: pattiserie
+vDIIBogBD8gHKjlf5-Q9 - 0.9010899: tikka massala
+tzIIBogBD8gHKjlf5-Q9 - 0.8989133: apple pie
 ---
 query for vector of muppets:
-uQTuBYgB77hUCxNJI2-U - 0.91213405: apple pie
-vwTuBYgB77hUCxNJI2-U - 0.91064084: chicken
-vATuBYgB77hUCxNJI2-U - 0.9038592: pattiserie
+tzIIBogBD8gHKjlf5-Q9 - 0.91213405: apple pie
+vTIIBogBD8gHKjlf5-Q9 - 0.91064084: chicken
+ujIIBogBD8gHKjlf5-Q9 - 0.9038592: pattiserie
 ---
 query for vector of artisanal baker:
-ugTuBYgB77hUCxNJI2-U - 0.91683334: chocolate chip cookie
-uwTuBYgB77hUCxNJI2-U - 0.90785366: the cookie monster
-twTuBYgB77hUCxNJI2-U - 0.9031166: banana muffin with chocolate chips
+uDIIBogBD8gHKjlf5-Q9 - 0.91683334: chocolate chip cookie
+uTIIBogBD8gHKjlf5-Q9 - 0.90785366: the cookie monster
+tTIIBogBD8gHKjlf5-Q9 - 0.9031166: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-vwTuBYgB77hUCxNJI2-U - 0.9383267: chicken
-vQTuBYgB77hUCxNJI2-U - 0.93595827: chicken teriyaki with rice
-vgTuBYgB77hUCxNJI2-U - 0.9253382: tikka massala
+vTIIBogBD8gHKjlf5-Q9 - 0.9383267: chicken
+uzIIBogBD8gHKjlf5-Q9 - 0.93595827: chicken teriyaki with rice
+vDIIBogBD8gHKjlf5-Q9 - 0.9253382: tikka massala
 ---
 query for vector of japanese food:
-vQTuBYgB77hUCxNJI2-U - 0.93372023: chicken teriyaki with rice
-vwTuBYgB77hUCxNJI2-U - 0.9329302: chicken
-uQTuBYgB77hUCxNJI2-U - 0.9222195: apple pie
+uzIIBogBD8gHKjlf5-Q9 - 0.93372023: chicken teriyaki with rice
+vTIIBogBD8gHKjlf5-Q9 - 0.9329302: chicken
+tzIIBogBD8gHKjlf5-Q9 - 0.9222195: apple pie
 ---
 query for vector of baked goods:
-uQTuBYgB77hUCxNJI2-U - 0.9228046: apple pie
-ugTuBYgB77hUCxNJI2-U - 0.91771066: chocolate chip cookie
-uATuBYgB77hUCxNJI2-U - 0.91359603: apple crumble
+tzIIBogBD8gHKjlf5-Q9 - 0.9228046: apple pie
+uDIIBogBD8gHKjlf5-Q9 - 0.91771066: chocolate chip cookie
+tjIIBogBD8gHKjlf5-Q9 - 0.91359603: apple crumble
 ---
 
 ```
