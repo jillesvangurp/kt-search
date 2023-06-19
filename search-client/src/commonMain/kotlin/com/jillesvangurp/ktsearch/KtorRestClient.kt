@@ -17,7 +17,9 @@ expect fun defaultKtorHttpClient(
  * Ktor-client implementation of the RestClient.
  */
 class KtorRestClient(
-    private vararg val nodes: Node = arrayOf(Node("localhost", 9200)),
+    private vararg val nodes: Node = arrayOf(Node(
+        "localhost", 9200
+    )),
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
@@ -42,7 +44,7 @@ class KtorRestClient(
         nodes = arrayOf(Node(host, port))
     )
 
-    override fun nextNode(): Node = nodeSelector.selectNode()
+    override suspend fun nextNode(): Node = nodeSelector.selectNode()
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun doRequest(

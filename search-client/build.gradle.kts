@@ -93,7 +93,7 @@ kotlin {
                 implementation(kotlin("test-annotations-common", "_"))
                 implementation(Testing.kotest.assertions.core)
                 implementation(KotlinX.coroutines.test)
-                implementation("io.github.microutils:kotlin-logging:_")
+                api("io.github.microutils:kotlin-logging:_")
             }
         }
         val jvmMain by existing {

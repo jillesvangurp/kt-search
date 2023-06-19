@@ -52,9 +52,14 @@ open class SearchTestBase {
 
     companion object {
         private val sharedClient by lazy {
+            val nodes = arrayOf(
+                Node("127.0.0.1", 9999),
+                Node("localhost", 9999)
+            )
             KtorRestClient(
-                nodes = arrayOf(Node("127.0.0.1", 9999)),
-                client = defaultKtorHttpClient(true)
+                nodes = nodes,
+                client = defaultKtorHttpClient(true),
+                nodeSelector = SniffingNodeSelector(initialNodes = nodes)
             )
         }
     }

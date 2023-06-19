@@ -10,7 +10,7 @@ class RoundRobinNodeSelector(
     private val nodes: Array<out Node>
 ) : NodeSelector {
     private val index = simpleIndexProvider()
-    override fun selectNode(): Node {
+    override suspend fun selectNode(): Node {
         val result = nodes[index.get()]
         index.set((index.get() + 1).mod(nodes.size))
         return result

@@ -5,9 +5,12 @@ package documentation.manual.gettingstarted
 
 import com.jillesvangurp.ktsearch.*
 import documentation.sourceGitRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlin.time.Duration.Companion.seconds
 
 val whatIsKtSearchMd = sourceGitRepository.md {
     includeMdFile("whatisktsearch.md")
@@ -96,6 +99,49 @@ val gettingStartedMd = sourceGitRepository.md {
                 }
             }
         }
+    }
+
+    section("SniffingNodeSelector") {
+        +"""
+            The client includes a SniffingNodeSelector that you may use with multi 
+            node clusters without a load balancer.
+        """.trimIndent()
+
+        suspendingBlock(runBlock = false) {
+            val nodes= arrayOf(
+                Node("localhost", 9200),
+                Node("127.0.0.1", 9201)
+            )
+            val client5 = SearchClient(
+                KtorRestClient(
+                    nodes = nodes,
+
+                    nodeSelector = SniffingNodeSelector(
+                        initialNodes = nodes,
+                        maxNodeAge = 3.seconds
+                    ),
+                )
+            )
+            coroutineScope {
+                async(AffinityId("myid")) {
+                    // always ends up using the same node
+                    client5.root()
+                }
+                // without AffinityId:
+                //  - on jvm: uses the thread name as the affinityId
+                //  - on js: randomly picks a node
+                // with both it periodically refreshes its list of nodes
+                async {
+                    client5.root()
+                }
+            }
+        }
+
+        +"""
+            The SniffingNodeSelector tries to give threads and co routine scopes with the AffinityId scope
+            the same node. This may help performance a bit if you do multiple elastic search calls
+            in one web request or transaction.
+        """.trimIndent()
     }
 
     section("Customizing the ktor rest client") {
