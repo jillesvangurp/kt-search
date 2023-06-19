@@ -13,8 +13,6 @@ import kotlin.time.Duration.Companion.minutes
 
 internal data class VerifiedNode(val lastChecked: Instant, val node: Node)
 
-//private val logger = KotlinLogging.logger { }
-
 /**
  * If you are running against a cluster without a node balancer
  * you can use this node selector to make the client sniff nodes from the cluster.
