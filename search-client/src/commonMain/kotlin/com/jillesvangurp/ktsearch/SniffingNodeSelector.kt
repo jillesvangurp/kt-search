@@ -92,7 +92,8 @@ class SniffingNodeSelector(
                 knownNodes = nodes.map {
                     VerifiedNode(lastChecked, it)
                 }
-                affinity.entries.forEach { (aid, an) ->
+                // create a copy to avoid ConcurrentModificationException
+                affinity.entries.toList().forEach { (aid, an) ->
                     if (knownNodes.firstOrNull { it.node == an } == null) {
                         affinity.remove(aid)
                     }
