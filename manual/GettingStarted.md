@@ -112,6 +112,45 @@ docker-test-cluster is Green
 
 ```
 
+## SniffingNodeSelector
+
+The client includes a SniffingNodeSelector that you may use with multi 
+node clusters without a load balancer.
+
+```kotlin
+val nodes= arrayOf(
+  Node("localhost", 9200),
+  Node("127.0.0.1", 9201)
+)
+val client5 = SearchClient(
+  KtorRestClient(
+    nodes = nodes,
+
+    nodeSelector = SniffingNodeSelector(
+      initialNodes = nodes,
+      maxNodeAge = 3.seconds
+    ),
+  )
+)
+coroutineScope {
+  async(AffinityId("myid")) {
+    // always ends up using the same node
+    client5.root()
+  }
+  // without AffinityId:
+  //  - on jvm: uses the thread name as the affinityId
+  //  - on js: randomly picks a node
+  // with both it periodically refreshes its list of nodes
+  async {
+    client5.root()
+  }
+}
+```
+
+The SniffingNodeSelector tries to give threads and co routine scopes with the AffinityId scope
+the same node. This may help performance a bit if you do multiple elastic search calls
+in one web request or transaction.
+
 ## Customizing the ktor rest client
 
 One of the parameters on `KtorRestClient` is the client parameter which has a default value
