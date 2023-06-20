@@ -7,6 +7,8 @@ import mu.KotlinLogging
 import kotlin.random.Random
 import kotlin.random.nextULong
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -59,7 +61,8 @@ open class SearchTestBase {
             KtorRestClient(
                 nodes = nodes,
                 client = defaultKtorHttpClient(true),
-                nodeSelector = SniffingNodeSelector(initialNodes = nodes)
+                // sniffing is a bit weird in docker, publish address is not always reachable
+                nodeSelector = SniffingNodeSelector(initialNodes = nodes, maxNodeAge = 5.hours)
             )
         }
     }

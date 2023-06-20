@@ -1,8 +1,12 @@
 package com.jillesvangurp.ktsearch
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -56,8 +60,10 @@ class SniffingNodeSelector(
         val nodes = this["nodes"]?.jsonObject
         return nodes?.mapNotNull { (_, node) ->
             node.jsonObject.let { value ->
-                value["publish_address"]?.jsonPrimitive?.content?.split(":")?.let { splitted ->
-                    Node(splitted[0], splitted[1].toInt())
+                value["http"]?.jsonObject?.let { http ->
+                    http["publish_address"]?.jsonPrimitive?.content?.split(":")?.let { splitted ->
+                        Node(splitted[0], splitted[1].toInt())
+                    }
                 }
             }
         } ?: listOf()
@@ -69,6 +75,7 @@ class SniffingNodeSelector(
                 path("_nodes", "http")
             }.parseJsonObject().extractNodes()
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -77,15 +84,17 @@ class SniffingNodeSelector(
         // slight risk of double sniffing here from different threads,
         // won't hurt anyone if that happens
         // not worth introducing some locking mechanism here
-        if (sniffing) return
+        if (sniffing) {
+            return
+        }
         try {
             sniffing = true
             val nodes = knownNodes.firstNotNullOfOrNull {
                 sniffNode(it.node)
             } ?: initialNodes.firstNotNullOfOrNull {
                 sniffNode(it)
-            } ?: error("no usable nodes")
-            if (nodes.isNotEmpty()) {
+            }
+            if (nodes?.isNotEmpty() == true) {
                 val lastChecked = Clock.System.now()
                 knownNodes = nodes.map {
                     VerifiedNode(lastChecked, it)
@@ -96,6 +105,7 @@ class SniffingNodeSelector(
                         affinity.remove(aid)
                     }
                 }
+            } else {
             }
         } finally {
             sniffing = false
