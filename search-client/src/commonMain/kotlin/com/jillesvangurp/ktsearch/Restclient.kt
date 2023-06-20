@@ -2,9 +2,12 @@ package com.jillesvangurp.ktsearch
 
 import io.ktor.http.*
 
-data class Node(val host: String, val port: Int?)
+data class Node(
+    val host: String,
+    val port: Int?,
+)
 interface NodeSelector {
-    fun selectNode(): Node
+    suspend fun selectNode(): Node
 }
 
 /**
@@ -13,7 +16,7 @@ interface NodeSelector {
  * For now, the [KtorRestClient] is the only implementation.
  */
 interface RestClient {
-    fun nextNode(): Node
+    suspend fun nextNode(): Node
 
     suspend fun doRequest(
         pathComponents: List<String> = emptyList(),
