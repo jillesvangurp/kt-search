@@ -4,10 +4,11 @@ This project is [licensed](LICENSE) under the MIT license.
 
 ## Learn more
 
-- **[Manual](https://jillesvangurp.github.io/kt-search/manual)** - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
-- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
-- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
+- **[Manual](https://jillesvangurp.github.io/kt-search/manual)** - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you. Or create a pull request to improve the manual.
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
+- [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
+- - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
 
 ## Use cases

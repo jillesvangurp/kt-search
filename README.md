@@ -10,10 +10,11 @@ This project is [licensed](LICENSE) under the MIT license.
 
 ## Learn more
 
-- **[Manual](https://jillesvangurp.github.io/kt-search/manual)** - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you.
-- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation.
-- [Release Notes](https://github.com/jillesvangurp/kt-search/releases)
+- **[Manual](https://jillesvangurp.github.io/kt-search/manual)** - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you. Or create a pull request to improve the manual.
+- [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
+- [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
+- - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
 
 ## Use cases
@@ -289,9 +290,9 @@ There are of course a lot more features that this library supports. The
 
 There are several libraries that build on kt-search:
 
-- [jillesvangurp/kt-search](https://github.com/jillesvangurp/kt-search) - the main Github project for kt-search.
 - [kt-search-kts](https://github.com/jillesvangurp/kt-search-kts) - this library combines `kt-search` with `kotlinx-cli` to make scripting really easy. Combined with the out of the box support for managing snapshots, creating template mappings, bulk indexing, data-streams, etc. this is the perfect companion to script all your index operations. Additionally, it's a great tool to e.g. query your data, or build some health checks against your production indices.
-- [kt-search-logback-appender](https://github.com/jillesvangurp/kt-search-logback-appender) - this is a logback appender that bulk indexes log events straight to elasticsearch.
+- [kt-search-logback-appender](https://github.com/jillesvangurp/kt-search-logback-appender) - this is a logback appender that bulk indexes log events straight to elasticsearch. We use this at FORMATION.
+- [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) A demo project that uses kt-search.
 - [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) - version 1 of this client; now no longer maintained.
 
 ## Setting up a development environment
@@ -301,7 +302,7 @@ This project uses docker for testing and to avoid having the tests create a
 mess in your existing elasticsearch cluster, it uses a different port than
 the default Elasticsearch port.
 
-If you want to save some time while developing, it helps to start docker manually.
+If you want to save some time while developing, it helps to start docker manually. Otherwise you have to wait for the container to stop and start every time you run a test.
 
 ```bash
 docker-compose -f docker-compose-es-8.yml up -d
@@ -315,13 +316,12 @@ The integration tests on GitHub Actions use a **matrix build** that tests everyt
 
 It may work fine with earlier Elasticsearch versions as well. But we don't actively test this and the tests are known to not pass with Elasticsearch 6 due to some changes in the mapping dsl. You may be able to work around some of this, however.
 
-There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and Opensearch 2 and has the following annotation to indicate that:
+There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and and has the following annotation to indicate that:
 
 ```kotlin
 @VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
     validateEngine("search_after does not work on OS1",
-        SearchEngineVariant.OS2,
         SearchEngineVariant.ES7, 
         SearchEngineVariant.ES8)
 
@@ -333,8 +333,7 @@ The annotation is informational only for now. In our tests, we use `onlyon` to p
 failing on unsupported engines For example, this is added to the test for `search_after`:
 
 ```kotlin
-onlyOn("opensearch implemented search_after with v2",
-    SearchEngineVariant.OS2,
+onlyOn("opensearch has search_after but it works a bit different",
     SearchEngineVariant.ES7,
     SearchEngineVariant.ES8)
 ```

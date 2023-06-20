@@ -5,7 +5,7 @@ This project uses docker for testing and to avoid having the tests create a
 mess in your existing elasticsearch cluster, it uses a different port than
 the default Elasticsearch port.
 
-If you want to save some time while developing, it helps to start docker manually.
+If you want to save some time while developing, it helps to start docker manually. Otherwise you have to wait for the container to stop and start every time you run a test.
 
 ```bash
 docker-compose -f docker-compose-es-8.yml up -d
@@ -19,13 +19,12 @@ The integration tests on GitHub Actions use a **matrix build** that tests everyt
 
 It may work fine with earlier Elasticsearch versions as well. But we don't actively test this and the tests are known to not pass with Elasticsearch 6 due to some changes in the mapping dsl. You may be able to work around some of this, however.
 
-There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and Opensearch 2 and has the following annotation to indicate that:
+There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and and has the following annotation to indicate that:
 
 ```kotlin
 @VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
     validateEngine("search_after does not work on OS1",
-        SearchEngineVariant.OS2,
         SearchEngineVariant.ES7, 
         SearchEngineVariant.ES8)
 
@@ -37,8 +36,7 @@ The annotation is informational only for now. In our tests, we use `onlyon` to p
 failing on unsupported engines For example, this is added to the test for `search_after`:
 
 ```kotlin
-onlyOn("opensearch implemented search_after with v2",
-    SearchEngineVariant.OS2,
+onlyOn("opensearch has search_after but it works a bit different",
     SearchEngineVariant.ES7,
     SearchEngineVariant.ES8)
 ```
