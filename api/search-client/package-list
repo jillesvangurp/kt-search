@@ -139,6 +139,7 @@ $dokka.location:com.jillesvangurp.ktsearch//snakeCase/kotlin.Enum[*]#/PointingTo
 $dokka.location:com.jillesvangurp.ktsearch//takeSnapshot/com.jillesvangurp.ktsearch.SearchClient#kotlin.String#kotlin.String#kotlin.Boolean#kotlin.time.Duration/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/take-snapshot.html
 $dokka.location:com.jillesvangurp.ktsearch//termsResult/kotlinx.serialization.json.JsonObject?#kotlin.Enum[*]#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/terms-result.html
 $dokka.location:com.jillesvangurp.ktsearch//termsResult/kotlinx.serialization.json.JsonObject?#kotlin.String#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/terms-result.html
+$dokka.location:com.jillesvangurp.ktsearch//threadId/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/thread-id.html
 $dokka.location:com.jillesvangurp.ktsearch//topHitResult/kotlinx.serialization.json.JsonObject?#kotlin.Enum[*]#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/top-hit-result.html
 $dokka.location:com.jillesvangurp.ktsearch//topHitResult/kotlinx.serialization.json.JsonObject?#kotlin.String#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/top-hit-result.html
 $dokka.location:com.jillesvangurp.ktsearch//total/com.jillesvangurp.ktsearch.SearchResponse#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/total.html
@@ -155,6 +156,11 @@ $dokka.location:com.jillesvangurp.ktsearch//verifySnapshotRepository/com.jillesv
 $dokka.location:com.jillesvangurp.ktsearch/AcknowledgedResponse///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-acknowledged-response/index.html
 $dokka.location:com.jillesvangurp.ktsearch/AcknowledgedResponse/AcknowledgedResponse/#kotlin.Boolean/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-acknowledged-response/-acknowledged-response.html
 $dokka.location:com.jillesvangurp.ktsearch/AcknowledgedResponse/acknowledged/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-acknowledged-response/acknowledged.html
+$dokka.location:com.jillesvangurp.ktsearch/AffinityId.Key///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/-key/index.html
+$dokka.location:com.jillesvangurp.ktsearch/AffinityId///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/index.html
+$dokka.location:com.jillesvangurp.ktsearch/AffinityId/AffinityId/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/-affinity-id.html
+$dokka.location:com.jillesvangurp.ktsearch/AffinityId/affinityId/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/affinity-id.html
+$dokka.location:com.jillesvangurp.ktsearch/AffinityId/toString/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/to-string.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/index.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/AliasAction/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/-alias-action.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/alias/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/alias.html
@@ -645,6 +651,11 @@ $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository/SnapshotRepository
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository/settings/#kotlin.Function1[com.jillesvangurp.ktsearch.SnapshotRepository.Settings,kotlin.Unit]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/settings.html
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository/type/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/type.html
 $dokka.location:com.jillesvangurp.ktsearch/SnapshotRepository/verify/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-snapshot-repository/verify.html
+$dokka.location:com.jillesvangurp.ktsearch/SniffingNodeSelector.Companion///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-sniffing-node-selector/-companion/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SniffingNodeSelector.Companion/sniffingScope/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-sniffing-node-selector/-companion/sniffing-scope.html
+$dokka.location:com.jillesvangurp.ktsearch/SniffingNodeSelector///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-sniffing-node-selector/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SniffingNodeSelector/SniffingNodeSelector/#kotlin.Array[com.jillesvangurp.ktsearch.Node]#kotlin.time.Duration#kotlin.Boolean#kotlin.String?#kotlin.String?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-sniffing-node-selector/-sniffing-node-selector.html
+$dokka.location:com.jillesvangurp.ktsearch/SniffingNodeSelector/selectNode/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-sniffing-node-selector/select-node.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.always///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/always/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.missing///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/missing/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.popular///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/popular/index.html
