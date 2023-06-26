@@ -421,6 +421,7 @@ $dokka.location:com.jillesvangurp.ktsearch/IndexTemplate/priority/#/PointingToDe
 $dokka.location:com.jillesvangurp.ktsearch/KtorRestClient///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/index.html
 $dokka.location:com.jillesvangurp.ktsearch/KtorRestClient/KtorRestClient/#kotlin.Array[com.jillesvangurp.ktsearch.Node]#kotlin.Boolean#kotlin.String?#kotlin.String?#kotlin.Boolean#io.ktor.client.HttpClient#com.jillesvangurp.ktsearch.NodeSelector/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/-ktor-rest-client.html
 $dokka.location:com.jillesvangurp.ktsearch/KtorRestClient/KtorRestClient/#kotlin.String#kotlin.Int#kotlin.Boolean#kotlin.String?#kotlin.String?#kotlin.Boolean#io.ktor.client.HttpClient/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/-ktor-rest-client.html
+$dokka.location:com.jillesvangurp.ktsearch/KtorRestClient/close/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/close.html
 $dokka.location:com.jillesvangurp.ktsearch/KtorRestClient/doRequest/#kotlin.collections.List[kotlin.String]#io.ktor.http.HttpMethod#kotlin.collections.Map[kotlin.String,kotlin.Any]?#kotlin.String?#io.ktor.http.ContentType#kotlin.collections.Map[kotlin.String,kotlin.Any]?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/do-request.html
 $dokka.location:com.jillesvangurp.ktsearch/KtorRestClient/nextNode/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-ktor-rest-client/next-node.html
 $dokka.location:com.jillesvangurp.ktsearch/LongValueAggregationResult///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-long-value-aggregation-result/index.html
@@ -567,6 +568,7 @@ $dokka.location:com.jillesvangurp.ktsearch/SearchAPIRequest/path/#kotlin.Array[k
 $dokka.location:com.jillesvangurp.ktsearch/SearchAPIRequest/rawBody/#kotlin.String#io.ktor.http.ContentType/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-a-p-i-request/raw-body.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchClient///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchClient/SearchClient/#com.jillesvangurp.ktsearch.RestClient#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/-search-client.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchClient/close/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/close.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchClient/engineInfo/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/engine-info.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchClient/json/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/json.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchClient/restClient/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-client/rest-client.html
