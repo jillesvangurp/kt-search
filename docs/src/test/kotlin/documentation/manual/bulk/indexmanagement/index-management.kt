@@ -120,7 +120,7 @@ val indexManagementMd = sourceGitRepository.md {
             so all your queries use the new index. After that, you can safely remove the old index.
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingBlock(false) {
             client.createIndex("foo-1")
 
             client.updateAliases {
