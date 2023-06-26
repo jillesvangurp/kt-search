@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import io.ktor.http.*
+import io.ktor.utils.io.core.*
 
 data class Node(
     val host: String,
@@ -15,7 +16,7 @@ interface NodeSelector {
  *
  * For now, the [KtorRestClient] is the only implementation.
  */
-interface RestClient {
+interface RestClient : Closeable {
     suspend fun nextNode(): Node
 
     suspend fun doRequest(

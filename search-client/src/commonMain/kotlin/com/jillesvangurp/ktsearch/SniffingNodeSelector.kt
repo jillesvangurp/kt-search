@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -71,9 +72,12 @@ class SniffingNodeSelector(
 
     private suspend fun sniffNode(node: Node): List<Node>? {
         return try {
-            createClient(node).restClient.get {
-                path("_nodes", "http")
-            }.parseJsonObject().extractNodes()
+            createClient(node).use { client ->
+                // make sure to close the client
+                client.restClient.get {
+                    path("_nodes", "http")
+                }.parseJsonObject().extractNodes()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null

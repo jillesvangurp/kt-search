@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
+import io.ktor.utils.io.core.*
 
 expect fun defaultKtorHttpClient(
     logging: Boolean = false,
@@ -26,7 +27,7 @@ class KtorRestClient(
     private val logging: Boolean = false,
     private val client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password),
     private val nodeSelector: NodeSelector = RoundRobinNodeSelector(nodes),
-) : RestClient {
+) : RestClient, Closeable {
     constructor(
         host: String = "localhost",
         port: Int = 9200,
@@ -125,6 +126,10 @@ class KtorRestClient(
             HttpStatusCode.ServiceUnavailable -> RestResponse.Status5xx.ServiceUnavailable(responseBody)
             else -> RestResponse.UnexpectedStatus(responseBody, response.status.value)
         }
+    }
+
+    override fun close() {
+        client.close()
     }
 }
 
