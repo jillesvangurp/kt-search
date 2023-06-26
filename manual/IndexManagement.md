@@ -157,22 +157,6 @@ client.updateAliases {
 }
 ```
 
-->
-
-```
-AcknowledgedResponse(acknowledged=true)
-```
-
-Captured Output:
-
-```
-Aliases for foo-1: [foo]
-Aliases for foo-2: null
-Aliases for foo-1: []
-Aliases for foo-2: [foo]
-
-```
-
 Note. you may also want to consider using data streams instead: [Creating Data Streams](DataStreams.md)
  
 Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
