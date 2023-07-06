@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -382,20 +384,64 @@ data class CreatePointInTimeResponse(val id: String)
  *
  * @return point in time id
  */
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String {
-    return restClient.post {
-        path(name, "_pit")
-        parameter("keep_alive", "${keepAlive.inWholeSeconds}s")
-    }.parse(CreatePointInTimeResponse.serializer(), json).id
+    validateEngine("PIT-api is not supported by OS1",
+        SearchEngineVariant.ES7,
+        SearchEngineVariant.ES8,
+        SearchEngineVariant.OS2
+    )
+    val keepAliveParam = "${keepAlive.inWholeSeconds}s"
+    val id = when (engineInfo().variantInfo.variant) {
+
+        SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
+            restClient.post {
+                path(name, "_pit")
+                parameter("keep_alive", keepAliveParam)
+            }.parse(CreatePointInTimeResponse.serializer(), json).id
+
+        SearchEngineVariant.OS2 -> {
+            val result = restClient.post {
+                path(name, "_search", "point_in_time")
+                parameter("keep_alive", keepAliveParam)
+            }
+            val id = json.parseToJsonElement(result.getOrThrow().text).jsonObject["pit_id"]?.jsonPrimitive?.content
+            require(id != null, lazyMessage = { "opensearch API did not contain pit id?. Payload was ${result.getOrNull()}" })
+            id
+          }
+
+        else -> throw IllegalStateException("Unknown variant: ${engineInfo().variantInfo.variant}")
+    }
+    return id
 }
 
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
-    return restClient.delete {
-        path("_pit")
-        body = withJsonDsl {
-            this["id"] = id
-        }.json()
-    }.parse(JsonObject.serializer())
+    validateEngine("PIT-api is not supported by OS1",
+        SearchEngineVariant.ES7,
+        SearchEngineVariant.ES8,
+        SearchEngineVariant.OS2
+    )
+    val result: JsonObject = when (val variant = this.engineInfo().variantInfo.variant) {
+
+        SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
+            restClient.delete {
+                path("_pit")
+                body = withJsonDsl {
+                    this["id"] = id
+                }.json()
+            }.parse(JsonObject.serializer())
+
+        SearchEngineVariant.OS2 ->
+            return restClient.delete {
+                path("_search", "point_in_time")
+                body = withJsonDsl {
+                    this["pit_id"] = listOf(id)
+                }.json()
+            }.parse(JsonObject.serializer())
+          else -> throw IllegalStateException("Unknown variant: $variant")
+    }
+    return result
 }
 
 
@@ -438,8 +484,8 @@ suspend fun SearchClient.searchAfter(
         }
     } else {
         if(!optInToCustomSort) {
-            error("""Adding a custom sort with search_after can break in a few ways and is probably 
-                |not what you want. If you know what you are doing, you can disable this error by setting 
+            error("""Adding a custom sort with search_after can break in a few ways and is probably
+                |not what you want. If you know what you are doing, you can disable this error by setting
                 |optInToCustomSort to true.""".trimMargin())
         }
     }
