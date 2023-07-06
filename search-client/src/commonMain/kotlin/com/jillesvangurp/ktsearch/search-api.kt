@@ -395,6 +395,7 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
   )
   val keepAliveParam = "${keepAlive.inWholeSeconds}s"
   val id = when (engineInfo().variantInfo.variant) {
+
     SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
       restClient.post {
         path(name, "_pit")
@@ -419,6 +420,7 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
 @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
   val result: JsonObject = when (val variant = this.engineInfo().variantInfo.variant) {
+
     SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
       restClient.delete {
         path("_pit")
@@ -426,15 +428,15 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
           this["id"] = id
         }.json()
       }.parse(JsonObject.serializer())
-    SearchEngineVariant.OS2 ->
 
-    return restClient.delete {
-      path("_search", "point_in_time")
-        body = withJsonDsl {
-          this["id"] = listOf(id)
-        }.json()
-      }.parse(JsonObject.serializer())
-    else -> throw IllegalStateException("Unknown variant: $variant")
+    SearchEngineVariant.OS2 ->
+      return restClient.delete {
+        path("_search", "point_in_time")
+          body = withJsonDsl {
+            this["pit_id"] = listOf(id)
+          }.json()
+        }.parse(JsonObject.serializer())
+      else -> throw IllegalStateException("Unknown variant: $variant")
   }
   return result
 }
