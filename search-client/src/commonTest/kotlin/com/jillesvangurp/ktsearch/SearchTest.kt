@@ -67,7 +67,7 @@ class SearchTest : SearchTestBase() {
         onlyOn(
             "opensearch implemented search_after with v2 later changed their _pit API",
             SearchEngineVariant.ES7,
-            SearchEngineVariant.ES8
+            SearchEngineVariant.ES8,
         ) {
             val index = testDocumentIndex()
             client.bulk(target = index, refresh = Refresh.WaitFor) {
@@ -90,7 +90,7 @@ class SearchTest : SearchTestBase() {
         onlyOn(
             "opensearch implemented search_after with v2 but then later changed their _pit API",
             SearchEngineVariant.ES7,
-            SearchEngineVariant.ES8
+            SearchEngineVariant.ES8,
         ) {
             val index = testDocumentIndex()
             val repo = client.repository(index, TestDocument.serializer())
