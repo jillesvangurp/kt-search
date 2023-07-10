@@ -468,7 +468,7 @@ suspend fun SearchClient.searchAfter(
     validateEngine(
         "search_after and pit api work slightly different on Opensearch 2.x and not at all on OS1",
         SearchEngineVariant.ES7,
-        SearchEngineVariant.ES8
+        SearchEngineVariant.ES8,
     )
     var pitId = createPointInTime(target, keepAlive)
     query["pit"] = withJsonDsl {
@@ -476,6 +476,7 @@ suspend fun SearchClient.searchAfter(
     }
     if (!query.containsKey("sort")) {
         query.apply {
+            // FIXME Opensearch 2 seems to not support this
             sort {
                 // field is added implicitly, the sort isn't.
                 // so add it explicitly
