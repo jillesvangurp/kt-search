@@ -9,7 +9,7 @@ typealias Aggregations = JsonObject
 @Suppress("unused")
 @Serializable
 data class SearchResponse(
-    val took: Long,
+    val took: Long?, // sometimes missing; apparently
     @SerialName("_shards")
     val shards: Shards?,
     @SerialName("timed_out")
