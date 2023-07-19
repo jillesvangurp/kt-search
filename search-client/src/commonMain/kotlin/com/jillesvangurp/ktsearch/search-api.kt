@@ -457,7 +457,6 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
  * @return a pair of the first response and a flow of hits that when consumed pages through
  * the results using the point in time id and the sort.
  */
-@OptIn(FlowPreview::class)
 @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(
     target: String,
