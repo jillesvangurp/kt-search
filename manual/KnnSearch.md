@@ -120,7 +120,7 @@ queries.forEach { (queryId, text) ->
       numCandidates = 3
     )
   }.let { searchResponse ->
-    println("query for vector of ${queries[queryId]}:")
+    println("query for vector of $text:")
     searchResponse.searchHits.forEach { hit ->
       println("${hit.id} - ${hit.score}: ${hit.parseHit<KnnTestDoc>().text}")
     }
@@ -133,39 +133,39 @@ Captured Output:
 
 ```
 query for vector of rice:
-LkI3bYkBlrhw6DibkbQU - 0.9389602: chicken
-LEI3bYkBlrhw6DibkbQU - 0.91619456: chicken teriyaki with rice
-KEI3bYkBlrhw6DibkbQU - 0.9118491: apple pie
+i1JGbYkBQ8_pCvmzEytH - 0.9389602: chicken
+iVJGbYkBQ8_pCvmzEytH - 0.91619456: chicken teriyaki with rice
+hVJGbYkBQ8_pCvmzEytH - 0.9118491: apple pie
 ---
 query for vector of gebak en taart:
-K0I3bYkBlrhw6DibkbQU - 0.90217876: pattiserie
-LUI3bYkBlrhw6DibkbQU - 0.9010899: tikka massala
-KEI3bYkBlrhw6DibkbQU - 0.8989133: apple pie
+iFJGbYkBQ8_pCvmzEytH - 0.90217876: pattiserie
+ilJGbYkBQ8_pCvmzEytH - 0.9010899: tikka massala
+hVJGbYkBQ8_pCvmzEytH - 0.8989133: apple pie
 ---
 query for vector of muppets:
-KEI3bYkBlrhw6DibkbQU - 0.91213405: apple pie
-LkI3bYkBlrhw6DibkbQU - 0.91064084: chicken
-K0I3bYkBlrhw6DibkbQU - 0.9038592: pattiserie
+hVJGbYkBQ8_pCvmzEytH - 0.91213405: apple pie
+i1JGbYkBQ8_pCvmzEytH - 0.91064084: chicken
+iFJGbYkBQ8_pCvmzEytH - 0.9038592: pattiserie
 ---
 query for vector of artisanal baker:
-KUI3bYkBlrhw6DibkbQU - 0.91683334: chocolate chip cookie
-KkI3bYkBlrhw6DibkbQU - 0.90785366: the cookie monster
-JkI3bYkBlrhw6DibkbQU - 0.9031166: banana muffin with chocolate chips
+hlJGbYkBQ8_pCvmzEytH - 0.91683334: chocolate chip cookie
+h1JGbYkBQ8_pCvmzEytH - 0.90785366: the cookie monster
+g1JGbYkBQ8_pCvmzEytH - 0.9031166: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-LkI3bYkBlrhw6DibkbQU - 0.9383267: chicken
-LEI3bYkBlrhw6DibkbQU - 0.93595827: chicken teriyaki with rice
-LUI3bYkBlrhw6DibkbQU - 0.9253382: tikka massala
+i1JGbYkBQ8_pCvmzEytH - 0.9383267: chicken
+iVJGbYkBQ8_pCvmzEytH - 0.93595827: chicken teriyaki with rice
+ilJGbYkBQ8_pCvmzEytH - 0.9253382: tikka massala
 ---
 query for vector of japanese food:
-LEI3bYkBlrhw6DibkbQU - 0.93372023: chicken teriyaki with rice
-LkI3bYkBlrhw6DibkbQU - 0.9329302: chicken
-KEI3bYkBlrhw6DibkbQU - 0.9222195: apple pie
+iVJGbYkBQ8_pCvmzEytH - 0.93372023: chicken teriyaki with rice
+i1JGbYkBQ8_pCvmzEytH - 0.9329302: chicken
+hVJGbYkBQ8_pCvmzEytH - 0.9222195: apple pie
 ---
 query for vector of baked goods:
-KEI3bYkBlrhw6DibkbQU - 0.9228046: apple pie
-KUI3bYkBlrhw6DibkbQU - 0.91771066: chocolate chip cookie
-J0I3bYkBlrhw6DibkbQU - 0.91359603: apple crumble
+hVJGbYkBQ8_pCvmzEytH - 0.9228046: apple pie
+hlJGbYkBQ8_pCvmzEytH - 0.91771066: chocolate chip cookie
+hFJGbYkBQ8_pCvmzEytH - 0.91359603: apple crumble
 ---
 
 ```
