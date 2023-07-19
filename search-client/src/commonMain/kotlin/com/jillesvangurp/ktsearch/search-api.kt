@@ -1,4 +1,3 @@
-@file:OptIn(FlowPreview::class)
 @file:Suppress("EnumEntryName", "unused")
 
 package com.jillesvangurp.ktsearch
@@ -9,7 +8,6 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.*
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -100,7 +98,7 @@ suspend fun SearchClient.search(
         seqNoPrimaryTerm = seqNoPrimaryTerm,
         size = size,
         sort = sort,
-        _source = _source,
+        source = _source,
         sourceExcludes = sourceExcludes,
         sourceIncludes = sourceIncludes,
         stats = stats,
@@ -149,7 +147,7 @@ suspend fun SearchClient.search(
     seqNoPrimaryTerm: Boolean? = null,
     size: Int? = null,
     sort: String? = null,
-    _source: String? = null,
+    source: String? = null,
     sourceExcludes: String? = null,
     sourceIncludes: String? = null,
     stats: String? = null,
@@ -177,7 +175,7 @@ suspend fun SearchClient.search(
         ccsMinimizeRoundtrips = ccsMinimizeRoundtrips,
         defaultOperator = defaultOperator,
         df = df,
-        docvalueFields = docvalueFields,
+        docValueFields = docvalueFields,
         expandWildcards = expandWildcards,
         explain = explain,
         from = from,
@@ -196,7 +194,7 @@ suspend fun SearchClient.search(
         seqNoPrimaryTerm = seqNoPrimaryTerm,
         size = size,
         sort = sort,
-        _source = _source,
+        source = source,
         sourceExcludes = sourceExcludes,
         sourceIncludes = sourceIncludes,
         stats = stats,
@@ -232,7 +230,7 @@ suspend fun SearchClient.search(
     ccsMinimizeRoundtrips: Boolean? = null,
     defaultOperator: SearchOperator? = null,
     df: String? = null,
-    docvalueFields: String? = null,
+    docValueFields: String? = null,
     expandWildcards: ExpandWildCards? = null,
     explain: Boolean? = null,
     from: Int? = null,
@@ -251,7 +249,7 @@ suspend fun SearchClient.search(
     seqNoPrimaryTerm: Boolean? = null,
     size: Int? = null,
     sort: String? = null,
-    _source: String? = null,
+    source: String? = null,
     sourceExcludes: String? = null,
     sourceIncludes: String? = null,
     stats: String? = null,
@@ -279,7 +277,7 @@ suspend fun SearchClient.search(
         parameter("ccs_minimize_roundtrips", ccsMinimizeRoundtrips)
         parameter("default_operator", defaultOperator)
         parameter("df", df)
-        parameter("docvalue_fields", docvalueFields)
+        parameter("docvalue_fields", docValueFields)
         parameter("expand_wildcards", expandWildcards)
         parameter("explain", explain)
         parameter("from", from)
@@ -298,7 +296,7 @@ suspend fun SearchClient.search(
         parameter("seq_no_primary_term", seqNoPrimaryTerm)
         parameter("size", size)
         parameter("sort", sort)
-        parameter("_source", _source)
+        parameter("_source", source)
         parameter("_source_excludes", sourceExcludes)
         parameter("_source_includes", sourceIncludes)
         parameter("stats", stats)
@@ -686,7 +684,7 @@ fun msearchHeader(block: MsearchHeader.() -> Unit): MsearchHeader {
     return MsearchHeader().apply(block)
 }
 
-class MsearchRequest() {
+class MsearchRequest {
     private val headersAndRequests: MutableList<Pair<MsearchHeader, SearchDSL>> = mutableListOf()
 
     fun add(header: MsearchHeader = MsearchHeader(), block: SearchDSL.() -> Unit) {

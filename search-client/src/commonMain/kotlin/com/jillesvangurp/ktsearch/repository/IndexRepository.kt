@@ -6,7 +6,6 @@ import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.KSerializer
 import kotlin.time.Duration
@@ -328,7 +327,7 @@ class IndexRepository<T : Any>(
             ccsMinimizeRoundtrips = ccsMinimizeRoundtrips,
             defaultOperator = defaultOperator,
             df = df,
-            docvalueFields = docvalueFields,
+            docValueFields = docvalueFields,
             expandWildcards = expandWildcards,
             explain = explain,
             from = from,
@@ -347,7 +346,7 @@ class IndexRepository<T : Any>(
             seqNoPrimaryTerm = seqNoPrimaryTerm,
             size = size,
             sort = sort,
-            _source = _source,
+            source = _source,
             sourceExcludes = sourceExcludes,
             sourceIncludes = sourceIncludes,
             stats = stats,
@@ -442,7 +441,7 @@ class IndexRepository<T : Any>(
             seqNoPrimaryTerm = seqNoPrimaryTerm,
             size = size,
             sort = sort,
-            _source = _source,
+            source = _source,
             sourceExcludes = sourceExcludes,
             sourceIncludes = sourceIncludes,
             stats = stats,
