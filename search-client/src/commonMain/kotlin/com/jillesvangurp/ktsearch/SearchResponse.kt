@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.jillesvangurp.ktsearch
 
 import kotlinx.datetime.Instant
@@ -136,11 +138,11 @@ data class FilterAggregationResult(
     @SerialName("doc_count")
     val docCount: Long,
 )
-fun Aggregations?.filterResult(name: String, json: Json= DEFAULT_JSON): FilterBucket? =
+fun Aggregations?.filterResult(name: String): FilterBucket? =
     this?.get(name)?.let {
         FilterBucket(
             name = name,
-            docCount = it.jsonObject.get("doc_count")?.jsonPrimitive?.long?:0,
+            docCount = it.jsonObject["doc_count"]?.jsonPrimitive?.long?:0,
             bucket = it.jsonObject
         ) }
 

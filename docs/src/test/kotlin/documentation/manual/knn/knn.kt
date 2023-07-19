@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package documentation.manual.knn
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
@@ -132,7 +134,7 @@ val knnMd = sourceGitRepository.md {
                     numCandidates = 3
                 )
             }.let { searchResponse ->
-                println("query for vector of ${queries[queryId]}:")
+                println("query for vector of $text:")
                 searchResponse.searchHits.forEach { hit ->
                     println("${hit.id} - ${hit.score}: ${hit.parseHit<KnnTestDoc>().text}")
                 }

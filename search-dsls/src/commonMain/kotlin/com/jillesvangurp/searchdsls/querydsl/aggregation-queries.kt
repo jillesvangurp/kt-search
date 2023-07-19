@@ -213,6 +213,7 @@ class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_h
 class FilterConfig : JsonDsl() {
     var query: ESQuery
         get() {
+            @Suppress("UNCHECKED_CAST") // somehow needed
             val map = this["filter"] as Map<String, JsonDsl>
             val (name, queryDetails) = map.entries.first()
             return ESQuery(name, queryDetails)
