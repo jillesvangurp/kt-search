@@ -78,9 +78,9 @@ data class BulkResponse(
         @SerialName("_primary_term")
         val primaryTerm: Long?,
         val status: Int,
-        val error: ItemError?=null,
+        val error: ItemError? = null,
         @SerialName("_source")
-        val source: JsonObject?=null,
+        val source: JsonObject? = null,
     )
 }
 
@@ -170,7 +170,14 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun index(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    suspend fun index(
+        source: String,
+        index: String? = null,
+        id: String? = null,
+        requireAlias: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+    ) {
         val opDsl = withJsonDsl {
             this["index"] = withJsonDsl {
                 index?.let {
@@ -181,6 +188,13 @@ class BulkSession internal constructor(
                 }
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
+                }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
                 }
             }
         }
@@ -207,7 +221,9 @@ class BulkSession internal constructor(
         script: Script,
         index: String? = null,
         requireAlias: Boolean? = null,
-        upsert: JsonObject? = null
+        upsert: JsonObject? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
     ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
@@ -220,11 +236,20 @@ class BulkSession internal constructor(
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
                 }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
+                }
+
             }
         }
 
         // we can't rely on the JsonDsl serializer here because it does not handle kotlinx serialization
-        val json = """{"script":${script.json()}${upsert?.let { """, "upsert":${DEFAULT_JSON.encodeToString(upsert)}}""" }?:""}}""".trimIndent()
+        val json =
+            """{"script":${script.json()}${upsert?.let { """, "upsert":${DEFAULT_JSON.encodeToString(upsert)}}""" } ?: ""}}""".trimIndent()
 
         operation(opDsl.json(), json)
     }
@@ -234,14 +259,19 @@ class BulkSession internal constructor(
         doc: String,
         index: String? = null,
         requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null
-    ) {
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        ) {
         update(
             id = id,
             doc = DEFAULT_JSON.decodeFromString(JsonObject.serializer(), doc),
             index = index,
             requireAlias = requireAlias,
-            docAsUpsert = docAsUpsert
+            docAsUpsert = docAsUpsert,
+            ifSeqNo = ifSeqNo,
+            ifPrimaryTerm = ifPrimaryTerm
         )
     }
 
@@ -250,8 +280,11 @@ class BulkSession internal constructor(
         doc: JsonObject,
         index: String? = null,
         requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null
-    ) {
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
                 index?.let {
@@ -262,6 +295,13 @@ class BulkSession internal constructor(
                 }
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
+                }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
                 }
             }
         }
