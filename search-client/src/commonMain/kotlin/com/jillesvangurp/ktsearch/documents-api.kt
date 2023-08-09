@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.jsondsl.JsonDsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -26,7 +27,7 @@ data class DocumentIndexResponse(
     @SerialName("_primary_term")
     val primaryTerm: Int,
     @SerialName("_source")
-    val source: String?=null,
+    val source: String? = null,
 )
 
 suspend inline fun <reified T> SearchClient.indexDocument(
@@ -108,7 +109,6 @@ suspend fun SearchClient.indexDocument(
 }
 
 
-
 @Serializable
 data class GetDocumentResponse(
     @SerialName("_index")
@@ -186,10 +186,70 @@ suspend fun SearchClient.getDocument(
         parameter("routing", routing)
         parameter("stored_fields", storedFields)
         parameter("source", source)
-        parameter("source_excludes", sourceExcludes)
-        parameter("source_includes", sourceIncludes)
+        // documented as working but don't actually work in 8.9.0,
+        // https://github.com/elastic/elasticsearch/issues/98310
+//        parameter("source_excludes", sourceExcludes)
+//        parameter("source_includes", sourceIncludes)
         parameter("version", version)
         parameter("version_type", versionType)
         parameters(extraParameters)
     }.parse(GetDocumentResponse.serializer(), json)
+}
+
+
+class MGetRequest : JsonDsl() {
+    class MGetDoc : JsonDsl() {
+        var id by property<String>(customPropertyName = "_id")
+        var index by property<String>(customPropertyName = "_index")
+        var routing by property<String>()
+        var source by property<Boolean>(customPropertyName = "_source")
+        // documented as working but don't actually work in 8.9.0,
+        // https://github.com/elastic/elasticsearch/issues/98310
+//        var sourceInclude by property<List<String>>()
+//        var sourceExclude by property<List<String>>()
+    }
+
+    var ids by property<List<String>>()
+    fun doc(docBlock: MGetDoc.() -> Unit) {
+        MGetDoc().apply(docBlock).let { doc ->
+            if (!this.containsKey("docs")) {
+                this["docs"] = mutableListOf<MGetDoc>()
+            }
+            this.get("docs")?.let { docs ->
+                @Suppress("UNCHECKED_CAST")
+                docs as MutableList<MGetDoc>
+                docs.add(doc)
+            }
+        }
+    }
+}
+
+@Serializable
+data class MGetResponse(val docs: List<GetDocumentResponse>)
+
+suspend fun SearchClient.mGet(
+    index: String? = null,
+    preference: String? = null,
+    realtime: Boolean? = null,
+    refresh: Refresh? = null,
+    routing: String? = null,
+    storedFields: String? = null,
+    source: String? = null,
+    sourceExcludes: String? = null,
+    sourceIncludes: String? = null,
+    block: MGetRequest.() -> Unit
+): MGetResponse {
+    val request = MGetRequest().apply(block)
+    return restClient.post {
+        path(index, "_mget")
+        parameter("preference", preference)
+        parameter("realtime", realtime)
+        parameter("refresh", refresh)
+        parameter("routing", routing)
+        parameter("stored_fields", storedFields)
+        parameter("source", source)
+        parameter("source_excludes", sourceExcludes)
+        parameter("source_includes", sourceIncludes)
+        json(request, pretty = false)
+    }.parse(MGetResponse.serializer())
 }

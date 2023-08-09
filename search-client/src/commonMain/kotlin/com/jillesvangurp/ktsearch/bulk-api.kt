@@ -119,6 +119,55 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
     }]"
 )
 
+interface IBulkSession {
+    suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null)
+
+    suspend fun index(
+        source: String,
+        index: String? = null,
+        id: String? = null,
+        requireAlias: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+    )
+
+    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null)
+
+    suspend fun update(
+        id: String,
+        script: Script,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        upsert: JsonObject? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+    )
+
+    suspend fun update(
+        id: String,
+        doc: String,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        )
+
+    suspend fun update(
+        id: String,
+        doc: JsonObject,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        )
+
+    suspend fun flush()
+}
+
 /**
  * Create using SearchClient.bulk() or SearchClient.bulkSession().
  *
@@ -132,7 +181,7 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
  * @throws BulkException if [failOnFirstError] is true and an item fails to process with an OK status.
  * You may want to configure a [callBack] instead and do something else.
  */
-class BulkSession internal constructor(
+internal class DefaultBulkSession internal constructor(
     val searchClient: SearchClient,
     val failOnFirstError: Boolean = true,
     val callBack: BulkItemCallBack? = null,
@@ -149,11 +198,11 @@ class BulkSession internal constructor(
     val sourceIncludes: String? = null,
     val extraParameters: Map<String, String>? = null,
     val closeOnRequestError: Boolean = true
-) : Closeable {
+) : Closeable, IBulkSession {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 
-    suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    override suspend fun create(source: String, index: String?, id: String?, requireAlias: Boolean?) {
         val opDsl = withJsonDsl {
             this["create"] = withJsonDsl {
                 index?.let {
@@ -170,13 +219,13 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun index(
+    override suspend fun index(
         source: String,
-        index: String? = null,
-        id: String? = null,
-        requireAlias: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        index: String?,
+        id: String?,
+        requireAlias: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
     ) {
         val opDsl = withJsonDsl {
             this["index"] = withJsonDsl {
@@ -201,7 +250,7 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null) {
+    override suspend fun delete(id: String, index: String?, requireAlias: Boolean?) {
         val opDsl = withJsonDsl {
             this["delete"] = withJsonDsl {
                 this["_id"] = id
@@ -216,14 +265,14 @@ class BulkSession internal constructor(
         operation(opDsl.json())
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         script: Script,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        upsert: JsonObject? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        index: String?,
+        requireAlias: Boolean?,
+        upsert: JsonObject?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
     ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
@@ -254,14 +303,14 @@ class BulkSession internal constructor(
         operation(opDsl.json(), json)
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         doc: String,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        index: String?,
+        requireAlias: Boolean?,
+        docAsUpsert: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
 
         ) {
         update(
@@ -275,14 +324,14 @@ class BulkSession internal constructor(
         )
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         doc: JsonObject,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        index: String?,
+        requireAlias: Boolean?,
+        docAsUpsert: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
 
         ) {
         val opDsl = withJsonDsl {
@@ -321,7 +370,7 @@ class BulkSession internal constructor(
         }
     }
 
-    suspend fun flush() {
+    override suspend fun flush() {
         verifyOpen()
         if (operations.isNotEmpty()) {
             val ops = mutableListOf<Pair<String, String?>>()
@@ -386,7 +435,7 @@ class BulkSession internal constructor(
     }
 }
 
-suspend inline fun <reified T> BulkSession.create(
+suspend inline fun <reified T> IBulkSession.create(
     doc: T,
     index: String? = null,
     id: String? = null,
@@ -395,7 +444,7 @@ suspend inline fun <reified T> BulkSession.create(
     create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
-suspend inline fun <reified T> BulkSession.index(
+suspend inline fun <reified T> IBulkSession.index(
     doc: T,
     index: String? = null,
     id: String? = null,
@@ -404,7 +453,7 @@ suspend inline fun <reified T> BulkSession.index(
     index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
-suspend inline fun <reified T> BulkSession.update(
+suspend inline fun <reified T> IBulkSession.update(
     script: Script,
     id: String,
     upsert: T,
@@ -422,7 +471,7 @@ suspend inline fun <reified T> BulkSession.update(
     )
 }
 
-suspend inline fun <reified T> BulkSession.update(
+suspend inline fun <reified T> IBulkSession.update(
     doc: T,
     id: String,
     index: String? = null,
@@ -512,7 +561,7 @@ suspend fun SearchClient.bulk(
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
-    block: suspend BulkSession.() -> Unit
+    block: suspend IBulkSession.() -> Unit
 ) {
     val session = bulkSession(
         failOnFirstError = failOnFirstError,
@@ -553,8 +602,8 @@ fun SearchClient.bulkSession(
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
-): BulkSession {
-    return BulkSession(
+): IBulkSession {
+    return DefaultBulkSession(
         searchClient = this,
         failOnFirstError = failOnFirstError,
         callBack = callBack,

@@ -82,4 +82,23 @@ class DocumentCRUDTest: SearchTestBase() {
             }
         }
     }
+
+    @Test
+    fun shouldMgetDocs() = coRun {
+        val indexName = testDocumentIndex()
+        client.indexDocument(indexName, TestDocument("foo", description = "Foo"), id = "1")
+        client.indexDocument(indexName, TestDocument("bar",description = "Bar"), id = "2")
+
+        client.mGet {
+            this.doc {
+                id="1"
+                index=indexName
+                source=true
+//                sourceInclude= listOf("name")
+//                sourceExclude= listOf("description")
+            }
+        }.docs.let {
+            it.size shouldBe 1
+        }
+    }
 }
