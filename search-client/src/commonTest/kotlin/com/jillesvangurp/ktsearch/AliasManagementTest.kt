@@ -7,35 +7,40 @@ class AliasManagementTest: SearchTestBase() {
 
     @Test
     fun addRemoveAliases() = coRun{
-        client.createIndex("foo-1") {
+
+        val name = randomIndexName()
+        val index1 = "$name-1"
+        val index2 = "$name-2"
+        val aliasName = "alias-$name"
+        client.createIndex(index1) {
 
         }
-        client.createIndex("foo-2") {
+        client.createIndex(index2) {
 
         }
 
         client.updateAliases {
             add {
-                alias="foo"
-                indices= listOf("foo-1", "foo-2")
+                alias= aliasName
+                indices= listOf(index1, index2)
             }
         }
 
-        client.getAliases("foo-1").let {
-            it["foo-1"]!!.aliases.keys shouldContain "foo"
+        client.getAliases(index1).let {
+            it[index1]!!.aliases.keys shouldContain aliasName
         }
         client.getAliases().let {
-            it["foo-2"]!!.aliases.keys shouldContain "foo"
+            it[index2]!!.aliases.keys shouldContain aliasName
         }
         client.updateAliases {
             remove {
-                alias="foo"
-                indices=listOf("foo-1")
+                alias= aliasName
+                indices=listOf(index1)
             }
         }
         client.updateAliases {
             removeIndex {
-                indices=listOf("foo-1", "foo-2")
+                indices=listOf(index1, index2)
             }
         }
     }
