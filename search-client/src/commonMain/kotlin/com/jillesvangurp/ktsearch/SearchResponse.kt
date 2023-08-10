@@ -31,17 +31,23 @@ data class SearchResponse(
         @SerialName("_type")
         val type: String?,
         @SerialName("_id")
-        val id: String,
+        override val id: String,
         @SerialName("_score")
         val score: Double?,
         @SerialName("_source")
-        val source: JsonObject?,
+        override val source: JsonObject?,
         val fields: JsonObject?,
         val sort: JsonArray?,
         @SerialName("inner_hits")
         val innerHits: Map<String, HitsContainer>?,
         val highlight: JsonObject?,
-    )
+        @SerialName("_seq_no")
+        override val seqNo: Int?=null,
+        @SerialName("_primary_term")
+        override val primaryTerm: Int?=null,
+        @SerialName("_version")
+        override val version: Long?,
+    ): SourceInformation
 
     @Serializable
     data class Hits(

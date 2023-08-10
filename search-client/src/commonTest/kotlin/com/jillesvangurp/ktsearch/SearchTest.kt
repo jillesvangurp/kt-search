@@ -189,4 +189,22 @@ class SearchTest : SearchTestBase() {
         }
         response.responses shouldHaveSize 2
     }
+
+    @Test
+    fun shouldExposeSeqNo() = coRun {
+        val indexName = testDocumentIndex()
+        client.bulk(target = indexName, refresh = Refresh.WaitFor) {
+            index(TestDocument("doc 1", tags = listOf("group1")).json())
+            index(TestDocument("doc 2", tags = listOf("group1")).json())
+            index(TestDocument("doc 3", tags = listOf("group2")).json())
+        }
+        client.search(indexName) {
+            seqNoPrimaryTerm=true
+            version=true
+        }.hits!!.hits.forEach { hit ->
+            hit.primaryTerm shouldBe 1
+            hit.seqNo shouldNotBe null
+            hit.version shouldBe 1
+        }
+    }
 }
