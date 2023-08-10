@@ -101,14 +101,45 @@ setting `if_primary_term` and `if_seq_no`. The index repository implements an ex
 BulkSession that includes update functions similar to the above and a callback based retry mechanism.
 
 ```kotlin
-val id = repo.index(TestDoc("A document")).id
+val aDoc = TestDoc("A document")
+val id = repo.index(aDoc).id
 repo.bulk(
   // these parameters are optional
   // and have sensible defaults
   maxRetries = 1,
   retryTimeout = 2.seconds) {
-  update(id, TestDoc("Changed"), 42,42) {
-    it
+  update(
+    id = id,
+    // you have to provide the original
+    original = aDoc,
+    // and the seq_no and primary_term
+    // these values are probably wrong
+    // amd will trigger a retry
+    ifSeqNo = 42,
+    ifPrimaryTerm = 42
+  ) {
+    // like before, we use a function block
+    // to make the changes
+    it.copy(message = "Changed")
+  }
+}
+
+// here's a nicer way to do that
+val (_, getResponse) = repo.get(id)
+// note, you should use a multi get if you are updating manu documents
+// conflicts could still happen of course, let's force one
+repo.index(
+  value = aDoc.copy("This will be overwritten"),
+  id = getResponse.id
+)
+repo.bulk {
+  update(
+    // everything we need is in the getResponse
+    // however, our getResponse is now out of date
+    // so it will retry
+    getResponse
+  ) {
+    it.copy(message = "Changed it again")
   }
 }
 ```
