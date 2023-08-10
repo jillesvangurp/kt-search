@@ -78,9 +78,9 @@ data class BulkResponse(
         @SerialName("_primary_term")
         val primaryTerm: Long?,
         val status: Int,
-        val error: ItemError?=null,
+        val error: ItemError? = null,
         @SerialName("_source")
-        val source: JsonObject?=null,
+        val source: JsonObject? = null,
     )
 }
 
@@ -119,6 +119,55 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
     }]"
 )
 
+interface BulkSession {
+    suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null)
+
+    suspend fun index(
+        source: String,
+        index: String? = null,
+        id: String? = null,
+        requireAlias: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+    )
+
+    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null)
+
+    suspend fun update(
+        id: String,
+        script: Script,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        upsert: JsonObject? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+    )
+
+    suspend fun update(
+        id: String,
+        doc: String,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        )
+
+    suspend fun update(
+        id: String,
+        doc: JsonObject,
+        index: String? = null,
+        requireAlias: Boolean? = null,
+        docAsUpsert: Boolean? = null,
+        ifSeqNo: Int? = null,
+        ifPrimaryTerm: Int? = null,
+
+        )
+
+    suspend fun flush()
+}
+
 /**
  * Create using SearchClient.bulk() or SearchClient.bulkSession().
  *
@@ -132,7 +181,7 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
  * @throws BulkException if [failOnFirstError] is true and an item fails to process with an OK status.
  * You may want to configure a [callBack] instead and do something else.
  */
-class BulkSession internal constructor(
+internal class DefaultBulkSession internal constructor(
     val searchClient: SearchClient,
     val failOnFirstError: Boolean = true,
     val callBack: BulkItemCallBack? = null,
@@ -149,11 +198,11 @@ class BulkSession internal constructor(
     val sourceIncludes: String? = null,
     val extraParameters: Map<String, String>? = null,
     val closeOnRequestError: Boolean = true
-) : Closeable {
+) : Closeable, BulkSession {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 
-    suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    override suspend fun create(source: String, index: String?, id: String?, requireAlias: Boolean?) {
         val opDsl = withJsonDsl {
             this["create"] = withJsonDsl {
                 index?.let {
@@ -170,7 +219,14 @@ class BulkSession internal constructor(
         operation(opDsl.json(), source)
     }
 
-    suspend fun index(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null) {
+    override suspend fun index(
+        source: String,
+        index: String?,
+        id: String?,
+        requireAlias: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
+    ) {
         val opDsl = withJsonDsl {
             this["index"] = withJsonDsl {
                 index?.let {
@@ -182,12 +238,19 @@ class BulkSession internal constructor(
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
                 }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
+                }
             }
         }
         operation(opDsl.json(), source)
     }
 
-    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null) {
+    override suspend fun delete(id: String, index: String?, requireAlias: Boolean?) {
         val opDsl = withJsonDsl {
             this["delete"] = withJsonDsl {
                 this["_id"] = id
@@ -202,12 +265,14 @@ class BulkSession internal constructor(
         operation(opDsl.json())
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         script: Script,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        upsert: JsonObject? = null
+        index: String?,
+        requireAlias: Boolean?,
+        upsert: JsonObject?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
     ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
@@ -220,38 +285,55 @@ class BulkSession internal constructor(
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
                 }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
+                }
+
             }
         }
 
         // we can't rely on the JsonDsl serializer here because it does not handle kotlinx serialization
-        val json = """{"script":${script.json()}${upsert?.let { """, "upsert":${DEFAULT_JSON.encodeToString(upsert)}}""" }?:""}}""".trimIndent()
+        val json =
+            """{"script":${script.json()}${upsert?.let { """, "upsert":${DEFAULT_JSON.encodeToString(upsert)}}""" } ?: ""}}""".trimIndent()
 
         operation(opDsl.json(), json)
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         doc: String,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null
-    ) {
+        index: String?,
+        requireAlias: Boolean?,
+        docAsUpsert: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
+
+        ) {
         update(
             id = id,
             doc = DEFAULT_JSON.decodeFromString(JsonObject.serializer(), doc),
             index = index,
             requireAlias = requireAlias,
-            docAsUpsert = docAsUpsert
+            docAsUpsert = docAsUpsert,
+            ifSeqNo = ifSeqNo,
+            ifPrimaryTerm = ifPrimaryTerm
         )
     }
 
-    suspend fun update(
+    override suspend fun update(
         id: String,
         doc: JsonObject,
-        index: String? = null,
-        requireAlias: Boolean? = null,
-        docAsUpsert: Boolean? = null
-    ) {
+        index: String?,
+        requireAlias: Boolean?,
+        docAsUpsert: Boolean?,
+        ifSeqNo: Int?,
+        ifPrimaryTerm: Int?,
+
+        ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
                 index?.let {
@@ -262,6 +344,13 @@ class BulkSession internal constructor(
                 }
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
+                }
+                // used for optimistic locking
+                ifSeqNo?.let {
+                    this["if_seq_no"] = ifSeqNo
+                }
+                ifPrimaryTerm?.let {
+                    this["if_primary_term"] = ifPrimaryTerm
                 }
             }
         }
@@ -281,7 +370,7 @@ class BulkSession internal constructor(
         }
     }
 
-    suspend fun flush() {
+    override suspend fun flush() {
         verifyOpen()
         if (operations.isNotEmpty()) {
             val ops = mutableListOf<Pair<String, String?>>()
@@ -514,7 +603,7 @@ fun SearchClient.bulkSession(
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
 ): BulkSession {
-    return BulkSession(
+    return DefaultBulkSession(
         searchClient = this,
         failOnFirstError = failOnFirstError,
         callBack = callBack,

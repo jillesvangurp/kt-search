@@ -86,7 +86,7 @@ class BulkTest : SearchTestBase() {
             // now the script runs
             update(TestDocument("changed"), id = "42")
         }
-        val resp = client.getDocument(index,"42").source.parse<TestDocument>()
+        val resp = client.getDocument(index,"42").source!!.parse<TestDocument>()
         resp.name shouldBe "changed"
     }
 }

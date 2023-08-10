@@ -1,7 +1,7 @@
 version: '2.2'
 services:
   es8:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
