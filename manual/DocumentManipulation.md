@@ -9,6 +9,8 @@ Mostly, you will use bulk indexing to manipulate documents in Elasticsearch. How
 sometimes it is useful to be able to manipulate individual documents with the 
 Create, Read, Update, and Delete (CRUD) APIs.
 
+## CRUD
+
 ```kotlin
 // create
 val resp = client.indexDocument(
@@ -23,9 +25,9 @@ val resp = client.indexDocument(
 
 // read
 val doc = client.getDocument("myindex", resp.id)
-  // source is a JsonDoc, which you can deserialize
-  // with an extension function
-  .source.parse<TestDoc>()
+  // to get the TestDoc, use this extension function
+  // this works on the _source field in the response
+  .document<TestDoc>()
 
 // update
 client.indexDocument(
@@ -39,6 +41,8 @@ client.indexDocument(
 // delete
 client.deleteDocument("myindex", resp.id)
 ```
+
+## Updates
 
 Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
 
@@ -71,19 +75,57 @@ println(resp.get?.source)
 
 ```
 
-Captured Output:
-
-```
-{"id":"42","name":"changed","tags":[]}
-{"id":"42","name":"again","tags":[]}
-
-```
+## Bulk
 
 The index API has a lot more parameters that are supported here as well
 via nullable parameters. You can also use a variant of the index API
 that accepts a json String instead of the TestDoc.
 
-Note, for inserting large amounts of documents you should of course use the bulk API. You can learn more about that here: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md).
+Note, for inserting large amounts of documents you should of course use the bulk API. 
+You can learn more about that here: [Efficiently Ingest Content Using Bulk Indexing](BulkIndexing.md).               
+
+## Multi Get
+
+To retrieve multiple documents, you can use the `mget` API>
+
+```kotlin
+client.indexDocument(
+  target = "myindex",
+  document = TestDoc("1", "One"),
+  id = "1"
+)
+client.indexDocument(
+  target = "myindex",
+  document = TestDoc("2", "Two"),
+  id = "2"
+)
+
+// the simple way is to provide a list of ids
+client.mGet(index = "myindex") {
+  ids= listOf("1","2")
+}.let { resp->
+  println("Found ${resp.docs.size} documents")
+}
+// or do it like this
+val resp = client.mGet {
+  doc {
+    index="myindex"
+    id = "1"
+    // default is true
+    source=true
+  }
+  doc {
+    index="myindex"
+    id = "2"
+  }
+}
+
+// you can of course get the deserialized TestDocs
+// from the response with an extension function
+resp.documents<TestDoc>().forEach {
+  println("${it.id}: ${it.name}")
+}
+```
 
 
 
