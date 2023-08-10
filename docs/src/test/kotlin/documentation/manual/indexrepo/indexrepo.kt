@@ -123,13 +123,13 @@ val indexRepoMd = sourceGitRepository.md {
         """.trimIndent()
 
         suspendingBlock(false) {
-            val id = repo.index(TestDoc("A document"))
+            val id = repo.index(TestDoc("A document")).id
             repo.bulk(
                 // these parameters are optional
                 // and have sensible defaults
                 maxRetries = 1,
                 retryTimeout = 2.seconds) {
-                update("2", TestDoc(""), 42,42) {
+                update(id, TestDoc("Changed"), 42,42) {
                     it
                 }
             }
