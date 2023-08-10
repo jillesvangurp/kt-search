@@ -200,6 +200,8 @@ val indexRepoMd = sourceGitRepository.md {
             suspendingBlock(false) {
                 repo.bulk {
                     repo.searchAfter {
+                        // this is needed because we need _seq_no and _primary_term
+                        seqNoPrimaryTerm = true
                         query = matchAll()
                     }.let { (firstResponse, hitFlow) ->
                         // this will page through the entire index
