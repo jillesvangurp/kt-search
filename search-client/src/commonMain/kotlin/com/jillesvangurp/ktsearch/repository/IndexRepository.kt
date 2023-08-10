@@ -4,15 +4,15 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
-import com.jillesvangurp.searchdsls.querydsl.Script
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 internal class RetryingBulkHandler<T : Any>(
     private val updateFunctions: MutableMap<String, (T) -> T>,
@@ -21,10 +21,12 @@ internal class RetryingBulkHandler<T : Any>(
     private val maxRetries: Int = 2,
     private val updateScope: CoroutineScope = CoroutineScope(CoroutineName("bulk-update"))
 ) : BulkItemCallBack {
+    private var count = 0
     override fun itemFailed(operationType: OperationType, item: BulkResponse.ItemDetails) {
         if (operationType == OperationType.Index && item.error?.type == "version_conflict_engine_exception") {
             updateFunctions[item.id]?.let { updateFunction ->
-                updateScope.launch {
+                val job = updateScope.launch {
+                    count++
                     try {
                         val (_, result) = indexRepository.update(
                             item.id, maxRetries = maxRetries, block = updateFunction
@@ -49,6 +51,9 @@ internal class RetryingBulkHandler<T : Any>(
                         )
                     }
                 }
+                job.invokeOnCompletion {
+                    count--
+                }
             }
         }
         parentBulkItemCallBack?.itemFailed(operationType, item)
@@ -62,9 +67,19 @@ internal class RetryingBulkHandler<T : Any>(
     override fun bulkRequestFailed(e: Exception, ops: List<Pair<String, String?>>) {
         parentBulkItemCallBack?.bulkRequestFailed(e, ops)
     }
+
+    internal suspend fun awaitJobCompletion(refresh: Refresh?, timeout: Duration = 10.seconds) {
+        if(refresh!= Refresh.False) {
+            withTimeout(timeout) {
+                while(count>0) {
+                    delay(20.milliseconds)
+                }
+            }
+        }
+    }
 }
 
-interface TypedDocumentIBulkSession<T>: IBulkSession {
+interface TypedDocumentIBulkSession<T>: BulkSession {
     suspend fun update(getDocumentResponse: GetDocumentResponse,updateBlock: (T) -> T)
 
     suspend fun update(
@@ -75,12 +90,12 @@ interface TypedDocumentIBulkSession<T>: IBulkSession {
         updateBlock: (T) -> T,
     )
 }
+
 internal class BulkUpdateSession<T : Any>(
     private val indexRepository: IndexRepository<T>,
     private val updateFunctions: MutableMap<String, (T) -> T>,
     private val bulkSession: DefaultBulkSession,
-): TypedDocumentIBulkSession<T> {
-
+): TypedDocumentIBulkSession<T>, BulkSession by bulkSession {
 
     override suspend fun update(getDocumentResponse: GetDocumentResponse, updateBlock: (T) -> T) {
         update(
@@ -106,96 +121,6 @@ internal class BulkUpdateSession<T : Any>(
         val toStore = updateBlock.invoke(original)
         val source = indexRepository.serializer.serialize(toStore)
         bulkSession.index(source, id=id, index = indexRepository.indexWriteAlias, ifSeqNo = ifSeqNo, ifPrimaryTerm = ifPrimaryTerm)
-    }
-
-    override suspend fun create(source: String, index: String?, id: String?, requireAlias: Boolean?) {
-        bulkSession.create(source, index, id, requireAlias)
-    }
-
-    override suspend fun index(
-        source: String,
-        index: String?,
-        id: String?,
-        requireAlias: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?
-    ) {
-        bulkSession.index(
-            source = source,
-            index = index,
-            id = id,
-            requireAlias = requireAlias,
-            ifSeqNo = ifSeqNo,
-            ifPrimaryTerm = ifPrimaryTerm
-        )
-    }
-
-    override suspend fun delete(id: String, index: String?, requireAlias: Boolean?) {
-        bulkSession.delete(id = id, index = index, requireAlias = requireAlias)
-    }
-
-    override suspend fun update(
-        id: String,
-        script: Script,
-        index: String?,
-        requireAlias: Boolean?,
-        upsert: JsonObject?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?
-    ) {
-        bulkSession.update(
-            id = id,
-            script = script,
-            index = index,
-            requireAlias = requireAlias,
-            upsert = upsert,
-            ifSeqNo = ifSeqNo,
-            ifPrimaryTerm = ifPrimaryTerm
-        )
-    }
-
-    override suspend fun update(
-        id: String,
-        doc: String,
-        index: String?,
-        requireAlias: Boolean?,
-        docAsUpsert: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?
-    ) {
-        bulkSession.update(
-            id = id,
-            doc = doc,
-            index = index,
-            requireAlias = requireAlias,
-            docAsUpsert = docAsUpsert,
-            ifSeqNo = ifSeqNo,
-            ifPrimaryTerm = ifPrimaryTerm
-        )
-    }
-
-    override suspend fun update(
-        id: String,
-        doc: JsonObject,
-        index: String?,
-        requireAlias: Boolean?,
-        docAsUpsert: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?
-    ) {
-        bulkSession.update(
-            id = id,
-            doc = doc,
-            index = index,
-            requireAlias = requireAlias,
-            docAsUpsert = docAsUpsert,
-            ifSeqNo = ifSeqNo,
-            ifPrimaryTerm = ifPrimaryTerm
-        )
-    }
-
-    override suspend fun flush() {
-        bulkSession.flush()
     }
 }
 
@@ -437,14 +362,16 @@ class IndexRepository<T : Any>(
         failOnFirstError: Boolean = false,
         callBack: BulkItemCallBack? = null,
         maxRetries: Int = 2,
+        retryTimeout: Duration = 1.minutes,
         block: suspend TypedDocumentIBulkSession<T>.() -> Unit
     ) {
 
         val updateFunctions = mutableMapOf<String, (T) -> T>()
+        val retryCallback = RetryingBulkHandler(updateFunctions, this, callBack, maxRetries)
         val session = DefaultBulkSession(
             searchClient = client,
             failOnFirstError = failOnFirstError,
-            callBack = RetryingBulkHandler(updateFunctions,this,callBack,maxRetries),
+            callBack = retryCallback,
             bulkSize = bulkSize,
             pipeline = pipeline,
             refresh = refresh ?: defaultRefresh,
@@ -461,6 +388,7 @@ class IndexRepository<T : Any>(
         val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
         block.invoke(updatingBulkSession)
         session.flush()
+        retryCallback.awaitJobCompletion(refresh=session.refresh, timeout=retryTimeout)
     }
 
     suspend fun mGet(

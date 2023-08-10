@@ -119,7 +119,7 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
     }]"
 )
 
-interface IBulkSession {
+interface BulkSession {
     suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null)
 
     suspend fun index(
@@ -198,7 +198,7 @@ internal class DefaultBulkSession internal constructor(
     val sourceIncludes: String? = null,
     val extraParameters: Map<String, String>? = null,
     val closeOnRequestError: Boolean = true
-) : Closeable, IBulkSession {
+) : Closeable, BulkSession {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 
@@ -435,7 +435,7 @@ internal class DefaultBulkSession internal constructor(
     }
 }
 
-suspend inline fun <reified T> IBulkSession.create(
+suspend inline fun <reified T> BulkSession.create(
     doc: T,
     index: String? = null,
     id: String? = null,
@@ -444,7 +444,7 @@ suspend inline fun <reified T> IBulkSession.create(
     create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
-suspend inline fun <reified T> IBulkSession.index(
+suspend inline fun <reified T> BulkSession.index(
     doc: T,
     index: String? = null,
     id: String? = null,
@@ -453,7 +453,7 @@ suspend inline fun <reified T> IBulkSession.index(
     index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
 }
 
-suspend inline fun <reified T> IBulkSession.update(
+suspend inline fun <reified T> BulkSession.update(
     script: Script,
     id: String,
     upsert: T,
@@ -471,7 +471,7 @@ suspend inline fun <reified T> IBulkSession.update(
     )
 }
 
-suspend inline fun <reified T> IBulkSession.update(
+suspend inline fun <reified T> BulkSession.update(
     doc: T,
     id: String,
     index: String? = null,
@@ -561,7 +561,7 @@ suspend fun SearchClient.bulk(
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
-    block: suspend IBulkSession.() -> Unit
+    block: suspend BulkSession.() -> Unit
 ) {
     val session = bulkSession(
         failOnFirstError = failOnFirstError,
@@ -602,7 +602,7 @@ fun SearchClient.bulkSession(
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
-): IBulkSession {
+): BulkSession {
     return DefaultBulkSession(
         searchClient = this,
         failOnFirstError = failOnFirstError,

@@ -1,11 +1,13 @@
 package com.jillesvangurp.ktsearch.repository
 
 import com.jillesvangurp.ktsearch.*
+import io.kotest.assertions.timing.eventually
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 class IndexRepositoryTest : SearchTestBase() {
 
@@ -47,8 +49,15 @@ class IndexRepositoryTest : SearchTestBase() {
 
         repo.bulk(callBack = null) {
             update(repo.get("1").second) {
-                it
+                it.copy(name="Changed 1")
+            }
+            // this one should trigger a retry
+            update("2", TestDocument("2"),42,42) {
+                it.copy(name = "Changed 2")
             }
         }
+
+        repo.get("1").first.name shouldBe "Changed 1"
+        repo.get("2").first.name shouldBe "Changed 2"
     }
 }
