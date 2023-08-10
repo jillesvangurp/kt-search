@@ -69,9 +69,9 @@ internal class RetryingBulkHandler<T : Any>(
     }
 
     internal suspend fun awaitJobCompletion(refresh: Refresh?, timeout: Duration = 10.seconds) {
-        if(refresh!= Refresh.False) {
+        if (refresh != Refresh.False) {
             withTimeout(timeout) {
-                while(count>0) {
+                while (count > 0) {
                     delay(20.milliseconds)
                 }
             }
@@ -79,8 +79,8 @@ internal class RetryingBulkHandler<T : Any>(
     }
 }
 
-interface TypedDocumentIBulkSession<T>: BulkSession {
-    suspend fun update(getDocumentResponse: SourceInformation,updateBlock: (T) -> T)
+interface TypedDocumentIBulkSession<T> : BulkSession {
+    suspend fun update(getDocumentResponse: SourceInformation, updateBlock: (T) -> T)
 
     suspend fun update(
         id: String,
@@ -95,15 +95,17 @@ internal class BulkUpdateSession<T : Any>(
     private val indexRepository: IndexRepository<T>,
     private val updateFunctions: MutableMap<String, (T) -> T>,
     private val bulkSession: DefaultBulkSession,
-): TypedDocumentIBulkSession<T>, BulkSession by bulkSession {
+) : TypedDocumentIBulkSession<T>, BulkSession by bulkSession {
 
     override suspend fun update(getDocumentResponse: SourceInformation, updateBlock: (T) -> T) {
         update(
             id = getDocumentResponse.id,
             // errors only happen if the document does not exist
-            original = indexRepository.serializer.deSerialize(getDocumentResponse.source?: error("no document source")),
-            ifSeqNo = getDocumentResponse.seqNo?: error("no seq_no"),
-            ifPrimaryTerm = getDocumentResponse.primaryTerm?: error("no primary_term"),
+            original = indexRepository.serializer.deSerialize(
+                getDocumentResponse.source ?: error("no document source")
+            ),
+            ifSeqNo = getDocumentResponse.seqNo ?: error("no seq_no"),
+            ifPrimaryTerm = getDocumentResponse.primaryTerm ?: error("no primary_term"),
             updateBlock = updateBlock
         )
     }
@@ -115,13 +117,19 @@ internal class BulkUpdateSession<T : Any>(
         ifPrimaryTerm: Int,
         updateBlock: (T) -> T,
     ) {
-        if(updateFunctions.containsKey(id)) {
+        if (updateFunctions.containsKey(id)) {
             throw IllegalArgumentException("you can't update the same id $id twice in one session")
         }
         updateFunctions[id] = updateBlock
         val toStore = updateBlock.invoke(original)
         val source = indexRepository.serializer.serialize(toStore)
-        bulkSession.index(source, id=id, index = indexRepository.indexWriteAlias, ifSeqNo = ifSeqNo, ifPrimaryTerm = ifPrimaryTerm)
+        bulkSession.index(
+            source,
+            id = id,
+            index = indexRepository.indexWriteAlias,
+            ifSeqNo = ifSeqNo,
+            ifPrimaryTerm = ifPrimaryTerm
+        )
     }
 }
 
@@ -227,7 +235,7 @@ class IndexRepository<T : Any>(
             versionType = versionType,
             extraParameters = combineParams(extraParameters)
         ).let { response ->
-            serializer.deSerialize(response.source?: error("no document source")) to response
+            serializer.deSerialize(response.source ?: error("no document source")) to response
         }
     }
 
@@ -389,7 +397,26 @@ class IndexRepository<T : Any>(
         val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
         block.invoke(updatingBulkSession)
         session.flush()
-        retryCallback.awaitJobCompletion(refresh=session.refresh, timeout=retryTimeout)
+        retryCallback.awaitJobCompletion(refresh = session.refresh, timeout = retryTimeout)
+    }
+
+    suspend fun mGet(
+        vararg docIds: String,
+        preference: String? = null,
+        realtime: Boolean? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        storedFields: String? = null,
+        source: String? = null,
+    ) = mGet(
+        preference = preference,
+        realtime = realtime,
+        refresh = refresh,
+        routing = routing,
+        storedFields = storedFields,
+        source = source
+    ) {
+        ids = docIds.toList()
     }
 
     suspend fun mGet(
@@ -399,8 +426,8 @@ class IndexRepository<T : Any>(
         routing: String? = null,
         storedFields: String? = null,
         source: String? = null,
-        sourceExcludes: String? = null,
-        sourceIncludes: String? = null,
+//        sourceExcludes: String? = null,
+//        sourceIncludes: String? = null,
 
         block: MGetRequest.() -> Unit
     ): MGetResponse {
@@ -412,8 +439,8 @@ class IndexRepository<T : Any>(
             routing = routing,
             storedFields = storedFields,
             source = source,
-            sourceExcludes = sourceExcludes,
-            sourceIncludes = sourceIncludes,
+//            sourceExcludes = sourceExcludes,
+//            sourceIncludes = sourceIncludes,
             block = block
         )
     }

@@ -61,6 +61,35 @@ val indexRepoMd = sourceGitRepository.md {
         }
     }
 
+    section("Multi Get") {
+        +"""
+            Multi get is of course also supported.
+        """.trimIndent()
+        
+        suspendingBlock(false) {
+            repo.bulk {
+                index(TestDoc("One"), id = "1")
+                index(TestDoc("Two"), id = "2")
+            }
+            // multi get can be very convenient
+            repo.mGet("1","2")
+            // but you can also do use the full dsl
+            repo.mGet {
+                ids = listOf("1","2")
+            }
+            // or if you insist
+            repo.mGet {
+                doc {
+                    id="1"
+                    source=false
+                }
+                doc {
+                    id="2"
+                }
+            }
+        }
+    }
+
     section("Optimistic locking and updates") {
         +"""
             Elasticsearch is of course not a database and it does not have transactions.

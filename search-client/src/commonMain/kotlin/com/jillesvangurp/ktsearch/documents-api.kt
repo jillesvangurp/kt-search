@@ -232,6 +232,8 @@ class MGetRequest : JsonDsl() {
 @Serializable
 data class MGetResponse(val docs: List<GetDocumentResponse>)
 
+inline fun <reified T> MGetResponse.documents(json: Json = DEFAULT_JSON) = docs.map { it.document<T>(json) }
+
 suspend fun SearchClient.mGet(
     index: String? = null,
     preference: String? = null,
@@ -240,8 +242,11 @@ suspend fun SearchClient.mGet(
     routing: String? = null,
     storedFields: String? = null,
     source: String? = null,
-    sourceExcludes: String? = null,
-    sourceIncludes: String? = null,
+    // documented as working but don't actually work in 8.9.0,
+    // https://github.com/elastic/elasticsearch/issues/98310
+
+//    sourceExcludes: String? = null,
+//    sourceIncludes: String? = null,
     block: MGetRequest.() -> Unit
 ): MGetResponse {
     val request = MGetRequest().apply(block)
@@ -253,8 +258,8 @@ suspend fun SearchClient.mGet(
         parameter("routing", routing)
         parameter("stored_fields", storedFields)
         parameter("source", source)
-        parameter("source_excludes", sourceExcludes)
-        parameter("source_includes", sourceIncludes)
+//        parameter("source_excludes", sourceExcludes)
+//        parameter("source_includes", sourceIncludes)
         json(request, pretty = false)
     }.parse(MGetResponse.serializer())
 }
