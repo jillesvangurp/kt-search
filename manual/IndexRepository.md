@@ -172,6 +172,8 @@ applying large amounts of updates to an index. This is how that works:
 ```kotlin
 repo.bulk {
   repo.searchAfter {
+    // this is needed because we need _seq_no and _primary_term
+    seqNoPrimaryTerm = true
     query = matchAll()
   }.let { (firstResponse, hitFlow) ->
     // this will page through the entire index
