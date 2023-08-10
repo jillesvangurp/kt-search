@@ -9,6 +9,15 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlin.time.Duration
 
+interface SourceInformation {
+    val id: String
+    val seqNo: Int?
+    val primaryTerm: Int?
+    val version: Long?
+    val source: JsonObject?
+}
+inline fun <reified T> SourceInformation.document(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(source?: error("cannot decode null source"))
+
 @Serializable
 data class DocumentIndexResponse(
     @SerialName("_index")
@@ -16,19 +25,19 @@ data class DocumentIndexResponse(
     @SerialName("_type")
     val type: String?,
     @SerialName("_id")
-    val id: String,
+    override val id: String,
     @SerialName("_version")
-    val version: Long,
+    override val version: Long,
     val result: String,
     @SerialName("_shards")
     val shards: Shards,
     @SerialName("_seq_no")
-    val seqNo: Int,
+    override val seqNo: Int,
     @SerialName("_primary_term")
-    val primaryTerm: Int,
+    override val primaryTerm: Int,
     @SerialName("_source")
-    val source: String? = null,
-)
+    override val source: JsonObject? = null,
+): SourceInformation
 
 suspend inline fun <reified T> SearchClient.indexDocument(
     target: String,
@@ -116,22 +125,20 @@ data class GetDocumentResponse(
     @SerialName("_type")
     val type: String?,
     @SerialName("_id")
-    val id: String,
+    override val id: String,
     @SerialName("_version")
-    val version: Long,
+    override val version: Long,
     @SerialName("_source")
-    val source: JsonObject,
+    override val source: JsonObject?,
     @SerialName("_seq_no")
-    val seqNo: Int,
+    override val seqNo: Int,
     @SerialName("_primary_term")
-    val primaryTerm: Int,
+    override val primaryTerm: Int,
     val found: Boolean,
     @SerialName("_routing")
     val routing: String? = null,
     val fields: JsonObject? = null,
-) {
-    inline fun <reified T> document(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(source)
-}
+): SourceInformation
 
 suspend fun SearchClient.deleteDocument(
     target: String,
@@ -186,10 +193,8 @@ suspend fun SearchClient.getDocument(
         parameter("routing", routing)
         parameter("stored_fields", storedFields)
         parameter("source", source)
-        // documented as working but don't actually work in 8.9.0,
-        // https://github.com/elastic/elasticsearch/issues/98310
-//        parameter("source_excludes", sourceExcludes)
-//        parameter("source_includes", sourceIncludes)
+        parameter("source_excludes", sourceExcludes)
+        parameter("source_includes", sourceIncludes)
         parameter("version", version)
         parameter("version_type", versionType)
         parameters(extraParameters)

@@ -36,7 +36,7 @@ val crudMd = sourceGitRepository.md {
         val doc = client.getDocument("myindex", resp.id)
             // source is a JsonDoc, which you can deserialize
             // with an extension function
-            .source.parse<TestDoc>()
+            .source!!.parse<TestDoc>()
 
         // update
         client.indexDocument(

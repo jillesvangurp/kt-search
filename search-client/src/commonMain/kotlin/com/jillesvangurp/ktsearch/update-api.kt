@@ -26,16 +26,17 @@ data class DocumentUpdateResponse(
     val seqNo: Int,
     @SerialName("_primary_term")
     val primaryTerm: Int,
-    val get: DocumentUpdateResponse.GetDocumentResponse?=null
+    val get: DocumentUpdateResponse.UpdatedSourceInformation?=null
 ) {
     @Serializable
-    data class GetDocumentResponse(
+    data class UpdatedSourceInformation(
         @SerialName("_source")
-        val source: JsonObject,
+        val source: JsonObject?,
         @SerialName("_seq_no")
-        val seqNo: Int,
+        val seqNo: Int?,
         @SerialName("_primary_term")
-        val primaryTerm: Int,
+        val primaryTerm: Int?,
+        val version: Long?,
         val found: Boolean,
         @SerialName("_routing")
         val routing: String? = null,

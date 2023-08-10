@@ -25,8 +25,8 @@ internal class RetryingBulkHandler<T : Any>(
     override fun itemFailed(operationType: OperationType, item: BulkResponse.ItemDetails) {
         if (operationType == OperationType.Index && item.error?.type == "version_conflict_engine_exception") {
             updateFunctions[item.id]?.let { updateFunction ->
+                count++
                 val job = updateScope.launch {
-                    count++
                     try {
                         val (_, result) = indexRepository.update(
                             item.id, maxRetries = maxRetries, block = updateFunction
@@ -80,7 +80,7 @@ internal class RetryingBulkHandler<T : Any>(
 }
 
 interface TypedDocumentIBulkSession<T>: BulkSession {
-    suspend fun update(getDocumentResponse: GetDocumentResponse,updateBlock: (T) -> T)
+    suspend fun update(getDocumentResponse: SourceInformation,updateBlock: (T) -> T)
 
     suspend fun update(
         id: String,
@@ -97,12 +97,13 @@ internal class BulkUpdateSession<T : Any>(
     private val bulkSession: DefaultBulkSession,
 ): TypedDocumentIBulkSession<T>, BulkSession by bulkSession {
 
-    override suspend fun update(getDocumentResponse: GetDocumentResponse, updateBlock: (T) -> T) {
+    override suspend fun update(getDocumentResponse: SourceInformation, updateBlock: (T) -> T) {
         update(
             id = getDocumentResponse.id,
-            original = indexRepository.serializer.deSerialize(getDocumentResponse.source),
-            ifSeqNo = getDocumentResponse.seqNo,
-            ifPrimaryTerm = getDocumentResponse.primaryTerm,
+            // errors only happen if the document does not exist
+            original = indexRepository.serializer.deSerialize(getDocumentResponse.source?: error("no document source")),
+            ifSeqNo = getDocumentResponse.seqNo?: error("no seq_no"),
+            ifPrimaryTerm = getDocumentResponse.primaryTerm?: error("no primary_term"),
             updateBlock = updateBlock
         )
     }
@@ -225,8 +226,8 @@ class IndexRepository<T : Any>(
             version = version,
             versionType = versionType,
             extraParameters = combineParams(extraParameters)
-        ).let {
-            serializer.deSerialize(it.source) to it
+        ).let { response ->
+            serializer.deSerialize(response.source?: error("no document source")) to response
         }
     }
 
