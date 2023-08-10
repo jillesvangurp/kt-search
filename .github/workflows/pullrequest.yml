@@ -15,13 +15,14 @@ jobs:
       with:
         distribution: temurin
         java-version: '17'
-    - name: Cache build .gradle dir
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle
-          .gradle
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
+        cache: gradle
+#    - name: Cache build .gradle dir
+#      uses: actions/cache@v3
+#      with:
+#        path: |
+#          ~/.gradle
+#          .gradle
+#        key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
