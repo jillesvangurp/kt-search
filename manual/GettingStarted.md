@@ -23,18 +23,16 @@ repositories {
 }
 ```
 
-And then the dependency:
+And then the dependency to commonsMain or main:
 
 ```kotlin
     // check the latest release tag for the latest version
     implementation("com.jillesvangurp:search-client:2.x.y")
 ```
 
-**IMPORTANT** We've switched maven repositories a couple of times now. Recently we switched back from jitpack.io to using our own repository. Jitpack is just too flaky for us to depend on and somehow they keep on having regressions with kotlin multi-platform projects.
+**About maven central ...** I've switched maven repositories a couple of times now. Jitpack and multiplatform just doesn't work. Of course would have liked to get this on maven central. However, after repeated attempts to get that done, I've decided to not sacrifice more time on this. The (lack of) documentation, the Jira bureaucracy, the uninformative errors, the  gradle plugin, etc. experience just doesn't add up to something that works for a multi module, multi platform project.
 
-**This also means the groupId has changed**. It's now `com.jillesvangurp` instead of `com.github.jillesvangurp.kt-search`.
-
-I of course would like to get this on maven central eventually. However, I've had a really hard time getting that working and am giving up on that for now. The issue seems to be that I always hit some weird and very unspecific error and their documentation + plugins just never seem to quite work as advertised. Multi platform, multi module, and kotlin scripting are three things that tend to make things complicated apparently. If anyone wants to support me with this, please reach out. Otherwise use our private repository for now.
+If somebody decides to fix a proper, modern solution for hosting packages, I'll consider using it but I'm done with maven central for now. Google buckets work fine for hosting. So does ssh or any old web server. So does aws. It's just maven central that's a huge PITA.
 
 ## Create a Client
 
