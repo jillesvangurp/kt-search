@@ -105,8 +105,13 @@ val projectReadme = sourceGitRepository.md {
             The refresh parameter uses WaitFor as a default. This means that after the block exits, the documents
             will have been indexed and are available for searching. 
         """.trimIndent()
-        suspendingBlock() {
-            client.bulk(refresh = Refresh.WaitFor) {
+        suspendingBlock {
+            client.bulk(
+                refresh = Refresh.WaitFor,
+                // send operations every 2 ops
+                // default would be 100
+                bulkSize = 2,
+            ) {
                 index(
                     doc = TestDocument(
                         name = "apple",
@@ -141,7 +146,7 @@ val projectReadme = sourceGitRepository.md {
             val results = client.search(indexName) {
                 query = bool {
                     must(
-                        // note how we use property references here
+                        // note how we can use property references here
                         term(TestDocument::tags, "fruit"),
                         matchPhrasePrefix(TestDocument::name, "app")
                     )
@@ -151,12 +156,11 @@ val projectReadme = sourceGitRepository.md {
             println("found ${results.total} hits")
             results
                 // extension function that deserializes
-                // uses kotlinx.serialization
+                // the hits using kotlinx.serialization
                 .parseHits<TestDocument>()
                 .first()
-                // hits don't always include source
-                // in that case it will be a null document
                 .let {
+                    // we feel lucky
                     println("doc ${it.name}")
                 }
             // you can also get the JsonObject if you don't
@@ -165,13 +169,14 @@ val projectReadme = sourceGitRepository.md {
         }
 
         +"""
-            Aggregations are also supported via a DSL:
+            You can also construct complex aggregations with the query DSL:
         """.trimIndent()
         suspendingBlock {
             val resp = client.search(indexName) {
                 // we don't care about retrieving hits
                 resultSize = 0
                 agg("by-tag", TermsAgg(TestDocument::tags) {
+                    // simple terms agg on the tags field
                     aggSize = 50
                     minDocCount = 1
                 })
@@ -189,21 +194,21 @@ val projectReadme = sourceGitRepository.md {
             These examples show off a few nice features of this library:
             
             - Kotlin DSLs are nice, type safe, and easier to read and write than pure Json. And of course
-            you get auto completion too. There are DSLs for searching, creating indices and mappings, datastreams, 
+            you get auto completion too. The client includes more DSLs for searching, creating indices and mappings, datastreams, 
             index life cycle management, bulk operations, aggregations, and more. 
             - Where in JSON, you use a lot of String literals, kt-search actually allows you to use
-             property references or enum values. So refactoring your data model doesn't 
+             property references or enum values as well. So, refactoring your data model doesn't 
              break your mappings and queries.
             - Kt-search makes complicated features like bulk operations, aggregations, etc. really easy 
-            to use and accessible.
+            to use and accessible. And there is also the IndexRepository, which makes it extremely easy
+            to work with and query documents in a given index or data stream.
             - While a DSL is nice to have, sometimes it just doesn't have the feature you 
-            need or maybe you want to work with raw json. Kt-search allows you to do both and mix 
-            schema less with type safe kotlin. You can add custom 
-            properties to the DSL via `put` or you can use Kotlin string literals to pass in and template
-            raw json.
+            need or maybe you want to work with raw json string literal. Kt-search allows you to do both
+            and mix schema less with type safe kotlin. You can easily add custom 
+            properties to the DSL via a simple `put`. All `JsonDsl` are actually mutable maps.  
             - Kt-search is designed to be [extensible](${ManualPages.ExtendingTheDSL.publicLink}). 
-            It's easy to use the built in features. But you 
-            can easily add your own features. 
+            It's easy to use the built in features. And you can easily add your own features. This also
+            works for plugins or new features that Elasticsearch or Opensearch add.
             
         """.trimIndent()
     }

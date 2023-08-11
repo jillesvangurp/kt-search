@@ -45,14 +45,14 @@ onlyOn("opensearch has search_after but it works a bit different",
 
 This repository contains several kotlin modules that each may be used independently.
 
-| Module          | Description                                                                                                                               |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `json-dsl`      | Kotlin DSL for creating json requests                                                                                                     |
-| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                         |
-| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1.                                                                       |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and readmes.                             |
+| Module          | Description                                                                                                              |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------|
+| `json-dsl`      | Kotlin framework for creating kotlin DSLs for JSON dialects. Such as those in Elasticsearch.                             |
+| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                        |
+| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1. This is what you would want to use in your projects. |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..       |
 
-The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are really portable and only depend on the Kotlin standard library.
+The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 
 ## Contributing
 
@@ -68,9 +68,11 @@ Some suggestions of things you could work on:
 
 Please file issues if you find any or have any reasonable suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I can offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I  offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
 
-You can reach me via the issue tracker and I also lurk in the amazing [Kotlin Slack](https://kotlinlang.org/community/), [Elastic Slack](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy Slack](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) communities. And I have a [website](https://www.jillesvangurp.com) with more contact details.
+The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
+
+I also try to respond quickly to issues. And I also lurk in the amazing [Kotlin](https://kotlinlang.org/community/), [Elastic](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) Slack communities. 
 
 ## About this README
 

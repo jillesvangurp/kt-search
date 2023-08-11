@@ -119,7 +119,12 @@ The refresh parameter uses WaitFor as a default. This means that after the block
 will have been indexed and are available for searching. 
 
 ```kotlin
-client.bulk(refresh = Refresh.WaitFor) {
+client.bulk(
+  refresh = Refresh.WaitFor,
+  // send operations every 2 ops
+  // default would be 100
+  bulkSize = 2,
+) {
   index(
     doc = TestDocument(
       name = "apple",
@@ -154,7 +159,7 @@ Now that we have some documents in an index, we can do some queries:
 val results = client.search(indexName) {
   query = bool {
     must(
-      // note how we use property references here
+      // note how we can use property references here
       term(TestDocument::tags, "fruit"),
       matchPhrasePrefix(TestDocument::name, "app")
     )
@@ -164,12 +169,11 @@ val results = client.search(indexName) {
 println("found ${results.total} hits")
 results
   // extension function that deserializes
-  // uses kotlinx.serialization
+  // the hits using kotlinx.serialization
   .parseHits<TestDocument>()
   .first()
-  // hits don't always include source
-  // in that case it will be a null document
   .let {
+    // we feel lucky
     println("doc ${it.name}")
   }
 // you can also get the JsonObject if you don't
@@ -186,13 +190,14 @@ doc apple
 
 ```
 
-Aggregations are also supported via a DSL:
+You can also construct complex aggregations with the query DSL:
 
 ```kotlin
 val resp = client.search(indexName) {
   // we don't care about retrieving hits
   resultSize = 0
   agg("by-tag", TermsAgg(TestDocument::tags) {
+    // simple terms agg on the tags field
     aggSize = 50
     minDocCount = 1
   })
@@ -217,21 +222,21 @@ tropical: 1
 These examples show off a few nice features of this library:
 
 - Kotlin DSLs are nice, type safe, and easier to read and write than pure Json. And of course
-you get auto completion too. There are DSLs for searching, creating indices and mappings, datastreams, 
+you get auto completion too. The client includes more DSLs for searching, creating indices and mappings, datastreams, 
 index life cycle management, bulk operations, aggregations, and more. 
 - Where in JSON, you use a lot of String literals, kt-search actually allows you to use
- property references or enum values. So refactoring your data model doesn't 
+ property references or enum values as well. So, refactoring your data model doesn't 
  break your mappings and queries.
 - Kt-search makes complicated features like bulk operations, aggregations, etc. really easy 
-to use and accessible.
+to use and accessible. And there is also the IndexRepository, which makes it extremely easy
+to work with and query documents in a given index or data stream.
 - While a DSL is nice to have, sometimes it just doesn't have the feature you 
-need or maybe you want to work with raw json. Kt-search allows you to do both and mix 
-schema less with type safe kotlin. You can add custom 
-properties to the DSL via `put` or you can use Kotlin string literals to pass in and template
-raw json.
+need or maybe you want to work with raw json string literal. Kt-search allows you to do both
+and mix schema less with type safe kotlin. You can easily add custom 
+properties to the DSL via a simple `put`. All `JsonDsl` are actually mutable maps.  
 - Kt-search is designed to be [extensible](https://jillesvangurp.github.io/kt-search/manual/ExtendingTheDSL.html). 
-It's easy to use the built in features. But you 
-can easily add your own features. 
+It's easy to use the built in features. And you can easily add your own features. This also
+works for plugins or new features that Elasticsearch or Opensearch add.
 
 ## Manual
 
@@ -342,14 +347,14 @@ onlyOn("opensearch has search_after but it works a bit different",
 
 This repository contains several kotlin modules that each may be used independently.
 
-| Module          | Description                                                                                                                               |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `json-dsl`      | Kotlin DSL for creating json requests                                                                                                     |
-| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                         |
-| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1.                                                                       |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and readmes.                             |
+| Module          | Description                                                                                                              |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------|
+| `json-dsl`      | Kotlin framework for creating kotlin DSLs for JSON dialects. Such as those in Elasticsearch.                             |
+| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                        |
+| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1. This is what you would want to use in your projects. |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..       |
 
-The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are really portable and only depend on the Kotlin standard library.
+The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 
 ## Contributing
 
@@ -365,9 +370,11 @@ Some suggestions of things you could work on:
 
 Please file issues if you find any or have any reasonable suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I can offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I  offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
 
-You can reach me via the issue tracker and I also lurk in the amazing [Kotlin Slack](https://kotlinlang.org/community/), [Elastic Slack](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy Slack](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) communities. And I have a [website](https://www.jillesvangurp.com) with more contact details.
+The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
+
+I also try to respond quickly to issues. And I also lurk in the amazing [Kotlin](https://kotlinlang.org/community/), [Elastic](https://www.elastic.co/blog/join-our-elastic-stack-workspace-on-slack), and [Search Relevancy](https://opensourceconnections.com/blog/2021/07/06/building-the-search-community-with-relevance-slack/) Slack communities. 
 
 ## About this README
 
