@@ -14,7 +14,7 @@ This project is [licensed](LICENSE) under the MIT license.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
-- - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
+- There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
 
 ## Use cases
@@ -54,9 +54,9 @@ And then the dependency to commonsMain or main:
     implementation("com.jillesvangurp:search-client:2.x.y")
 ```
 
-**About maven central ...** I've switched maven repositories a couple of times now. Jitpack and multiplatform just doesn't work. Of course would have liked to get this on maven central. However, after repeated attempts to get that done, I've decided to not sacrifice more time on this. The (lack of) documentation, the Jira bureaucracy, the uninformative errors, the  gradle plugin, etc. experience just doesn't add up to something that works for a multi module, multi platform project.
+**About maven central ...** I've switched maven repositories a couple of times now. Jitpack and multiplatform just doesn't work. Of course I would have liked to get this on maven central. However, after repeated attempts to get that done, I've decided to not sacrifice more time on this. The (lack of) documentation, the Jira bureaucracy, the uninformative errors, the gradle plugin, etc.  just doesn't add up to something that works for a multi module, multi platform project. I'm sure it can be done but I'm not taking more time out my schedule to find out.
 
-If somebody decides to fix a proper, modern solution for hosting packages, I'll consider using it but I'm done with maven central for now. Google buckets work fine for hosting. So does ssh or any old web server. So does aws. It's just maven central that's a huge PITA.
+If somebody decides to fix a proper, modern solution for hosting packages, I'll consider using it but I'm done with maven central for now. Google buckets work fine for hosting. So does ssh or any old web server. So does aws. It's just maven central that's a huge PITA. 
 
 ## Usage
 
@@ -297,6 +297,11 @@ There are several libraries that build on kt-search:
 - [kt-search-logback-appender](https://github.com/jillesvangurp/kt-search-logback-appender) - this is a logback appender that bulk indexes log events straight to elasticsearch. We use this at FORMATION.
 - [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) A demo project that uses kt-search.
 - [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) - version 1 of this client; now no longer maintained.
+
+Additionally, I also maintain a few other search related projects that you might find interesting.
+
+- [Rankquest Studio](https://rankquest.jillesvangurp.com) - A user friendly tool that requires no installation process that helps you build and run test cases for your search products. This of course can use kt-search. You may find the source code [here](https://github.com/jillesvangurp/rankquest-studio)
+- [querylight](https://github.com/jillesvangurp/querylight) - Sometimes Elasticsearch is overkill. This is a tiny in memory search engine that you can embedd in your kotlin browser, server, or mobile applications.
 
 ## Setting up a development environment
 

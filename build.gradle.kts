@@ -74,25 +74,17 @@ subprojects {
         })
     }
 
-//    apply(plugin = "signing")
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.dokka")
 
     afterEvaluate {
-        val dokkaJar = tasks.register<Jar>("dokkaJar") {
+        tasks.register<Jar>("dokkaJar") {
             from(tasks["dokkaHtml"])
             dependsOn(tasks["dokkaHtml"])
             archiveClassifier.set("javadoc")
         }
 
         configure<PublishingExtension> {
-            // use this for testing configuration changes to publishing
-//            repositories {
-//                maven {
-//                    println("file://$rootDir/localRepo")
-//                    url = uri("file://$rootDir/localRepo")
-//                }
-//            }
             repositories {
                 maven {
                     // GOOGLE_APPLICATION_CREDENTIALS env var must be set for this to work
@@ -101,38 +93,6 @@ subprojects {
                     name = "FormationPublic"
                 }
             }
-// TODO figure out how to set this without conflicts between the multiplatform magic and the publish plugin
-//            publications {
-//                create<MavenPublication>("mavenJava") {
-//
-//                    pom {
-//                        description.set("Kts extensions for kt-search. Easily script operations for Elasticsearch and Opensearch with .main.kts scripts")
-//                        name.set(artifactId)
-//                        url.set("https://github.com/jillesvangurp/kt-search")
-//                        licenses {
-//                            license {
-//                                name.set("MIT")
-//                                url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
-//                                distribution.set("repo")
-//                            }
-//                        }
-//                        developers {
-//                            developer {
-//                                id.set("jillesvangurp")
-//                                name.set("Jilles van Gurp")
-//                            }
-//                        }
-//                        scm {
-//                            url.set("https://github.com/jillesvangurp/kt-search/LICENSE")
-//                        }
-//                    }
-//
-//                }
-//            }
-
-//            publications.withType<MavenPublication> {
-//                artifact(dokkaJar)
-//            }
         }
     }
 }

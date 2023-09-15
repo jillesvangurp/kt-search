@@ -8,7 +8,7 @@ This project is [licensed](LICENSE) under the MIT license.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
-- - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
+- There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
 
 ## Use cases

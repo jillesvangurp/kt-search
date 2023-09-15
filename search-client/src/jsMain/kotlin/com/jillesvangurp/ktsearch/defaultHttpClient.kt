@@ -18,6 +18,10 @@ actual fun defaultKtorHttpClient(
             install(Logging) {
                 level = LogLevel.ALL
             }
+        } else {
+            install(Logging) {
+                level = LogLevel.NONE
+            }
         }
         if (!user.isNullOrBlank() && !password.isNullOrBlank()) {
             install(Auth) {
