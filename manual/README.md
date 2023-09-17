@@ -68,3 +68,8 @@ There are several libraries that build on kt-search:
 - [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) A demo project that uses kt-search.
 - [es-kotlin-client](https://github.com/jillesvangurp/es-kotlin-client) - version 1 of this client; now no longer maintained.
 
+Additionally, I also maintain a few other search related projects that you might find interesting.
+
+- [Rankquest Studio](https://rankquest.jillesvangurp.com) - A user friendly tool that requires no installation process that helps you build and run test cases for your search products. This of course can use kt-search. You may find the source code [here](https://github.com/jillesvangurp/rankquest-studio)
+- [querylight](https://github.com/jillesvangurp/querylight) - Sometimes Elasticsearch is overkill. This is a tiny in memory search engine that you can embedd in your kotlin browser, server, or mobile applications.
+
