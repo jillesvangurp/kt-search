@@ -9,12 +9,12 @@ kotlin {
     }
     js(IR) {
         nodejs {
-            testTask {
+            testTask(Action {
                 useMocha {
                     // javascript is a lot slower than Java, we hit the default timeout of 2000
                     timeout = "20s"
                 }
-            }
+            })
         }
     }
     sourceSets {

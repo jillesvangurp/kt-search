@@ -1,3 +1,5 @@
+import org.gradle.model.internal.core.ModelNodes.withType
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -23,7 +25,7 @@ subprojects {
 
     tasks.register("versionCheck") {
         doLast {
-            if(rootProject.version == "unspecified") {
+            if (rootProject.version == "unspecified") {
                 error("call with -Pversion=x.y.z to set a version and make sure it lines up with the current tag")
             }
         }

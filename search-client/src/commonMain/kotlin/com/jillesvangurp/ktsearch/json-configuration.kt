@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
  *
  * Used by e.g. the [SearchClient] to deserialize REST responses.
  *
- * @sample DEFAULT_JSON
  */
 val DEFAULT_JSON: Json = Json {
     // don't rely on external systems being written in kotlin or even having a language with default values
@@ -35,8 +34,6 @@ val DEFAULT_JSON: Json = Json {
 
 /**
  * Pretty printing kotlinx.serialization `Json` that you may use for debugging.
- *
- * @sample DEFAULT_PRETTY_JSON
  */
 val DEFAULT_PRETTY_JSON: Json = Json {
     encodeDefaults = true
