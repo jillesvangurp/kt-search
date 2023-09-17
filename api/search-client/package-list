@@ -169,6 +169,7 @@ $dokka.location:com.jillesvangurp.ktsearch/AffinityId///PointingToDeclaration/s
 $dokka.location:com.jillesvangurp.ktsearch/AffinityId/AffinityId/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/-affinity-id.html
 $dokka.location:com.jillesvangurp.ktsearch/AffinityId/affinityId/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/affinity-id.html
 $dokka.location:com.jillesvangurp.ktsearch/AffinityId/toString/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-affinity-id/to-string.html
+$dokka.location:com.jillesvangurp.ktsearch/Aggregations///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-aggregations/index.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/index.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/AliasAction/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/-alias-action.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/alias/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/alias.html
@@ -239,6 +240,7 @@ $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus.Green///PointingToDecla
 $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus.Red///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-cluster-status/-red/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus.Yellow///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-cluster-status/-yellow/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-cluster-status/index.html
+$dokka.location:com.jillesvangurp.ktsearch/ClusterStatus/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-cluster-status/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-cluster-status/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/ClusterStatus/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-cluster-status/values.html
 $dokka.location:com.jillesvangurp.ktsearch/ComponentTemplate///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-component-template/index.html
@@ -316,6 +318,7 @@ $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards.hidden///PointingToDe
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards.none///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/none/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards.open///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/open/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/index.html
+$dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/values.html
 $dokka.location:com.jillesvangurp.ktsearch/ExtendedStatsBucketResult.Bounds///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-extended-stats-bucket-result/-bounds/index.html
@@ -459,12 +462,14 @@ $dokka.location:com.jillesvangurp.ktsearch/OperationType.Delete///PointingToDecl
 $dokka.location:com.jillesvangurp.ktsearch/OperationType.Index///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-operation-type/-index/index.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType.Update///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-operation-type/-update/index.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-operation-type/index.html
+$dokka.location:com.jillesvangurp.ktsearch/OperationType/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-operation-type/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-operation-type/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/OperationType/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-operation-type/values.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh.False///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-refresh/-false/index.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh.True///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-refresh/-true/index.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh.WaitFor///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-refresh/-wait-for/index.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-refresh/index.html
+$dokka.location:com.jillesvangurp.ktsearch/Refresh/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-refresh/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-refresh/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/Refresh/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-refresh/values.html
 $dokka.location:com.jillesvangurp.ktsearch/RestClient///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-client/index.html
@@ -478,6 +483,7 @@ $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory.Request
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory.ServerProblem///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/-server-problem/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory.Success///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/-success/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/index.html
+$dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/values.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status2XX.Accepted///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status2-x-x/-accepted/index.html
@@ -596,6 +602,7 @@ $dokka.location:com.jillesvangurp.ktsearch/SearchEngineVersion/number/#/Pointing
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator.AND///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-operator/-a-n-d/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator.OR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-operator/-o-r/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-operator/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchOperator/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-operator/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-operator/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchOperator/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-operator/values.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hit///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hit/index.html
@@ -619,6 +626,7 @@ $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.Total/value/#/Poi
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation.Eq///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/-eq/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation.Gte///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/-gte/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits.TotalRelation/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hits/-total-relation/values.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchResponse.Hits///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-response/-hits/index.html
@@ -638,6 +646,7 @@ $dokka.location:com.jillesvangurp.ktsearch/SearchResponse/took/#/PointingToDecla
 $dokka.location:com.jillesvangurp.ktsearch/SearchType.dfs_query_then_fetch///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-type/dfs_query_then_fetch/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchType.query_then_fetch///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-search-type/query_then_fetch/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchType///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-type/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SearchType/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-type/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchType/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-type/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/SearchType/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-search-type/values.html
 $dokka.location:com.jillesvangurp.ktsearch/Shards///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-shards/index.html
@@ -673,6 +682,7 @@ $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.always///PointingToDeclar
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.missing///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/missing/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode.popular///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-suggest-mode/popular/index.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-suggest-mode/index.html
+$dokka.location:com.jillesvangurp.ktsearch/SuggestMode/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-suggest-mode/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-suggest-mode/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/SuggestMode/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-suggest-mode/values.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsAggregationResult///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-aggregation-result/index.html
@@ -697,6 +707,7 @@ $dokka.location:com.jillesvangurp.ktsearch/VariantInfo/versionString/#/PointingT
 $dokka.location:com.jillesvangurp.ktsearch/VersionType.External///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-version-type/-external/index.html
 $dokka.location:com.jillesvangurp.ktsearch/VersionType.ExternalGte///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-version-type/-external-gte/index.html
 $dokka.location:com.jillesvangurp.ktsearch/VersionType///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-version-type/index.html
+$dokka.location:com.jillesvangurp.ktsearch/VersionType/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-version-type/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/VersionType/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-version-type/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/VersionType/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-version-type/values.html
 com.jillesvangurp.ktsearch
