@@ -11,7 +11,8 @@ import io.ktor.utils.io.core.*
 expect fun defaultKtorHttpClient(
     logging: Boolean = false,
     user: String? = null,
-    password: String? = null
+    password: String? = null,
+    elasticApiKey: String? = null,
 ): HttpClient
 
 /**
@@ -25,8 +26,9 @@ class KtorRestClient(
     private val user: String? = null,
     private val password: String? = null,
     private val logging: Boolean = false,
-    private val client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password),
     private val nodeSelector: NodeSelector = RoundRobinNodeSelector(nodes),
+    private val elasticApiKey: String? = null,
+    private val client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password, elasticApiKey = elasticApiKey),
 ) : RestClient, Closeable {
     constructor(
         host: String = "localhost",
@@ -35,14 +37,16 @@ class KtorRestClient(
         user: String? = null,
         password: String? = null,
         logging: Boolean = false,
-        client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password),
+        elasticApiKey: String? = null,
+        client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password, elasticApiKey = elasticApiKey),
     ) : this(
         client = client,
         https = https,
         user = user,
         password = password,
         logging = logging,
-        nodes = arrayOf(Node(host, port))
+        nodes = arrayOf(Node(host, port)),
+        elasticApiKey = elasticApiKey
     )
 
     override suspend fun nextNode(): Node = nodeSelector.selectNode()

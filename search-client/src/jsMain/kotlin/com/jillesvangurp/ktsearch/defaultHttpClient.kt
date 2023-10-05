@@ -6,12 +6,14 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 
 actual fun defaultKtorHttpClient(
     logging: Boolean,
     user: String?,
-    password: String?
+    password: String?,
+    elasticApiKey: String?,
 ): HttpClient {
     return HttpClient(Js) {
         if (logging) {
@@ -33,6 +35,11 @@ actual fun defaultKtorHttpClient(
                         true
                     }
                 }
+            }
+        }
+        if(!elasticApiKey.isNullOrBlank()) {
+            headers {
+                append("Authorization", "ApiKey $elasticApiKey")
             }
         }
         install(ContentNegotiation) {

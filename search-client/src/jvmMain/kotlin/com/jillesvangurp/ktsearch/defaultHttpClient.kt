@@ -7,6 +7,7 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import java.time.Duration
 
@@ -15,15 +16,16 @@ actual fun defaultKtorHttpClient(
     logging: Boolean,
     user: String?,
     password: String?,
-
+    elasticApiKey: String?,
     ): HttpClient {
     // We experienced some threading issues with CIO. Java engine seems more stable currently.
-    return ktorClientWithJavaEngine(logging, user, password)
+    return ktorClientWithJavaEngine(logging, user, password, elasticApiKey)
 }
 fun ktorClientWithJavaEngine(
     logging: Boolean,
     user: String?,
     password: String?,
+    elasticApiKey: String?,
 ): HttpClient {
     return HttpClient(Java) {
         engine {
@@ -33,17 +35,24 @@ fun ktorClientWithJavaEngine(
             pipelining = true
             threadsCount = 20
         }
-        if(!user.isNullOrBlank() && !password.isNullOrBlank())
-        install(Auth) {
-            basic {
-                credentials {
-                    BasicAuthCredentials(user, password)
-                }
-                sendWithoutRequest {
-                    true
+        if(!user.isNullOrBlank() && !password.isNullOrBlank()) {
+            install(Auth) {
+                basic {
+                    credentials {
+                        BasicAuthCredentials(user, password)
+                    }
+                    sendWithoutRequest {
+                        true
+                    }
                 }
             }
         }
+        if(!elasticApiKey.isNullOrBlank()) {
+            headers {
+                append("Authorization", "ApiKey $elasticApiKey")
+            }
+        }
+
         install(ContentNegotiation) {
             json(DEFAULT_JSON)
         }
@@ -60,6 +69,7 @@ fun ktorClientWithCIOEngine(
     logging: Boolean,
     user: String?,
     password: String?,
+    elasticApiKey: String?,
 ) = HttpClient(CIO) {
     engine {
         maxConnectionsCount = 100
@@ -80,6 +90,11 @@ fun ktorClientWithCIOEngine(
                     true
                 }
             }
+        }
+    }
+    if(!elasticApiKey.isNullOrBlank()) {
+        headers {
+            append("Authorization", "ApiKey $elasticApiKey")
         }
     }
     if (logging) {
