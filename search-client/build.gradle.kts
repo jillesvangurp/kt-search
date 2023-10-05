@@ -73,7 +73,7 @@ kotlin {
                 api(project(":search-dsls"))
                 api(project(":json-dsl"))
                 api(KotlinX.datetime)
-                api(Ktor.client.core)
+                implementation(Ktor.client.core)
                 api(KotlinX.coroutines.core)
 
                 api(KotlinX.serialization.json)
@@ -81,10 +81,10 @@ kotlin {
                 api(Ktor.client.auth)
                 api(Ktor.client.logging)
                 api(Ktor.client.serialization)
-                api("io.ktor:ktor-client-logging:_")
-                api("io.ktor:ktor-serialization-kotlinx:_")
-                api("io.ktor:ktor-serialization-kotlinx-json:_")
-                api("io.ktor:ktor-client-content-negotiation:_")
+                implementation("io.ktor:ktor-client-logging:_")
+                implementation("io.ktor:ktor-serialization-kotlinx:_")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:_")
+                implementation("io.ktor:ktor-client-content-negotiation:_")
             }
         }
         val commonTest by getting {
