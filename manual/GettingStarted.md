@@ -49,7 +49,7 @@ After creating the client, you can use it. Since kt-search uses non blocking IO 
 calls are suspending and have to be inside a co-routine.
 
 You may want to override some of the default parameter values. For example, this is how you would
-connect to your cluster in Elastic Cloud.
+connect to your cluster in Elastic Cloud using either a user and password and basic authentication or an api key.
 
 ```kotlin
 val client2 = SearchClient(
@@ -61,6 +61,17 @@ val client2 = SearchClient(
   )
 )
 ```
+
+Note, for Opensearch clusters in AWS, you need to use Amazon's [sigv4](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html) to sign requests. This is currently 
+not supported directly in the client. Also see this [gist](https://gist.github.com/hassaku63/e3ed3cac288d429563cdddf1768613d6) on how
+ to do curl requests.
+
+To work around this, you can provide your own customized ktor client that 
+ does this; or provide an alternative `RestClient` implementation in case you don't want to use ktor client. 
+ Pull requests that document authenticating with opensearch in AWS in more detail 
+ or enable this in a multi platform way with the ktor client are welcome. I currently
+ do not have access to an opensearch cluster in AWS.
+
 
 `KtorRestClient` has an alternate constructor that you can use if
  you have a proxy in front of your cluster or only one node.
