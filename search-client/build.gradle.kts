@@ -67,7 +67,7 @@ kotlin {
         }
     }
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
@@ -87,7 +87,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:_")
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common", "_"))
                 implementation(kotlin("test-annotations-common", "_"))
@@ -96,13 +96,13 @@ kotlin {
                 api("io.github.microutils:kotlin-logging:_")
             }
         }
-        val jvmMain by existing {
+        jvmMain {
             dependencies {
                 implementation(Ktor.client.cio)
                 api(Ktor.client.java)
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5", "_"))
                 implementation("ch.qos.logback:logback-classic:_")
@@ -111,12 +111,12 @@ kotlin {
                 implementation(Testing.junit.jupiter.engine)
             }
         }
-        val jsMain by existing {
+        jsMain {
             dependencies {
                 implementation("io.ktor:ktor-client-js:_")
             }
         }
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js", "_"))
             }

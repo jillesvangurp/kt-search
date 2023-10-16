@@ -1,5 +1,3 @@
-import org.gradle.model.internal.core.ModelNodes.withType
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -19,7 +17,7 @@ subprojects {
     tasks.withType<KotlinJvmCompile> {
         kotlinOptions {
             jvmTarget = "17"
-            languageVersion = "1.7"
+            languageVersion = "1.9"
         }
     }
 

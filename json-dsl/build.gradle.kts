@@ -18,23 +18,23 @@ kotlin {
         }
     }
     sourceSets {
-        val commonMain by getting {
+        commonMain {
+
             dependencies {
-                implementation(kotlin("stdlib-common", "_"))
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common", "_"))
                 implementation(kotlin("test-annotations-common", "_"))
                 implementation(Testing.kotest.assertions.core)
             }
         }
-        val jvmMain by existing {
+        jvmMain {
             dependencies {
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5", "_"))
                 implementation("ch.qos.logback:logback-classic:_")
@@ -43,11 +43,10 @@ kotlin {
                 implementation(Testing.junit.jupiter.engine)
             }
         }
-        val jsMain by existing {
-            dependencies {
-            }
+        jsMain {
+
         }
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js", "_"))
             }
