@@ -74,7 +74,10 @@ kotlin {
             })
         }
     }
-    linuxX64()
+    // some weird linking error
+//    linuxX64()
+    // lib curl is not found for this one :-(
+//    linuxArm64()
     mingwX64()
     macosX64()
     macosArm64()
