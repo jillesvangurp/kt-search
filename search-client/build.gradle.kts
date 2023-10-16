@@ -57,6 +57,14 @@ kotlin {
     jvm {
     }
     js(IR) {
+        browser {
+            testTask(Action {
+                useMocha {
+                    // javascript is a lot slower than Java, we hit the default timeout of 2000
+                    timeout = "30s"
+                }
+            })
+        }
         nodejs {
             testTask(Action {
                 useMocha {
@@ -66,6 +74,11 @@ kotlin {
             })
         }
     }
+    linuxX64()
+    mingwX64()
+    macosX64()
+    macosArm64()
+
     sourceSets {
         commonMain {
             dependencies {
@@ -119,6 +132,12 @@ kotlin {
         jsTest {
             dependencies {
                 implementation(kotlin("test-js", "_"))
+            }
+        }
+
+        nativeMain {
+            dependencies {
+                implementation(Ktor.client.curl)
             }
         }
 

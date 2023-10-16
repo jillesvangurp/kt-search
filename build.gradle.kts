@@ -9,10 +9,13 @@ println("project: $path")
 println("version: $version")
 println("group: $group")
 
-subprojects {
+allprojects {
     repositories {
         mavenCentral()
     }
+}
+
+subprojects {
 
     tasks.withType<KotlinJvmCompile> {
         kotlinOptions {

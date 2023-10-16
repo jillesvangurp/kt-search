@@ -8,6 +8,7 @@ kotlin {
     jvm {
     }
     js(IR) {
+        browser()
         nodejs {
             testTask(Action {
                 useMocha {
@@ -17,6 +18,11 @@ kotlin {
             })
         }
     }
+    linuxX64()
+    mingwX64()
+    macosX64()
+    macosArm64()
+
     sourceSets {
         commonMain {
 
