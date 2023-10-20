@@ -477,6 +477,7 @@ $dokka.location:com.jillesvangurp.ktsearch/RestClient/doRequest/#kotlin.collecti
 $dokka.location:com.jillesvangurp.ktsearch/RestClient/nextNode/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-client/next-node.html
 $dokka.location:com.jillesvangurp.ktsearch/RestException///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-exception/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestException/RestException/#com.jillesvangurp.ktsearch.RestResponse/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-exception/-rest-exception.html
+$dokka.location:com.jillesvangurp.ktsearch/RestException/response/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-exception/response.html
 $dokka.location:com.jillesvangurp.ktsearch/RestException/status/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-exception/status.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory.Other///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/-other/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.ResponseCategory.RequestIsWrong///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}search-client/com.jillesvangurp.ktsearch/-rest-response/-response-category/-request-is-wrong/index.html
