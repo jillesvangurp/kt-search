@@ -85,7 +85,7 @@ sealed class RestResponse(open val status: Int) {
     ) : RestResponse(status)
 }
 
-class RestException(response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}") {
+class RestException(val response: RestResponse) : Exception("${response.responseCategory} ${response.status}: ${response.text}") {
     val status = response.status
 }
 
