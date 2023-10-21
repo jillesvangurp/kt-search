@@ -75,14 +75,13 @@ kotlin {
             })
         }
     }
-    // only enable the linux targets when building on linux
-    // some issues with linux lib curl availability on other platforms
-    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-        // some weird linking error
-        linuxX64()
-        // lib curl is not found for this one :-(
-        linuxArm64()
-    }
+    // linux targets seem broken for curl, keep disabled for now
+//    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+//        // some weird linking error
+//        linuxX64()
+//        // lib curl is not found for this one :-(
+//        linuxArm64()
+//    }
     mingwX64()
     macosX64()
     macosArm64()
