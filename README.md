@@ -247,6 +247,8 @@ There are of course a lot more features that this library supports. The
 
 - [Getting Started](https://jillesvangurp.github.io/kt-search/manual/GettingStarted.html)
 
+- [Client Configuration](https://jillesvangurp.github.io/kt-search/manual/ClientConfiguration.html)
+
 - [Indices, Settings, Mappings, and Aliases](https://jillesvangurp.github.io/kt-search/manual/IndexManagement.html)
 
 ### Search
