@@ -6,6 +6,7 @@ import documentation.manual.bulk.indexmanagement.dataStreamsMd
 import documentation.manual.bulk.indexmanagement.indexManagementMd
 import documentation.manual.crud.crudMd
 import documentation.manual.extending.extendingMd
+import documentation.manual.gettingstarted.clientConfiguration
 import documentation.manual.gettingstarted.gettingStartedMd
 import documentation.manual.gettingstarted.whatIsKtSearchMd
 import documentation.manual.indexrepo.indexRepoMd
@@ -16,6 +17,7 @@ import documentation.manual.search.*
 enum class ManualPages(title: String = "") {
     WhatIsKtSearch("What is Kt-Search"),
     GettingStarted("Getting Started"),
+    ClientConfiguration("Client Configuration"),
     Search("Search and Queries"),
     TextQueries("Text Queries"),
     TermLevelQueries("Term Level Queries"),
@@ -49,6 +51,7 @@ val sections = listOf(
         "Introduction", listOf(
             ManualPages.WhatIsKtSearch to whatIsKtSearchMd,
             ManualPages.GettingStarted to gettingStartedMd,
+            ManualPages.ClientConfiguration to clientConfiguration,
             ManualPages.IndexManagement to indexManagementMd,
         )
     ),
