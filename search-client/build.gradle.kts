@@ -3,6 +3,7 @@
 import com.avast.gradle.dockercompose.ComposeExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.net.URL
 import java.util.*
 
@@ -74,10 +75,14 @@ kotlin {
             })
         }
     }
-    // some weird linking error
-//    linuxX64()
-    // lib curl is not found for this one :-(
-//    linuxArm64()
+    // only enable the linux targets when building on linux
+    // some issues with linux lib curl availability on other platforms
+    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+        // some weird linking error
+        linuxX64()
+        // lib curl is not found for this one :-(
+        linuxArm64()
+    }
     mingwX64()
     macosX64()
     macosArm64()
