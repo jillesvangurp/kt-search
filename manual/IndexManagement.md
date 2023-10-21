@@ -1,6 +1,6 @@
 # Indices, Settings, Mappings, and Aliases 
 
-| [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
+| [KT Search Manual](README.md) | Previous: [Client Configuration](ClientConfiguration.md) | Next: [Search and Queries](Search.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -165,5 +165,5 @@ Datastreams work in both Opensearch and Elasticsearch and automate some of the t
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Getting Started](GettingStarted.md) | Next: [Search and Queries](Search.md) |
+| [KT Search Manual](README.md) | Previous: [Client Configuration](ClientConfiguration.md) | Next: [Search and Queries](Search.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
