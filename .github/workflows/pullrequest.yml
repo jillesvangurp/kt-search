@@ -10,14 +10,14 @@ jobs:
     steps:
     - name: Checkout the code
       uses: actions/checkout@master
+    - name: Install cURL Headers
+      run: sudo apt-get install libcurl4-openssl-dev
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
         distribution: temurin
         java-version: '17'
         cache: gradle
-    - name: Install cURL Headers
-      run: sudo apt-get install libcurl4-openssl-dev
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
