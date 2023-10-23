@@ -52,13 +52,8 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
-#      - name: Cache build .gradle dir
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            ~/.gradle
-#            .gradle
-#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle.kts') }}
+      - name: Install cURL Headers
+        run: sudo apt-get install libcurl4-openssl-dev
       - name: Compose up
         run: ./gradlew :search-client:composeUp -PsearchEngine=${{ matrix.version }}
       - name: Gradle Build
