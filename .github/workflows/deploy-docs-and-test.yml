@@ -57,7 +57,7 @@ jobs:
       - name: Compose up
         run: ./gradlew :search-client:composeUp -PsearchEngine=${{ matrix.version }}
       - name: Gradle Build
-        run: ./gradlew :search-client:check -PsearchEngine=${{ matrix.version }}
+        run: ./gradlew :search-client:jvmTest -PsearchEngine=${{ matrix.version }}
       - name: Compose down
         run: ./gradlew :search-client:composeDown -PsearchEngine=${{ matrix.version }}
 
