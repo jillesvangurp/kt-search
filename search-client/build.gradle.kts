@@ -75,12 +75,14 @@ kotlin {
             })
         }
     }
-    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-        // some weird linking error
-        linuxX64()
-        // lib curl is not found for this one :-(
-        linuxArm64()
-    }
+    // several issues with the linux build that prevent this from working
+    // keep disabled for now.
+//    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+//        // some weird linking error
+//        linuxX64()
+//        // lib curl is not found for this one :-(
+//        linuxArm64()
+//    }
     mingwX64()
     macosX64()
     macosArm64()
