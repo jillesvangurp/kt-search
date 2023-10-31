@@ -1,9 +1,14 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class TestDocument(
     val name: String,
@@ -12,6 +17,8 @@ data class TestDocument(
     val tags: List<String>? = null,
     val point: List<Double>? = null,
     val id : Long = Random.nextLong(),
+    @EncodeDefault
+    val timestamp: Instant = Clock.System.now()
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
@@ -22,6 +29,7 @@ data class TestDocument(
                 number<Long>(TestDocument::number)
                 keyword(TestDocument::tags)
                 geoPoint(TestDocument::point)
+                date(TestDocument::timestamp)
             }
         }
     }
