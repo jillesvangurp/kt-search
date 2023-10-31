@@ -17,8 +17,8 @@ data class TestDocument(
     val tags: List<String>? = null,
     val point: List<Double>? = null,
     val id : Long = Random.nextLong(),
-    @EncodeDefault
-    val timestamp: Instant = Clock.System.now()
+    @EncodeDefault // default to same time so tests depending on document equality don't fail
+    val timestamp: Instant = Instant.fromEpochMilliseconds(6666666666)
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
