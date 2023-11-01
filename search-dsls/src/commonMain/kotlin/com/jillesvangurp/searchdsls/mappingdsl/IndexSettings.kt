@@ -145,6 +145,17 @@ class FieldMappings : JsonDsl() {
     fun geoShape(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) =
         field(property.name, "geo_shape", block)
 
+    fun rankFeature(name: String, block: (FieldMappingConfig.() -> Unit)? = null) {
+        field(name, "rank_feature", block)
+    }
+    fun rankFeature(property: KProperty<*>, block: (FieldMappingConfig.() -> Unit)? = null) =
+        field(property.name, "rank_feature", block)
+    fun rankFeatures(name: String, block: (FieldMappingConfig.() -> Unit)? = null) {
+        field(name, "rank_features", block)
+    }
+    fun rankFeatures(property: KProperty<*>, block: (FieldMappingConfig.() -> Unit)? = null) =
+        field(property.name, "rank_features", block)
+
     inline fun <reified T : Number> number(name: String) = number<T>(name) {}
     inline fun <reified T : Number> number(property: KProperty<*>) = number<T>(property.name) {}
 
@@ -205,9 +216,9 @@ class FieldMappings : JsonDsl() {
     fun field(name: String, type: String) = field(name, type) {}
     fun field(property: KProperty<*>, type: String) = field(property.name, type) {}
 
-    fun field(name: String, type: String, block: FieldMappingConfig.() -> Unit) {
+    fun field(name: String, type: String, block: (FieldMappingConfig.() -> Unit)?) {
         val mapping = FieldMappingConfig(type)
-        block.invoke(mapping)
+        block?.invoke(mapping)
         put(name, mapping, PropertyNamingConvention.AsIs)
     }
 

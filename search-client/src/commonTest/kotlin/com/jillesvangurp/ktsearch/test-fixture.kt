@@ -18,7 +18,8 @@ data class TestDocument(
     val point: List<Double>? = null,
     val id : Long = Random.nextLong(),
     @EncodeDefault // default to same time so tests depending on document equality don't fail
-    val timestamp: Instant = Instant.fromEpochMilliseconds(6666666666)
+    val timestamp: Instant = Instant.fromEpochMilliseconds(6666666666),
+    val feature: Int = 42
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
@@ -30,6 +31,7 @@ data class TestDocument(
                 keyword(TestDocument::tags)
                 geoPoint(TestDocument::point)
                 date(TestDocument::timestamp)
+                rankFeature(TestDocument::feature)
             }
         }
     }
