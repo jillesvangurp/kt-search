@@ -2,6 +2,8 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import io.kotest.matchers.shouldBe
+import kotlin.random.Random
+import kotlin.random.nextULong
 import kotlin.test.Test
 
 class IndexTemplateTest : SearchTestBase() {
@@ -10,10 +12,10 @@ class IndexTemplateTest : SearchTestBase() {
     fun shouldCreateDataStream() = coRun {
 
 
-        val settingsTemplateId = "test-settings"
-        val mappingsTemplateId = "test-mappings"
-        val templateId = "test-template"
-        val dataStreamName = "test-logs"
+        val settingsTemplateId = "test-settings-${Random.nextULong()}"
+        val mappingsTemplateId = "test-mappings-${Random.nextULong()}"
+        val templateId = "test-template-${Random.nextULong()}"
+        val dataStreamName = "test-logs-${Random.nextULong()}"
 
         runCatching { client.deleteDataStream(dataStreamName) }
         runCatching { client.deleteIndexTemplate(templateId) }
