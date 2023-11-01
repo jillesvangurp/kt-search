@@ -28,12 +28,15 @@ fun ktorClientWithJavaEngine(
     elasticApiKey: String?,
 ): HttpClient {
     return HttpClient(Java) {
+        // note the Java engine uses the IO dispatcher
+        // you may want to bump the number of threads
+        // for that by setting the system property
+        // kotlinx.coroutines.io.parallelism=128
         engine {
             config {
                 connectTimeout(Duration.ofSeconds(5))
             }
             pipelining = true
-            threadsCount = 20
         }
         if(!user.isNullOrBlank() && !password.isNullOrBlank()) {
             install(Auth) {
