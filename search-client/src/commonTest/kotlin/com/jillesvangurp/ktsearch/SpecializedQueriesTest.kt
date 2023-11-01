@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.days
 class SpecializedQueriesTest : SearchTestBase() {
 
     @Test
-    fun shouldRankOnFeature() = coRun {
+    fun shouldRankOnDistance() = coRun {
         val index = testDocumentIndex()
         client.bulk(target = index, refresh = Refresh.WaitFor) {
             create(

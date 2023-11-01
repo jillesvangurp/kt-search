@@ -263,6 +263,8 @@ There are of course a lot more features that this library supports. The
 
 - [Geo Spatial Queries](https://jillesvangurp.github.io/kt-search/manual/GeoQueries.html)
 
+- [Specialized Queries](https://jillesvangurp.github.io/kt-search/manual/SpecializedQueries.html)
+
 - [Aggregations](https://jillesvangurp.github.io/kt-search/manual/Aggregations.html)
 
 - [Deep Paging Using search_after and scroll](https://jillesvangurp.github.io/kt-search/manual/DeepPaging.html)

@@ -23,6 +23,7 @@ enum class ManualPages(title: String = "") {
     TermLevelQueries("Term Level Queries"),
     CompoundQueries("Compound Queries"),
     GeoQueries("Geo Spatial Queries"),
+    SpecializedQueries("Specialized Queries"),
     Aggregations("Aggregations"),
     DeepPaging("Deep Paging Using search_after and scroll"),
     DeleteByQuery("Deleting by query"),
@@ -62,6 +63,7 @@ val sections = listOf(
             ManualPages.TermLevelQueries to termLevelQueriesMd,
             ManualPages.CompoundQueries to compoundQueriesMd,
             ManualPages.GeoQueries to geoQueriesMd,
+            ManualPages.SpecializedQueries to specializedQueriesMd,
             ManualPages.Aggregations to aggregationsMd,
             ManualPages.DeepPaging to deepPagingMd,
         )
