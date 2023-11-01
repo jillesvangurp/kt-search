@@ -1,6 +1,6 @@
 # Geo Spatial Queries 
 
-| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Aggregations](Aggregations.md) |
+| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Specialized Queries](SpecializedQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -220,5 +220,5 @@ documentation still uses this point as the example for geo_shape queries. ;-)
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Aggregations](Aggregations.md) |
+| [KT Search Manual](README.md) | Previous: [Compound Queries](CompoundQueries.md) | Next: [Specialized Queries](SpecializedQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

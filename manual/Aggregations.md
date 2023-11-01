@@ -1,6 +1,6 @@
 # Aggregations 
 
-| [KT Search Manual](README.md) | Previous: [Geo Spatial Queries](GeoQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
+| [KT Search Manual](README.md) | Previous: [Specialized Queries](SpecializedQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -99,7 +99,7 @@ Captured Output:
 
 ```
 {
-  "took": 22,
+  "took": 10,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -355,13 +355,13 @@ Captured Output:
 2023-10-31T00:00:00.000Z: 1
 2023-11-01T00:00:00.000Z: 1
 green: 2
-  Min: 1.69796966535E12
-  Max: 1.69883366535E12
+  Min: 1.697983116909E12
+  Max: 1.698847116909E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.69840166535E12
-  Max: 1.69874726535E12
+  Min: 1.698415116909E12
+  Max: 1.698760716909E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
@@ -527,5 +527,5 @@ For more examples for other aggregations, refer to the source code.
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Geo Spatial Queries](GeoQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
+| [KT Search Manual](README.md) | Previous: [Specialized Queries](SpecializedQueries.md) | Next: [Deep Paging Using search_after and scroll](DeepPaging.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
