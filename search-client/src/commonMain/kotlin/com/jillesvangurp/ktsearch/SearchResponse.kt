@@ -47,6 +47,8 @@ data class SearchResponse(
         override val primaryTerm: Int?=null,
         @SerialName("_version")
         override val version: Long?,
+        @SerialName("_explanation")
+        val explanation: JsonObject?,
     ): SourceInformation
 
     @Serializable
