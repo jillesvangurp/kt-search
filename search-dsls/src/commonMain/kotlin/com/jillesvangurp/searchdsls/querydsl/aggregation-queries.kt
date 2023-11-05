@@ -54,6 +54,38 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : 
     }
 }
 
+class AggRange: JsonDsl() {
+    var key by property<String>()
+    /**
+     * Aggregation includes the `from` value
+     */
+    var from by property<Double>()
+    /**
+     * Aggregation excludes the `to` value
+     */
+    var to by property<Double>()
+
+    companion object {
+      fun create(block: AggRange.() -> Unit) = AggRange().apply(block)
+    }
+}
+
+class RangesAggConfig : JsonDsl() {
+    var field by property<String>()
+    var ranges by property<List<AggRange>>()
+}
+
+class RangesAgg(val field: String, block: (RangesAggConfig.() -> Unit)? = null) : AggQuery("range") {
+    constructor(field: KProperty<*>, block: (RangesAggConfig.() -> Unit)? = null) : this(field.name, block)
+
+    init {
+        val config = RangesAggConfig()
+        config.field = field
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class DateHistogramAggConfig : JsonDsl() {
     var field by property<String>()
     var calendarInterval by property<String>("calendar_interval") // can't redefine Map.size sadly
