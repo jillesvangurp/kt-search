@@ -3,7 +3,6 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.*
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeGreaterThan
@@ -12,7 +11,6 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
 
@@ -60,10 +58,10 @@ class AggQueryTest : SearchTestBase() {
         repository.createIndex(MockDoc.mapping)
         repository.bulk {
             val now = Clock.System.now()
-            index(MockDoc(name = "1", tags = listOf(Tags.bar), color = Colors.green, timestamp = now))
-            index(MockDoc(name = "2", tags = listOf(Tags.foo), color = Colors.red, timestamp = now - 1.days))
-            index(MockDoc(name = "3", tags = listOf(Tags.foo, Tags.bar), color = Colors.red, timestamp = now - 5.days))
-            index(MockDoc(name = "4", tags = listOf(Tags.fooBar), color = Colors.green, timestamp = now - 10.days))
+            index(MockDoc(name = "1", tags = listOf(Tags.bar), value = 1, color = Colors.green, timestamp = now))
+            index(MockDoc(name = "2", tags = listOf(Tags.foo), value = 2, color = Colors.red, timestamp = now - 1.days))
+            index(MockDoc(name = "3", tags = listOf(Tags.foo, Tags.bar), value = 3, color = Colors.red, timestamp = now - 5.days))
+            index(MockDoc(name = "4", tags = listOf(Tags.fooBar), value = 4, color = Colors.green, timestamp = now - 10.days))
         }
     }
 
@@ -87,6 +85,37 @@ class AggQueryTest : SearchTestBase() {
         buckets.size shouldBe 3
         buckets.counts()[Tags.bar] shouldBe 2
         buckets.counts()[Tags.fooBar] shouldBe 1
+    }
+
+    @Test
+    fun shouldDoRangesAgg() = coRun {
+        before()
+        val aggName = "value_ranges"
+        val response = repository.search {
+            resultSize = 0 // we only care about the aggs
+            agg(aggName, RangesAgg("value") {
+                ranges = listOf(
+                    AggRange.create {
+                        key = "low"
+                        to = 3.0
+                    },
+                    AggRange.create {
+                        key = "high"
+                        from = 3.0
+                    }
+                )
+            })
+        }
+
+        response.aggregations shouldNotBe null
+
+        val rangesAgg = response.aggregations.rangesResult(aggName)
+        rangesAgg shouldNotBe null
+        val rangeCounts = rangesAgg.parsedBuckets.map { it.parsed }.rangeCounts()
+
+        rangeCounts.size shouldBe 2
+        rangeCounts["low"] shouldBe 2
+        rangeCounts["high"] shouldBe 2
     }
 
     @Test

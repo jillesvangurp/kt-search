@@ -140,6 +140,32 @@ fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAgg
 fun Aggregations?.termsResult(name: Enum<*>, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
 
+@Serializable
+data class RangesBucket(
+    val key: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+    // Range Aggregation on Integer field returns Double
+    // https://github.com/elastic/elasticsearch/issues/43258
+    val from: Double?,
+    val to: Double?
+)
+
+@Serializable
+data class RangesAggregationResult(
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<TermsBucket>
+
+val RangesAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, RangesBucket.serializer()) }
+
+// JVM cannot distinguish List type parameter in the runtime, so we cannot use "counts" name
+// as for the TermsBucket
+fun List<RangesBucket>.rangeCounts() = this.associate { it.key to it.docCount }
+
+fun Aggregations?.rangesResult(name: String, json: Json = DEFAULT_JSON): RangesAggregationResult =
+    getAggResult(name, json)
+fun Aggregations?.rangesResult(name: Enum<*>, json: Json = DEFAULT_JSON): RangesAggregationResult =
+    getAggResult(name, json)
 
 @Serializable
 data class FilterAggregationResult(
