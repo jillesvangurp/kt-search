@@ -2,6 +2,10 @@
 
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -42,14 +46,14 @@ data class SearchResponse(
         val innerHits: Map<String, HitsContainer>?,
         val highlight: JsonObject?,
         @SerialName("_seq_no")
-        override val seqNo: Int?=null,
+        override val seqNo: Int? = null,
         @SerialName("_primary_term")
-        override val primaryTerm: Int?=null,
+        override val primaryTerm: Int? = null,
         @SerialName("_version")
         override val version: Long?,
         @SerialName("_explanation")
         val explanation: JsonObject?,
-    ): SourceInformation
+    ) : SourceInformation
 
     @Serializable
     data class Hits(
@@ -76,12 +80,29 @@ data class SearchResponse(
 class HitsContainer(val hits: SearchResponse.Hits)
 
 val SearchResponse.searchHits get() = this.hits?.hits ?: listOf()
+
+/**
+ * Quick way to get the document hits from a SearchResponse. You can override the default [json] if you need to.
+ */
 inline fun <reified T> SearchResponse.parseHits(json: Json = DEFAULT_JSON) = searchHits.map {
     it.parseHit<T>(json)
 }
 
-fun <T> SearchResponse.parseHits(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) = searchHits.map {
-    it.parseHit(deserializationStrategy,json)
+/**
+ * Non reified version of [parseHits] that takes a [deserializationStrategy].
+ */
+fun <T> SearchResponse.parseHits(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) =
+    searchHits.map {
+        it.parseHit(deserializationStrategy, json)
+    }
+
+/**
+ * Version of [parseHits] that reuses the `ModelSerializationStrategy`.
+ */
+fun <T : Any> SearchResponse.parseHits(
+    deserializationStrategy: ModelSerializationStrategy<T>,
+) = searchHits.mapNotNull { hit ->
+    hit.source?.let { deserializationStrategy.deSerialize(hit.source) }
 }
 
 inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T {
@@ -89,12 +110,29 @@ inline fun <reified T> SearchResponse.Hit.parseHit(json: Json = DEFAULT_JSON): T
 }
 
 fun <T> SearchResponse.Hit.parseHit(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON): T {
-    return this.source?.parse(deserializationStrategy,json = json) ?: error("no source found")
+    return this.source?.parse(deserializationStrategy, json = json) ?: error("no source found")
 }
+
+inline fun <reified T> Flow<SearchResponse.Hit>.parseHits(
+): Flow<T> = map {
+    it.parseHit<T>()
+}
+fun <T> Flow<SearchResponse.Hit>.parseHits(
+    deserializationStrategy: DeserializationStrategy<T>,
+    json: Json = DEFAULT_JSON
+): Flow<T> = map {
+    it.parseHit(deserializationStrategy, json)
+}
+
+fun <T: Any> Flow<SearchResponse.Hit>.parseHits(deserializationStrategy: ModelSerializationStrategy<T>): Flow<T> =
+    mapNotNull { hit ->
+        hit.source?.let { deserializationStrategy.deSerialize(it) }
+    }
 
 inline fun <reified T> JsonObject.parse(json: Json = DEFAULT_JSON) = json.decodeFromJsonElement<T>(this)
 
-fun <T> JsonObject.parse(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) = json.decodeFromJsonElement(deserializationStrategy,this)
+fun <T> JsonObject.parse(deserializationStrategy: DeserializationStrategy<T>, json: Json = DEFAULT_JSON) =
+    json.decodeFromJsonElement(deserializationStrategy, this)
 
 fun <T> JsonObject.parse(json: Json = DEFAULT_JSON, deserializationStrategy: DeserializationStrategy<T>) =
     json.decodeFromJsonElement(deserializationStrategy, this)
@@ -137,6 +175,7 @@ fun List<TermsBucket>.counts() = this.associate { it.key to it.docCount }
 
 fun Aggregations?.termsResult(name: String, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
+
 fun Aggregations?.termsResult(name: Enum<*>, json: Json = DEFAULT_JSON): TermsAggregationResult =
     getAggResult(name, json)
 
@@ -164,6 +203,7 @@ fun List<RangesBucket>.rangeCounts() = this.associate { it.key to it.docCount }
 
 fun Aggregations?.rangesResult(name: String, json: Json = DEFAULT_JSON): RangesAggregationResult =
     getAggResult(name, json)
+
 fun Aggregations?.rangesResult(name: Enum<*>, json: Json = DEFAULT_JSON): RangesAggregationResult =
     getAggResult(name, json)
 
@@ -172,13 +212,15 @@ data class FilterAggregationResult(
     @SerialName("doc_count")
     val docCount: Long,
 )
+
 fun Aggregations?.filterResult(name: String): FilterBucket? =
     this?.get(name)?.let {
         FilterBucket(
             name = name,
-            docCount = it.jsonObject["doc_count"]?.jsonPrimitive?.long?:0,
+            docCount = it.jsonObject["doc_count"]?.jsonPrimitive?.long ?: 0,
             bucket = it.jsonObject
-        ) }
+        )
+    }
 
 
 data class FilterBucket(
@@ -187,6 +229,7 @@ data class FilterBucket(
     val docCount: Long,
     val bucket: JsonObject
 )
+
 @Serializable
 data class FiltersAggregationResult(
     val buckets: JsonObject
@@ -195,19 +238,21 @@ data class FiltersAggregationResult(
 fun FiltersAggregationResult.bucket(name: String, json: Json): FilterBucket? =
     buckets[name]?.let { json.decodeFromJsonElement(it) }
 
-val FiltersAggregationResult.namedBuckets get() = buckets.map { (n,e) ->
-    FilterBucket(
-        name = n,
-        docCount = e.jsonObject["doc_count"]?.jsonPrimitive?.long ?: 0,
-        bucket = e.jsonObject
-    )
-}
+val FiltersAggregationResult.namedBuckets
+    get() = buckets.map { (n, e) ->
+        FilterBucket(
+            name = n,
+            docCount = e.jsonObject["doc_count"]?.jsonPrimitive?.long ?: 0,
+            bucket = e.jsonObject
+        )
+    }
 
 
 fun Aggregations?.filtersResult(name: String, json: Json = DEFAULT_JSON): FiltersAggregationResult =
-    getAggResult(name,json)
+    getAggResult(name, json)
+
 fun Aggregations?.filtersResult(name: Enum<*>, json: Json = DEFAULT_JSON): FiltersAggregationResult =
-    getAggResult(name,json)
+    getAggResult(name, json)
 
 @Serializable
 data class DateHistogramBucket(
@@ -234,11 +279,12 @@ inline fun <reified T> Aggregations?.getAggResult(
 inline fun <reified T> Aggregations?.getAggResult(
     name: Enum<*>,
     json: Json = DEFAULT_JSON
-) : T = // nullability here would be annoying; better to just throw an exception
+): T = // nullability here would be annoying; better to just throw an exception
     this?.get(name.name)?.let { json.decodeFromJsonElement(it) } ?: error("no such agg $name")
 
 fun Aggregations?.dateHistogramResult(name: String, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
     getAggResult(name, json)
+
 fun Aggregations?.dateHistogramResult(name: Enum<*>, json: Json = DEFAULT_JSON): DateHistogramAggregationResult =
     getAggResult(name, json)
 
@@ -260,6 +306,7 @@ data class LongValueAggregationResult(
 
 fun Aggregations?.minResult(name: String, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
+
 fun Aggregations?.minResult(name: Enum<*>, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
@@ -277,6 +324,7 @@ fun Aggregations?.cardinalityResult(name: Enum<*>, json: Json = DEFAULT_JSON): L
 
 fun Aggregations?.bucketScriptResult(name: String, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
+
 fun Aggregations?.bucketScriptResult(name: Enum<*>, json: Json = DEFAULT_JSON): DoubleValueAggregationResult =
     getAggResult(name, json)
 
@@ -328,6 +376,7 @@ fun Aggregations?.extendedStatsBucketResult(name: Enum<*>, json: Json = DEFAULT_
 data class TopHitsAggregationResult(
     val hits: SearchResponse.Hits,
 )
+
 fun Aggregations?.topHitResult(name: String, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
     getAggResult(name, json)
 

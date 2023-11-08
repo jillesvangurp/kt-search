@@ -239,6 +239,25 @@ class IndexRepository<T : Any>(
         }
     }
 
+    /**
+     * More user friendly version of [get] that returns either the document or null.
+     *
+     * Use this if you don't need the `GetResponse`.
+     */
+    suspend fun getDocument(id: String): T? {
+        return try {
+            val (doc, _) =  get(id)
+            doc
+        } catch (e: RestException) {
+            if(e.status == 404) {
+                // not found, just return null
+                null
+            } else {
+                throw e
+            }
+        }
+    }
+
     suspend fun index(
         value: T,
         id: String? = null,
@@ -728,6 +747,106 @@ class IndexRepository<T : Any>(
             extraParameters = extraParameters,
             block = block
         )
+    }
+
+    /**
+     * More user friendly way to search documents that simply returns a list of documents.
+     *
+     * Use this if you don't need the hit meta data or search response.
+     */
+    suspend fun searchDocuments(
+        allowNoIndices: Boolean? = null,
+        allowPartialSearchResults: Boolean? = null,
+        analyzer: String? = null,
+        analyzeWildcard: Boolean? = null,
+        batchedReduceSize: Int? = null,
+        ccsMinimizeRoundtrips: Boolean? = null,
+        defaultOperator: SearchOperator? = null,
+        df: String? = null,
+        docvalueFields: String? = null,
+        expandWildcards: ExpandWildCards? = null,
+        explain: Boolean? = null,
+        from: Int? = null,
+        ignoreThrottled: Boolean? = null,
+        ignoreUnavailable: Boolean? = null,
+        lenient: Boolean? = null,
+        maxConcurrentShardRequests: Int? = null,
+        preFilterShardSize: Int? = null,
+        preference: String? = null,
+        q: String? = null,
+        requestCache: Boolean? = null,
+        restTotalHitsAsInt: Boolean? = null,
+        routing: String? = null,
+        scroll: String? = null,
+        searchType: SearchType? = null,
+        seqNoPrimaryTerm: Boolean? = null,
+        size: Int? = null,
+        sort: String? = null,
+        @Suppress("LocalVariableName") _source: String? = null,
+        sourceExcludes: String? = null,
+        sourceIncludes: String? = null,
+        stats: String? = null,
+        storedFields: String? = null,
+        suggestField: String? = null,
+        suggestMode: SuggestMode? = null,
+        suggestSize: Int? = null,
+        suggestText: String? = null,
+        terminateAfter: Int? = null,
+        timeout: Duration? = null,
+        trackScores: Boolean? = null,
+        trackTotalHits: Boolean? = null,
+        typedKeys: Boolean? = null,
+        version: Boolean? = null,
+        extraParameters: Map<String, String>? = null,
+        block: SearchDSL.() -> Unit
+    ): List<T> {
+        return client.search(
+            target = indexReadAlias,
+            allowNoIndices = allowNoIndices,
+            allowPartialSearchResults = allowPartialSearchResults,
+            analyzer = analyzer,
+            analyzeWildcard = analyzeWildcard,
+            batchedReduceSize = batchedReduceSize,
+            ccsMinimizeRoundtrips = ccsMinimizeRoundtrips,
+            defaultOperator = defaultOperator,
+            df = df,
+            docvalueFields = docvalueFields,
+            expandWildcards = expandWildcards,
+            explain = explain,
+            from = from,
+            ignoreThrottled = ignoreThrottled,
+            ignoreUnavailable = ignoreUnavailable,
+            lenient = lenient,
+            maxConcurrentShardRequests = maxConcurrentShardRequests,
+            preFilterShardSize = preFilterShardSize,
+            preference = preference,
+            q = q,
+            requestCache = requestCache,
+            restTotalHitsAsInt = restTotalHitsAsInt,
+            routing = routing,
+            scroll = scroll,
+            searchType = searchType,
+            seqNoPrimaryTerm = seqNoPrimaryTerm,
+            size = size,
+            sort = sort,
+            _source = _source,
+            sourceExcludes = sourceExcludes,
+            sourceIncludes = sourceIncludes,
+            stats = stats,
+            storedFields = storedFields,
+            suggestField = suggestField,
+            suggestMode = suggestMode,
+            suggestSize = suggestSize,
+            suggestText = suggestText,
+            terminateAfter = terminateAfter,
+            timeout = timeout,
+            trackScores = trackScores,
+            trackTotalHits = trackTotalHits,
+            typedKeys = typedKeys,
+            version = version,
+            extraParameters = extraParameters,
+            block = block
+        ).parseHits(serializer)
     }
 
     suspend fun deleteByQuery(block: SearchDSL.() -> Unit): DeleteByQueryResponse {

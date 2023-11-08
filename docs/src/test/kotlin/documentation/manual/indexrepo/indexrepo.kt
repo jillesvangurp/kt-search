@@ -1,11 +1,12 @@
 package documentation.manual.indexrepo
 
-import com.jillesvangurp.ktsearch.KtorRestClient
-import com.jillesvangurp.ktsearch.Node
-import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
+import com.jillesvangurp.searchdsls.querydsl.match
 import com.jillesvangurp.searchdsls.querydsl.matchAll
+import documentation.manual.ManualPages
+import documentation.manual.bulk.bulkMd
+import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
@@ -48,6 +49,56 @@ val indexRepoMd = sourceGitRepository.md {
                 query=matchAll()
             }
         }
+    }
+
+    section("Deserializing documents") {
+        +"""
+            The main purpose of the `IndexRepository` is to handle document deserialization for you. To enable this
+            a few extension functions are provided that allow you to deserialize individual hits or lists and flows of 
+            hits. 
+        """.trimIndent()
+
+        suspendingBlock(runBlock = false) {
+            val documents: List<TestDoc> = repo.search {
+                query = match(TestDoc::message, "document")
+            }.parseHits<TestDoc>()
+        }
+
+        +"""
+            The disadvantage of extension functions is that they are not aware of the `ModelSerializationStrategy`.
+            The version above is uses reified inline generics. There are also variants that take either the 
+            `ModelSerializationStrategy` or the kotlinx serialization strategy.
+            
+            But there's also a short hand in the `IndexRepository` which doesn't have this disadvantage.
+            
+        """.trimIndent()
+        suspendingBlock(runBlock = false) {
+            val documents: List<TestDoc> = repo.searchDocuments {
+                query = match(TestDoc::message, "document")
+            }
+        }
+        +"""
+            This also works for `search_after`, which returns a flow of hits that you can turn
+            into a flow of your document
+            
+            Likewise you can get a document with `getDocument`:
+        """.trimIndent()
+        suspendingBlock(runBlock = false) {
+            // returns null if the document is not found
+            val doc: TestDoc? = repo.getDocument("42")
+        }
+
+        +"""
+            Or get both the document and the `GetResponse` by destructuring:
+        """.trimIndent()
+        suspendingBlock(runBlock = false) {
+            // throws a RestException if the document is not found
+            val (doc: TestDoc,resp: GetDocumentResponse) = repo.get("42")
+        }
+
+        +"""
+            Note. the type specifications above are of course optional because of type inference but added for readability.
+        """.trimIndent()
     }
 
     section("Bulk Indexing") {
@@ -93,10 +144,15 @@ val indexRepoMd = sourceGitRepository.md {
 
     section("Optimistic locking and updates") {
         +"""
-            Elasticsearch is of course not a database and it does not have transactions.
+            Elasticsearch is of course not intended to be a database and it does not have transactions. However,
+            it does have a few features that allow you to (ab)use it as one.
             
-            However, it can do optimistic locking using `primary_term` and `seq_no` attributes that it exposes in 
-            index responses or get document responses. This works by setting the `if_primary_term` and `if_seq_no` 
+            Elasticsearch supports optimistic locking. With optimistic locking you can guarantee that you are not 
+            overwriting concurrent updates to documents. Additionally, most write operations have a refresh parameter that you can set to `wait_for`
+            to ensure read consistency (read your own writes). Both features combined, make it possible to use 
+            Elasticsearch as a simple document store.
+            
+            Optimistic locking works by setting the `if_primary_term` and `if_seq_no` 
             parameters on indexing operations and handling the version conflict http response by trying again with
             a freshly fetched version of the document that has the current values of `primary_term` and `seq_no`. 
             
@@ -108,23 +164,23 @@ val indexRepoMd = sourceGitRepository.md {
             can fail that you can then act on by retrying. Since nothing gets locked, everything stays fast. 
             And with a rare retry operation, performance should not suffer.
             
-            Dealing with this is of course a bit fiddly to do. To make optimistic locking really easy,
-            easier, you can either use this way of updating a single document or our bulk update with retry, 
-            which is described below.  
+            Dealing with this is of course a bit fiddly to do manually. To make optimistic locking really easy,
+            the `IndexRepository` supports updates with retry both for single documents and with bulk operations.  
             
         """.trimIndent()
         suspendingBlock(false) {
             val id = repo.index(TestDoc("A document")).id
-            repo.update(id, maxRetries = 2) {oldVersion ->
+            repo.update(id, maxRetries = 2) { oldVersion ->
                 oldVersion.copy(message = "An updated document")
             }
         }
         +"""
-            This fetches the document and the `primary_term` and `seq_no` values, applies your update function, 
-            and then stores it. In case of a version conflict, it re-fetches the document, and then applies your 
+            This fetches the document and its `primary_term` and `seq_no` values, applies your update function, 
+            and then stores it. In case of a version conflict, it re-fetches the document with the latest 
+            `primary_term` and `seq_no` values, and then re-applies your update
             function to that version. The number of retries is configurable. If all retries fail, you will get a 
-            version conflict exception. The only time this would happen is if you have a lot of concurrent writes 
-            to the same documents. 
+            version conflict exception. The only time this may happen is if you have a lot of concurrent writes 
+            to the same documents.
         """.trimIndent()
 
         section("Bulk updates and optimistic locking") {
@@ -134,7 +190,7 @@ val indexRepoMd = sourceGitRepository.md {
                 setting `if_primary_term` and `if_seq_no`. The index repository implements an extended version of the
                 BulkSession that includes update functions similar to the above and uses a callback based retry mechanism.
                 
-                You can still use a custom callback and it the retry callback will delegate to that. 
+                See ${ManualPages.BulkIndexing.page.mdLink} for more information on callbacks.                                
             """.trimIndent()
             suspendingBlock(false) {
                 val aDoc = TestDoc("A document")
@@ -163,8 +219,8 @@ val indexRepoMd = sourceGitRepository.md {
             }
 
             +"""
-                Digging out primary_term and seq_no numbers is of course a bit tedious. 
-                So,you can use anything implementing `SourceInformation`. This includes document
+                Digging out primary_term and seq_no numbers manually is of course a bit tedious. 
+                As an alternative, you pass in anything that implements `SourceInformation`. This includes document
                 get responses, multi get responses, and search hits.
             """.trimIndent()
 
@@ -173,15 +229,14 @@ val indexRepoMd = sourceGitRepository.md {
                 val id = repo.index(aDoc).id
 
                 val (_, getResponse) = repo.get(id)
-                // note, you should use a multi get if you are updating manu documents
-                // conflicts could still happen of course, let's force one
+                // note, you should use a multi get if you are updating many documents
                 repo.index(
                     value = aDoc.copy("This will be overwritten"),
                     id = getResponse.id
                 )
                 repo.bulk {
                     update(
-                        // everything we need is in the getResponse
+                        // GetResponse implements SourceInformation
                         // however, our getResponse is now out of date
                         // so it will retry
                         getResponse
@@ -193,7 +248,7 @@ val indexRepoMd = sourceGitRepository.md {
             }
 
             +"""
-                Using e.g. searchAfter is great for
+                Using searchAfter is great for
                 applying large amounts of updates to an index. This is how that works:
             """.trimIndent()
 
@@ -209,6 +264,7 @@ val indexRepoMd = sourceGitRepository.md {
                             // if somebody messes with the index while we do this
                             // bulk update will just retry it
                             update(
+                                // hit implements SourceInformation
                                 hit
                             ) {
                                 it.copy(message = it.message.reversed())
