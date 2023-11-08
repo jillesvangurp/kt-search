@@ -70,7 +70,7 @@ Captured Output:
 
 ```
 ES8: 8.9.0
-docker-test-cluster is Green
+docker-test-cluster is Yellow
 
 ```
 
