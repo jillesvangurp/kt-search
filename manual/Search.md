@@ -286,7 +286,7 @@ Captured Output:
 
 ```
 document count 3
-document count 302
+document count 395
 
 ```
 
