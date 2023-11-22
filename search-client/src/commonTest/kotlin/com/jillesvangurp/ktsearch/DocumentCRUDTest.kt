@@ -90,15 +90,20 @@ class DocumentCRUDTest: SearchTestBase() {
         client.indexDocument(indexName, TestDocument("bar",description = "Bar"), id = "2")
 
         client.mGet {
-            this.doc {
+            doc {
                 id="1"
                 index=indexName
                 source=true
-//                sourceInclude= listOf("name")
-//                sourceExclude= listOf("description")
             }
+            doc {
+                id="idontexist"
+                index=indexName
+                source=true
+            }
+
         }.docs.let {
-            it.size shouldBe 1
+            it.firstOrNull { !it.found } shouldNotBe null
+            it.size shouldBe 2
         }
     }
 }

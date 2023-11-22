@@ -127,13 +127,13 @@ data class GetDocumentResponse(
     @SerialName("_id")
     override val id: String,
     @SerialName("_version")
-    override val version: Long,
+    override val version: Long?,
     @SerialName("_source")
     override val source: JsonObject?,
     @SerialName("_seq_no")
-    override val seqNo: Int,
+    override val seqNo: Int?,
     @SerialName("_primary_term")
-    override val primaryTerm: Int,
+    override val primaryTerm: Int?,
     val found: Boolean,
     @SerialName("_routing")
     val routing: String? = null,
