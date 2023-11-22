@@ -232,7 +232,7 @@ class MGetRequest : JsonDsl() {
 @Serializable
 data class MGetResponse(val docs: List<GetDocumentResponse>)
 
-inline fun <reified T> MGetResponse.documents(json: Json = DEFAULT_JSON) = docs.map { it.document<T>(json) }
+inline fun <reified T> MGetResponse.documents(json: Json = DEFAULT_JSON) = docs.filter { it.found }.map { it.document<T>(json) }
 
 suspend fun SearchClient.mGet(
     index: String? = null,
