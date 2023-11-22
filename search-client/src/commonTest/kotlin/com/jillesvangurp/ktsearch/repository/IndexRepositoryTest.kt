@@ -27,6 +27,11 @@ class IndexRepositoryTest : SearchTestBase() {
     }
 
     @Test
+    fun shouldNotFailOnWrongId() = coRun {
+        repo.getDocument("idontexist") shouldBe null
+    }
+
+    @Test
     fun shouldDoBulkWithRepo() = coRun{
         repo.createIndex {}
         repo.bulk {
