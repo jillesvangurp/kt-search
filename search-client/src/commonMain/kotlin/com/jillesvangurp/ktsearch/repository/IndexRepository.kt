@@ -437,6 +437,44 @@ class IndexRepository<T : Any>(
     ) {
         ids = docIds.toList()
     }
+    suspend fun mGet(
+        docIds: List<String>,
+        preference: String? = null,
+        realtime: Boolean? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        storedFields: String? = null,
+        source: String? = null,
+    ) = mGet(
+        preference = preference,
+        realtime = realtime,
+        refresh = refresh,
+        routing = routing,
+        storedFields = storedFields,
+        source = source
+    ) {
+        ids = docIds
+    }
+    suspend fun mGetDocuments(
+        docIds: List<String>,
+        preference: String? = null,
+        realtime: Boolean? = null,
+        refresh: Refresh? = null,
+        routing: String? = null,
+        storedFields: String? = null,
+        source: String? = null,
+    ) = mGet(
+        preference = preference,
+        realtime = realtime,
+        refresh = refresh,
+        routing = routing,
+        storedFields = storedFields,
+        source = source
+    ) {
+        ids = docIds
+    }.let { resp ->
+        resp.docs.mapNotNull { it.source?.let { src -> serializer.deSerialize(src) }}
+    }
 
     suspend fun mGet(
         preference: String? = null,
