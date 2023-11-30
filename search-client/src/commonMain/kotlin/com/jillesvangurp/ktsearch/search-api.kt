@@ -342,7 +342,7 @@ suspend fun SearchClient.scroll(scrollId: String, scroll: Duration = 60.seconds)
 suspend fun SearchClient.deleteScroll(scrollId: String?) {
     if (scrollId != null) {
         restClient.delete {
-            path("_scroll", scrollId)
+            path("_search", "scroll", scrollId)
         }
     }
 }
