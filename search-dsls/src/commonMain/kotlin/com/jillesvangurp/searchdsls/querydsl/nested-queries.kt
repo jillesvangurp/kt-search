@@ -13,3 +13,4 @@ fun SearchDSL.nested(block: NestedQuery.() -> Unit): NestedQuery {
     block.invoke(q)
     return q
 }
+
