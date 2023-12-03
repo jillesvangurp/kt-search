@@ -11,13 +11,13 @@ import kotlinx.serialization.Serializable
 
 val bulkMd = sourceGitRepository.md {
     +"""
-            An important part of working with Elasticsearch is adding content. While the CRUD support is useful
-            for manipulating individual objects in an index, it is not suitable for sending large amounts of data.
-            
-            For that, bulk indexing should be used. The bulk API in Elasticsearch is one of the more complex APIs
-            in ES. Kt-search provides a few key abstractions to make bulk indexing easy, robust, 
-            and straightforward.
-        """
+        An important part of working with Elasticsearch is adding content. While the CRUD support is useful
+        for manipulating individual objects in an index, it is not suitable for sending large amounts of data.
+        
+        For that, bulk indexing should be used. The bulk API in Elasticsearch is one of the more complex APIs
+        in ES. Kt-search provides a few key abstractions to make bulk indexing easy, robust, 
+        and straightforward.
+    """
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
 
     @Serializable
