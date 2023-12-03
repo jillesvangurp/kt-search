@@ -163,6 +163,8 @@ class FieldMappings : JsonDsl() {
         val type = when (T::class) {
             Long::class -> "long"
             Int::class -> "integer"
+            Short::class -> "short"
+            Byte::class -> "byte"
             Float::class -> "float"
             Double::class -> "double"
             else -> throw IllegalArgumentException("unsupported type ${T::class} explicitly specify type")
