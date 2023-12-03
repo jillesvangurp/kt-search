@@ -60,17 +60,32 @@ If somebody decides to fix a proper, modern solution for hosting packages, I'll 
 
 ## Usage
 
+### Create a client
+
+First we create a client. 
+
+```kotlin
+val client = SearchClient()
+```
+
+Kotlin has default values for parameters. So, we use sensible defaults for the 
+`host` and `port` variables to connect to `localhohst` and `9200`.
+
 ```kotlin
 val client = SearchClient(
-  KtorRestClient()
+  KtorRestClient(host="localhost", port=9200)
 )
 ```
 
-First we create a client. Kotlin has default values for parameters. So, we use sensible defaults for the 
-`host` and `port` variables to connect to `localhohst` and `9200`. You can also configure multiple hosts, 
-or add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
+If you need ro, you can also configure multiple hosts, 
+add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
 multiple hosts, you can also configure a strategy for selecting the host to connect to. For more on 
 this, read the [manual](https://jillesvangurp.github.io/kt-search/manual/GettingStarted.html).
+
+### Documents and data classes
+
+In Kotlin, the preferred way to deal with data would be a data class. This is a simple data class
+that we will use below.
 
 ```kotlin
 @Serializable
@@ -82,8 +97,11 @@ data class TestDocument(
 
 In the example below we will use this `TestDocument`, which we can serialize using the 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
-framework. You can also pass in your own serialized json in requests, so if you want to use e.g. jackson or gson,
+framework. You can also pass in your own serialized json in requests, 
+so if you want to use e.g. jackson or gson instead,
 you can do so easily.
+
+### Creating  an index           
 
 ```kotlin
 val indexName = "readme-index"
@@ -102,18 +120,21 @@ client.createIndex(indexName) {
 ```
 
 This creates the index and uses the mappings and settings DSL. With this DSL, you can map fields, 
-configure analyzers, etc. 
+configure analyzers, etc. This is optional of course; you can just call it without the block 
+and use the defaults and rely on dynamic mapping. 
 You can read more about that [here](https://jillesvangurp.github.io/kt-search/manual/IndexManagement.html) 
+
+### Adding documents
 
 To fill the index with some content, we need to use bulk operations.
 
 In kt-search this is made very easy with a DSL that abstracts away the book keeping
-that you need to do for this. The bulk block below creates a BulkSession, which flushes
-operations to Elasticsearch for you. You can configure and tailor how this works via parameters
-that have sensible defaults. For example the number of operations that is flushes is something
+that you need to do for this. The bulk block below creates a `BulkSession`, which does this for you and flushes
+operations to Elasticsearch. You can configure and tailor how this works via parameters
+that have sensible defaults. For example the number of operations that is flushed is something
 that you'd want to probably configure.
 
-The refresh parameter uses WaitFor as a default. This means that after the block exits, the documents
+The optional `refresh` parameter uses WaitFor as the default. This means that after the block exits, the documents
 will have been indexed and are available for searching. 
 
 ```kotlin
@@ -149,6 +170,8 @@ client.bulk(
 
 You can read more about 
 [bulk operations](https://jillesvangurp.github.io/kt-search/manual/BulkIndexing.html) in the manual.
+
+### Search
 
 Now that we have some documents in an index, we can do some queries:
 

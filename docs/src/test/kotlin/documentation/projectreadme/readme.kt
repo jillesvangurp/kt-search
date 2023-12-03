@@ -32,29 +32,46 @@ val projectReadme = sourceGitRepository.md {
             )
         )
 
-
         @Serializable
         data class TestDocument(
             val name: String,
             val tags: List<String>? = null
         )
 
+        +"""
+            ### Create a client
+            
+            First we create a client. 
+        """.trimIndent()
 
         // this is what we show in the Readme :-)
         block {
+            val client = SearchClient()
+        }
+
+        +"""
+            Kotlin has default values for parameters. So, we use sensible defaults for the 
+            `host` and `port` variables to connect to `localhohst` and `9200`.
+        """.trimIndent()
+        block {
             val client = SearchClient(
-                KtorRestClient()
+                KtorRestClient(host="localhost", port=9200)
             )
         }
 
         +"""
-            First we create a client. Kotlin has default values for parameters. So, we use sensible defaults for the 
-            `host` and `port` variables to connect to `localhohst` and `9200`. You can also configure multiple hosts, 
-            or add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
+            If you need ro, you can also configure multiple hosts, 
+            add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
             multiple hosts, you can also configure a strategy for selecting the host to connect to. For more on 
             this, read the [manual](${ManualPages.GettingStarted.publicLink}).
         """.trimIndent()
 
+        +"""
+            ### Documents and data classes
+            
+            In Kotlin, the preferred way to deal with data would be a data class. This is a simple data class
+            that we will use below.
+        """.trimIndent()
 
         block {
             @Serializable
@@ -67,8 +84,12 @@ val projectReadme = sourceGitRepository.md {
         +"""
             In the example below we will use this `TestDocument`, which we can serialize using the 
             [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
-            framework. You can also pass in your own serialized json in requests, so if you want to use e.g. jackson or gson,
+            framework. You can also pass in your own serialized json in requests, 
+            so if you want to use e.g. jackson or gson instead,
             you can do so easily.
+            
+            ### Creating  an index           
+            
         """.trimIndent()
         val indexName = "readme-index"
         runBlocking {  runCatching { client.deleteIndex(indexName) } }
@@ -91,18 +112,21 @@ val projectReadme = sourceGitRepository.md {
 
         +"""
             This creates the index and uses the mappings and settings DSL. With this DSL, you can map fields, 
-            configure analyzers, etc. 
+            configure analyzers, etc. This is optional of course; you can just call it without the block 
+            and use the defaults and rely on dynamic mapping. 
             You can read more about that [here](${ManualPages.IndexManagement.publicLink}) 
+            
+            ### Adding documents
             
             To fill the index with some content, we need to use bulk operations.
             
             In kt-search this is made very easy with a DSL that abstracts away the book keeping
-            that you need to do for this. The bulk block below creates a BulkSession, which flushes
-            operations to Elasticsearch for you. You can configure and tailor how this works via parameters
-            that have sensible defaults. For example the number of operations that is flushes is something
+            that you need to do for this. The bulk block below creates a `BulkSession`, which does this for you and flushes
+            operations to Elasticsearch. You can configure and tailor how this works via parameters
+            that have sensible defaults. For example the number of operations that is flushed is something
             that you'd want to probably configure.
             
-            The refresh parameter uses WaitFor as a default. This means that after the block exits, the documents
+            The optional `refresh` parameter uses WaitFor as the default. This means that after the block exits, the documents
             will have been indexed and are available for searching. 
         """.trimIndent()
         suspendingBlock {
@@ -138,6 +162,8 @@ val projectReadme = sourceGitRepository.md {
         +"""
             You can read more about 
             [bulk operations](${ManualPages.BulkIndexing.publicLink}) in the manual.
+            
+            ### Search
             
             Now that we have some documents in an index, we can do some queries:
         """.trimIndent()
