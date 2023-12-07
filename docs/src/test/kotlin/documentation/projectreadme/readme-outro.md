@@ -66,9 +66,9 @@ Some suggestions of things you could work on:
 
 ## Support and Community
 
-Please file issues if you find any or have any reasonable suggestions for changes.
+Please file issues if you find any or have any suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I  offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
 
 The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
 

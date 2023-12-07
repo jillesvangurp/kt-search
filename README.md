@@ -30,7 +30,7 @@ Integrate **advanced search** capabilities in your Kotlin applications. Whether 
 
 The goal for kt-search is to be the **most convenient way to use opensearch and elasticsearch from Kotlin** on any platform where Kotlin is usable.
 
-Kt-search is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
+Kt-search is extensible and modular. You can easily add your own custom DSLs for e.g. things not covered by this library or any custom plugins you use. And while it is opinionated about using e.g. kotlinx.serialization, you can also choose to use alternative serialization frameworks, or even use your own http client and just use the search-dsl.
 
 ## Gradle
 
@@ -327,8 +327,8 @@ There are several libraries that build on kt-search:
 
 Additionally, I also maintain a few other search related projects that you might find interesting.
 
-- [Rankquest Studio](https://rankquest.jillesvangurp.com) - A user friendly tool that requires no installation process that helps you build and run test cases for your search products. This of course can use kt-search. You may find the source code [here](https://github.com/jillesvangurp/rankquest-studio)
-- [querylight](https://github.com/jillesvangurp/querylight) - Sometimes Elasticsearch is overkill. This is a tiny in memory search engine that you can embedd in your kotlin browser, server, or mobile applications.
+- [Rankquest Studio](https://rankquest.jillesvangurp.com) - A user friendly tool that requires no installation process that helps you build and run test cases to measure search relevance for your search products. Rankquest Studio of course uses kt-search but it is also able to talk directly to your API and is designed to work with any kind of search api or product that is able to return lists of results.
+- [querylight](https://github.com/jillesvangurp/querylight) - Sometimes Elasticsearch is just overkill. Query light is a tiny in memory search engine that you can embed in your kotlin browser, server, or mobile applications. We use it at FORMATION to support e.g. in app icon search. Querylight comes with its own analyzers and query language. 
 
 ## Setting up a development environment
 
@@ -398,9 +398,9 @@ Some suggestions of things you could work on:
 
 ## Support and Community
 
-Please file issues if you find any or have any reasonable suggestions for changes.
+Please file issues if you find any or have any suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I  offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
 
 The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
 
