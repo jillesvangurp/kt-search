@@ -4,6 +4,19 @@
 
 Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem on any platform that kotlin can compile to. It provides Kotlin DSLs for querying, defining mappings, bulk indexing, index templates, index life cycle management, index aliases, and much more. The key goal for this library is to provide a best in class developer experience for using Elasticsearch and Opensearch.  
 
+## Why Kt-search?
+
+If you develop software in Kotlin and would like to use Opensearch or Elasticsearch, you have a few choices to make. There are multiple clients to choose from and not all of them work for each version. And then there is Kotlin multi platform to consider as well. Maybe you are running spring boot on the jvm. Or maybe you are using ktor compiled to native or wasm and using that to run lambda functions. 
+
+Kt-search has you covered for all of those. The official Elastic or Opensearch clients are Java clients. You can use them from Kotlin but only on the JVM. And they are not source compatible with each other. The Opensearch client is based on a fork of the old Java client which after the fork was deprecated. On top of that, it uses opensearch specific package names.
+
+Kt-search solves a few important problems here:
+
+- It's Kotlin! You don't have to deal with all the Java idomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use co-routines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
+- It's a multiplatform library. We use it on the jvm and in the browser (javascript). Wasm support is coming soon and there is also native and mobile support. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
+- It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
+- It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
+
 ## License
 
 This project is [licensed](LICENSE) under the MIT license.
