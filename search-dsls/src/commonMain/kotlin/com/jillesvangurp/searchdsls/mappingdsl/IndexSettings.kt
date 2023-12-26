@@ -67,6 +67,7 @@ class Analysis : JsonDsl() {
 class IndexSettings : JsonDsl() {
     var replicas: Int by property("index.number_of_replicas")
     var shards: Int by property("index.number_of_shards")
+    var refreshInterval: String by property("index.refresh_interval")
     var indexLifeCycleName: String by property("index.lifecycle.name")
 
     fun analysis(block: Analysis.() -> Unit) {
