@@ -124,6 +124,7 @@ client.createIndex(indexName) {
   settings {
     replicas = 0
     shards = 3
+    refreshInterval = "10s"
   }
   mappings(dynamicEnabled = false) {
     text(TestDocument::name)

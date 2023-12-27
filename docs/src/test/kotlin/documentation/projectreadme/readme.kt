@@ -7,10 +7,8 @@ import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.githubLink
 import documentation.manual.ManualPages
 import documentation.manual.sections
-import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 
 val projectReadme = sourceGitRepository.md {
@@ -102,6 +100,7 @@ val projectReadme = sourceGitRepository.md {
                 settings {
                     replicas = 0
                     shards = 3
+                    refreshInterval = "10s"
                 }
                 mappings(dynamicEnabled = false) {
                     text(TestDocument::name)
