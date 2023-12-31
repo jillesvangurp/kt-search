@@ -195,15 +195,15 @@ resp.hits?.hits?.forEach { hit ->
 }
 ```
 
-                    This prints:
-                    
-                    ```
-                    Banana
+This prints:
+ 
+ ```
+ Banana
 Apple
 2 - 1.0925692: Banana (0.8)
 1 - 0.0: Apple (0.5)
 
-                    ```
+ ```
 
 By default, the source gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
@@ -223,13 +223,13 @@ println("Number of docs" + client.count(indexName) {
 }.count)
 ```
 
-                    This prints:
-                    
-                    ```
-                    Number of docs3
+This prints:
+ 
+ ```
+ Number of docs3
 Number of docs2
 
-                    ```
+ ```
 
 ## Multi Search
 
@@ -269,7 +269,7 @@ This prints:
  
  ```
  document count 3
-document count 521
+document count 273
 
  ```
 
