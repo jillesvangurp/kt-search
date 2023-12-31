@@ -3,7 +3,10 @@ package documentation.manual.search
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.searchdsls.querydsl.bool
+import com.jillesvangurp.searchdsls.querydsl.matchAll
+import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
+import com.jillesvangurp.searchdsls.querydsl.term
 import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.printStdOut

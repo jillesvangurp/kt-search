@@ -7,6 +7,7 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.mappingdsl.KnnSimilarity
 import com.jillesvangurp.searchdsls.querydsl.KnnQuery
 import documentation.manual.search.client
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
