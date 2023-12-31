@@ -2,15 +2,14 @@ package com.jillesvangurp.ktsearch
 
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import kotlin.test.Test
 
 class IndexCreateTest: SearchTestBase() {
     @Test
     fun createIndex() = runTest {
-        val index = randomIndexName()
-        val response = client.createIndex(index) {
+        val indexName = randomIndexName()
+        val response = client.createIndex(indexName) {
             dynamicTemplate("test_fields") {
                 match = "test*"
                 mapping("text") {
@@ -32,13 +31,27 @@ class IndexCreateTest: SearchTestBase() {
                 this["foo"] = "bar"
             }
             settings {
-                replicas=0
-                shards=5
+                replicas = 0
+                shards = 5
+                refreshInterval = "31s"
             }
         }
         response.acknowledged shouldBe true
-        client.getIndexMappings(index).let {
-            it[index]?.jsonObject?.get("mappings")?.jsonObject?.get("dynamic_templates")?.jsonArray?.size shouldBe 2
+        client.getIndex(indexName).jsonObject(indexName).let {
+            val mappings = it.jsonObject("mappings")
+            mappings.jsonPrimitive("dynamic").booleanOrNull shouldBe true
+            mappings.jsonObject("_meta").jsonPrimitive("foo").content shouldBe "bar"
+            mappings.jsonArray("dynamic_templates").size shouldBe 2
+
+            val settings = it.jsonObject("settings").jsonObject("index")
+            settings.jsonPrimitive("number_of_replicas").intOrNull shouldBe 0
+            settings.jsonPrimitive("number_of_shards").intOrNull shouldBe 5
+            settings.jsonPrimitive("refresh_interval").content shouldBe "31s"
         }
     }
+
+    private fun JsonObject.jsonPrimitive(key: String) = this.getValue(key).jsonPrimitive
+    private fun JsonObject.jsonObject(key: String) = this.getValue(key).jsonObject
+    private fun JsonObject.jsonArray(key: String) = this.getValue(key).jsonArray
 }
+
