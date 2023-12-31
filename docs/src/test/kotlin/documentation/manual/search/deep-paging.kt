@@ -8,6 +8,7 @@ import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SortOrder
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import com.jillesvangurp.searchdsls.querydsl.sort
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
@@ -81,7 +82,7 @@ val deepPagingMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Search after") {
-        suspendingBlock {
+        suspendingExample {
             val (resp,hitsFlow) = client.searchAfter(indexName,1.minutes) {
                 // 1 result per page
                 // use something higher obviously, 500 would be good
@@ -91,7 +92,7 @@ val deepPagingMd = sourceGitRepository.md {
             }
             println("reported result set size ${resp.total}")
             println("results in the hits flow: ${hitsFlow.count()}")
-        }
+        }.printStdOut()
 
         +"""
             This orchestrates creating a point in time and paging through results using 
@@ -113,7 +114,7 @@ val deepPagingMd = sourceGitRepository.md {
             slightly differently and currently kt-search only supports the elastic variant for this.
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val (resp,hitsFlow) = client.searchAfter(
                 target = indexName,
                 keepAlive = 1.minutes,
@@ -130,7 +131,7 @@ val deepPagingMd = sourceGitRepository.md {
             }
             println("reported result set size ${resp.total}")
             println("results in the hits flow: ${hitsFlow.count()}")
-        }
+        }.printStdOut()
     }
 
 
@@ -144,7 +145,7 @@ val deepPagingMd = sourceGitRepository.md {
             A good use case is reindexing documents. This is easy with kt-search!
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             // we will rely on dynamic mapping
             val newIndex="${indexName}-v2"
             // WaitFor enables us to search right after
@@ -161,7 +162,7 @@ val deepPagingMd = sourceGitRepository.md {
                 }.collect()
             }
             println("$newIndex has ${client.search(newIndex).total} documents")
-        }
+        }.printStdOut()
     }
 
     section("Scrolling searches") {
@@ -175,7 +176,7 @@ val deepPagingMd = sourceGitRepository.md {
             For a scrolling search, simply search as normally but set the scroll parameter:
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val response = client.search(indexName, scroll = "1m")
             // the response has a scrollId that we can use to scroll all the results
             val hitsFlow = client.scroll(response)
@@ -190,7 +191,7 @@ val deepPagingMd = sourceGitRepository.md {
             above instead:
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             // create a point in time
             val pit = client.createPointInTime(indexName,1.minutes)
             val q = SearchDSL().apply {
@@ -229,14 +230,15 @@ val deepPagingMd = sourceGitRepository.md {
 
             // repeat ...
             println("found $results results")
-        }
+        }.printStdOut()
+
         +"""
             Like with `search_after` you can also choose to specify scroll ids manually. If you do this,
             be sure to delete your scrolls after you are done searching.
             
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             var resp = client.search(indexName, scroll = "1m") {
                 resultSize=2
                 query=matchAll()
@@ -254,6 +256,6 @@ val deepPagingMd = sourceGitRepository.md {
             // finally release the scrollId
             client.deleteScroll(resp.scrollId)
             println("found $results results")
-        }
+        }.printStdOut()
     }
 }

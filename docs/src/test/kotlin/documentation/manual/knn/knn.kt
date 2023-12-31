@@ -41,7 +41,7 @@ val knnMd = sourceGitRepository.md {
     val indexName = "knn-test"
     runBlocking { runCatching { client.deleteIndex(indexName) } }
 
-    suspendingBlock {
+    suspendingExample {
 
         data class Embeddings(val id: String, val embedding: List<Double>)
 
@@ -141,6 +141,14 @@ val knnMd = sourceGitRepository.md {
                 println("---")
             }
         }
+    }.let {
+        +"""
+            This prints:
+            
+            ```
+            ${it.stdOut}
+            ```
+        """.trimIndent()
     }
     +"""
         This shows both the power and weakness of knn search:

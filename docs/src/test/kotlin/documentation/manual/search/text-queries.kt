@@ -2,6 +2,7 @@ package documentation.manual.search
 
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 
@@ -19,7 +20,7 @@ val textQueriesMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Match") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 // will match on beans
                 query = match(TestDoc::name, "red beans") {
@@ -30,10 +31,10 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match query").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
     section("Match Phrase") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 // will match on "green beans"
                 query = matchPhrase(TestDoc::name, "green beans") {
@@ -44,10 +45,10 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match Phrase query").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
     section("Match Phrase Prefix") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 // will match on "green beans"
                 query = matchPhrasePrefix(TestDoc::name, "green bea") {
@@ -58,10 +59,10 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match Phrase Prefix query").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
     section("Multi Match") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 // will match on "green beans"
                 query = multiMatch("banana beans",
@@ -73,33 +74,33 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 
     section("Simple Query String") {
         +"""
             A simple query string parser that can query multiple fields
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = simpleQueryString( "beans OR fruit", "name", "tags.txt" )
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 
     section("Query String Query") {
         +"""
             Similar to simple query string but with a more strict query language and less leniency.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = queryString( "(banana) OR (apple)", TestDoc::name)
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
     section("Intervals query") {
         +"""
@@ -110,7 +111,7 @@ val textQueriesMd = sourceGitRepository.md {
             
             Here is a simple example
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = intervals("name") {
                     matchRule {
@@ -121,11 +122,11 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }
+        }.printStdOut()
         +"""
             You can combine multiple rules with `any_of`, or `all_of`.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = intervals("name") {
                     allOfRule {
@@ -146,10 +147,10 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
     section("Combined fields query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = combinedFields( "banana fruit", "name^2","tags.txt") {
                     operator = MatchOperator.AND
@@ -157,6 +158,6 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 }

@@ -2,6 +2,7 @@ package documentation.manual.search
 
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.printStdOut
 import documentation.sourceGitRepository
 
 val termLevelQueriesMd = sourceGitRepository.md {
@@ -13,22 +14,22 @@ val termLevelQueriesMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Term query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.pretty("Term Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("Terms query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = terms(TestDoc::tags, "fruit", "legumes")
             }.pretty("Terms Query.").let { println(it) }
-        }
+        }.printStdOut()
     }
     section("Fuzzy query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = fuzzy(TestDoc::tags, "friut") {
                     fuzziness = "auto"
@@ -38,48 +39,48 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Prefix query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = prefix(TestDoc::tags, "fru")
             }.pretty("Prefix Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("Wildcard query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = wildcard(TestDoc::tags, "f*")
             }.pretty("Wildcard Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("RegExp query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = regExp(TestDoc::tags, "(fruit|legumes)")
             }.pretty("RegExp Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("Ids query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = ids("1", "2")
 
             }.pretty("Ids Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("Exists query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = ids("1", "2")
             }.pretty("Exists Query.").let { println(it) }
-        }
+        }.printStdOut()
 
     }
     section("Range query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = range(TestDoc::price) {
                     gt=0
@@ -87,10 +88,10 @@ val termLevelQueriesMd = sourceGitRepository.md {
                 }
 
             }.pretty("Range Query.").let { println(it) }
-        }
+        }.printStdOut()
     }
     section("Terms Set query") {
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = termsSet(TestDoc::tags, "fruit","legumes","foo") {
                     minimumShouldMatchScript = Script.create {
@@ -98,6 +99,6 @@ val termLevelQueriesMd = sourceGitRepository.md {
                     }
                 }
             }.pretty("Terms Set Query").let { println(it) }
-        }
+        }.printStdOut()
     }
 }

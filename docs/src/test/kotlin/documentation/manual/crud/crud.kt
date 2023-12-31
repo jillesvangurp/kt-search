@@ -6,6 +6,7 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.Script
 import documentation.manual.ManualPages
 import documentation.mdLink
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
@@ -20,7 +21,7 @@ val crudMd = sourceGitRepository.md {
         Create, Read, Update, and Delete (CRUD) APIs.
     """.trimIndent()
     section("CRUD") {
-        suspendingBlock(false) {
+        suspendingExample {
             // create
             val resp = client.indexDocument(
                 target = "myindex",
@@ -49,7 +50,7 @@ val crudMd = sourceGitRepository.md {
 
             // delete
             client.deleteDocument("myindex", resp.id)
-        }
+        }.printStdOut()
     }
 
     section("Updates") {
@@ -57,7 +58,7 @@ val crudMd = sourceGitRepository.md {
         Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
     """.trimIndent()
 
-        suspendingBlock(false) {
+        suspendingExample {
             client.indexDocument(
                 target = "myindex",
                 document = TestDoc("42", "x"),
@@ -84,7 +85,7 @@ val crudMd = sourceGitRepository.md {
             )
             println(resp.get?.source)
 
-        }
+        }.printStdOut()
     }
 
     section("Bulk") {
@@ -104,7 +105,7 @@ val crudMd = sourceGitRepository.md {
             To retrieve multiple documents, you can use the `mget` API>
         """.trimIndent()
 
-        suspendingBlock(false) {
+        suspendingExample {
             client.indexDocument(
                 target = "myindex",
                 document = TestDoc("1", "One"),
@@ -141,6 +142,6 @@ val crudMd = sourceGitRepository.md {
             resp.documents<TestDoc>().forEach {
                 println("${it.id}: ${it.name}")
             }
-        }
+        }.printStdOut()
     }
 }

@@ -5,6 +5,7 @@ package documentation.manual.bulk
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.Script
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
@@ -26,7 +27,7 @@ val bulkMd = sourceGitRepository.md {
     section("Bulk Sessions") {
 
 
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             @Serializable
             data class Foo(val foo: String)
 
@@ -63,7 +64,7 @@ val bulkMd = sourceGitRepository.md {
         +"""
             You can of course customize the bulk session:
         """.trimIndent()
-        suspendingBlock(false) {
+        suspendingExample(false) {
             // bulk several parameters that you can set
             client.bulk(
                 // will send a bulk request every 5 bulk operations
@@ -88,7 +89,7 @@ val bulkMd = sourceGitRepository.md {
             Of course the `IndexRepository` supports bulk sessions as well.
         """.trimIndent()
 
-        suspendingBlock(false) {
+        suspendingExample(false) {
             val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
@@ -98,7 +99,7 @@ val bulkMd = sourceGitRepository.md {
     }
 
     section("Bulk Updates") {
-        suspendingBlock() {
+        suspendingExample() {
             val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
@@ -131,6 +132,14 @@ val bulkMd = sourceGitRepository.md {
                 // prints foobar
                 println(doc.foo)
             }
+        }.let { 
+            +"""
+                Prints:
+                
+                ```
+                ${it.stdOut}
+                ```
+            """.trimIndent()
         }
 
     }
@@ -142,7 +151,7 @@ val bulkMd = sourceGitRepository.md {
             To make this easy, you can use a `BulkItemCallBack` with your bulk session.
         """.trimIndent()
 
-        suspendingBlock(false) {
+        suspendingExample {
             val itemCallBack = object : BulkItemCallBack {
                 override fun itemFailed(
                     operationType: OperationType,
@@ -183,7 +192,7 @@ val bulkMd = sourceGitRepository.md {
                 // invalid json would cause an error
                 index("{}}")
             }
-        }
+        }.printStdOut()
 
         +"""
             For successful items, you might want to know what id was assigned 
@@ -193,7 +202,7 @@ val bulkMd = sourceGitRepository.md {
         """.trimIndent()
     }
 
-    block {
+    example {
         data class Thing(val name: String, val amount: Long = 42)
     }
 }

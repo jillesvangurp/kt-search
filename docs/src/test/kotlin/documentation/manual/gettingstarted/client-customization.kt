@@ -28,7 +28,7 @@ val clientConfiguration = sourceGitRepository.md {
             connect to your cluster. The default parameters simply connect to localhost on port 9200 (the default
             http port for Elasticsearch and Opensearch. You can specify this explicitly as follows.
         """.trimIndent()
-        block {
+        example {
             val client3 = SearchClient(restClient = KtorRestClient("127.0.0.1", 9200))
         }
 
@@ -37,7 +37,7 @@ val clientConfiguration = sourceGitRepository.md {
             For example, this is how you would
             connect to your cluster in Elastic Cloud using basic authentication.
         """.trimIndent()
-        block {
+        example {
             val client = SearchClient(
                 KtorRestClient(
                     https = true,
@@ -52,7 +52,7 @@ val clientConfiguration = sourceGitRepository.md {
             If you have an API Key, you can set that up as follows:
         """.trimIndent()
 
-        block {
+        example {
             val client = SearchClient(
                 KtorRestClient(
                     https = true,
@@ -92,7 +92,7 @@ val clientConfiguration = sourceGitRepository.md {
             by implementing the `NodeSelector` interface.
         """.trimIndent()
 
-        block {
+        example {
             val nodes = arrayOf(
                 Node("192.168.0.10", 9200),
                 Node("192.168.0.11", 9200),
@@ -123,7 +123,7 @@ val clientConfiguration = sourceGitRepository.md {
             
         """.trimIndent()
 
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             val nodes = arrayOf(
                 Node("localhost", 9200),
                 Node("127.0.0.1", 9201)
@@ -152,7 +152,7 @@ val clientConfiguration = sourceGitRepository.md {
             Regardless of whether you use an affinity id, the node list is refreshed periodically (as per the `maxNodeAge` parameter).
         """.trimIndent()
 
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             coroutineScope {
                 async(AffinityId("myid")) {
                     // always ends up using the same node
@@ -219,7 +219,7 @@ val clientConfiguration = sourceGitRepository.md {
             - `DEFAULT_PRETTY_JSON` a pretty printing variant of DEFAULT_JSON that otherwise has the same settings.
         """.trimIndent()
 
-        block {
+        example {
             val DEFAULT_JSON = Json {
                 // don't rely on external systems being written in kotlin
                 // or even having a language with default values

@@ -36,7 +36,7 @@ val gettingStartedMd = sourceGitRepository.md {
             simple `RestClient` interface that currently has a default implementation based on `ktor-client`. This client
             takes care of sending HTTP calls to your search cluster.
         """.trimIndent()
-        block {
+        example {
             // creates a client with the default RestClient
             val client = SearchClient()
         }
@@ -48,7 +48,7 @@ val gettingStartedMd = sourceGitRepository.md {
             calls are suspending and have to be inside a co-routine.
         """.trimIndent()
 
-        block {
+        example {
             // use a simple runBlocking
             // normally you would get a co-routine via e.g. Spring's flux async framework.
             runBlocking {
@@ -68,7 +68,7 @@ val gettingStartedMd = sourceGitRepository.md {
             The main purpose of kt-search is of course searching. This is how you do a simple search and work with 
             data classes:
         """.trimIndent()
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
 
             // define a model for your indexed json documents
             data class MyModelClass(val title: String, )

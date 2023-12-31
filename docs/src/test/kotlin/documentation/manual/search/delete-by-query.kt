@@ -14,7 +14,7 @@ val deleteByQueryMd = sourceGitRepository.md {
         Delete by query is supported both on the client and the repository.    
     """.trimIndent()
 
-    suspendingBlock {
+    suspendingExample {
         val repo = client.repository(indexName, TestDoc.serializer())
         repo.bulk(refresh = Refresh.WaitFor) {
             create(TestDoc("1", "banana", price = 2.0))

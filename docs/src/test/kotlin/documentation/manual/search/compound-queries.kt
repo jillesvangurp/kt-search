@@ -5,6 +5,7 @@ import com.jillesvangurp.ktsearch.SearchResponse
 import com.jillesvangurp.ktsearch.parseHits
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlin.collections.set
 
@@ -19,7 +20,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         we used before.
     """.trimIndent()
 
-    snippetFromSourceFile("documentation/manual/search/helpers.kt","RESULTSPRETTYPRINT")
+    exampleFromSnippet("documentation/manual/search/helpers.kt", "RESULTSPRETTYPRINT")
 
     section("Bool") {
         +"""
@@ -27,31 +28,31 @@ val compoundQueriesMd = sourceGitRepository.md {
             logical and's or's and not's.
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = bool {
                     must(
-                        match(TestDoc::tags,"fruit")
+                        match(TestDoc::tags, "fruit")
                     )
                     mustNot(range(TestDoc::price) {
-                        lt=10
+                        lt = 10
                     })
                     should(
                         range(TestDoc::price) {
-                            lte=50
+                            lte = 50
                         },
                         range(TestDoc::price) {
-                            gte=20
+                            gte = 20
                         },
                     )
                     filter(range(TestDoc::price) {
-                        gte=0
+                        gte = 0
                     })
                 }
             }.pretty("Bool query.").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 
     section("Dis-max") {
@@ -59,7 +60,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         Dismax may be used as an alternative to bool with a bit more control over the scoring.
     """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = disMax {
                     queries(
@@ -74,7 +75,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Dismax query.").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 
     section("Boosting") {
@@ -83,7 +84,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         query with a negative boost on the price if it is too high. This 
         will cause expensive items to be ranked lower.
     """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
 
             client.search(indexName) {
                 // all fruits but with negative score on high prices
@@ -96,7 +97,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Boosting query.").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 
     section("Function score") {
@@ -106,7 +107,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         reason about in Elasticsearch. Howwever, if you need it, kt-search supports it.
     """.trimIndent()
 
-        suspendingBlock() {
+        suspendingExample() {
             client.search(indexName) {
                 query = functionScore {
                     query = matchAll()
@@ -159,6 +160,6 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Function score").let {
                 println(it)
             }
-        }
+        }.printStdOut()
     }
 }

@@ -6,6 +6,7 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.manual.ManualPages
 import documentation.mdLink
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
@@ -28,12 +29,12 @@ val searchMd = sourceGitRepository.md {
         +"""
             Let's quickly create some documents to search through.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             @Serializable
             data class TestDoc(val name: String, val tags: List<String> = listOf())
         }
 
-        snippetFromSourceFile("documentation/manual/search/helpers.kt", "INITTESTFIXTURE")
+        exampleFromSnippet("documentation/manual/search/helpers.kt", "INITTESTFIXTURE")
         +"""
             This creates a simple index with a custom mapping and adds some documents using our API.
             
@@ -45,10 +46,13 @@ val searchMd = sourceGitRepository.md {
         +"""
             The simplest is to search for everything: 
         """.trimIndent()
-        suspendingBlock {
-            // will print the ids of the documents that were found
+        suspendingExample {
             client.search(indexName).ids
 
+        }.let {
+            +"""
+                This returns: `${it.result.getOrNull()}`
+            """.trimIndent()
         }
 
         +"""
@@ -57,7 +61,7 @@ val searchMd = sourceGitRepository.md {
             Of course normally, you'd specify some kind of query. One valid way is to simply pass that as a string.
             Kotlin of course has multiline strings that can be templated as well. So, this may be all you need.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             val term = "legumes"
             client.search(
                 indexName, rawJson = """
@@ -73,6 +77,10 @@ val searchMd = sourceGitRepository.md {
                 }
             """.trimIndent()
             ).ids
+        }.let {
+            +"""
+                This returns: `${it.result.getOrNull()}`
+            """.trimIndent()
         }
     }
 
@@ -86,10 +94,14 @@ val searchMd = sourceGitRepository.md {
             Of course it is nicer to query using a Kotlin Search DSL (Domain Specific Language). 
             Here is the same query using the `SearchDSL`.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = term(TestDoc::tags, "legumes")
             }.ids
+        }.let {
+            +"""
+                This returns: `${it.result.getOrNull()}`
+            """.trimIndent()
         }
 
         +"""
@@ -110,7 +122,7 @@ val searchMd = sourceGitRepository.md {
             and anything that isn't supported, you can still add by using the map functionality.          
             For example, this is how you would construct the term query using the underlying map:
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 // you can assign maps, lists, primitives, etc.
                 this["query"] = mapOf(
@@ -124,6 +136,10 @@ val searchMd = sourceGitRepository.md {
                     }
                 )
             }.ids
+        }.let {
+            +"""
+                This returns: `${it.result.getOrNull()}`
+            """.trimIndent()
         }
 
         +"""
@@ -138,7 +154,7 @@ val searchMd = sourceGitRepository.md {
                 
                 Here is a more complex query that returns fruit with `ban` as the name prefix.
             """.trimIndent()
-            suspendingBlock {
+            suspendingExample {
                 val resp = client.search(indexName) {
                     from = 0
                     // size is of course also a thing in Map
@@ -165,6 +181,14 @@ val searchMd = sourceGitRepository.md {
                     val doc = hit.parseHit<TestDoc>()
                     println("${hit.id} - ${hit.score}: ${doc.name} (${doc.price})")
                 }
+            }.let {
+                +"""
+                    This prints:
+                    
+                    ```
+                    ${it.stdOut}
+                    ```
+                """.trimIndent()
             }
 
             +"""
@@ -180,13 +204,21 @@ val searchMd = sourceGitRepository.md {
         +"""
             Elasticsearch also has a more limited _count API dedicated to simply counting results.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             // count all documents
             println("Number of docs" + client.count(indexName).count)
             // or with a query
             println("Number of docs" + client.count(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.count)
+        }.let {
+            +"""
+                    This prints:
+                    
+                    ```
+                    ${it.stdOut}
+                    ```
+                """.trimIndent()
         }
     }
     section("Multi Search") {
@@ -199,7 +231,7 @@ val searchMd = sourceGitRepository.md {
             The msearch DSL in kt-search makes this very easy to do:
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             client.msearch(indexName) {
                 // the header is optional, this will simply add
                 // {} as the header
@@ -222,12 +254,12 @@ val searchMd = sourceGitRepository.md {
                 // will print document count for both searches
                 println("document count ${searchResponse.total}")
             }
-        }
+        }.printStdOut()
         +"""
             Similar to the normal search, you can also construct your body manually. The format is ndjson
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val resp = client.msearch(
                 body = """
                 {"index":"$indexName"}
@@ -238,6 +270,6 @@ val searchMd = sourceGitRepository.md {
             println("Doc counts: ${
                 resp.responses.joinToString { it.total.toString() }
             }")
-        }
+        }.printStdOut()
     }
 }

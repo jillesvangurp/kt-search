@@ -5,6 +5,7 @@ package documentation.manual.extending
 import com.jillesvangurp.jsondsl.*
 import com.jillesvangurp.jsondsl.PropertyNamingConvention.ConvertToSnakeCase
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlin.reflect.KProperty
 
@@ -39,7 +40,7 @@ val extendingMd = sourceGitRepository.md {
             To create a DSL for this, you simply create a new class:
         """.trimIndent()
 
-        block {
+        example {
             // first we create support for representing the bar object
             class BarDsl : JsonDsl(
                 // this is the default
@@ -106,7 +107,7 @@ val extendingMd = sourceGitRepository.md {
             }.let {
                 println(it.json(pretty = true))
             }
-        }
+        }.printStdOut()
 
         +"""
             As you can see, JsonDsl is very flexible and you can use it to create model classes for 
@@ -141,7 +142,7 @@ val extendingMd = sourceGitRepository.md {
             As an example, we'll use the `term` query implementation in this library.                       
         """.trimIndent()
 
-        block(false) {
+        example(false) {
             class TermQueryConfig : JsonDsl() {
                 var value by property<String>()
                 var boost by property<Double>()
@@ -196,7 +197,7 @@ val extendingMd = sourceGitRepository.md {
             Here's an example of how you can use the term query:
         """.trimIndent()
 
-        block {
+        example {
             SearchDSL().apply {
                 data class MyDoc(val keyword: String)
                 query = bool {

@@ -3,6 +3,7 @@ package documentation.manual.search
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.distanceFeature
 import com.jillesvangurp.searchdsls.querydsl.rankFeature
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Instant
@@ -27,7 +28,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             val point: List<Double>,
         )
 
-        suspendingBlock {
+        suspendingExample {
             @Serializable
             data class TestDoc(
                 val name: String,
@@ -59,7 +60,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             Now we can score documents on physical distance as follows:
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val first = client.search(indexName) {
                 query = distanceFeature(
                     field = TestDoc::point,
@@ -68,8 +69,8 @@ val specializedQueriesMd = sourceGitRepository.md {
                 )
             }.hits?.hits?.first()?.parseHit<TestDoc>()!!
 
-            print(first.name)
-        }
+            println(first.name)
+        }.printStdOut()
 
         +"""
             The Brandenburger Tor is closer to itself than the TV tower so it comes out on top.
@@ -77,7 +78,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             And on the building year like this:
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val first = client.search(indexName) {
                 query = distanceFeature(
                     field = TestDoc::buildingTime,
@@ -87,7 +88,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             }.hits?.hits?.first()?.parseHit<TestDoc>()!!
 
             print(first.name)
-        }
+        }.printStdOut()
 
         +"""
             The building year of the TV tower is closer to 2020 than the Brandenburger Gate
@@ -108,7 +109,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             val name: String,
             val ktSearchRank: Int,
         )
-        suspendingBlock {
+        suspendingExample {
             @Serializable
             data class TestDoc(
                 val name: String,
@@ -147,7 +148,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             - linear. Simple linear score based on te numeric value.
         """.trimIndent()
 
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             client.search(indexName) {
                 // saturation query with default pivot
                 query = rankFeature(TestDoc::ktSearchRank)

@@ -26,6 +26,12 @@ repositories {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs= listOf("-Xcontext-receivers")
+    }
+}
+
 val searchEngine: String = getProperty("searchEngine", "es-7").toString()
 
 dependencies {
@@ -64,5 +70,4 @@ dependencies {
 
     testImplementation("com.github.jillesvangurp:kotlin4example:_")
     testImplementation("com.github.doyaaaaaken:kotlin-csv:_")
-
 }

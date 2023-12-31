@@ -33,7 +33,7 @@ val indexRepoMd = sourceGitRepository.md {
         @Serializable
         data class TestDoc(val message: String)
 
-        suspendingBlock(false) {
+        suspendingExample(false) {
             val repo = client.repository("test", TestDoc.serializer())
 
             repo.createIndex {
@@ -58,7 +58,7 @@ val indexRepoMd = sourceGitRepository.md {
             hits. 
         """.trimIndent()
 
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             val documents: List<TestDoc> = repo.search {
                 query = match(TestDoc::message, "document")
             }.parseHits<TestDoc>()
@@ -72,7 +72,7 @@ val indexRepoMd = sourceGitRepository.md {
             But there's also a short hand in the `IndexRepository` which doesn't have this disadvantage.
             
         """.trimIndent()
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             val documents: List<TestDoc> = repo.searchDocuments {
                 query = match(TestDoc::message, "document")
             }
@@ -83,7 +83,7 @@ val indexRepoMd = sourceGitRepository.md {
             
             Likewise you can get a document with `getDocument`:
         """.trimIndent()
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             // returns null if the document is not found
             val doc: TestDoc? = repo.getDocument("42")
         }
@@ -91,7 +91,7 @@ val indexRepoMd = sourceGitRepository.md {
         +"""
             Or get both the document and the `GetResponse` by destructuring:
         """.trimIndent()
-        suspendingBlock(runBlock = false) {
+        suspendingExample(runExample = false) {
             // throws a RestException if the document is not found
             val (doc: TestDoc,resp: GetDocumentResponse) = repo.get("42")
         }
@@ -102,7 +102,7 @@ val indexRepoMd = sourceGitRepository.md {
     }
 
     section("Bulk Indexing") {
-        suspendingBlock(false) {
+        suspendingExample(false) {
             repo.bulk {
                 // no need to specify the index
                 index(TestDoc("test"))
@@ -118,7 +118,7 @@ val indexRepoMd = sourceGitRepository.md {
             Multi get is of course also supported.
         """.trimIndent()
         
-        suspendingBlock(false) {
+        suspendingExample(false) {
             repo.bulk {
                 index(TestDoc("One"), id = "1")
                 index(TestDoc("Two"), id = "2")
@@ -168,7 +168,7 @@ val indexRepoMd = sourceGitRepository.md {
             the `IndexRepository` supports updates with retry both for single documents and with bulk operations.  
             
         """.trimIndent()
-        suspendingBlock(false) {
+        suspendingExample(false) {
             val id = repo.index(TestDoc("A document")).id
             repo.update(id, maxRetries = 2) { oldVersion ->
                 oldVersion.copy(message = "An updated document")
@@ -192,7 +192,7 @@ val indexRepoMd = sourceGitRepository.md {
                 
                 See ${ManualPages.BulkIndexing.page.mdLink} for more information on callbacks.                                
             """.trimIndent()
-            suspendingBlock(false) {
+            suspendingExample(false) {
                 val aDoc = TestDoc("A document")
                 val id = repo.index(aDoc).id
                 repo.bulk(
@@ -224,7 +224,7 @@ val indexRepoMd = sourceGitRepository.md {
                 get responses, multi get responses, and search hits.
             """.trimIndent()
 
-            suspendingBlock(false) {
+            suspendingExample(false) {
                 val aDoc = TestDoc("A document")
                 val id = repo.index(aDoc).id
 
@@ -252,7 +252,7 @@ val indexRepoMd = sourceGitRepository.md {
                 applying large amounts of updates to an index. This is how that works:
             """.trimIndent()
 
-            suspendingBlock(false) {
+            suspendingExample(false) {
                 repo.bulk {
                     repo.searchAfter {
                         // this is needed because we need _seq_no and _primary_term

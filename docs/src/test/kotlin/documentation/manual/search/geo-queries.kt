@@ -10,8 +10,10 @@ import kotlinx.serialization.Serializable
 
 val geoQueriesMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
+
     @Serializable
-    data class TestDoc(val id: String,val name: String, val point: List<Double>)
+    data class TestDoc(val id: String, val name: String, val point: List<Double>)
+
     val points = listOf(
         TestDoc(
             id = "bar",
@@ -97,14 +99,14 @@ val geoQueriesMd = sourceGitRepository.md {
         First, let's create an index with some documents with a geospatial information:
     """.trimIndent()
 
-    this.snippetFromSourceFile("documentation/manual/search/geo-queries.kt", "GEOPOINTCREATE")
+    this.exampleFromSnippet("documentation/manual/search/geo-queries.kt", "GEOPOINTCREATE")
 
     section("Bounding Box Search") {
         +"""
             Bounding box searches return everything inside a bounding box specified by a top left and bottom right point.
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = GeoBoundingBoxQuery(TestDoc::point) {
                     topLeft(points["tegel"]!!.point)
@@ -117,13 +119,13 @@ val geoQueriesMd = sourceGitRepository.md {
         +"""
             You can specify points in a variety of ways:
         """.trimIndent()
-        block {
+        example {
             GeoBoundingBoxQuery(TestDoc::point) {
                 topLeft(latitude = 52.0, longitude = 13.0)
                 // geojson coordinates
-                topLeft(arrayOf(13.0,52.0))
+                topLeft(arrayOf(13.0, 52.0))
                 // use lists or arrays
-                topLeft(listOf(13.0,52.0))
+                topLeft(listOf(13.0, 52.0))
                 // wkt notation
                 topLeft("Point (52 13")
                 // geohash prefix
@@ -137,7 +139,7 @@ val geoQueriesMd = sourceGitRepository.md {
         +"""
             Searching by distance is also possible.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = GeoDistanceQuery(TestDoc::point, "3km", points["tower"]!!.point)
             }.parseHits(TestDoc.serializer()).map {
@@ -153,16 +155,20 @@ val geoQueriesMd = sourceGitRepository.md {
             construct shapes using `withJsonDsl`
               
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             // you can use the provided Shape sealed class
             // to construct geometries
-            val polygon = Shape.Polygon(listOf(listOf(
-                points["tegel"]!!.point,
-                points["tor"]!!.point,
-                points["airport"]!!.point,
-                // last point has to be the same as the first
-                points["tegel"]!!.point,
-            )))
+            val polygon = Shape.Polygon(
+                listOf(
+                    listOf(
+                        points["tegel"]!!.point,
+                        points["tor"]!!.point,
+                        points["airport"]!!.point,
+                        // last point has to be the same as the first
+                        points["tegel"]!!.point,
+                    )
+                )
+            )
 
             client.search(indexName) {
                 query = GeoShapeQuery(TestDoc::point) {
@@ -176,7 +182,8 @@ val geoQueriesMd = sourceGitRepository.md {
                     // you can also use string literals for the geometry
                     // this is useful if you have some other representation
                     // of geojson that you can serialize to string
-                    shape("""
+                    shape(
+                        """
                         {
                             "type":"Polygon",
                             "coordinates":[[
@@ -187,7 +194,8 @@ val geoQueriesMd = sourceGitRepository.md {
                                 [13.0,53.0]
                             ]]
                         }
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                     relation = GeoShapeQuery.Relation.intersects
                 }
             }.parseHits(TestDoc.serializer()).map {
@@ -203,7 +211,7 @@ val geoQueriesMd = sourceGitRepository.md {
             this is translated into another geo_shape query. 
             
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.search(indexName) {
                 query = GeoGridQuery(TestDoc::point) {
                     geotile = "6/50/50"

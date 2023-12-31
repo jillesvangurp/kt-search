@@ -2,11 +2,14 @@
 
 package documentation.projectreadme
 
+import com.jillesvangurp.kotlin4example.ExampleOutput
+import com.jillesvangurp.kotlin4example.Kotlin4Example
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.githubLink
 import documentation.manual.ManualPages
 import documentation.manual.sections
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -43,7 +46,7 @@ val projectReadme = sourceGitRepository.md {
         """.trimIndent()
 
         // this is what we show in the Readme :-)
-        block {
+        example {
             val client = SearchClient()
         }
 
@@ -51,7 +54,7 @@ val projectReadme = sourceGitRepository.md {
             Kotlin has default values for parameters. So, we use sensible defaults for the 
             `host` and `port` variables to connect to `localhohst` and `9200`.
         """.trimIndent()
-        block {
+        example {
             val client = SearchClient(
                 KtorRestClient(host="localhost", port=9200)
             )
@@ -71,7 +74,7 @@ val projectReadme = sourceGitRepository.md {
             that we will use below.
         """.trimIndent()
 
-        block {
+        example {
             @Serializable
             data class TestDocument(
                 val name: String,
@@ -92,7 +95,7 @@ val projectReadme = sourceGitRepository.md {
         val indexName = "readme-index"
         runBlocking {  runCatching { client.deleteIndex(indexName) } }
 
-        suspendingBlock(captureBlockReturnValue = false) {
+        suspendingExample {
             val indexName = "readme-index"
 
             // create an index and use our mappings dsl
@@ -128,7 +131,7 @@ val projectReadme = sourceGitRepository.md {
             The optional `refresh` parameter uses WaitFor as the default. This means that after the block exits, the documents
             will have been indexed and are available for searching. 
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             client.bulk(
                 refresh = Refresh.WaitFor,
                 // send operations every 2 ops
@@ -166,7 +169,7 @@ val projectReadme = sourceGitRepository.md {
             
             Now that we have some documents in an index, we can do some queries:
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             // search for some fruit
             val results = client.search(indexName) {
                 query = bool {
@@ -191,12 +194,12 @@ val projectReadme = sourceGitRepository.md {
             // you can also get the JsonObject if you don't
             // have a model class
             println(results.hits?.hits?.first()?.source)
-        }
+        }.printStdOut()
 
         +"""
             You can also construct complex aggregations with the query DSL:
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             val resp = client.search(indexName) {
                 // we don't care about retrieving hits
                 resultSize = 0
@@ -212,7 +215,7 @@ val projectReadme = sourceGitRepository.md {
                 .parsedBuckets.forEach { bucket ->
                     println("${bucket.parsed.key}: ${bucket.parsed.docCount}")
                 }
-        }
+        }.printStdOut()
 
 
         +"""
@@ -256,3 +259,4 @@ val projectReadme = sourceGitRepository.md {
     includeMdFile("related.md")
     includeMdFile("readme-outro.md")
 }
+

@@ -5,6 +5,7 @@ package documentation.manual.search
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.*
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -63,7 +64,7 @@ val aggregationsMd = sourceGitRepository.md {
         First lets create some sample documents to aggregate on:
         
     """.trimIndent()
-    suspendingBlock() {
+    suspendingExample() {
         @Serializable
         data class MockDoc(
             val name: String,
@@ -124,7 +125,7 @@ val aggregationsMd = sourceGitRepository.md {
         +"""
             Probably the most used aggregation is the `terms` aggregation:
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             val response = client.search(indexName) {
                 // we don't care about the results here
                 resultSize = 0
@@ -139,13 +140,13 @@ val aggregationsMd = sourceGitRepository.md {
             }
             // a pretty printing Json configuration that comes with kt-search
             println(DEFAULT_PRETTY_JSON.encodeToString(response))
-        }
+        }.printStdOut()
 
         +"""
             Note that we are using enum values for the aggregation names. Here is the enum we are using:
         """.trimIndent()
 
-        snippetFromSourceFile("/documentation/manual/search/aggregations.kt", "MyAggNamesDef")
+        exampleFromSnippet("/documentation/manual/search/aggregations.kt", "MyAggNamesDef")
 
 
         +"""
@@ -177,7 +178,7 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }
 
-        suspendingBlock {
+        suspendingExample {
             // response.aggregations is a JsonObject?
             // termsResult(name) extracts a TermsAggregationResult from there
             val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
@@ -198,12 +199,12 @@ val aggregationsMd = sourceGitRepository.md {
                     println("  ${tb.key}: ${tb.docCount}")
                 }
             }
-        }
+        }.printStdOut()
 
         +"""
             With some more extension function magic we can make this a bit nicer.
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
             // use parsedBucket to get a Bucket<TermsBucket>
             // this allows us to get to the TermsBucket and the aggregations
@@ -215,7 +216,7 @@ val aggregationsMd = sourceGitRepository.md {
                         println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
                     }
             }
-        }
+        }.printStdOut()
     }
     section("Other aggregations") {
         +"""
@@ -225,7 +226,7 @@ val aggregationsMd = sourceGitRepository.md {
             support for more as needed. Pull requests for this are welcome.
         """.trimIndent()
 
-        suspendingBlock {
+        suspendingExample {
             val response = repo.search {
                 resultSize = 0 // we only care about the aggs
                 agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
@@ -290,14 +291,14 @@ val aggregationsMd = sourceGitRepository.md {
                 }"
             )
 
-        }
+        }.printStdOut()
     }
     section("Filter aggregations") {
         +"""
             You can use the filter aggregation to narrow down the results and do sub 
             aggregations on the filtered results. 
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             repo.search {
                 resultSize = 0
                 agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
@@ -313,12 +314,12 @@ val aggregationsMd = sourceGitRepository.md {
                         }
                 }
             }
-        }
+        }.printStdOut()
 
         +"""
             You can also use the filters aggregation to use multiple named filter aggregations at the same time
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             repo.search {
                 resultSize = 0
                 agg("filtered", FiltersAgg {
@@ -350,7 +351,7 @@ val aggregationsMd = sourceGitRepository.md {
             You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing
             how the Terms aggregation works:
         """.trimIndent()
-        suspendingBlock {
+        suspendingExample {
             // let's do a simple terms aggregation
             val response = client.search(indexName) {
                 // we don't care about the results here
@@ -367,7 +368,7 @@ val aggregationsMd = sourceGitRepository.md {
             We need two classes for picking apart terms aggregation results:
         """.trimIndent()
 
-        block {
+        example {
 
             @Serializable
             data class TermsBucket(
@@ -411,7 +412,7 @@ val aggregationsMd = sourceGitRepository.md {
              Using that, we can add some more convenience:
         """.trimIndent()
 
-        block {
+        example {
             // counts as a map of key to count
             fun List<TermsBucket>.counts() =
                 this.associate { it.key to it.docCount }
