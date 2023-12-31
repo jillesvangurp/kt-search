@@ -4,6 +4,7 @@ import com.avast.gradle.dockercompose.ComposeExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import java.net.URI
 import java.net.URL
 import java.util.*
 
@@ -59,20 +60,20 @@ kotlin {
     }
     js(IR) {
         browser {
-            testTask(Action {
+            testTask {
                 useMocha {
                     // javascript is a lot slower than Java, we hit the default timeout of 2000
                     timeout = "30s"
                 }
-            })
+            }
         }
         nodejs {
-            testTask(Action {
+            testTask {
                 useMocha {
                     // javascript is a lot slower than Java, we hit the default timeout of 2000
                     timeout = "30s"
                 }
-            })
+            }
         }
     }
     // several issues with the linux build that prevent this from working
@@ -170,7 +171,7 @@ tasks.named("jsNodeTest") {
     // Test are initialized. So explicitly bring up compose before jsNodeTest fixes
     // that problem
     val isUp = try {
-        URL("http://localhost:9999").openConnection().connect()
+        URI("http://localhost:9999").toURL().openConnection().connect()
         true
     } catch (e: Exception) {
         false
@@ -184,7 +185,7 @@ tasks.named("jsNodeTest") {
 
 tasks.withType<Test> {
     val isUp = try {
-        URL("http://localhost:9999").openConnection().connect()
+        URI("http://localhost:9999").toURL().openConnection().connect()
         true
     } catch (e: Exception) {
         false
