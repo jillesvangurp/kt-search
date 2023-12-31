@@ -101,45 +101,45 @@ foo {
 ```
 
 This prints:
- 
-```
+
+```text
 {
   "foo": "Hello World",
   "bar": {
-    "xxx": 123,
-    "yYy": false,
-    "zzz": [
-      1, 
-      2, 
-      3
+  "xxx": 123,
+  "yYy": false,
+  "zzz": [
+    1, 
+    2, 
+    3
+  ],
+  "missingFeature": {
+    "another": " field",
+    "camelCasing": "may be forced",
+    "foo": "bar",
+    "raw": {"foo":"bar"}
+  },
+  "anotherObject": {
+    "value": "Priceless!",
+    "list": [
+    1, 
+    2, 
+    3
     ],
-    "missingFeature": {
-      "another": " field",
-      "camelCasing": "may be forced",
-      "foo": "bar",
-      "raw": {"foo":"bar"}
-    },
-    "anotherObject": {
-      "value": "Priceless!",
-      "list": [
-        1, 
-        2, 
-        3
-      ],
-      "list2": [
-        1, 
-        2, 
-        3
-      ],
-      "map": {
-        "foo": [
-          1, 
-          "2", 
-          3.0, 
-          {"n":42}
-        ]
-      }
+    "list2": [
+    1, 
+    2, 
+    3
+    ],
+    "map": {
+    "foo": [
+      1, 
+      "2", 
+      3.0, 
+      {"n":42}
+    ]
     }
+  }
   }
 }
 ```

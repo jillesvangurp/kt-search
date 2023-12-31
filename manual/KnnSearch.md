@@ -130,44 +130,43 @@ queries.forEach { (queryId, text) ->
 ```
 
 This prints:
- 
-```
+
+```text
 query for vector of rice:
-lLDWvowBiva-ZZJfGkfE - 0.9389602: chicken
-krDWvowBiva-ZZJfGkfE - 0.916195: chicken teriyaki with rice
-jrDWvowBiva-ZZJfGkfE - 0.91184926: apple pie
+DUUQwYwB9onUQG1JqxeW - 0.9389602: chicken
+C0UQwYwB9onUQG1JqxeW - 0.916195: chicken teriyaki with rice
+B0UQwYwB9onUQG1JqxeW - 0.91184926: apple pie
 ---
 query for vector of gebak en taart:
-kbDWvowBiva-ZZJfGkfE - 0.9021788: pattiserie
-k7DWvowBiva-ZZJfGkfE - 0.9010898: tikka massala
-jrDWvowBiva-ZZJfGkfE - 0.89891326: apple pie
+CkUQwYwB9onUQG1JqxeW - 0.9021788: pattiserie
+DEUQwYwB9onUQG1JqxeW - 0.9010898: tikka massala
+B0UQwYwB9onUQG1JqxeW - 0.89891326: apple pie
 ---
 query for vector of muppets:
-jrDWvowBiva-ZZJfGkfE - 0.9121342: apple pie
-lLDWvowBiva-ZZJfGkfE - 0.91064054: chicken
-kbDWvowBiva-ZZJfGkfE - 0.90385926: pattiserie
+B0UQwYwB9onUQG1JqxeW - 0.9121342: apple pie
+DUUQwYwB9onUQG1JqxeW - 0.91064054: chicken
+CkUQwYwB9onUQG1JqxeW - 0.90385926: pattiserie
 ---
 query for vector of artisanal baker:
-j7DWvowBiva-ZZJfGkfE - 0.9168335: chocolate chip cookie
-kLDWvowBiva-ZZJfGkfE - 0.9078536: the cookie monster
-jLDWvowBiva-ZZJfGkfE - 0.9031166: banana muffin with chocolate chips
+CEUQwYwB9onUQG1JqxeW - 0.9168335: chocolate chip cookie
+CUUQwYwB9onUQG1JqxeW - 0.9078536: the cookie monster
+BUUQwYwB9onUQG1JqxeW - 0.9031166: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-lLDWvowBiva-ZZJfGkfE - 0.9383265: chicken
-krDWvowBiva-ZZJfGkfE - 0.93595815: chicken teriyaki with rice
-k7DWvowBiva-ZZJfGkfE - 0.9253379: tikka massala
+DUUQwYwB9onUQG1JqxeW - 0.9383265: chicken
+C0UQwYwB9onUQG1JqxeW - 0.93595815: chicken teriyaki with rice
+DEUQwYwB9onUQG1JqxeW - 0.9253379: tikka massala
 ---
 query for vector of japanese food:
-krDWvowBiva-ZZJfGkfE - 0.9337205: chicken teriyaki with rice
-lLDWvowBiva-ZZJfGkfE - 0.9329303: chicken
-jrDWvowBiva-ZZJfGkfE - 0.9222199: apple pie
+C0UQwYwB9onUQG1JqxeW - 0.9337205: chicken teriyaki with rice
+DUUQwYwB9onUQG1JqxeW - 0.9329303: chicken
+B0UQwYwB9onUQG1JqxeW - 0.9222199: apple pie
 ---
 query for vector of baked goods:
-jrDWvowBiva-ZZJfGkfE - 0.9228046: apple pie
-j7DWvowBiva-ZZJfGkfE - 0.91771054: chocolate chip cookie
-jbDWvowBiva-ZZJfGkfE - 0.9135959: apple crumble
+B0UQwYwB9onUQG1JqxeW - 0.9228046: apple pie
+CEUQwYwB9onUQG1JqxeW - 0.91771054: chocolate chip cookie
+BkUQwYwB9onUQG1JqxeW - 0.9135959: apple crumble
 ---
-
 ```
 
 This shows both the power and weakness of knn search:

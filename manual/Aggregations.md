@@ -96,81 +96,80 @@ println(DEFAULT_PRETTY_JSON.encodeToString(response))
 ```
 
 This prints:
- 
-```
+
+```text
 {
-    "took": 2,
-    "_shards": {
-        "total": 1,
-        "successful": 1,
-        "failed": 0,
-        "skipped": 0
+  "took": 3,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "timed_out": false,
+  "hits": {
+    "total": {
+      "value": 4,
+      "relation": "eq"
     },
-    "timed_out": false,
-    "hits": {
-        "total": {
-            "value": 4,
-            "relation": "eq"
-        },
-        "hits": [
-        ]
-    },
-    "aggregations": {
-        "BY_TAG": {
+    "hits": [
+    ]
+  },
+  "aggregations": {
+    "BY_TAG": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "bar",
+          "doc_count": 2,
+          "BY_COLOR": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
-                {
-                    "key": "bar",
-                    "doc_count": 2,
-                    "BY_COLOR": {
-                        "doc_count_error_upper_bound": 0,
-                        "sum_other_doc_count": 0,
-                        "buckets": [
-                            {
-                                "key": "green",
-                                "doc_count": 1
-                            },
-                            {
-                                "key": "red",
-                                "doc_count": 1
-                            }
-                        ]
-                    }
-                },
-                {
-                    "key": "foo",
-                    "doc_count": 2,
-                    "BY_COLOR": {
-                        "doc_count_error_upper_bound": 0,
-                        "sum_other_doc_count": 0,
-                        "buckets": [
-                            {
-                                "key": "red",
-                                "doc_count": 2
-                            }
-                        ]
-                    }
-                },
-                {
-                    "key": "foobar",
-                    "doc_count": 1,
-                    "BY_COLOR": {
-                        "doc_count_error_upper_bound": 0,
-                        "sum_other_doc_count": 0,
-                        "buckets": [
-                            {
-                                "key": "green",
-                                "doc_count": 1
-                            }
-                        ]
-                    }
-                }
+              {
+                "key": "green",
+                "doc_count": 1
+              },
+              {
+                "key": "red",
+                "doc_count": 1
+              }
             ]
+          }
+        },
+        {
+          "key": "foo",
+          "doc_count": 2,
+          "BY_COLOR": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+              {
+                "key": "red",
+                "doc_count": 2
+              }
+            ]
+          }
+        },
+        {
+          "key": "foobar",
+          "doc_count": 1,
+          "BY_COLOR": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+              {
+                "key": "green",
+                "doc_count": 1
+              }
+            ]
+          }
         }
+      ]
     }
+  }
 }
-
 ```
 
 Note that we are using enum values for the aggregation names. Here is the enum we are using:
@@ -224,8 +223,8 @@ tags.buckets.forEach { jsonObject ->
 ```
 
 This prints:
- 
-```
+
+```text
 Number of buckets: 3
 bar: 2
   green: 1
@@ -234,7 +233,6 @@ foo: 2
   red: 2
 foobar: 1
   green: 1
-
 ```
 
 With some more extension function magic we can make this a bit nicer.
@@ -254,8 +252,8 @@ tags.parsedBuckets.forEach { tagBucket ->
 ```
 
 This prints:
- 
-```
+
+```text
 bar: 2
   green: 1
   red: 1
@@ -263,7 +261,6 @@ foo: 2
   red: 2
 foobar: 1
   green: 1
-
 ```
 
 ## Other aggregations
@@ -341,8 +338,8 @@ println(
 ```
 
 This prints:
- 
-```
+
+```text
 2023-12-21T00:00:00.000Z: 1
 2023-12-22T00:00:00.000Z: 0
 2023-12-23T00:00:00.000Z: 0
@@ -355,18 +352,17 @@ This prints:
 2023-12-30T00:00:00.000Z: 1
 2023-12-31T00:00:00.000Z: 1
 green: 2
-  Min: 1.703144738481E12
-  Max: 1.704008738481E12
+  Min: 1.70318213201E12
+  Max: 1.70404613201E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.703576738481E12
-  Max: 1.703922338481E12
+  Min: 1.70361413201E12
+  Max: 1.70395973201E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
 Tag cardinality: 3
-
 ```
 
 ## Filter aggregations
@@ -393,11 +389,10 @@ repo.search {
 ```
 
 This prints:
- 
-```
+
+```text
 filtered: 2
 red: 2
-
 ```
 
 You can also use the filters aggregation to use multiple named filter aggregations at the same time

@@ -35,11 +35,10 @@ println("results in the hits flow: ${hitsFlow.count()}")
 ```
 
 This prints:
- 
-```
+
+```text
 reported result set size 3
 results in the hits flow: 3
-
 ```
 
 This orchestrates creating a point in time and paging through results using 
@@ -80,11 +79,10 @@ println("results in the hits flow: ${hitsFlow.count()}")
 ```
 
 This prints:
- 
-```
+
+```text
 reported result set size 3
 results in the hits flow: 1
-
 ```
 
 ## Reindexing using search_after and bulk
@@ -115,10 +113,9 @@ println("$newIndex has ${client.search(newIndex).total} documents")
 ```
 
 This prints:
- 
-```
-docs-search-demo-v2 has 3 documents
 
+```text
+docs-search-demo-v2 has 3 documents
 ```
 
 ## Scrolling searches
@@ -187,10 +184,9 @@ println("found $results results")
 ```
 
 This prints:
- 
-```
-found 3 results
 
+```text
+found 3 results
 ```
 
 Like with `search_after` you can also choose to specify scroll ids manually. If you do this,
@@ -217,10 +213,9 @@ println("found $results results")
 ```
 
 This prints:
- 
-```
-found 3 results
 
+```text
+found 3 results
 ```
 
 

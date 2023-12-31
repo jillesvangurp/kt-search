@@ -43,8 +43,8 @@ client.deleteDocument("myindex", resp.id)
 ```
 
 This prints:
- 
-```
+
+```text
 
 ```
 
@@ -82,11 +82,10 @@ println(resp.get?.source)
 ```
 
 This prints:
- 
-```
+
+```text
 {"id":"42","name":"changed","tags":[]}
 {"id":"42","name":"again","tags":[]}
-
 ```
 
 ## Bulk
@@ -142,12 +141,11 @@ resp.documents<TestDoc>().forEach {
 ```
 
 This prints:
- 
-```
+
+```text
 Found 2 documents
 1: One
 2: Two
-
 ```
 
 

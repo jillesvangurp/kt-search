@@ -25,11 +25,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Match query Found 1 results:
 - 1.6285465 3 Green Beans
-
 ```
 
 ## Match Phrase
@@ -48,11 +47,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Match Phrase query Found 1 results:
 - 3.257093 3 Green Beans
-
 ```
 
 ## Match Phrase Prefix
@@ -71,11 +69,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Match Phrase Prefix query Found 1 results:
 - 3.257093 3 Green Beans
-
 ```
 
 ## Multi Match
@@ -95,12 +92,11 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Multi Match Found 2 results:
 - 1.0925692 2 Banana
 - 0.81427324 3 Green Beans
-
 ```
 
 ## Simple Query String
@@ -116,13 +112,12 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Multi Match Found 3 results:
 - 0.81427324 3 Green Beans
 - 0.4700036 1 Apple
 - 0.4700036 2 Banana
-
 ```
 
 ## Query String Query
@@ -138,12 +133,11 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Multi Match Found 2 results:
 - 1.0925692 1 Apple
 - 1.0925692 2 Banana
-
 ```
 
 ## Intervals query
@@ -169,11 +163,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Combined fields Found 1 results:
 - 0.5 3 Green Beans
-
 ```
 
 You can combine multiple rules with `any_of`, or `all_of`.
@@ -202,11 +195,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Combined fields Found 1 results:
 - 0.5 3 Green Beans
-
 ```
 
 ## Combined fields query
@@ -222,11 +214,10 @@ client.search(indexName) {
 ```
 
 This prints:
- 
-```
+
+```text
 Combined fields Found 1 results:
 - 1.9290931 2 Banana
-
 ```
 
 
