@@ -1,8 +1,13 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.Script
+import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.matchers.shouldBe
+import kotlin.random.Random
+import kotlin.random.nextULong
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 class BulkTest : SearchTestBase() {
 
@@ -88,5 +93,29 @@ class BulkTest : SearchTestBase() {
         }
         val resp = client.getDocument(index,"42").source!!.parse<TestDocument>()
         resp.name shouldBe "changed"
+    }
+
+    @Test
+    fun shouldNotLoseItems() = coRun {
+        val index = testDocumentIndex()
+
+        var count=0
+        var batches=0
+        while(count < 1000) {
+            val amount = Random.nextInt(19,39)
+            client.bulk(target = index, refresh = Refresh.False, bulkSize = 11) {
+                (0..amount).forEach {
+                    index(TestDocument("$batches-$it"), id = Random.nextULong().toString())
+                    count++
+                }
+            }
+            batches++
+        }
+        eventually(eventuallyConfig {
+            this.duration = 10.seconds
+            this.interval = 2.seconds
+        }) {
+            client.count(target = index).count.also { println(it) } shouldBe count
+        }
     }
 }
