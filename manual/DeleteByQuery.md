@@ -19,12 +19,6 @@ repo.deleteByQuery {
 }.deleted
 ```
 
-->
-
-```
-2
-```
-
 If you need the optional query parameters on this API, use `client.deleteByQuery` instead.
 
 

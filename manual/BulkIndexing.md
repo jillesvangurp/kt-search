@@ -118,13 +118,13 @@ repo.get("foo-1").let { (doc,_)->
 }
 ```
 
-Captured Output:
-
-```
-bar
+                Prints:
+                
+                ```
+                bar
 foobar
 
-```
+                ```
 
 ## Error handling with callbacks
 
@@ -173,6 +173,14 @@ client.bulk(callBack = itemCallBack) {
   // invalid json would cause an error
   index("{}}")
 ```
+
+This prints:
+ 
+ ```
+ Request failure RequestIsWrong 400: {"error":{"root_cause":[{"type":"action_request_validation_exception","reason":"Validation Failed: 1: index is missing;"}],"type":"action_request_validation_exception","reason":"Validation Failed: 1: index is missing;"},"status":400}.
+Unless you set 
+
+ ```
 
 For successful items, you might want to know what id was assigned 
 or use the seq_no and primary_term for optimistic locking.

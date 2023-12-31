@@ -52,14 +52,15 @@ val first = client.search(indexName) {
   )
 }.hits?.hits?.first()?.parseHit<TestDoc>()!!
 
-print(first.name)
+println(first.name)
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ Brandenburger Tor
 
-```
-Brandenburger Tor
-```
+ ```
 
 The Brandenburger Tor is closer to itself than the TV tower so it comes out on top.
 
@@ -77,11 +78,11 @@ val first = client.search(indexName) {
 print(first.name)
 ```
 
-Captured Output:
-
-```
-Tv Tower
-```
+This prints:
+ 
+ ```
+ Tv Tower
+ ```
 
 The building year of the TV tower is closer to 2020 than the Brandenburger Gate
 

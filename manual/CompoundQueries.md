@@ -27,21 +27,21 @@ logical and's or's and not's.
 client.search(indexName) {
   query = bool {
     must(
-      match(TestDoc::tags,"fruit")
+      match(TestDoc::tags, "fruit")
     )
     mustNot(range(TestDoc::price) {
-      lt=10
+      lt = 10
     })
     should(
       range(TestDoc::price) {
-        lte=50
+        lte = 50
       },
       range(TestDoc::price) {
-        gte=20
+        gte = 20
       },
     )
     filter(range(TestDoc::price) {
-      gte=0
+      gte = 0
     })
   }
 }.pretty("Bool query.").let {
@@ -49,13 +49,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ Bool query. Found 0 results:
 
-```
-Bool query. Found 0 results:
 
-
-```
+ ```
 
 ## Dis-max
 
@@ -78,14 +78,14 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Dismax query. Found 2 results:
+This prints:
+ 
+ ```
+ Dismax query. Found 2 results:
 - 1.8425692 1 Apple
 - 1.8425692 2 Banana
 
-```
+ ```
 
 ## Boosting
 
@@ -108,14 +108,14 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Boosting query. Found 2 results:
+This prints:
+ 
+ ```
+ Boosting query. Found 2 results:
 - 0.4700036 1 Apple
 - 0.2350018 2 Banana
 
-```
+ ```
 
 ## Function score
 
@@ -178,15 +178,15 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Function score Found 3 results:
+This prints:
+ 
+ ```
+ Function score Found 3 results:
 - 0.46640626 1 Apple
 - 0.45020398 2 Banana
 - 0.45000196 3 Green Beans
 
-```
+ ```
 
 
 

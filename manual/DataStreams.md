@@ -89,12 +89,6 @@ client.createIndexTemplate("my-logs-template") {
 client.createDataStream("my-logs")
 ```
 
-->
-
-```
-{"acknowledged":true}
-```
-
 
 
 ---

@@ -34,13 +34,13 @@ println("reported result set size ${resp.total}")
 println("results in the hits flow: ${hitsFlow.count()}")
 ```
 
-Captured Output:
-
-```
-reported result set size 3
+This prints:
+ 
+ ```
+ reported result set size 3
 results in the hits flow: 3
 
-```
+ ```
 
 This orchestrates creating a point in time and paging through results using 
 sort values returned in the response.
@@ -79,13 +79,13 @@ println("reported result set size ${resp.total}")
 println("results in the hits flow: ${hitsFlow.count()}")
 ```
 
-Captured Output:
-
-```
-reported result set size 3
+This prints:
+ 
+ ```
+ reported result set size 3
 results in the hits flow: 1
 
-```
+ ```
 
 ## Reindexing using search_after and bulk
 
@@ -114,12 +114,12 @@ client.bulk(refresh = Refresh.WaitFor) {
 println("$newIndex has ${client.search(newIndex).total} documents")
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ docs-search-demo-v2 has 3 documents
 
-```
-docs-search-demo-v2 has 3 documents
-
-```
+ ```
 
 ## Scrolling searches
 
@@ -137,13 +137,6 @@ val response = client.search(indexName, scroll = "1m")
 val hitsFlow = client.scroll(response)
 // the flow contains all the hits
 println("Found ${hitsFlow.count()} results")
-```
-
-Captured Output:
-
-```
-Found 3 results
-
 ```
 
 ## Doing it the hard way
@@ -193,12 +186,12 @@ results += resp.hits?.hits?.size ?: 0
 println("found $results results")
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ found 3 results
 
-```
-found 3 results
-
-```
+ ```
 
 Like with `search_after` you can also choose to specify scroll ids manually. If you do this,
 be sure to delete your scrolls after you are done searching.
@@ -223,12 +216,12 @@ client.deleteScroll(resp.scrollId)
 println("found $results results")
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ found 3 results
 
-```
-found 3 results
-
-```
+ ```
 
 
 

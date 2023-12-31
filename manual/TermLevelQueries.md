@@ -15,14 +15,14 @@ client.search(indexName) {
 }.pretty("Term Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Term Query. Found 2 results:
+This prints:
+ 
+ ```
+ Term Query. Found 2 results:
 - 0.4700036 1 Apple
 - 0.4700036 2 Banana
 
-```
+ ```
 
 ## Terms query
 
@@ -32,15 +32,15 @@ client.search(indexName) {
 }.pretty("Terms Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Terms Query. Found 3 results:
+This prints:
+ 
+ ```
+ Terms Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
-```
+ ```
 
 ## Fuzzy query
 
@@ -52,15 +52,6 @@ client.search(indexName) {
 }.pretty("Fuzzy Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Fuzzy Query. Found 2 results:
-- 0.3760029 1 Apple
-- 0.3760029 2 Banana
-
-```
-
 ## Prefix query
 
 ```kotlin
@@ -69,14 +60,14 @@ client.search(indexName) {
 }.pretty("Prefix Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Prefix Query. Found 2 results:
+This prints:
+ 
+ ```
+ Prefix Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
-```
+ ```
 
 ## Wildcard query
 
@@ -86,14 +77,14 @@ client.search(indexName) {
 }.pretty("Wildcard Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Wildcard Query. Found 2 results:
+This prints:
+ 
+ ```
+ Wildcard Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
-```
+ ```
 
 ## RegExp query
 
@@ -103,15 +94,15 @@ client.search(indexName) {
 }.pretty("RegExp Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-RegExp Query. Found 3 results:
+This prints:
+ 
+ ```
+ RegExp Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
-```
+ ```
 
 ## Ids query
 
@@ -122,14 +113,14 @@ client.search(indexName) {
 }.pretty("Ids Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Ids Query. Found 2 results:
+This prints:
+ 
+ ```
+ Ids Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
-```
+ ```
 
 ## Exists query
 
@@ -139,14 +130,14 @@ client.search(indexName) {
 }.pretty("Exists Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Exists Query. Found 2 results:
+This prints:
+ 
+ ```
+ Exists Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
-```
+ ```
 
 ## Range query
 
@@ -160,15 +151,15 @@ client.search(indexName) {
 }.pretty("Range Query.").let { println(it) }
 ```
 
-Captured Output:
-
-```
-Range Query. Found 3 results:
+This prints:
+ 
+ ```
+ Range Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
-```
+ ```
 
 ## Terms Set query
 
@@ -182,13 +173,13 @@ client.search(indexName) {
 }.pretty("Terms Set Query").let { println(it) }
 ```
 
-Captured Output:
+This prints:
+ 
+ ```
+ Terms Set Query Found 0 results:
 
-```
-Terms Set Query Found 0 results:
 
-
-```
+ ```
 
 
 

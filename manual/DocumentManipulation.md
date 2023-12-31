@@ -42,6 +42,12 @@ client.indexDocument(
 client.deleteDocument("myindex", resp.id)
 ```
 
+This prints:
+ 
+ ```
+ 
+ ```
+
 ## Updates
 
 Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
@@ -74,6 +80,14 @@ resp = client.updateDocument(
 println(resp.get?.source)
 
 ```
+
+This prints:
+ 
+ ```
+ {"id":"42","name":"changed","tags":[]}
+{"id":"42","name":"again","tags":[]}
+
+ ```
 
 ## Bulk
 
@@ -126,6 +140,15 @@ resp.documents<TestDoc>().forEach {
   println("${it.id}: ${it.name}")
 }
 ```
+
+This prints:
+ 
+ ```
+ Found 2 documents
+1: One
+2: Two
+
+ ```
 
 
 

@@ -100,50 +100,49 @@ foo {
 }
 ```
 
-Captured Output:
-
-```
-{
+This prints:
+ 
+ ```
+ {
   "foo": "Hello World",
   "bar": {
-  "xxx": 123,
-  "yYy": false,
-  "zzz": [
-    1, 
-    2, 
-    3
-  ],
-  "missingFeature": {
-    "another": " field",
-    "camelCasing": "may be forced",
-    "foo": "bar",
-    "raw": {"foo":"bar"}
-  },
-  "anotherObject": {
-    "value": "Priceless!",
-    "list": [
-    1, 
-    2, 
-    3
-    ],
-    "list2": [
-    1, 
-    2, 
-    3
-    ],
-    "map": {
-    "foo": [
+    "xxx": 123,
+    "yYy": false,
+    "zzz": [
       1, 
-      "2", 
-      3.0, 
-      {"n":42}
-    ]
+      2, 
+      3
+    ],
+    "missingFeature": {
+      "another": " field",
+      "camelCasing": "may be forced",
+      "foo": "bar",
+      "raw": {"foo":"bar"}
+    },
+    "anotherObject": {
+      "value": "Priceless!",
+      "list": [
+        1, 
+        2, 
+        3
+      ],
+      "list2": [
+        1, 
+        2, 
+        3
+      ],
+      "map": {
+        "foo": [
+          1, 
+          "2", 
+          3.0, 
+          {"n":42}
+        ]
+      }
     }
   }
-  }
 }
-
-```
+ ```
 
 As you can see, JsonDsl is very flexible and you can use it to create model classes for 
 just about any json dialect. It's also a very minimalistic library with no library dependencies.
@@ -244,42 +243,6 @@ SearchDSL().apply {
     )
   }
 }.json(pretty = true)
-```
-
-->
-
-```
-{
-  "query": {
-  "bool": {
-    "should": [
-    {
-      "term": {
-      "keyword": {
-        "value": "foo",
-        "boost": 2.0
-      }
-      }
-    }, 
-    {
-      "term": {
-      "keyword": {
-        "value": "foo",
-        "boost": 2.0
-      }
-      }
-    }, 
-    {
-      "term": {
-      "keyword": {
-        "value": "foo"
-      }
-      }
-    }
-    ]
-  }
-  }
-}
 ```
 
 If you end up writing your own queries, of course please consider making a pull request.

@@ -69,39 +69,21 @@ client.search(indexName) {
 }
 ```
 
-->
-
-```
-[bar, tower, tor, tegel, airport]
-```
-
 You can specify points in a variety of ways:
 
 ```kotlin
 GeoBoundingBoxQuery(TestDoc::point) {
   topLeft(latitude = 52.0, longitude = 13.0)
   // geojson coordinates
-  topLeft(arrayOf(13.0,52.0))
+  topLeft(arrayOf(13.0, 52.0))
   // use lists or arrays
-  topLeft(listOf(13.0,52.0))
+  topLeft(listOf(13.0, 52.0))
   // wkt notation
   topLeft("Point (52 13")
   // geohash prefix
   topLeft("u33")
 }
 
-```
-
-->
-
-```
-{
-  "geo_bounding_box": {
-  "point": {
-    "top_left": "u33"
-  }
-  }
-}
 ```
 
 ## Distance Search
@@ -116,12 +98,6 @@ client.search(indexName) {
 }
 ```
 
-->
-
-```
-[bar, tower, tor]
-```
-
 ## Shape Search
 
 Distance and bounding box searches are of course just syntactic sugar for geo shape queries. Using that,
@@ -131,13 +107,17 @@ construct shapes using `withJsonDsl`
 ```kotlin
 // you can use the provided Shape sealed class
 // to construct geometries
-val polygon = Shape.Polygon(listOf(listOf(
-  points["tegel"]!!.point,
-  points["tor"]!!.point,
-  points["airport"]!!.point,
-  // last point has to be the same as the first
-  points["tegel"]!!.point,
-)))
+val polygon = Shape.Polygon(
+  listOf(
+    listOf(
+      points["tegel"]!!.point,
+      points["tor"]!!.point,
+      points["airport"]!!.point,
+      // last point has to be the same as the first
+      points["tegel"]!!.point,
+    )
+  )
+)
 
 client.search(indexName) {
   query = GeoShapeQuery(TestDoc::point) {
@@ -151,7 +131,8 @@ client.search(indexName) {
     // you can also use string literals for the geometry
     // this is useful if you have some other representation
     // of geojson that you can serialize to string
-    shape("""
+    shape(
+      """
       {
         "type":"Polygon",
         "coordinates":[[
@@ -162,18 +143,13 @@ client.search(indexName) {
           [13.0,53.0]
         ]]
       }
-    """.trimIndent())
+    """.trimIndent()
+    )
     relation = GeoShapeQuery.Relation.intersects
   }
 }.parseHits(TestDoc.serializer()).map {
   it.id
 }
-```
-
-->
-
-```
-[bar, tower, tor, tegel, airport]
 ```
 
 ## Grid Search
@@ -200,12 +176,6 @@ client.search(indexName) {
 }.parseHits(TestDoc.serializer()).map {
   it.id
 }
-```
-
-->
-
-```
-[bar, tower, tor]
 ```
 
 Fun fact: I contributed documentation to Elasticsearch 1.x for geojson 

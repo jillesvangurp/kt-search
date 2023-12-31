@@ -66,14 +66,6 @@ runBlocking {
 }
 ```
 
-Captured Output:
-
-```
-ES8: 8.9.0
-docker-test-cluster is Yellow
-
-```
-
 The main purpose of kt-search is of course searching. This is how you do a simple search and work with 
 data classes:
 

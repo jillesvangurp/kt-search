@@ -24,13 +24,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Match query Found 1 results:
+This prints:
+ 
+ ```
+ Match query Found 1 results:
 - 1.6285465 3 Green Beans
 
-```
+ ```
 
 ## Match Phrase
 
@@ -47,13 +47,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Match Phrase query Found 1 results:
+This prints:
+ 
+ ```
+ Match Phrase query Found 1 results:
 - 3.257093 3 Green Beans
 
-```
+ ```
 
 ## Match Phrase Prefix
 
@@ -70,13 +70,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Match Phrase Prefix query Found 1 results:
+This prints:
+ 
+ ```
+ Match Phrase Prefix query Found 1 results:
 - 3.257093 3 Green Beans
 
-```
+ ```
 
 ## Multi Match
 
@@ -94,14 +94,14 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Multi Match Found 2 results:
+This prints:
+ 
+ ```
+ Multi Match Found 2 results:
 - 1.0925692 2 Banana
 - 0.81427324 3 Green Beans
 
-```
+ ```
 
 ## Simple Query String
 
@@ -115,15 +115,15 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Multi Match Found 3 results:
+This prints:
+ 
+ ```
+ Multi Match Found 3 results:
 - 0.81427324 3 Green Beans
 - 0.4700036 1 Apple
 - 0.4700036 2 Banana
 
-```
+ ```
 
 ## Query String Query
 
@@ -137,14 +137,14 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Multi Match Found 2 results:
+This prints:
+ 
+ ```
+ Multi Match Found 2 results:
 - 1.0925692 1 Apple
 - 1.0925692 2 Banana
 
-```
+ ```
 
 ## Intervals query
 
@@ -168,13 +168,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Combined fields Found 1 results:
+This prints:
+ 
+ ```
+ Combined fields Found 1 results:
 - 0.5 3 Green Beans
 
-```
+ ```
 
 You can combine multiple rules with `any_of`, or `all_of`.
 
@@ -201,13 +201,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Combined fields Found 1 results:
+This prints:
+ 
+ ```
+ Combined fields Found 1 results:
 - 0.5 3 Green Beans
 
-```
+ ```
 
 ## Combined fields query
 
@@ -221,13 +221,13 @@ client.search(indexName) {
 }
 ```
 
-Captured Output:
-
-```
-Combined fields Found 1 results:
+This prints:
+ 
+ ```
+ Combined fields Found 1 results:
 - 1.9290931 2 Banana
 
-```
+ ```
 
 
 

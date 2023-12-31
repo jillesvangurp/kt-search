@@ -83,12 +83,6 @@ client.createIndex("an-index") {
 }
 ```
 
-->
-
-```
-IndexCreateResponse(acknowledged=true, shardsAcknowledged=true, index=an-index)
-```
-
 This is a deliberately more elaborate example that shows off a few of the features of the DSL:
 
 - we customized the replicas and shards settings
