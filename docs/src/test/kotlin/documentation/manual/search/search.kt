@@ -181,15 +181,7 @@ val searchMd = sourceGitRepository.md {
                     val doc = hit.parseHit<TestDoc>()
                     println("${hit.id} - ${hit.score}: ${doc.name} (${doc.price})")
                 }
-            }.let {
-                +"""
-                    This prints:
-                    
-                    ```
-                    ${it.stdOut}
-                    ```
-                """.trimIndent()
-            }
+            }.printStdOut()
 
             +"""
                 By default, the source gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
@@ -211,15 +203,7 @@ val searchMd = sourceGitRepository.md {
             println("Number of docs" + client.count(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.count)
-        }.let {
-            +"""
-                    This prints:
-                    
-                    ```
-                    ${it.stdOut}
-                    ```
-                """.trimIndent()
-        }
+        }.printStdOut()
     }
     section("Multi Search") {
         +"""
