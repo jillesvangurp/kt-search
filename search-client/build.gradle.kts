@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_VARIABLE")
-
 import com.avast.gradle.dockercompose.ComposeExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
@@ -15,19 +13,20 @@ ext["signing.secretKeyRingFile"] = null
 ext["ossrhUsername"] = null
 ext["ossrhPassword"] = null
 
-val overrideKeys=listOf("signing.keyId","signing.password","signing.secretKeyRingFile","sonatypeUsername","sonatypePassword")
+val overrideKeys =
+    listOf("signing.keyId", "signing.password", "signing.secretKeyRingFile", "sonatypeUsername", "sonatypePassword")
 
 overrideKeys.forEach {
-    ext[it]=null
+    ext[it] = null
 }
 val localProperties = Properties().apply {
     // override gradle.properties with properties in a file that is ignored in git
     rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use {
         load(it)
     }
-}.also {ps ->
+}.also { ps ->
     overrideKeys.forEach {
-        if(ps[it] != null) {
+        if (ps[it] != null) {
             println("override $it from local.properties")
             ext[it] = ps[it]
         }
@@ -163,7 +162,21 @@ configure<ComposeExtension> {
     stopContainers.set(true)
     removeContainers.set(true)
     forceRecreate.set(true)
-    useComposeFiles.set(listOf("../docker-compose-$searchEngine.yml"))
+    val parentDir = project.parent?.projectDir?.path ?: error("parent should exist")
+    val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
+    dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
+    useComposeFiles.set(listOf(composeFile))
+
+    listOf("/usr/bin/docker","/usr/local/bin/docker").firstOrNull {
+        File(it).exists()
+    }?.let { docker ->
+        // works around an issue where the docker
+        // command is not found
+        // falls back to the default, which may work on
+        // some platforms
+        dockerExecutable.set(docker)
+    }
+
 }
 
 tasks.named("jsNodeTest") {
@@ -243,9 +256,5 @@ tasks.withType<Test> {
             }
         }
     })
-//    if(!isUp) {
-    // called by docs
-    //        this.finalizedBy("composeDown")
-//    }
 }
 
