@@ -40,8 +40,9 @@ data class TestDocument(
 
 client.createIndex("an-index") {
   settings {
-    replicas=1
-    shards=3
+    replicas = 1
+    shards = 3
+    refreshInterval = "10s"
 
     analysis {
       filter("2_5_edgengrams") {
