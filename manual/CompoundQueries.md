@@ -51,11 +51,11 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Bool query. Found 0 results:
+```
+Bool query. Found 0 results:
 
 
- ```
+```
 
 ## Dis-max
 
@@ -80,12 +80,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Dismax query. Found 2 results:
+```
+Dismax query. Found 2 results:
 - 1.8425692 1 Apple
 - 1.8425692 2 Banana
 
- ```
+```
 
 ## Boosting
 
@@ -110,12 +110,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Boosting query. Found 2 results:
+```
+Boosting query. Found 2 results:
 - 0.4700036 1 Apple
 - 0.2350018 2 Banana
 
- ```
+```
 
 ## Function score
 
@@ -180,13 +180,13 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Function score Found 3 results:
+```
+Function score Found 3 results:
 - 0.46640626 1 Apple
 - 0.45020398 2 Banana
 - 0.45000196 3 Green Beans
 
- ```
+```
 
 
 

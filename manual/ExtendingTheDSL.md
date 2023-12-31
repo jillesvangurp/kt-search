@@ -102,8 +102,8 @@ foo {
 
 This prints:
  
- ```
- {
+```
+{
   "foo": "Hello World",
   "bar": {
     "xxx": 123,
@@ -142,7 +142,7 @@ This prints:
     }
   }
 }
- ```
+```
 
 As you can see, JsonDsl is very flexible and you can use it to create model classes for 
 just about any json dialect. It's also a very minimalistic library with no library dependencies.

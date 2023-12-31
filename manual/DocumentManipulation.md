@@ -44,9 +44,9 @@ client.deleteDocument("myindex", resp.id)
 
 This prints:
  
- ```
- 
- ```
+```
+
+```
 
 ## Updates
 
@@ -83,11 +83,11 @@ println(resp.get?.source)
 
 This prints:
  
- ```
- {"id":"42","name":"changed","tags":[]}
+```
+{"id":"42","name":"changed","tags":[]}
 {"id":"42","name":"again","tags":[]}
 
- ```
+```
 
 ## Bulk
 
@@ -143,12 +143,12 @@ resp.documents<TestDoc>().forEach {
 
 This prints:
  
- ```
- Found 2 documents
+```
+Found 2 documents
 1: One
 2: Two
 
- ```
+```
 
 
 

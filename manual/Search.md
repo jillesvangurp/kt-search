@@ -197,13 +197,13 @@ resp.hits?.hits?.forEach { hit ->
 
 This prints:
  
- ```
- Banana
+```
+Banana
 Apple
 2 - 1.0925692: Banana (0.8)
 1 - 0.0: Apple (0.5)
 
- ```
+```
 
 By default, the source gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
 use that as the input for `decodeFromJsonElement<T>(object)` to deserialize to some custom
@@ -225,11 +225,11 @@ println("Number of docs" + client.count(indexName) {
 
 This prints:
  
- ```
- Number of docs3
+```
+Number of docs3
 Number of docs2
 
- ```
+```
 
 ## Multi Search
 
@@ -267,11 +267,11 @@ client.msearch(indexName) {
 
 This prints:
  
- ```
- document count 3
-document count 273
+```
+document count 3
+document count 289
 
- ```
+```
 
 Similar to the normal search, you can also construct your body manually. The format is ndjson
 
@@ -290,10 +290,10 @@ println("Doc counts: ${
 
 This prints:
  
- ```
- Doc counts: 3
+```
+Doc counts: 3
 
- ```
+```
 
 
 

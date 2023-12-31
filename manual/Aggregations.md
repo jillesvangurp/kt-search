@@ -97,9 +97,9 @@ println(DEFAULT_PRETTY_JSON.encodeToString(response))
 
 This prints:
  
- ```
- {
-    "took": 3,
+```
+{
+    "took": 2,
     "_shards": {
         "total": 1,
         "successful": 1,
@@ -171,7 +171,7 @@ This prints:
     }
 }
 
- ```
+```
 
 Note that we are using enum values for the aggregation names. Here is the enum we are using:
 
@@ -225,8 +225,8 @@ tags.buckets.forEach { jsonObject ->
 
 This prints:
  
- ```
- Number of buckets: 3
+```
+Number of buckets: 3
 bar: 2
   green: 1
   red: 1
@@ -235,7 +235,7 @@ foo: 2
 foobar: 1
   green: 1
 
- ```
+```
 
 With some more extension function magic we can make this a bit nicer.
 
@@ -255,8 +255,8 @@ tags.parsedBuckets.forEach { tagBucket ->
 
 This prints:
  
- ```
- bar: 2
+```
+bar: 2
   green: 1
   red: 1
 foo: 2
@@ -264,7 +264,7 @@ foo: 2
 foobar: 1
   green: 1
 
- ```
+```
 
 ## Other aggregations
 
@@ -342,8 +342,8 @@ println(
 
 This prints:
  
- ```
- 2023-12-21T00:00:00.000Z: 1
+```
+2023-12-21T00:00:00.000Z: 1
 2023-12-22T00:00:00.000Z: 0
 2023-12-23T00:00:00.000Z: 0
 2023-12-24T00:00:00.000Z: 0
@@ -355,19 +355,19 @@ This prints:
 2023-12-30T00:00:00.000Z: 1
 2023-12-31T00:00:00.000Z: 1
 green: 2
-  Min: 1.703140440367E12
-  Max: 1.704004440367E12
+  Min: 1.703144738481E12
+  Max: 1.704008738481E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.703572440367E12
-  Max: 1.703918040367E12
+  Min: 1.703576738481E12
+  Max: 1.703922338481E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
 Tag cardinality: 3
 
- ```
+```
 
 ## Filter aggregations
 
@@ -394,11 +394,11 @@ repo.search {
 
 This prints:
  
- ```
- filtered: 2
+```
+filtered: 2
 red: 2
 
- ```
+```
 
 You can also use the filters aggregation to use multiple named filter aggregations at the same time
 

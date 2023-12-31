@@ -17,12 +17,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Term Query. Found 2 results:
+```
+Term Query. Found 2 results:
 - 0.4700036 1 Apple
 - 0.4700036 2 Banana
 
- ```
+```
 
 ## Terms query
 
@@ -34,13 +34,13 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Terms Query. Found 3 results:
+```
+Terms Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
- ```
+```
 
 ## Fuzzy query
 
@@ -62,12 +62,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Prefix Query. Found 2 results:
+```
+Prefix Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
- ```
+```
 
 ## Wildcard query
 
@@ -79,12 +79,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Wildcard Query. Found 2 results:
+```
+Wildcard Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
- ```
+```
 
 ## RegExp query
 
@@ -96,13 +96,13 @@ client.search(indexName) {
 
 This prints:
  
- ```
- RegExp Query. Found 3 results:
+```
+RegExp Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
- ```
+```
 
 ## Ids query
 
@@ -115,12 +115,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Ids Query. Found 2 results:
+```
+Ids Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
- ```
+```
 
 ## Exists query
 
@@ -132,12 +132,12 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Exists Query. Found 2 results:
+```
+Exists Query. Found 2 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 
- ```
+```
 
 ## Range query
 
@@ -153,13 +153,13 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Range Query. Found 3 results:
+```
+Range Query. Found 3 results:
 - 1.0 1 Apple
 - 1.0 2 Banana
 - 1.0 3 Green Beans
 
- ```
+```
 
 ## Terms Set query
 
@@ -175,11 +175,11 @@ client.search(indexName) {
 
 This prints:
  
- ```
- Terms Set Query Found 0 results:
+```
+Terms Set Query Found 0 results:
 
 
- ```
+```
 
 
 
