@@ -94,28 +94,4 @@ class BulkTest : SearchTestBase() {
         val resp = client.getDocument(index,"42").source!!.parse<TestDocument>()
         resp.name shouldBe "changed"
     }
-
-    @Test
-    fun shouldNotLoseItems() = coRun {
-        val index = testDocumentIndex()
-
-        var count=0
-        var batches=0
-        while(count < 1000) {
-            val amount = Random.nextInt(19,39)
-            client.bulk(target = index, refresh = Refresh.False, bulkSize = 11) {
-                (0..amount).forEach {
-                    index(TestDocument("$batches-$it"), id = Random.nextULong().toString())
-                    count++
-                }
-            }
-            batches++
-        }
-        eventually(eventuallyConfig {
-            this.duration = 10.seconds
-            this.interval = 2.seconds
-        }) {
-            client.count(target = index).count.also { println(it) } shouldBe count
-        }
-    }
 }

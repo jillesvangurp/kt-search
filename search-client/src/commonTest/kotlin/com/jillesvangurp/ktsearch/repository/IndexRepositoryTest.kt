@@ -1,13 +1,12 @@
 package com.jillesvangurp.ktsearch.repository
 
-import com.jillesvangurp.ktsearch.*
-import io.kotest.assertions.timing.eventually
+import com.jillesvangurp.ktsearch.SearchTestBase
+import com.jillesvangurp.ktsearch.TestDocument
+import com.jillesvangurp.ktsearch.coRun
+import com.jillesvangurp.ktsearch.total
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
 
 class IndexRepositoryTest : SearchTestBase() {
 
