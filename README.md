@@ -217,13 +217,12 @@ println(results.hits?.hits?.first()?.source)
 ```
 
 This prints:
- 
- ```
- found 1 hits
+
+```text
+found 1 hits
 doc apple
 {"name":"apple","tags":["fruit"]}
-
- ```
+```
 
 You can also construct complex aggregations with the query DSL:
 
@@ -246,13 +245,12 @@ resp.aggregations
 ```
 
 This prints:
- 
- ```
- fruit: 3
+
+```text
+fruit: 3
 citrus: 1
 tropical: 1
-
- ```
+```
 
 These examples show off a few nice features of this library:
 

@@ -5,11 +5,9 @@ import com.jillesvangurp.kotlin4example.Kotlin4Example
 
 context(Kotlin4Example)
 fun ExampleOutput<*>.printStdOut() {
-+"""
-This prints:
- 
-```
-$stdOut
-```
-""".trimIndent()
+    +"""
+        This prints:
+    """.trimIndent()
+
+    mdCodeBlock(stdOut, type = "text", wrap = true)
 }
