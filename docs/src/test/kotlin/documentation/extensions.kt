@@ -8,8 +8,8 @@ fun ExampleOutput<*>.printStdOut() {
 +"""
 This prints:
  
- ```
- $stdOut
- ```
+```
+$stdOut
+```
 """.trimIndent()
 }
