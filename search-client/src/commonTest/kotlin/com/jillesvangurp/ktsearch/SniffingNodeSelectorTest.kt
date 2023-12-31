@@ -13,7 +13,8 @@ class SniffingNodeSelectorTest : SearchTestBase() {
 
     @Test
     fun shouldPickSameNodeGivenSameAffinity() = coRun {
-
+        // FIXME this test fails occasionally
+        // bug with sniffing kicking in somehow and clearing the affinity map?
         val ids = (0..5).map {
             "thread-${Random.nextULong()}"
         }
