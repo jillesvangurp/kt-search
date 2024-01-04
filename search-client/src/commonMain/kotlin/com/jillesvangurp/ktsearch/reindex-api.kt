@@ -2,9 +2,9 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.SearchEngineVariant.ES8
 import com.jillesvangurp.searchdsls.VariantRestriction
+import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 data class ReindexResponse(
@@ -32,16 +32,13 @@ data class ReindexResponse(
 @Serializable
 data class ReindexRetries(val bulk: Int, val search: Int)
 
-@Serializable
-data class ReindexBody(val source: ReindexSourceBody, val dest: ReindexDestinationBody)
-
-@Serializable
-data class ReindexSourceBody(val index: String)
-@Serializable
-data class ReindexDestinationBody(val index: String)
-
 @VariantRestriction(ES8)
-suspend fun SearchClient.reindex(json: Json = DEFAULT_JSON, reindexBody: ReindexBody): ReindexResponse = restClient.post {
-    path("_reindex")
-    body = json.encodeToString(ReindexBody.serializer(), reindexBody)
-}.parse(ReindexResponse.serializer())
+suspend fun SearchClient.reindex(block: ReindexDSL.() -> Unit): ReindexResponse {
+    val reindexDSL = ReindexDSL()
+    block(reindexDSL)
+
+    return restClient.post {
+        path("_reindex")
+        body = reindexDSL.toString()
+    }.parse(ReindexResponse.serializer())
+}

@@ -16,12 +16,14 @@ class ReindexTest : SearchTestBase() {
 
         client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
 
-        val response = client.reindex(
-            reindexBody = ReindexBody(
-                source = ReindexSourceBody(index = sourceName),
-                dest = ReindexDestinationBody(index = destinationName)
-            )
-        )
+        val response = client.reindex {
+            source {
+                index = sourceName
+            }
+            destination {
+                index = destinationName
+            }
+        }
 
         client.deleteIndex(sourceName)
         client.deleteIndex(destinationName)
