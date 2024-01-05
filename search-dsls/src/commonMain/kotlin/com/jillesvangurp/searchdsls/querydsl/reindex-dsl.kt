@@ -37,6 +37,21 @@ class ReindexSourceDSL : JsonDsl() {
 
 class ReindexDestinationDSL : JsonDsl() {
     var index: String by property()
+    var versionType: ReindexVersionType by property(customPropertyName = "version_type")
+    var operationType: ReindexOperationType by property(customPropertyName = "op_type")
+    var pipeline: String by property()
+}
+
+enum class ReindexVersionType(override val value: String) : EnumValue<String> {
+    INTERNAL("internal"),
+    EXTERNAL("external"),
+    EXTERNAL_GT("external_gt"),
+    EXTERNAL_GTE("external_gte")
+}
+
+enum class ReindexOperationType(override val value: String) : EnumValue<String> {
+    INDEX("index"),
+    CREATE("create")
 }
 
 enum class Language(override val value: String) : EnumValue<String> {
