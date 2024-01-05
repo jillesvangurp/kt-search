@@ -9,8 +9,8 @@ enum class Conflict(override val value: String) : EnumValue<String> {
 }
 
 class ReindexDSL : JsonDsl() {
-    var conflicts by property<Conflict>()
-    var maxDocs by property<String>(customPropertyName = "max_docs")
+    var conflicts: Conflict by property()
+    var maxDocs: String by property(customPropertyName = "max_docs")
 
     fun source(block: ReindexSourceDSL.() -> Unit) {
         val sourceDSL = ReindexSourceDSL()
@@ -23,6 +23,12 @@ class ReindexDSL : JsonDsl() {
         block(destinationDSL)
         this["dest"] = destinationDSL
     }
+
+    fun script(block: ReindexScriptDSL.() -> Unit) {
+        val scriptDSL = ReindexScriptDSL()
+        block(scriptDSL)
+        this["script"] = scriptDSL
+    }
 }
 
 class ReindexSourceDSL : JsonDsl() {
@@ -31,4 +37,16 @@ class ReindexSourceDSL : JsonDsl() {
 
 class ReindexDestinationDSL : JsonDsl() {
     var index: String by property()
+}
+
+enum class Language(override val value: String) : EnumValue<String> {
+    PAINLESS("painless"),
+    EXPRESSION("expression"),
+    MUSTACHE("mustache"),
+    JAVA("java")
+}
+
+class ReindexScriptDSL : JsonDsl() {
+    var source: String by property()
+    var language: Language by property(customPropertyName = "lang")
 }
