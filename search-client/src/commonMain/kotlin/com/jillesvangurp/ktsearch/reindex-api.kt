@@ -5,6 +5,7 @@ import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration
 
 @Serializable
 data class ReindexResponse(
@@ -35,12 +36,12 @@ data class ReindexRetries(val bulk: Int, val search: Int)
 @VariantRestriction(ES8)
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
-    timeout: String? = null,
+    timeout: Duration? = null,
     waitForActiveShards: Boolean? = null,
     waitForCompletion: Boolean? = null,
     requestsPerSecond: Int? = null,
     requireAlias: Boolean? = null,
-    scroll: String? = null,
+    scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
     block: ReindexDSL.() -> Unit
@@ -51,12 +52,12 @@ suspend fun SearchClient.reindex(
     return restClient.post {
         path("_reindex")
         parameter("refresh", refresh)
-        parameter("timeout", timeout)
+        parameter("timeout", timeout.toElasticsearchTimeUnit())
         parameter("wait_for_active_shards", waitForActiveShards)
         parameter("wait_for_completion", waitForCompletion)
         parameter("requests_per_second", requestsPerSecond)
         parameter("require_alias", requireAlias)
-        parameter("scroll", scroll)
+        parameter("scroll", scroll.toElasticsearchTimeUnit())
         parameter("slices", slices)
         parameter("max_docs", maxDocs)
         body = reindexDSL.toString()
