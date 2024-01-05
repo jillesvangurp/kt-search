@@ -37,7 +37,7 @@ data class ReindexRetries(val bulk: Int, val search: Int)
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
     timeout: Duration? = null,
-    waitForActiveShards: Boolean? = null,
+    waitForActiveShards: String? = null,
     waitForCompletion: Boolean? = null,
     requestsPerSecond: Int? = null,
     requireAlias: Boolean? = null,

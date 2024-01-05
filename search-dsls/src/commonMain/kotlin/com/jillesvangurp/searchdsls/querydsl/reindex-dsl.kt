@@ -10,7 +10,7 @@ enum class Conflict(override val value: String) : EnumValue<String> {
 
 class ReindexDSL : JsonDsl() {
     var conflicts: Conflict by property()
-    var maxDocs: String by property(customPropertyName = "max_docs")
+    var maxDocs: Int by property(customPropertyName = "max_docs")
 
     fun source(block: ReindexSourceDSL.() -> Unit) {
         val sourceDSL = ReindexSourceDSL()
