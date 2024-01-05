@@ -87,6 +87,8 @@ class SimpleJsonSerializer : JsonDslSerializer {
                 buf.append(']')
             }
 
+            is EnumValue<*> -> write(buf, indent, indentStep, pretty, obj.value)
+
             else -> {
                 // fallback to just treating everything else as a String
                 buf.append('"')
@@ -135,6 +137,7 @@ class SimpleJsonSerializer : JsonDslSerializer {
                             val code = "000${c.code.toString(16)}"
                             buf.append("\\u${code.substring(code.length - 4)}")
                         }
+
                         else -> {
                             buf.append(c)
                         }

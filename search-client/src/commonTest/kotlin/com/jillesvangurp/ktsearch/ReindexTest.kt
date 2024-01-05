@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.Refresh.WaitFor
+import com.jillesvangurp.searchdsls.querydsl.Conflict.PROCEED
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -17,6 +18,7 @@ class ReindexTest : SearchTestBase() {
         client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
 
         val response = client.reindex {
+            conflicts = PROCEED
             source {
                 index = sourceName
             }
