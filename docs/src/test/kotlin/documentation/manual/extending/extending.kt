@@ -239,4 +239,22 @@ val extendingMd = sourceGitRepository.md {
             search DSL and easily build your own client using that.           
         """.trimIndent()
     }
+
+    section("Custom serialization") {
+        +"""
+            There are cases where enums must be serialized and the text values are not valid enum values or 
+            they don't follow Java/Kotlin naming conventions. In these cases implement `CustomValue` interface 
+            like in this example:
+            
+            ```kotlin
+            enum class Conflict(override val value: String) : CustomValue<String> {
+                ABORT("abort"),
+                PROCEED("proceed");
+            }
+            ```
+                                    
+            This interface can be of course implemented by any class not only enums.
+        """.trimIndent()
+
+    }
 }
