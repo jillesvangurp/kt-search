@@ -261,6 +261,21 @@ The search client is of course a bit opinionated in how it is implemented and it
 serialization framework that not everybody might agree with. If this bothers you, you can use just the 
 search DSL and easily build your own client using that.           
 
+## Custom serialization
+
+There are cases where enums must be serialized and the text values are not valid enum values or 
+they don't follow Java/Kotlin naming conventions. In these cases implement `CustomValue` interface 
+like in this example:
+
+```kotlin
+enum class Conflict(override val value: String) : CustomValue<String> {
+    ABORT("abort"),
+    PROCEED("proceed");
+}
+```
+                        
+This interface can be of course implemented by any class not only enums.
+
 
 
 ---
