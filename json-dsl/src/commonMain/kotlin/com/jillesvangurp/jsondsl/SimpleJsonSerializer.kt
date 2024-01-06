@@ -87,7 +87,7 @@ class SimpleJsonSerializer : JsonDslSerializer {
                 buf.append(']')
             }
 
-            is EnumValue<*> -> write(buf, indent, indentStep, pretty, obj.value)
+            is CustomValue<*> -> write(buf, indent, indentStep, pretty, obj.value)
 
             else -> {
                 // fallback to just treating everything else as a String

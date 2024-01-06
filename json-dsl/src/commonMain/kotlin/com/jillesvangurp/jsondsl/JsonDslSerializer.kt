@@ -5,8 +5,8 @@ interface JsonDslSerializer {
 }
 
 /**
- * Used for serialization of enums with Java name different from serialized value.
+ * Used for custom serialization where toString method does not provide the correct value.
  */
-interface EnumValue<T> {
+interface CustomValue<T> {
     val value: T
 }

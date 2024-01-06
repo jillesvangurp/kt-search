@@ -1,9 +1,9 @@
 package com.jillesvangurp.searchdsls.querydsl
 
-import com.jillesvangurp.jsondsl.EnumValue
+import com.jillesvangurp.jsondsl.CustomValue
 import com.jillesvangurp.jsondsl.JsonDsl
 
-enum class Conflict(override val value: String) : EnumValue<String> {
+enum class Conflict(override val value: String) : CustomValue<String> {
     ABORT("abort"),
     PROCEED("proceed");
 }
@@ -42,19 +42,19 @@ class ReindexDestinationDSL : JsonDsl() {
     var pipeline: String by property()
 }
 
-enum class ReindexVersionType(override val value: String) : EnumValue<String> {
+enum class ReindexVersionType(override val value: String) : CustomValue<String> {
     INTERNAL("internal"),
     EXTERNAL("external"),
     EXTERNAL_GT("external_gt"),
     EXTERNAL_GTE("external_gte")
 }
 
-enum class ReindexOperationType(override val value: String) : EnumValue<String> {
+enum class ReindexOperationType(override val value: String) : CustomValue<String> {
     INDEX("index"),
     CREATE("create")
 }
 
-enum class Language(override val value: String) : EnumValue<String> {
+enum class Language(override val value: String) : CustomValue<String> {
     PAINLESS("painless"),
     EXPRESSION("expression"),
     MUSTACHE("mustache"),

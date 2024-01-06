@@ -3,7 +3,7 @@ package com.jillesvangurp.jsondsl
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-enum class GradeEnum(override val value: Int) : EnumValue<Int> {
+enum class GradeEnum(override val value: Int) : CustomValue<Int> {
     A(1),
     B(2)
 }
@@ -12,7 +12,7 @@ class DslWithEnum : JsonDsl() {
     var grade by property<GradeEnum>()
 }
 
-class EnumValueTest {
+class CustomValueTest {
 
     @Test
     fun enumSerialization() {
