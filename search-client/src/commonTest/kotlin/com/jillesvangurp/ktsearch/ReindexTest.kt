@@ -4,6 +4,7 @@ import com.jillesvangurp.ktsearch.Refresh.WaitFor
 import com.jillesvangurp.searchdsls.querydsl.Conflict.PROCEED
 import com.jillesvangurp.searchdsls.querydsl.ReindexOperationType.INDEX
 import com.jillesvangurp.searchdsls.querydsl.ReindexVersionType.EXTERNAL
+import com.jillesvangurp.searchdsls.querydsl.matchAll
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -71,6 +72,24 @@ class ReindexTest : SearchTestBase() {
 
         response.shouldHave(total = 1, created = 1, batches = 1)
     }
+
+    @Test
+    fun reindexWithQuery() = runTest {
+        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+
+        val response = client.reindex {
+            source {
+                index = sourceName
+                query = matchAll()
+            }
+            destination {
+                index = destinationName
+            }
+        }
+
+        response.shouldHave(total = 1, created = 1, batches = 1)
+    }
+
 
     private suspend fun deleteIndices() {
         client.deleteIndex(sourceName)
