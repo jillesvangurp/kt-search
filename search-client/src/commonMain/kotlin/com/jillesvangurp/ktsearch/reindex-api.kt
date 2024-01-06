@@ -5,6 +5,9 @@ import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.RequiresOptIn.Level.WARNING
+import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.time.Duration
 
 @Serializable
@@ -34,6 +37,7 @@ data class ReindexResponse(
 data class ReindexRetries(val bulk: Int, val search: Int)
 
 @VariantRestriction(ES8)
+@ExperimentalFeature
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
     timeout: Duration? = null,
@@ -63,3 +67,8 @@ suspend fun SearchClient.reindex(
         body = reindexDSL.toString()
     }.parse(ReindexResponse.serializer())
 }
+
+@RequiresOptIn(level = WARNING, message = "This API is experimental. It can be incompatibly changed in the future.")
+@Retention(BINARY)
+@Target(FUNCTION)
+annotation class ExperimentalFeature
