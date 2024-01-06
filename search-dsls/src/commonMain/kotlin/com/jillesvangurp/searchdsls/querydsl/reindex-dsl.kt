@@ -14,8 +14,9 @@ class ReindexDSL : JsonDsl() {
 
     fun source(block: ReindexSourceDSL.() -> Unit) {
         val sourceDSL = ReindexSourceDSL()
+        sourceDSL.query = null
         block(sourceDSL)
-        sourceDSL["query"] = sourceDSL.query.wrapWithName()
+        sourceDSL["query"] = sourceDSL.query?.wrapWithName()
         this["source"] = sourceDSL
     }
 
@@ -34,7 +35,7 @@ class ReindexDSL : JsonDsl() {
 
 class ReindexSourceDSL : JsonDsl() {
     var index: String by property()
-    var query: ESQuery by this
+    var query: ESQuery? by this
 }
 
 class ReindexDestinationDSL : JsonDsl() {
