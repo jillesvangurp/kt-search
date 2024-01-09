@@ -5,6 +5,7 @@ import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.seconds
 
 val indexManagementMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
@@ -54,7 +55,7 @@ val indexManagementMd = sourceGitRepository.md {
                 settings {
                     replicas = 1
                     shards = 3
-                    refreshInterval = "10s"
+                    refreshInterval = 10.seconds
 
                     analysis {
                         filter("2_5_edgengrams") {
