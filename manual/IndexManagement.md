@@ -42,7 +42,7 @@ client.createIndex("an-index") {
   settings {
     replicas = 1
     shards = 3
-    refreshInterval = "10s"
+    refreshInterval = 10.seconds
 
     analysis {
       filter("2_5_edgengrams") {
