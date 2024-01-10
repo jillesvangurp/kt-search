@@ -4,6 +4,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.*
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 class IndexCreateTest: SearchTestBase() {
     @Test
@@ -33,7 +34,7 @@ class IndexCreateTest: SearchTestBase() {
             settings {
                 replicas = 0
                 shards = 5
-                refreshInterval = "31s"
+                refreshInterval = 31.seconds
             }
         }
         response.acknowledged shouldBe true
