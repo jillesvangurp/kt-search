@@ -25,8 +25,8 @@ data class SearchAPIRequest(
     }
 
     fun parameter(key: String, value: Duration?) {
-        value?.let {
-            parameters[key] = "${value.inWholeSeconds}s"
+        value.toElasticsearchTimeUnit()?.let {
+            parameters[key] = it
         }
     }
 

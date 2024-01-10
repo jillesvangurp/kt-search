@@ -2,8 +2,6 @@
 
 package documentation.projectreadme
 
-import com.jillesvangurp.kotlin4example.ExampleOutput
-import com.jillesvangurp.kotlin4example.Kotlin4Example
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.githubLink
@@ -13,6 +11,7 @@ import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.seconds
 
 val projectReadme = sourceGitRepository.md {
     +"""
@@ -103,7 +102,7 @@ val projectReadme = sourceGitRepository.md {
                 settings {
                     replicas = 0
                     shards = 3
-                    refreshInterval = "10s"
+                    refreshInterval = 10.seconds
                 }
                 mappings(dynamicEnabled = false) {
                     text(TestDocument::name)
