@@ -63,7 +63,7 @@ class IdsQuery(vararg values: String, block: (IdsQuery.()->Unit)?=null) : ESQuer
     var boost: Double by queryDetails.property()
 }
 
-fun SearchDSL.ids(
+fun QueryClauses.ids(
     vararg values: String,
     block: (IdsQuery.() -> Unit)? = null
 ) = IdsQuery(*values,block = block)
@@ -87,14 +87,14 @@ class PrefixQuery(
     }
 }
 
-fun SearchDSL.prefix(
+fun QueryClauses.prefix(
     field: KProperty<*>,
     value: String,
     block: (PrefixQueryConfig.() -> Unit)? = null
 ) =
     PrefixQuery(field.name, value, block = block)
 
-fun SearchDSL.prefix(
+fun QueryClauses.prefix(
     field: String,
     value: String,
     block: (PrefixQueryConfig.() -> Unit)? = null
@@ -125,10 +125,10 @@ class RangeQuery(
     }
 }
 
-fun SearchDSL.range(field: KProperty<*>, block: RangeQueryConfig.() -> Unit) =
+fun QueryClauses.range(field: KProperty<*>, block: RangeQueryConfig.() -> Unit) =
     RangeQuery(field.name, block = block)
 
-fun SearchDSL.range(field: String, block: RangeQueryConfig.() -> Unit) =
+fun QueryClauses.range(field: String, block: RangeQueryConfig.() -> Unit) =
     RangeQuery(field, block = block)
 
 
@@ -155,14 +155,14 @@ class RegExpQuery(
     }
 }
 
-fun SearchDSL.regExp(
+fun QueryClauses.regExp(
     field: KProperty<*>,
     value: String,
     block: (RegExpQueryConfig.() -> Unit)?=null
 ) =
     RegExpQuery(field.name,value, block = block)
 
-fun SearchDSL.regExp(
+fun QueryClauses.regExp(
     field: String,
     value: String,
     block: (RegExpQueryConfig.() -> Unit)?=null
@@ -190,14 +190,14 @@ class TermQuery(
     }
 }
 
-fun SearchDSL.term(
+fun QueryClauses.term(
     field: KProperty<*>,
     value: String,
     block: (TermQueryConfig.() -> Unit)? = null
 ) =
     TermQuery(field.name,value, block = block)
 
-fun SearchDSL.term(
+fun QueryClauses.term(
     field: String,
     value: String,
     block: (TermQueryConfig.() -> Unit)? = null
@@ -223,14 +223,14 @@ class TermsQuery(
     }
 }
 
-fun SearchDSL.terms(
+fun QueryClauses.terms(
     field: KProperty<*>,
     vararg values: String,
     block: (TermsQuery.() -> Unit)? = null
 ) =
     TermsQuery(field.name,*values, block = block)
 
-fun SearchDSL.terms(
+fun QueryClauses.terms(
     field: String,
     vararg values: String,
     block: (TermsQuery.() -> Unit)? = null
@@ -261,14 +261,14 @@ class WildCardQuery(
     }
 }
 
-fun SearchDSL.wildcard(
+fun QueryClauses.wildcard(
     field: KProperty<*>,
     value: String,
     block: (WildCardQueryConfig.() -> Unit)? = null
 ) =
     WildCardQuery(field.name,value, block = block)
 
-fun SearchDSL.wildcard(
+fun QueryClauses.wildcard(
     field: String,
     value: String,
     block: (WildCardQueryConfig.() -> Unit)? = null
@@ -291,6 +291,6 @@ class TermsSetQuery(field: String, vararg terms: String, block: (TermsSetQueryCo
     }
 }
 
-fun SearchDSL.termsSet(field: String, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field,terms=terms,block)
-fun SearchDSL.termsSet(field: KProperty<*>, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field.name,terms=terms,block)
+fun QueryClauses.termsSet(field: String, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field,terms=terms,block)
+fun QueryClauses.termsSet(field: KProperty<*>, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field.name,terms=terms,block)
 

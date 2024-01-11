@@ -8,7 +8,7 @@ class NestedQuery : ESQuery(name = "nested") {
     var query: ESQuery by queryDetails.esQueryProperty()
 }
 
-fun SearchDSL.nested(block: NestedQuery.() -> Unit): NestedQuery {
+fun QueryClauses.nested(block: NestedQuery.() -> Unit): NestedQuery {
     val q = NestedQuery()
     block.invoke(q)
     return q

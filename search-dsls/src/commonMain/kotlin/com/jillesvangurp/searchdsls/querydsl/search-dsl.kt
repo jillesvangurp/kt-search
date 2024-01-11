@@ -75,7 +75,7 @@ class KnnQuery(
 }
 
 @Suppress("UNCHECKED_CAST")
-class SearchDSL : JsonDsl() {
+class SearchDSL : JsonDsl(), QueryClauses {
     var from: Int by property()
     var trackTotalHits: String by property()
     var seqNoPrimaryTerm: Boolean by property()
@@ -204,7 +204,7 @@ fun Collapse.InnerHits.collapse(field: String, block: (Collapse.() -> Unit)? = n
 
 fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit)? = null) = collapse(field.name, block)
 
-fun JsonDsl.matchAll() = ESQuery("match_all")
+fun QueryClauses.matchAll() = ESQuery("match_all")
 
 class Script : JsonDsl() {
     var source by property<String>()

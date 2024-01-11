@@ -45,12 +45,12 @@ class MatchQuery(
     }
 }
 
-fun SearchDSL.match(
+fun QueryClauses.match(
     field: KProperty<*>,
     query: String, block: (MatchQueryConfig.() -> Unit)? = null
 ) = MatchQuery(field.name, query, block = block)
 
-fun SearchDSL.match(
+fun QueryClauses.match(
     field: String,
     query: String, block: (MatchQueryConfig.() -> Unit)? = null
 ) = MatchQuery(field, query, block = block)
@@ -77,12 +77,12 @@ class MatchPhraseQuery(
     }
 }
 
-fun SearchDSL.matchPhrase(
+fun QueryClauses.matchPhrase(
     field: KProperty<*>,
     query: String, block: (MatchPhraseQueryConfig.() -> Unit)? = null
 ) = MatchPhraseQuery(field.name, query, block = block)
 
-fun SearchDSL.matchPhrase(
+fun QueryClauses.matchPhrase(
     field: String,
     query: String, block: (MatchPhraseQueryConfig.() -> Unit)? = null
 ) = MatchPhraseQuery(field, query, block = block)
@@ -113,12 +113,12 @@ class MatchBoolPrefixQuery(
     }
 }
 
-fun SearchDSL.matchBoolPrefix(
+fun QueryClauses.matchBoolPrefix(
     field: KProperty<*>,
     query: String, block: (MatchBoolPrefixQueryConfig.() -> Unit)? = null
 ) = MatchBoolPrefixQuery(field.name, query, block = block)
 
-fun SearchDSL.matchBoolPrefix(
+fun QueryClauses.matchBoolPrefix(
     field: String,
     query: String, block: (MatchBoolPrefixQueryConfig.() -> Unit)? = null
 ) = MatchBoolPrefixQuery(field, query, block = block)
@@ -145,13 +145,13 @@ class MatchPhrasePrefixQuery(
     }
 }
 
-fun SearchDSL.matchPhrasePrefix(
+fun QueryClauses.matchPhrasePrefix(
     field: KProperty<*>,
     query: String, block: (MatchPhrasePrefixQueryConfig.() -> Unit)? = null
 ) = MatchPhrasePrefixQuery(field.name, query, block = block)
 
 
-fun SearchDSL.matchPhrasePrefix(
+fun QueryClauses.matchPhrasePrefix(
     field: String,
     query: String, block: (MatchPhrasePrefixQueryConfig.() -> Unit)? = null
 ) = MatchPhrasePrefixQuery(field, query, block = block)
@@ -194,12 +194,12 @@ class MultiMatchQuery(
     }
 }
 
-fun SearchDSL.multiMatch(
+fun QueryClauses.multiMatch(
     query: String,
     vararg fields: KProperty<*>, block: (MultiMatchQuery.() -> Unit)? = null
 ) = MultiMatchQuery(query, *fields.map { it.name }.toTypedArray(), block = block)
 
-fun SearchDSL.multiMatch(
+fun QueryClauses.multiMatch(
     query: String,
     vararg fields: String, block: (MultiMatchQuery.() -> Unit)? = null
 ) = MultiMatchQuery(query, *fields, block = block)
@@ -242,14 +242,14 @@ class QueryStringQuery(
     }
 }
 
-fun SearchDSL.queryString(
+fun QueryClauses.queryString(
     query: String,
     vararg fields: KProperty<*>,
     block: (QueryStringQuery.() -> Unit)? = null
 ) = QueryStringQuery(query,fields=fields.map { it.name }.toTypedArray(), block = block)
 
 
-fun SearchDSL.queryString(
+fun QueryClauses.queryString(
     query: String,
     vararg fields: String,
     block: (QueryStringQuery.() -> Unit)? = null
@@ -288,11 +288,11 @@ class SimpleQueryStringQuery(
     }
 }
 
-fun SearchDSL.simpleQueryString(
+fun QueryClauses.simpleQueryString(
     query: String, vararg fields: KProperty<*>, block: (SimpleQueryStringQuery.() -> Unit)? = null
 ) = SimpleQueryStringQuery(query, *fields.map { it.name }.toTypedArray(), block = block)
 
-fun SearchDSL.simpleQueryString(
+fun QueryClauses.simpleQueryString(
     query: String, vararg fields: String, block: (SimpleQueryStringQuery.() -> Unit)? = null
 ) = SimpleQueryStringQuery(query, *fields, block = block)
 
@@ -310,12 +310,12 @@ class CombinedFieldsQuery(query: String, vararg fields: String, block: (Combined
     }
 }
 
-fun SearchDSL.combinedFields(query: String, vararg fields: String, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
+fun QueryClauses.combinedFields(query: String, vararg fields: String, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
     query = query,
     fields = fields,
     block = block
 )
-fun SearchDSL.combinedFields(query: String, vararg fields: KProperty<*>, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
+fun QueryClauses.combinedFields(query: String, vararg fields: KProperty<*>, block: (CombinedFieldsQuery.() -> Unit)?=null) = CombinedFieldsQuery(
     query = query,
     fields = fields.map { it.name }.toTypedArray(),
     block = block
@@ -426,7 +426,7 @@ class IntervalsQuery(val field: String) :ESQuery("intervals") {
     fun anyOfRule(block: IntervalsRule.AnyOf.() -> Unit) = IntervalsRule.AnyOf().apply(block)
 }
 
-fun SearchDSL.intervals(field: String, block: IntervalsQuery.() -> IntervalsRule): IntervalsQuery {
+fun QueryClauses.intervals(field: String, block: IntervalsQuery.() -> IntervalsRule): IntervalsQuery {
     return IntervalsQuery(field).apply {
         rule(block.invoke(this))
     }

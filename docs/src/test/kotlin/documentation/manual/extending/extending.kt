@@ -163,14 +163,14 @@ val extendingMd = sourceGitRepository.md {
                 }
             }
 
-            fun SearchDSL.term(
+            fun QueryClauses.term(
                 field: KProperty<*>,
                 value: String,
                 block: (TermQueryConfig.() -> Unit)? = null
             ) =
                 TermQuery(field.name, value, block = block)
 
-            fun SearchDSL.term(
+            fun QueryClauses.term(
                 field: String,
                 value: String,
                 block: (TermQueryConfig.() -> Unit)? = null
