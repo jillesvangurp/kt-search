@@ -5,6 +5,7 @@ import com.jillesvangurp.searchdsls.querydsl.Conflict.PROCEED
 import com.jillesvangurp.searchdsls.querydsl.ReindexOperationType.INDEX
 import com.jillesvangurp.searchdsls.querydsl.ReindexVersionType.EXTERNAL
 import com.jillesvangurp.searchdsls.querydsl.matchAll
+import com.jillesvangurp.searchdsls.querydsl.term
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -76,11 +77,12 @@ class ReindexTest : SearchTestBase() {
     @Test
     fun reindexWithQuery() = runTest {
         client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+        client.indexDocument(sourceName, TestDocument(name = "t2"), refresh = WaitFor)
 
         val response = client.reindex {
             source {
                 index = sourceName
-                query = matchAll()
+                query = term("name", "t1")
             }
             destination {
                 index = destinationName
