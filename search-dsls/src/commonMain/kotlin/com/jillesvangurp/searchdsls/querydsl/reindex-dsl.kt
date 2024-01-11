@@ -31,8 +31,17 @@ class ReindexDSL : JsonDsl() {
     }
 }
 
-class ReindexSourceDSL : JsonDsl() {
+class ReindexSourceDSL : JsonDsl(), QueryClauses {
     var index: String by property()
+    var query: ESQuery
+        get() {
+            val map = this["query"] as Map<String, JsonDsl>
+            val (name, queryDetails) = map.entries.first()
+            return ESQuery(name, queryDetails)
+        }
+        set(value) {
+            this["query"] = value.wrapWithName()
+        }
 }
 
 class ReindexDestinationDSL : JsonDsl() {
