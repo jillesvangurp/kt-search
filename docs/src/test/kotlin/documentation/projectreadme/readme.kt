@@ -51,7 +51,7 @@ val projectReadme = sourceGitRepository.md {
 
         +"""
             Kotlin has default values for parameters. So, we use sensible defaults for the 
-            `host` and `port` variables to connect to `localhohst` and `9200`.
+            `host` and `port` variables to connect to `localhost` and `9200`.
         """.trimIndent()
         example {
             val client = SearchClient(
