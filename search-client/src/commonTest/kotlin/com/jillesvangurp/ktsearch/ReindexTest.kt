@@ -7,6 +7,7 @@ import com.jillesvangurp.searchdsls.querydsl.ReindexVersionType.EXTERNAL
 import com.jillesvangurp.searchdsls.querydsl.term
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.jsonObject
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -51,7 +52,6 @@ class ReindexTest : SearchTestBase() {
             refresh = false,
             timeout = 10.seconds,
             waitForActiveShards = "1",
-            waitForCompletion = true,
             requestsPerSecond = 10,
             requireAlias = false,
             scroll = 10.seconds,
@@ -89,6 +89,26 @@ class ReindexTest : SearchTestBase() {
                 index = destinationName
             }
         }
+
+        response.shouldHave(total = 1, created = 1, batches = 1)
+    }
+
+    @Test
+    fun asyncReindex() = runTest {
+        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+
+        val taskId = client.reindexAsync {
+            source {
+                index = sourceName
+            }
+            destination {
+                index = destinationName
+            }
+        }
+
+        val taskResponse = client.getTask(taskId.value, waitForCompletion = true)
+        val jsonResponse = requireNotNull(taskResponse["response"]?.jsonObject) { "response element is missing on $taskResponse"}
+        val response = jsonResponse.parse(ReindexResponse.serializer())
 
         response.shouldHave(total = 1, created = 1, batches = 1)
     }
