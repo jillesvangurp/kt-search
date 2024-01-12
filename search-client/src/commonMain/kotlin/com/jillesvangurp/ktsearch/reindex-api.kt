@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.searchdsls.SearchEngineVariant.ES7
 import com.jillesvangurp.searchdsls.SearchEngineVariant.ES8
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
@@ -30,15 +31,65 @@ data class ReindexResponse(
     val requestsPerSecond: Double,
     @SerialName("throttled_until_millis")
     val throttledUntilMillis: Int,
-    val failures: List<String>
+    val failures: List<String>,
 )
 
 @Serializable
 data class ReindexRetries(val bulk: Int, val search: Int)
 
-@VariantRestriction(ES8)
+@VariantRestriction(ES7, ES8)
 @ExperimentalFeature
 suspend fun SearchClient.reindex(
+    refresh: Boolean? = null,
+    timeout: Duration? = null,
+    waitForActiveShards: String? = null,
+    requestsPerSecond: Int? = null,
+    requireAlias: Boolean? = null,
+    scroll: Duration? = null,
+    slices: Int? = null,
+    maxDocs: Int? = null,
+    block: ReindexDSL.() -> Unit,
+): ReindexResponse = reindexGeneric(
+    refresh,
+    timeout,
+    waitForActiveShards,
+    true,
+    requestsPerSecond,
+    requireAlias,
+    scroll,
+    slices,
+    maxDocs,
+    block
+).parse(ReindexResponse.serializer())
+
+
+@VariantRestriction(ES7, ES8)
+@ExperimentalFeature
+suspend fun SearchClient.reindexAsync(
+    refresh: Boolean? = null,
+    timeout: Duration? = null,
+    waitForActiveShards: String? = null,
+    requestsPerSecond: Int? = null,
+    requireAlias: Boolean? = null,
+    scroll: Duration? = null,
+    slices: Int? = null,
+    maxDocs: Int? = null,
+    block: ReindexDSL.() -> Unit,
+): TaskId = reindexGeneric(
+    refresh,
+    timeout,
+    waitForActiveShards,
+    false,
+    requestsPerSecond,
+    requireAlias,
+    scroll,
+    slices,
+    maxDocs,
+    block
+).parse(TaskResponse.serializer()).toTaskId()
+
+
+private suspend fun SearchClient.reindexGeneric(
     refresh: Boolean? = null,
     timeout: Duration? = null,
     waitForActiveShards: String? = null,
@@ -48,8 +99,8 @@ suspend fun SearchClient.reindex(
     scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
-    block: ReindexDSL.() -> Unit
-): ReindexResponse {
+    block: ReindexDSL.() -> Unit,
+): Result<RestResponse.Status2XX> {
     val reindexDSL = ReindexDSL()
     block(reindexDSL)
 
@@ -65,10 +116,17 @@ suspend fun SearchClient.reindex(
         parameter("slices", slices)
         parameter("max_docs", maxDocs)
         body = reindexDSL.toString()
-    }.parse(ReindexResponse.serializer())
+    }
 }
 
 @RequiresOptIn(level = WARNING, message = "This API is experimental. It can be incompatibly changed in the future.")
 @Retention(BINARY)
 @Target(FUNCTION)
 annotation class ExperimentalFeature
+
+@Serializable
+data class TaskResponse(val task: String) {
+    fun toTaskId() = TaskId(task)
+}
+
+data class TaskId(val value: String)

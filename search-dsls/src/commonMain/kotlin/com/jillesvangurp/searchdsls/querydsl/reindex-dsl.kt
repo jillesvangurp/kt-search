@@ -2,6 +2,7 @@ package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.CustomValue
 import com.jillesvangurp.jsondsl.JsonDsl
+import kotlin.time.Duration
 
 enum class Conflict(override val value: String) : CustomValue<String> {
     ABORT("abort"),
@@ -33,6 +34,8 @@ class ReindexDSL : JsonDsl() {
 
 class ReindexSourceDSL : JsonDsl(), QueryClauses {
     var index: String by property()
+    var batchSize: Int by property("size")
+
     var query: ESQuery
         get() {
             val map = this["query"] as Map<String, JsonDsl>
@@ -42,6 +45,38 @@ class ReindexSourceDSL : JsonDsl(), QueryClauses {
         set(value) {
             this["query"] = value.wrapWithName()
         }
+
+    fun fields(vararg names: String) {
+        if (names.isNotEmpty()) {
+            this["_source"] = names.toList()
+        }
+    }
+
+    fun remote(block: ReindexRemoteDSL.() -> Unit) {
+        val scriptDSL = ReindexRemoteDSL()
+        block(scriptDSL)
+        this["remote"] = scriptDSL
+    }
+
+    fun slice(block: ReindexSliceDSL.() -> Unit) {
+        val scriptDSL = ReindexSliceDSL()
+        block(scriptDSL)
+        this["slice"] = scriptDSL
+    }
+}
+
+class ReindexRemoteDSL : JsonDsl() {
+    var host: String by property()
+    var username: String by property()
+    var password: String by property()
+    var socketTimeout: Duration by property(customPropertyName = "socket_timeout")
+    var connectTimeout: Duration by property(customPropertyName = "connect_timeout")
+    var headers: Map<String, String> by property()
+}
+
+class ReindexSliceDSL : JsonDsl() {
+    var id: Int by property()
+    var max: Int by property()
 }
 
 class ReindexDestinationDSL : JsonDsl() {
