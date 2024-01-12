@@ -4,7 +4,6 @@ import com.jillesvangurp.ktsearch.Refresh.WaitFor
 import com.jillesvangurp.searchdsls.querydsl.Conflict.PROCEED
 import com.jillesvangurp.searchdsls.querydsl.ReindexOperationType.INDEX
 import com.jillesvangurp.searchdsls.querydsl.ReindexVersionType.EXTERNAL
-import com.jillesvangurp.searchdsls.querydsl.matchAll
 import com.jillesvangurp.searchdsls.querydsl.term
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
@@ -63,6 +62,8 @@ class ReindexTest : SearchTestBase() {
             maxDocs = 9
             source {
                 index = sourceName
+                batchSize = 10
+                fields("name")
             }
             destination {
                 index = destinationName
