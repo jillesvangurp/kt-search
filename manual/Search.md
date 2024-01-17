@@ -23,7 +23,7 @@ data class TestDoc(val name: String, val tags: List<String> = listOf())
 
 ```kotlin
 // re-create the index
-deleteIndex(indexName)
+deleteIndex(target = indexName, ignoreUnavailable = true)
 createIndex(indexName) {
   mappings {
     text(TestDoc::name)
@@ -267,7 +267,7 @@ This prints:
 
 ```text
 document count 3
-document count 521
+document count 43
 ```
 
 Similar to the normal search, you can also construct your body manually. The format is ndjson
