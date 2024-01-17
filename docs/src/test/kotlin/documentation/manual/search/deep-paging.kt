@@ -25,7 +25,7 @@ val deepPagingMd = sourceGitRepository.md {
 
     runBlocking {
         // re-create the index
-        client.deleteIndex(indexName)
+        client.deleteIndex(target = indexName, ignoreUnavailable = true)
         client.createIndex(indexName) {
             mappings {
                 keyword(TestDoc::id)
@@ -61,7 +61,7 @@ val deepPagingMd = sourceGitRepository.md {
         }
         // clean up ..
         val newIndex="${indexName}-v2"
-        client.deleteIndex(newIndex)
+        client.deleteIndex(target = newIndex, ignoreUnavailable = true)
     }
 
     +"""

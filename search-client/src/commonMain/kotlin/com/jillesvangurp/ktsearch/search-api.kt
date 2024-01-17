@@ -339,11 +339,13 @@ suspend fun SearchClient.scroll(scrollId: String, scroll: Duration = 60.seconds)
  * Note. this is called from the scroll function so
  * there is no need to call this manually if you use that.
  */
-suspend fun SearchClient.deleteScroll(scrollId: String?) {
-    if (scrollId != null) {
+suspend fun SearchClient.deleteScroll(scrollId: String?): JsonObject {
+    return if (scrollId != null) {
         restClient.delete {
             path("_search", "scroll", scrollId)
-        }
+        }.parseJsonObject()
+    } else {
+        JsonObject(emptyMap())
     }
 }
 

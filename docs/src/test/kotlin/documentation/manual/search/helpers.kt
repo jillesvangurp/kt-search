@@ -12,7 +12,7 @@ val client by lazy { SearchClient(KtorRestClient("localhost", 9999, logging = tr
 fun SearchClient.indexTestFixture(indexName: String) = runBlocking {
     // begin INITTESTFIXTURE
     // re-create the index
-    deleteIndex(indexName)
+    deleteIndex(target = indexName, ignoreUnavailable = true)
     createIndex(indexName) {
         mappings {
             text(TestDoc::name)

@@ -45,7 +45,7 @@ val geoQueriesMd = sourceGitRepository.md {
     val indexName = "docs-geo-queries-demo"
     runBlocking {
 
-        runCatching { client.deleteIndex(indexName) }
+        runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) }
         // BEGIN GEOPOINTCREATE
         @Serializable
         data class TestDoc(val id: String, val name: String, val point: List<Double>)

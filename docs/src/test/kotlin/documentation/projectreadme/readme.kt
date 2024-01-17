@@ -92,7 +92,7 @@ val projectReadme = sourceGitRepository.md {
             
         """.trimIndent()
         val indexName = "readme-index"
-        runBlocking {  runCatching { client.deleteIndex(indexName) } }
+        runBlocking {  runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
 
         suspendingExample {
             val indexName = "readme-index"

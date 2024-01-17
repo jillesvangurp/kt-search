@@ -11,7 +11,7 @@ val indexManagementMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
     kotlin.runCatching {
         runBlocking {
-            client.deleteIndex("an-index")
+            client.deleteIndex(target = "an-index", ignoreUnavailable = true)
         }
     }
 
@@ -96,7 +96,7 @@ val indexManagementMd = sourceGitRepository.md {
             }
         }
         runBlocking {
-            client.deleteIndex("an-index")
+            client.deleteIndex(target = "an-index", ignoreUnavailable = true)
         }
         +"""
             This is a deliberately more elaborate example that shows off a few of the features of the DSL:

@@ -40,7 +40,7 @@ val knnMd = sourceGitRepository.md {
                 
     """.trimIndent()
     val indexName = "knn-test"
-    runBlocking { runCatching { client.deleteIndex(indexName) } }
+    runBlocking { runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
 
     suspendingExample {
 

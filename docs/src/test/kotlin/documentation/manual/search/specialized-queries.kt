@@ -14,7 +14,7 @@ val specializedQueriesMd = sourceGitRepository.md {
 
     section("Distance Feature") {
         val indexName = "specializedqueries"
-        runBlocking {  runCatching { client.deleteIndex(target = indexName) } }
+        runBlocking {  runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
         +"""
             You can use distance_feature queries to rank to the distance between your documents
             and an origin. This works for both dates and points.
@@ -97,7 +97,7 @@ val specializedQueriesMd = sourceGitRepository.md {
 
     section("Rank Feature") {
         val indexName = "rankfeature"
-        runBlocking {  runCatching { client.deleteIndex(target = indexName) } }
+        runBlocking {  runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
 
         +"""
             You can use the `rank_feature` query to rank on custom scores (e.g. page rank) 
