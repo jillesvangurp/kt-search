@@ -198,9 +198,10 @@ class IndexRepository<T : Any>(
     suspend fun deleteIndex(
         masterTimeOut: Duration? = null,
         timeout: Duration? = null,
+        ignoreUnavailable: Boolean? = null,
         extraParameters: Map<String, String>? = null,
     ) {
-        client.deleteIndex(indexName, masterTimeOut, timeout, combineParams(extraParameters))
+        client.deleteIndex(indexName, masterTimeOut, timeout, ignoreUnavailable, combineParams(extraParameters))
     }
 
 //    suspend fun getALiases(): Unit = TODO()

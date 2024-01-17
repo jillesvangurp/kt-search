@@ -81,16 +81,16 @@ suspend fun SearchClient.deleteIndex(
     target: String,
     masterTimeOut: Duration? = null,
     timeout: Duration? = null,
-    extraParameters: Map<String,String>?=null,
-    ) {
-    restClient.delete {
-        path(target)
+    ignoreUnavailable: Boolean? = null,
+    extraParameters: Map<String, String>? = null,
+): JsonObject = restClient.delete {
+    path(target)
 
-        parameter("master_timeout", masterTimeOut)
-        parameter("timeout", timeout)
-        parameters(extraParameters)
-    }
-}
+    parameter("master_timeout", masterTimeOut)
+    parameter("timeout", timeout)
+    parameter("ignore_unavailable", ignoreUnavailable)
+    parameters(extraParameters)
+}.parseJsonObject()
 
 suspend fun SearchClient.getIndex(name: String): JsonObject {
     return restClient.get {

@@ -45,7 +45,7 @@ val aggregationsMd = sourceGitRepository.md {
     val repo = client.repository(indexName, MockDoc.serializer())
     runBlocking {
         try {
-            client.deleteIndex(indexName)
+            client.deleteIndex(target = indexName, ignoreUnavailable = true)
         } catch (_: Exception) {
         }
     }
