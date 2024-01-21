@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
+import com.jillesvangurp.searchdsls.querydsl.NestedQuery
 import com.jillesvangurp.searchdsls.querydsl.nested
 import com.jillesvangurp.searchdsls.querydsl.range
 import io.kotest.matchers.shouldBe
@@ -37,6 +38,8 @@ class NestedQueryTest : SearchTestBase() {
                     gt = 3
                     lt = 5
                 }
+                scoreMode = NestedQuery.ScoreMode.none
+                ignoreUnmapped = true
             }
         }
         r1.total shouldBe 1
