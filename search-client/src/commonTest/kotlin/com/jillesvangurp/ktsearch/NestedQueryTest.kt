@@ -30,16 +30,16 @@ class NestedQueryTest : SearchTestBase() {
 
         val r0 = repo.search {  }
         r0.total shouldBe 2
-        val r1=repo.search {
-            nested {
-                path="test_docs"
-                range("test_docs.number") {
-                    gt=2
-                    lt=4
+        val r1 = repo.search {
+            query = nested {
+                path = "test_docs"
+                query = range("test_docs.number") {
+                    gt = 3
+                    lt = 5
                 }
             }
         }
-        r1.total shouldBe 2
+        r1.total shouldBe 1
     }
 }
 
