@@ -64,7 +64,7 @@ sealed class RestResponse(open val status: Int) {
             Status3XX(304)
     }
 
-    abstract class Status4XX(override val status: Int, val path: String,requestBody: String?, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
+    abstract class Status4XX(override val status: Int, val path: String,val requestBody: String?, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
         RestResponse(status) {
         class BadRequest(override val bytes: ByteArray,path: String,  requestBody: String?) : Status4XX(
             status = 400,
