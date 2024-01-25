@@ -14,6 +14,9 @@ services:
       - cluster.routing.allocation.disk.watermark.flood_stage=1gb
       - cluster.routing.allocation.disk.threshold_enabled=false
       - xpack.security.enabled=false
+      - network.host=127.0.0.1
+      - http.host=0.0.0.0
+
     ulimits:
       memlock:
         soft: -1
