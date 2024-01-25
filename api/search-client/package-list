@@ -582,6 +582,7 @@ $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX.UnAuthorized/b
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/Status4XX/#kotlin.Int#kotlin.String#kotlin.String?#com.jillesvangurp.ktsearch.RestResponse.ResponseCategory/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/-status4-x-x.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/path/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/path.html
+$dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/requestBody/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/request-body.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/responseCategory/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/response-category.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/status/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/status.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status5xx.GatewayTimeout///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status5xx/-gateway-timeout/index.html
