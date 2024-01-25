@@ -64,12 +64,34 @@ sealed class RestResponse(open val status: Int) {
             Status3XX(304)
     }
 
-    abstract class Status4XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
+    abstract class Status4XX(override val status: Int, val path: String,requestBody: String?, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
         RestResponse(status) {
-        class BadRequest(override val bytes: ByteArray) : Status4XX(400)
-        class NotFound(override val bytes: ByteArray) : Status4XX(404)
-        class UnAuthorized(override val bytes: ByteArray) : Status4XX(401)
-        class Forbidden(override val bytes: ByteArray) : Status4XX(403)
+        class BadRequest(override val bytes: ByteArray,path: String,  requestBody: String?) : Status4XX(
+            status = 400,
+            path = path,
+            requestBody = requestBody
+        )
+        class NotFound(override val bytes: ByteArray,path: String,  requestBody: String?) : Status4XX(
+            status = 404,
+            path = path,
+            requestBody = requestBody
+        )
+        class UnAuthorized(override val bytes: ByteArray, path: String, requestBody: String?) : Status4XX(
+            status = 401,
+            path = path,
+            requestBody = requestBody
+        )
+        class Forbidden(override val bytes: ByteArray, path: String, requestBody: String?) : Status4XX(
+            status = 403,
+            path = path,
+            requestBody = requestBody
+        )
+        // usually means a circuit breaker kicked in
+        class TooManyRequests(override val bytes: ByteArray, path: String,requestBody: String?) : Status4XX(
+            status = 429,
+            path = path,
+            requestBody = requestBody
+        )
     }
 
     abstract class Status5xx(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.ServerProblem) :

@@ -19,16 +19,23 @@ expect fun defaultKtorHttpClient(
  * Ktor-client implementation of the RestClient.
  */
 class KtorRestClient(
-    private vararg val nodes: Node = arrayOf(Node(
-        "localhost", 9200
-    )),
+    private vararg val nodes: Node = arrayOf(
+        Node(
+            "localhost", 9200
+        )
+    ),
     private val https: Boolean = false,
     private val user: String? = null,
     private val password: String? = null,
     private val logging: Boolean = false,
     private val nodeSelector: NodeSelector = RoundRobinNodeSelector(nodes),
     private val elasticApiKey: String? = null,
-    private val client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password, elasticApiKey = elasticApiKey),
+    private val client: HttpClient = defaultKtorHttpClient(
+        logging = logging,
+        user = user,
+        password = password,
+        elasticApiKey = elasticApiKey
+    ),
 ) : RestClient, Closeable {
     constructor(
         host: String = "localhost",
@@ -38,7 +45,12 @@ class KtorRestClient(
         password: String? = null,
         logging: Boolean = false,
         elasticApiKey: String? = null,
-        client: HttpClient = defaultKtorHttpClient(logging = logging, user = user, password = password, elasticApiKey = elasticApiKey),
+        client: HttpClient = defaultKtorHttpClient(
+            logging = logging,
+            user = user,
+            password = password,
+            elasticApiKey = elasticApiKey
+        ),
     ) : this(
         client = client,
         https = https,
@@ -121,10 +133,36 @@ class KtorRestClient(
                 responseBody
             )
 
-            HttpStatusCode.BadRequest -> RestResponse.Status4XX.BadRequest(responseBody)
-            HttpStatusCode.Unauthorized -> RestResponse.Status4XX.UnAuthorized(responseBody)
-            HttpStatusCode.Forbidden -> RestResponse.Status4XX.Forbidden(responseBody)
-            HttpStatusCode.NotFound -> RestResponse.Status4XX.NotFound(responseBody)
+            HttpStatusCode.BadRequest -> RestResponse.Status4XX.BadRequest(
+                responseBody,
+                pathComponents.joinToString("/"),
+                payload
+            )
+
+            HttpStatusCode.Unauthorized -> RestResponse.Status4XX.UnAuthorized(
+                responseBody,
+                pathComponents.joinToString("/"),
+                payload
+            )
+
+            HttpStatusCode.Forbidden -> RestResponse.Status4XX.Forbidden(
+                responseBody,
+                pathComponents.joinToString("/"),
+                payload
+            )
+
+            HttpStatusCode.NotFound -> RestResponse.Status4XX.NotFound(
+                responseBody,
+                pathComponents.joinToString("/"),
+                payload
+            )
+
+            HttpStatusCode.TooManyRequests -> RestResponse.Status4XX.TooManyRequests(
+                responseBody,
+                pathComponents.joinToString("/"),
+                payload
+            )
+
             HttpStatusCode.InternalServerError -> RestResponse.Status5xx.InternalServerError(responseBody)
             HttpStatusCode.GatewayTimeout -> RestResponse.Status5xx.GatewayTimeout(responseBody)
             HttpStatusCode.ServiceUnavailable -> RestResponse.Status5xx.ServiceUnavailable(responseBody)
