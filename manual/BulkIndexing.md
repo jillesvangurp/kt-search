@@ -176,11 +176,14 @@ client.bulk(callBack = itemCallBack) {
 This prints:
 
 ```text
-Request failure RequestIsWrong 400: {"error":{"root_cause":[{"type":"action_requ
-est_validation_exception","reason":"Validation Failed: 1: index is missing;"}],"
-type":"action_request_validation_exception","reason":"Validation Failed: 1: inde
-x is missing;"},"status":400}.
-Unless you set 
+            Request failure RequestIsWrong 400: _bulk
+{"index":{}}
+{}}
+
+{"error":{"root_cause":[{"type":"action_request_validation_exception","reason":"
+Validation Failed: 1: index is missing;"}],"type":"action_request_validation_exc
+eption","reason":"Validation Failed: 1: index is missing;"},"status":400}.
+            Unless you set 
 ```
 
 For successful items, you might want to know what id was assigned 
