@@ -41,7 +41,7 @@ sealed class RestResponse(open val status: Int) {
     abstract val responseCategory: ResponseCategory
 
     val completedNormally by lazy { responseCategory == ResponseCategory.Success }
-    val text by lazy { bytes.decodeToString() }
+    open val text by lazy { bytes.decodeToString() }
 
     abstract class Status2XX(override val status: Int, override val responseCategory: ResponseCategory = ResponseCategory.Success) :
         RestResponse(status) {
@@ -64,8 +64,15 @@ sealed class RestResponse(open val status: Int) {
             Status3XX(304)
     }
 
-    abstract class Status4XX(override val status: Int, val path: String,val requestBody: String?, override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong) :
-        RestResponse(status) {
+    abstract class Status4XX(
+        override val status: Int,
+        val path: String,
+        val requestBody: String?,
+        override val responseCategory: ResponseCategory = ResponseCategory.RequestIsWrong
+    ) :  RestResponse(status) {
+        override val text: String by lazy {
+            "$path\n$requestBody\n${bytes.decodeToString()}"
+        }
         class BadRequest(override val bytes: ByteArray,path: String,  requestBody: String?) : Status4XX(
             status = 400,
             path = path,
