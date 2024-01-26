@@ -585,6 +585,7 @@ $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/path/#/Pointin
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/requestBody/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/request-body.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/responseCategory/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/response-category.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/status/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/status.html
+$dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status4XX/text/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status4-x-x/text.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status5xx.GatewayTimeout///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status5xx/-gateway-timeout/index.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status5xx.GatewayTimeout/GatewayTimeout/#kotlin.ByteArray/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status5xx/-gateway-timeout/-gateway-timeout.html
 $dokka.location:com.jillesvangurp.ktsearch/RestResponse.Status5xx.GatewayTimeout/bytes/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-rest-response/-status5xx/-gateway-timeout/bytes.html
