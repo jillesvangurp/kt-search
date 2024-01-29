@@ -102,6 +102,7 @@ kotlin {
                 api(Ktor.client.auth)
                 api(Ktor.client.logging)
                 api(Ktor.client.serialization)
+                api("io.github.microutils:kotlin-logging:_")
                 implementation("io.ktor:ktor-client-logging:_")
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")

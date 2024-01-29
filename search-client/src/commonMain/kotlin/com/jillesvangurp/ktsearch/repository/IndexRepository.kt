@@ -9,11 +9,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.KSerializer
+import mu.KotlinLogging
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.logger {  }
 internal class RetryingBulkHandler<T : Any>(
     private val updateFunctions: MutableMap<String, (T) -> T>,
     private val indexRepository: IndexRepository<T>,
@@ -143,6 +145,7 @@ class IndexRepository<T : Any>(
     val defaultParameters: Map<String, String>? = null,
     private val defaultRefresh: Refresh? = Refresh.WaitFor,
     private val defaultTimeout: Duration? = null,
+    private val logging: Boolean = true
 ) {
     private fun combineParams(extraParameters: Map<String, String>?): Map<String, String>? {
         return extraParameters?.let {
@@ -342,8 +345,20 @@ class IndexRepository<T : Any>(
                 timeout = timeout ?: defaultTimeout,
             )
         } catch (e: RestException) {
-            if (e.status == 409 && attempt < maxRetries) {
-                return update(id = id, attempt = attempt + 1, maxRetries = maxRetries, block = block)
+            if ((e.status == 409 || e.status == 429) && attempt < maxRetries) {
+                if(e.status == 429) {
+                    if(logging) {
+                        logger.warn { "update is triggering circuit breaker on attempt $attempt (status ${e.status}): ${e.message}" }
+                    }
+                    // 429 means we're triggering a circuit breaker, so back off before retrying
+                    // we've seen this kind of failure a few times.
+                    delay(1.seconds)
+                }
+                return update(id = id, attempt = attempt + 1, maxRetries = maxRetries, block = block).also {
+                    if(attempt>0 && logging) {
+                        logger.info { "update succeeded on attempt $attempt" }
+                    }
+                }
             } else {
                 throw e
             }
