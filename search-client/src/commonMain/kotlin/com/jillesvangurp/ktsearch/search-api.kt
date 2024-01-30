@@ -8,16 +8,18 @@ import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import mu.KotlinLogging
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-
+private val logger = KotlinLogging.logger {  }
 
 suspend fun SearchClient.search(
     target: String?,
@@ -214,6 +216,7 @@ suspend fun SearchClient.search(
 
 enum class SearchOperator { AND, OR }
 enum class ExpandWildCards { all, open, closed, hidden, none }
+
 @Suppress("EnumEntryName")
 enum class SearchType { query_then_fetch, dfs_query_then_fetch }
 
@@ -265,58 +268,117 @@ suspend fun SearchClient.search(
     typedKeys: Boolean? = null,
     version: Boolean? = null,
     extraParameters: Map<String, String>? = null,
+    retries: Int = 3,
 ): SearchResponse {
-    return restClient.post {
-        path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_search").toTypedArray())
+    return try {
+        restClient.post {
+            path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_search").toTypedArray())
 
-        parameter("allow_no_indices", allowNoIndices)
-        parameter("allow_partial_search_results", allowPartialSearchResults)
-        parameter("analyzer", analyzer)
-        parameter("analyze_wildcard", analyzeWildcard)
-        parameter("batched_reduce_size", batchedReduceSize)
-        parameter("ccs_minimize_roundtrips", ccsMinimizeRoundtrips)
-        parameter("default_operator", defaultOperator)
-        parameter("df", df)
-        parameter("docvalue_fields", docValueFields)
-        parameter("expand_wildcards", expandWildcards)
-        parameter("explain", explain)
-        parameter("from", from)
-        parameter("ignore_throttled", ignoreThrottled)
-        parameter("ignore_unavailable", ignoreUnavailable)
-        parameter("lenient", lenient)
-        parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
-        parameter("pre_filter_shard_size", preFilterShardSize)
-        parameter("preference", preference)
-        parameter("q", q)
-        parameter("request_cache", requestCache)
-        parameter("rest_total_hits_as_int", restTotalHitsAsInt)
-        parameter("routing", routing)
-        parameter("scroll", scroll)
-        parameter("search_type", searchType)
-        parameter("seq_no_primary_term", seqNoPrimaryTerm)
-        parameter("size", size)
-        parameter("sort", sort)
-        parameter("_source", source)
-        parameter("_source_excludes", sourceExcludes)
-        parameter("_source_includes", sourceIncludes)
-        parameter("stats", stats)
-        parameter("stored_fields", storedFields)
-        parameter("suggest_field", suggestField)
-        parameter("suggest_mode", suggestMode)
-        parameter("suggest_size", suggestSize)
-        parameter("suggest_text", suggestText)
-        parameter("terminate_after", terminateAfter)
-        parameter("timeout", timeout)
-        parameter("track_scores", trackScores)
-        parameter("track_total_hits", trackTotalHits)
-        parameter("typed_keys", typedKeys)
-        parameter("version", version)
+            parameter("allow_no_indices", allowNoIndices)
+            parameter("allow_partial_search_results", allowPartialSearchResults)
+            parameter("analyzer", analyzer)
+            parameter("analyze_wildcard", analyzeWildcard)
+            parameter("batched_reduce_size", batchedReduceSize)
+            parameter("ccs_minimize_roundtrips", ccsMinimizeRoundtrips)
+            parameter("default_operator", defaultOperator)
+            parameter("df", df)
+            parameter("docvalue_fields", docValueFields)
+            parameter("expand_wildcards", expandWildcards)
+            parameter("explain", explain)
+            parameter("from", from)
+            parameter("ignore_throttled", ignoreThrottled)
+            parameter("ignore_unavailable", ignoreUnavailable)
+            parameter("lenient", lenient)
+            parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
+            parameter("pre_filter_shard_size", preFilterShardSize)
+            parameter("preference", preference)
+            parameter("q", q)
+            parameter("request_cache", requestCache)
+            parameter("rest_total_hits_as_int", restTotalHitsAsInt)
+            parameter("routing", routing)
+            parameter("scroll", scroll)
+            parameter("search_type", searchType)
+            parameter("seq_no_primary_term", seqNoPrimaryTerm)
+            parameter("size", size)
+            parameter("sort", sort)
+            parameter("_source", source)
+            parameter("_source_excludes", sourceExcludes)
+            parameter("_source_includes", sourceIncludes)
+            parameter("stats", stats)
+            parameter("stored_fields", storedFields)
+            parameter("suggest_field", suggestField)
+            parameter("suggest_mode", suggestMode)
+            parameter("suggest_size", suggestSize)
+            parameter("suggest_text", suggestText)
+            parameter("terminate_after", terminateAfter)
+            parameter("timeout", timeout)
+            parameter("track_scores", trackScores)
+            parameter("track_total_hits", trackTotalHits)
+            parameter("typed_keys", typedKeys)
+            parameter("version", version)
 
-        parameters(extraParameters)
-        if (!rawJson.isNullOrBlank()) {
-            rawBody(rawJson)
+            parameters(extraParameters)
+            if (!rawJson.isNullOrBlank()) {
+                rawBody(rawJson)
+            }
+        }.parse(SearchResponse.serializer(), json)
+    } catch (e: RestException) {
+        if(e.status == 429 && retries >0) {
+            // we're tripping up a circuit breaker so sleep and retry
+            delay(1.seconds)
+            logger.warn { "Circuit breaker tripped (429), retrying, attempts remaining: $retries: ${e.message}" }
+             search(
+                target = target,
+                rawJson = rawJson,
+                allowNoIndices = allowNoIndices,
+                allowPartialSearchResults = allowPartialSearchResults,
+                analyzer = analyzer,
+                analyzeWildcard = analyzeWildcard,
+                batchedReduceSize = batchedReduceSize,
+                ccsMinimizeRoundtrips = ccsMinimizeRoundtrips,
+                defaultOperator = defaultOperator,
+                df = df,
+                docValueFields = docValueFields,
+                expandWildcards = expandWildcards,
+                explain = explain,
+                from = from,
+                ignoreThrottled = ignoreThrottled,
+                ignoreUnavailable = ignoreUnavailable,
+                lenient = lenient,
+                maxConcurrentShardRequests = maxConcurrentShardRequests,
+                preFilterShardSize = preFilterShardSize,
+                preference = preference,
+                q = q,
+                requestCache = requestCache,
+                restTotalHitsAsInt = restTotalHitsAsInt,
+                routing = routing,
+                scroll = scroll,
+                searchType = searchType,
+                seqNoPrimaryTerm = seqNoPrimaryTerm,
+                size = size,
+                sort = sort,
+                source = source,
+                sourceExcludes = sourceExcludes,
+                sourceIncludes = sourceIncludes,
+                stats = stats,
+                storedFields = storedFields,
+                suggestField = suggestField,
+                suggestMode = suggestMode,
+                suggestSize = suggestSize,
+                suggestText = suggestText,
+                terminateAfter = terminateAfter,
+                timeout = timeout,
+                trackScores = trackScores,
+                trackTotalHits = trackTotalHits,
+                typedKeys = typedKeys,
+                version = version,
+                extraParameters = extraParameters,
+                retries = retries-1
+            )
+        } else {
+            throw e
         }
-    }.parse(SearchResponse.serializer(), json)
+    }
 }
 
 suspend fun SearchClient.scroll(scrollId: String, scroll: Duration = 60.seconds): SearchResponse {
@@ -386,7 +448,8 @@ data class CreatePointInTimeResponse(val id: String)
  */
 @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String {
-    validateEngine("PIT-api is not supported by OS1",
+    validateEngine(
+        "PIT-api is not supported by OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8,
         SearchEngineVariant.OS2
@@ -406,9 +469,11 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
                 parameter("keep_alive", keepAliveParam)
             }
             val id = json.parseToJsonElement(result.getOrThrow().text).jsonObject["pit_id"]?.jsonPrimitive?.content
-            require(id != null, lazyMessage = { "opensearch API did not contain pit id?. Payload was ${result.getOrNull()}" })
+            require(
+                id != null,
+                lazyMessage = { "opensearch API did not contain pit id?. Payload was ${result.getOrNull()}" })
             id
-          }
+        }
 
         else -> throw IllegalStateException("Unknown variant: ${engineInfo().variantInfo.variant}")
     }
@@ -417,7 +482,8 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
 
 @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
-    validateEngine("PIT-api is not supported by OS1",
+    validateEngine(
+        "PIT-api is not supported by OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8,
         SearchEngineVariant.OS2
@@ -439,11 +505,11 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
                     this["pit_id"] = listOf(id)
                 }.json()
             }.parse(JsonObject.serializer())
-          else -> throw IllegalStateException("Unknown variant: $variant")
+
+        else -> throw IllegalStateException("Unknown variant: $variant")
     }
     return result
 }
-
 
 
 /**
@@ -483,10 +549,12 @@ suspend fun SearchClient.searchAfter(
             }
         }
     } else {
-        if(!optInToCustomSort) {
-            error("""Adding a custom sort with search_after can break in a few ways and is probably
+        if (!optInToCustomSort) {
+            error(
+                """Adding a custom sort with search_after can break in a few ways and is probably
                 |not what you want. If you know what you are doing, you can disable this error by setting
-                |optInToCustomSort to true.""".trimMargin())
+                |optInToCustomSort to true.""".trimMargin()
+            )
         }
     }
 
@@ -634,7 +702,7 @@ suspend fun SearchClient.count(
 }
 
 suspend fun SearchClient.msearch(
-    target: String?=null,
+    target: String? = null,
     body: String?,
     allowNoIndices: Boolean? = null,
     cssMinimizeRoundtrips: Boolean? = null,
@@ -692,7 +760,8 @@ class MsearchRequest {
     fun add(header: MsearchHeader = MsearchHeader(), block: SearchDSL.() -> Unit) {
         headersAndRequests.add(header to SearchDSL().apply(block))
     }
-    fun toMsearchBody() = headersAndRequests.joinToString("\n") {(h,q) ->
+
+    fun toMsearchBody() = headersAndRequests.joinToString("\n") { (h, q) ->
         "${h.json()}\n${q.json()}"
     } + "\n" // trailing new line is required ...
 }
