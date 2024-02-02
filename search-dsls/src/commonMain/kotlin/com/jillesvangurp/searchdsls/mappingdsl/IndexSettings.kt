@@ -228,6 +228,21 @@ class FieldMappings : JsonDsl() {
 
     fun field(property: KProperty<*>, type: String, block: FieldMappingConfig.() -> Unit) =
         field(property.name, type, block)
+
+    fun join(name: String, block: JoinDefinition.() -> Unit) {
+        val join = JoinDefinition()
+        join.apply(block)
+        put(name, join, PropertyNamingConvention.AsIs)
+    }
+}
+
+class JoinDefinition : JsonDsl() {
+    init {
+        put("type", "join")
+    }
+
+    fun relations(relations: Map<String, List<String>>) = put("relations", relations)
+    fun relations(vararg relation: Pair<String, List<String>>) = put("relations", relation.toMap())
 }
 
 class DynamicTemplateDefinition : JsonDsl() {
