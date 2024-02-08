@@ -7,6 +7,7 @@ import com.jillesvangurp.ktsearch.total
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 class IndexRepositoryTest : SearchTestBase() {
 
@@ -17,9 +18,9 @@ class IndexRepositoryTest : SearchTestBase() {
         val (doc,_)= repo.get(d.id)
         doc.name shouldBe "1"
 
-        val (doc2,_) =repo.update(d.id) {
+        val (doc2,_) =repo.update(d.id, block = {
             it.copy(name="2")
-        }
+        }, retryDelay = 1.seconds)
         doc2.name shouldBe "2"
         val (doc3,_)= repo.get(d.id)
         doc3 shouldBe doc2

@@ -19,7 +19,8 @@ import mu.KotlinLogging
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-private val logger = KotlinLogging.logger {  }
+
+private val logger = KotlinLogging.logger { }
 
 suspend fun SearchClient.search(
     target: String?,
@@ -165,7 +166,10 @@ suspend fun SearchClient.search(
     typedKeys: Boolean? = null,
     version: Boolean? = null,
     extraParameters: Map<String, String>? = null,
-) =
+    retries: Int = 3,
+    retryDelay: Duration = 2.seconds,
+
+    ) =
     search(
         target = target,
         rawJson = dsl.json(),
@@ -211,7 +215,9 @@ suspend fun SearchClient.search(
         trackTotalHits = trackTotalHits,
         typedKeys = typedKeys,
         version = version,
-        extraParameters = extraParameters
+        extraParameters = extraParameters,
+        retries = retries,
+        retryDelay = retryDelay,
     )
 
 enum class SearchOperator { AND, OR }
@@ -269,6 +275,7 @@ suspend fun SearchClient.search(
     version: Boolean? = null,
     extraParameters: Map<String, String>? = null,
     retries: Int = 3,
+    retryDelay: Duration = 2.seconds,
 ): SearchResponse {
     return try {
         restClient.post {
@@ -323,11 +330,11 @@ suspend fun SearchClient.search(
             }
         }.parse(SearchResponse.serializer(), json)
     } catch (e: RestException) {
-        if(e.status == 429 && retries >0) {
+        if (e.status == 429 && retries > 0) {
             // we're tripping up a circuit breaker so sleep and retry
-            delay(1.seconds)
+            delay(retryDelay)
             logger.warn { "Circuit breaker tripped (429), retrying, attempts remaining: $retries: ${e.message}" }
-             search(
+            search(
                 target = target,
                 rawJson = rawJson,
                 allowNoIndices = allowNoIndices,
@@ -373,7 +380,8 @@ suspend fun SearchClient.search(
                 typedKeys = typedKeys,
                 version = version,
                 extraParameters = extraParameters,
-                retries = retries-1
+                retries = retries - 1,
+                retryDelay = retryDelay
             )
         } else {
             throw e
@@ -529,7 +537,10 @@ suspend fun SearchClient.searchAfter(
     keepAlive: Duration,
     query: SearchDSL,
     optInToCustomSort: Boolean = false,
-): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
+    retries: Int = 3,
+    retryDelay: Duration = 2.seconds,
+
+    ): Pair<SearchResponse, Flow<SearchResponse.Hit>> {
     validateEngine(
         "search_after and pit api work slightly different on Opensearch 2.x and not at all on OS1",
         SearchEngineVariant.ES7,
@@ -558,7 +569,12 @@ suspend fun SearchClient.searchAfter(
         }
     }
 
-    val response = search(null, query.json())
+    val response = search(
+        null,
+        query.json(),
+        retries = retries,
+        retryDelay = retryDelay
+    )
 
     val hitFlow = flow {
         var resp: SearchResponse = response
@@ -574,7 +590,12 @@ suspend fun SearchClient.searchAfter(
                     this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
                 }
             }
-            resp = search(null, query.json())
+            resp = search(
+                null,
+                query.json(),
+                retries = retries,
+                retryDelay = retryDelay
+            )
             emit(resp)
         }
     }.flatMapConcat { it.searchHits.asFlow() }

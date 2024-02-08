@@ -5,10 +5,8 @@ import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import documentation.manual.ManualPages
-import documentation.manual.bulk.bulkMd
 import documentation.mdLink
 import documentation.sourceGitRepository
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration.Companion.seconds
 
@@ -170,9 +168,9 @@ val indexRepoMd = sourceGitRepository.md {
         """.trimIndent()
         suspendingExample(false) {
             val id = repo.index(TestDoc("A document")).id
-            repo.update(id, maxRetries = 2) { oldVersion ->
+            repo.update(id, maxRetries = 2, block = { oldVersion ->
                 oldVersion.copy(message = "An updated document")
-            }
+            }, retryDelay = 2.seconds)
         }
         +"""
             This fetches the document and its `primary_term` and `seq_no` values, applies your update function, 
