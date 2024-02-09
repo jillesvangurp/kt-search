@@ -304,6 +304,8 @@ There are of course a lot more features that this library supports. The
 
 - [Deep Paging Using search_after and scroll](https://jillesvangurp.github.io/kt-search/manual/DeepPaging.html)
 
+- [Join Queries](https://jillesvangurp.github.io/kt-search/manual/JoinQueries.html)
+
 ### Indices and Documents
 
 - [Deleting by query](https://jillesvangurp.github.io/kt-search/manual/DeleteByQuery.html)
