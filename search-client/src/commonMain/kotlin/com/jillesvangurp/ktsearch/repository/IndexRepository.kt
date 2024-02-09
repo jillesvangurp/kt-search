@@ -21,6 +21,7 @@ internal class RetryingBulkHandler<T : Any>(
     private val indexRepository: IndexRepository<T>,
     private val parentBulkItemCallBack: BulkItemCallBack? = null,
     private val maxRetries: Int = 2,
+    private val retryDelay: Duration = 2.seconds,
     private val updateScope: CoroutineScope = CoroutineScope(CoroutineName("bulk-update"))
 ) : BulkItemCallBack {
     private var count = 0
@@ -31,7 +32,7 @@ internal class RetryingBulkHandler<T : Any>(
                 val job = updateScope.launch {
                     try {
                         val (_, result) = indexRepository.update(
-                            item.id, maxRetries = maxRetries, block = updateFunction
+                            item.id, maxRetries = maxRetries, block = updateFunction, retryDelay = retryDelay
                         )
                         itemOk(
                             operationType, BulkResponse.ItemDetails(
@@ -300,12 +301,13 @@ class IndexRepository<T : Any>(
 
     suspend fun update(
         id: String,
-        maxRetries: Int = 3,
+        maxRetries: Int = 5,
         pipeline: String? = null,
         refresh: Refresh? = null,
         routing: String? = null,
         timeout: Duration? = null,
-        block: (T) -> T
+        retryDelay: Duration = 2.seconds,
+        block: (T) -> T,
     ): Pair<T, DocumentIndexResponse> =
         update(
             id = id,
@@ -315,6 +317,7 @@ class IndexRepository<T : Any>(
             refresh = refresh ?: defaultRefresh,
             routing = routing,
             timeout = timeout ?: defaultTimeout,
+            retryDelay = retryDelay,
             block = block
         )
 
@@ -322,10 +325,11 @@ class IndexRepository<T : Any>(
         id: String,
         attempt: Int = 0,
         maxRetries: Int = 3,
-        pipeline: String? = null,
-        refresh: Refresh? = null,
-        routing: String? = null,
-        timeout: Duration? = null,
+        pipeline: String?,
+        refresh: Refresh?,
+        routing: String?,
+        timeout: Duration?,
+        retryDelay: Duration,
         block: (T) -> T
     ): Pair<T, DocumentIndexResponse> {
         val (original, resp) = get(id, extraParameters = defaultParameters)
@@ -352,9 +356,20 @@ class IndexRepository<T : Any>(
                     }
                     // 429 means we're triggering a circuit breaker, so back off before retrying
                     // we've seen this kind of failure a few times.
-                    delay(1.seconds)
+                    delay(retryDelay)
                 }
-                return update(id = id, attempt = attempt + 1, maxRetries = maxRetries, block = block).also {
+                return update(
+                    id = id,
+                    attempt = attempt+1,
+                    maxRetries = maxRetries,
+                    pipeline = pipeline,
+                    refresh = refresh ?: defaultRefresh,
+                    routing = routing,
+                    timeout = timeout ?: defaultTimeout,
+                    retryDelay = 1.seconds,
+                    block = block
+                )
+                    .also {
                     if(attempt>0 && logging) {
                         logger.info { "update succeeded on attempt $attempt" }
                     }
@@ -406,12 +421,19 @@ class IndexRepository<T : Any>(
         failOnFirstError: Boolean = false,
         callBack: BulkItemCallBack? = null,
         maxRetries: Int = 2,
+        retryDelay: Duration = 2.seconds,
         retryTimeout: Duration = 1.minutes,
         block: suspend TypedDocumentIBulkSession<T>.() -> Unit
     ) {
 
         val updateFunctions = mutableMapOf<String, (T) -> T>()
-        val retryCallback = RetryingBulkHandler(updateFunctions, this, callBack, maxRetries)
+        val retryCallback = RetryingBulkHandler(
+            updateFunctions = updateFunctions,
+            indexRepository = this,
+            parentBulkItemCallBack = callBack,
+            maxRetries = maxRetries,
+            retryDelay = retryDelay,
+        )
         val session = DefaultBulkSession(
             searchClient = client,
             failOnFirstError = failOnFirstError,
@@ -563,7 +585,9 @@ class IndexRepository<T : Any>(
         typedKeys: Boolean? = null,
         version: Boolean? = null,
         extraParameters: Map<String, String>? = null,
-    ): SearchResponse {
+        retries: Int = 3,
+        retryDelay: Duration = 2.seconds,
+        ): SearchResponse {
         return client.search(
             target = indexReadAlias,
             rawJson = rawJson,
@@ -609,7 +633,9 @@ class IndexRepository<T : Any>(
             trackTotalHits = trackTotalHits,
             typedKeys = typedKeys,
             version = version,
-            extraParameters = extraParameters
+            extraParameters = extraParameters,
+            retries = retries,
+            retryDelay = retryDelay
         )
     }
 
