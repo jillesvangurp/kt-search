@@ -38,9 +38,13 @@ class ReindexSourceDSL : JsonDsl(), QueryClauses {
 
     var query: ESQuery
         get() {
-            val map = this["query"] as Map<String, JsonDsl>
+            val map = this["query"] as Map<*, *>
             val (name, queryDetails) = map.entries.first()
-            return ESQuery(name, queryDetails)
+            if(queryDetails is JsonDsl) {
+                return ESQuery(name.toString(), queryDetails)
+            } else {
+                error("wrong type for queryDetails, should be JsonDSL")
+            }
         }
         set(value) {
             this["query"] = value.wrapWithName()
