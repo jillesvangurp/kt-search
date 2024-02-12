@@ -2,6 +2,7 @@
 
 package com.jillesvangurp.searchdsls.querydsl
 
+import com.jillesvangurp.jsondsl.JsonDsl
 import kotlin.reflect.KProperty
 
 class SourceBuilder {
@@ -14,19 +15,19 @@ class SourceBuilder {
     fun excludes(vararg fields: String) = sourceFilter.set("excludes", arrayOf(*fields))
 }
 
-fun SearchDSL.filterSource(returnSource: Boolean) {
+fun JsonDsl.filterSource(returnSource: Boolean) {
     this["_source"] = returnSource
 }
 
-fun SearchDSL.filterSource(vararg fields: KProperty<*>) {
+fun JsonDsl.filterSource(vararg fields: KProperty<*>) {
     this["_source"] = arrayOf(*fields.map { it.name }.toTypedArray())
 }
 
-fun SearchDSL.filterSource(vararg fields: String) {
+fun JsonDsl.filterSource(vararg fields: String) {
     this["_source"] = arrayOf(*fields)
 }
 
-fun SearchDSL.filterSource(block: SourceBuilder.() -> Unit) {
+fun JsonDsl.filterSource(block: SourceBuilder.() -> Unit) {
     val builder = SourceBuilder()
     block.invoke(builder)
     this["_source"] = builder.sourceFilter
