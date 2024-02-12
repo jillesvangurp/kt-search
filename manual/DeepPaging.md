@@ -1,6 +1,6 @@
 # Deep Paging Using search_after and scroll 
 
-| [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Join Queries](JoinQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -222,5 +222,5 @@ found 3 results
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Aggregations](Aggregations.md) | Next: [Join Queries](JoinQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

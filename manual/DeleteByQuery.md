@@ -1,6 +1,6 @@
 # Deleting by query 
 
-| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Document Manipulation](DocumentManipulation.md) |
+| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -25,5 +25,5 @@ If you need the optional query parameters on this API, use `client.deleteByQuery
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Document Manipulation](DocumentManipulation.md) |
+| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

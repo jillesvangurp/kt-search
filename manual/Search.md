@@ -267,7 +267,7 @@ This prints:
 
 ```text
 document count 3
-document count 6
+document count 242
 ```
 
 Similar to the normal search, you can also construct your body manually. The format is ndjson
