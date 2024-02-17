@@ -15,7 +15,6 @@ plugins {
 refreshVersions {
 }
 
-include("json-dsl")
 include("search-dsls")
 include("search-client")
 include("docs")

@@ -24,8 +24,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":json-dsl"))
                 implementation(kotlin("stdlib-common", "_"))
+                implementation("com.jillesvangurp:json-dsl:_")
 
             }
         }
