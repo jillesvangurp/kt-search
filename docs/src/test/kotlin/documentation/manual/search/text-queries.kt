@@ -20,7 +20,7 @@ val textQueriesMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Match") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 // will match on beans
                 query = match(TestDoc::name, "red beans") {
@@ -34,7 +34,7 @@ val textQueriesMd = sourceGitRepository.md {
         }.printStdOut()
     }
     section("Match Phrase") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 // will match on "green beans"
                 query = matchPhrase(TestDoc::name, "green beans") {
@@ -48,7 +48,7 @@ val textQueriesMd = sourceGitRepository.md {
         }.printStdOut()
     }
     section("Match Phrase Prefix") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 // will match on "green beans"
                 query = matchPhrasePrefix(TestDoc::name, "green bea") {
@@ -62,7 +62,7 @@ val textQueriesMd = sourceGitRepository.md {
         }.printStdOut()
     }
     section("Multi Match") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 // will match on "green beans"
                 query = multiMatch("banana beans",
@@ -81,7 +81,7 @@ val textQueriesMd = sourceGitRepository.md {
         +"""
             A simple query string parser that can query multiple fields
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = simpleQueryString( "beans OR fruit", "name", "tags.txt" )
             }.pretty("Multi Match").let {
@@ -94,7 +94,7 @@ val textQueriesMd = sourceGitRepository.md {
         +"""
             Similar to simple query string but with a more strict query language and less leniency.
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = queryString( "(banana) OR (apple)", TestDoc::name)
             }.pretty("Multi Match").let {
@@ -111,7 +111,7 @@ val textQueriesMd = sourceGitRepository.md {
             
             Here is a simple example
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = intervals("name") {
                     matchRule {
@@ -126,7 +126,7 @@ val textQueriesMd = sourceGitRepository.md {
         +"""
             You can combine multiple rules with `any_of`, or `all_of`.
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = intervals("name") {
                     allOfRule {
@@ -150,7 +150,7 @@ val textQueriesMd = sourceGitRepository.md {
         }.printStdOut()
     }
     section("Combined fields query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = combinedFields( "banana fruit", "name^2","tags.txt") {
                     operator = MatchOperator.AND

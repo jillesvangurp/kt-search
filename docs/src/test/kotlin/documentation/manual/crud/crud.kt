@@ -21,7 +21,7 @@ val crudMd = sourceGitRepository.md {
         Create, Read, Update, and Delete (CRUD) APIs.
     """.trimIndent()
     section("CRUD") {
-        suspendingExample {
+        example {
             // create
             val resp = client.indexDocument(
                 target = "myindex",
@@ -58,7 +58,7 @@ val crudMd = sourceGitRepository.md {
         Elasticsearch also has a dedicated update API that you can use with either a partial document or a script.
     """.trimIndent()
 
-        suspendingExample {
+        example {
             client.indexDocument(
                 target = "myindex",
                 document = TestDoc("42", "x"),
@@ -105,7 +105,7 @@ val crudMd = sourceGitRepository.md {
             To retrieve multiple documents, you can use the `mget` API>
         """.trimIndent()
 
-        suspendingExample {
+        example {
             client.indexDocument(
                 target = "myindex",
                 document = TestDoc("1", "One"),

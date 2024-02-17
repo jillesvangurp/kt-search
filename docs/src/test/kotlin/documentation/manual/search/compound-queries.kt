@@ -28,7 +28,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             logical and's or's and not's.
         """.trimIndent()
 
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = bool {
                     must(
@@ -60,7 +60,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         Dismax may be used as an alternative to bool with a bit more control over the scoring.
     """.trimIndent()
 
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = disMax {
                     queries(
@@ -84,7 +84,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         query with a negative boost on the price if it is too high. This 
         will cause expensive items to be ranked lower.
     """.trimIndent()
-        suspendingExample {
+        example {
 
             client.search(indexName) {
                 // all fruits but with negative score on high prices
@@ -107,7 +107,7 @@ val compoundQueriesMd = sourceGitRepository.md {
         reason about in Elasticsearch. Howwever, if you need it, kt-search supports it.
     """.trimIndent()
 
-        suspendingExample() {
+        example() {
             client.search(indexName) {
                 query = functionScore {
                     query = matchAll()

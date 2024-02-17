@@ -14,7 +14,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Term query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.pretty("Term Query.").let { println(it) }
@@ -22,14 +22,14 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Terms query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = terms(TestDoc::tags, "fruit", "legumes")
             }.pretty("Terms Query.").let { println(it) }
         }.printStdOut()
     }
     section("Fuzzy query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = fuzzy(TestDoc::tags, "friut") {
                     fuzziness = "auto"
@@ -39,7 +39,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Prefix query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = prefix(TestDoc::tags, "fru")
             }.pretty("Prefix Query.").let { println(it) }
@@ -47,7 +47,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Wildcard query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = wildcard(TestDoc::tags, "f*")
             }.pretty("Wildcard Query.").let { println(it) }
@@ -55,7 +55,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("RegExp query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = regExp(TestDoc::tags, "(fruit|legumes)")
             }.pretty("RegExp Query.").let { println(it) }
@@ -63,7 +63,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Ids query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = ids("1", "2")
 
@@ -72,7 +72,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Exists query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = ids("1", "2")
             }.pretty("Exists Query.").let { println(it) }
@@ -80,7 +80,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
 
     }
     section("Range query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = range(TestDoc::price) {
                     gt=0
@@ -91,7 +91,7 @@ val termLevelQueriesMd = sourceGitRepository.md {
         }.printStdOut()
     }
     section("Terms Set query") {
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = termsSet(TestDoc::tags, "fruit","legumes","foo") {
                     minimumShouldMatchScript = Script.create {

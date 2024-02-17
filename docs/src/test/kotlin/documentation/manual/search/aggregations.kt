@@ -64,7 +64,7 @@ val aggregationsMd = sourceGitRepository.md {
         First lets create some sample documents to aggregate on:
         
     """.trimIndent()
-    suspendingExample() {
+    example() {
         @Serializable
         data class MockDoc(
             val name: String,
@@ -125,7 +125,7 @@ val aggregationsMd = sourceGitRepository.md {
         +"""
             Probably the most used aggregation is the `terms` aggregation:
         """.trimIndent()
-        suspendingExample {
+        example {
             val response = client.search(indexName) {
                 // we don't care about the results here
                 resultSize = 0
@@ -178,7 +178,7 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }
 
-        suspendingExample {
+        example {
             // response.aggregations is a JsonObject?
             // termsResult(name) extracts a TermsAggregationResult from there
             val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
@@ -204,7 +204,7 @@ val aggregationsMd = sourceGitRepository.md {
         +"""
             With some more extension function magic we can make this a bit nicer.
         """.trimIndent()
-        suspendingExample {
+        example {
             val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
             // use parsedBucket to get a Bucket<TermsBucket>
             // this allows us to get to the TermsBucket and the aggregations
@@ -226,7 +226,7 @@ val aggregationsMd = sourceGitRepository.md {
             support for more as needed. Pull requests for this are welcome.
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val response = repo.search {
                 resultSize = 0 // we only care about the aggs
                 agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
@@ -298,7 +298,7 @@ val aggregationsMd = sourceGitRepository.md {
             You can use the filter aggregation to narrow down the results and do sub 
             aggregations on the filtered results. 
         """.trimIndent()
-        suspendingExample {
+        example {
             repo.search {
                 resultSize = 0
                 agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
@@ -319,7 +319,7 @@ val aggregationsMd = sourceGitRepository.md {
         +"""
             You can also use the filters aggregation to use multiple named filter aggregations at the same time
         """.trimIndent()
-        suspendingExample {
+        example {
             repo.search {
                 resultSize = 0
                 agg("filtered", FiltersAgg {
@@ -351,7 +351,7 @@ val aggregationsMd = sourceGitRepository.md {
             You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing
             how the Terms aggregation works:
         """.trimIndent()
-        suspendingExample {
+        example {
             // let's do a simple terms aggregation
             val response = client.search(indexName) {
                 // we don't care about the results here

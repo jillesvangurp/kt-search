@@ -42,7 +42,7 @@ val knnMd = sourceGitRepository.md {
     val indexName = "knn-test"
     runBlocking { runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
 
-    suspendingExample {
+    example {
 
         data class Embeddings(val id: String, val embedding: List<Double>)
 

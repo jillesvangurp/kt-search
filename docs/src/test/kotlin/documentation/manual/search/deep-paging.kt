@@ -82,7 +82,7 @@ val deepPagingMd = sourceGitRepository.md {
     """.trimIndent()
 
     section("Search after") {
-        suspendingExample {
+        example {
             val (resp,hitsFlow) = client.searchAfter(indexName,1.minutes) {
                 // 1 result per page
                 // use something higher obviously, 500 would be good
@@ -114,7 +114,7 @@ val deepPagingMd = sourceGitRepository.md {
             slightly differently and currently kt-search only supports the elastic variant for this.
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val (resp,hitsFlow) = client.searchAfter(
                 target = indexName,
                 keepAlive = 1.minutes,
@@ -145,7 +145,7 @@ val deepPagingMd = sourceGitRepository.md {
             A good use case is reindexing documents. This is easy with kt-search!
         """.trimIndent()
 
-        suspendingExample {
+        example {
             // we will rely on dynamic mapping
             val newIndex="${indexName}-v2"
             // WaitFor enables us to search right after
@@ -176,7 +176,7 @@ val deepPagingMd = sourceGitRepository.md {
             For a scrolling search, simply search as normally but set the scroll parameter:
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val response = client.search(indexName, scroll = "1m")
             // the response has a scrollId that we can use to scroll all the results
             val hitsFlow = client.scroll(response)
@@ -191,7 +191,7 @@ val deepPagingMd = sourceGitRepository.md {
             above instead:
         """.trimIndent()
 
-        suspendingExample {
+        example {
             // create a point in time
             val pit = client.createPointInTime(indexName,1.minutes)
             val q = SearchDSL().apply {
@@ -238,7 +238,7 @@ val deepPagingMd = sourceGitRepository.md {
             
         """.trimIndent()
 
-        suspendingExample {
+        example {
             var resp = client.search(indexName, scroll = "1m") {
                 resultSize=2
                 query=matchAll()

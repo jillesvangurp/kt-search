@@ -92,7 +92,7 @@ kotlin {
             dependencies {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
-                api(project(":json-dsl"))
+                api("com.jillesvangurp:json-dsl:_")
                 api(KotlinX.datetime)
                 implementation(Ktor.client.core)
                 api(KotlinX.coroutines.core)

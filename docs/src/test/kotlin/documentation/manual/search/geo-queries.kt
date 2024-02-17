@@ -106,7 +106,7 @@ val geoQueriesMd = sourceGitRepository.md {
             Bounding box searches return everything inside a bounding box specified by a top left and bottom right point.
         """.trimIndent()
 
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = GeoBoundingBoxQuery(TestDoc::point) {
                     topLeft(points["tegel"]!!.point)
@@ -139,7 +139,7 @@ val geoQueriesMd = sourceGitRepository.md {
         +"""
             Searching by distance is also possible.
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = GeoDistanceQuery(TestDoc::point, "3km", points["tower"]!!.point)
             }.parseHits(TestDoc.serializer()).map {
@@ -155,7 +155,7 @@ val geoQueriesMd = sourceGitRepository.md {
             construct shapes using `withJsonDsl`
               
         """.trimIndent()
-        suspendingExample {
+        example {
             // you can use the provided Shape sealed class
             // to construct geometries
             val polygon = Shape.Polygon(
@@ -211,7 +211,7 @@ val geoQueriesMd = sourceGitRepository.md {
             this is translated into another geo_shape query. 
             
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = GeoGridQuery(TestDoc::point) {
                     geotile = "6/50/50"
