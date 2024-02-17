@@ -32,7 +32,7 @@ val searchMd = sourceGitRepository.md {
         +"""
             Let's quickly create some documents to search through.
         """.trimIndent()
-        suspendingExample {
+        example {
             @Serializable
             data class TestDoc(val name: String, val tags: List<String> = listOf())
         }
@@ -49,7 +49,7 @@ val searchMd = sourceGitRepository.md {
         +"""
             The simplest is to search for everything: 
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName).ids
 
         }.let {
@@ -64,7 +64,7 @@ val searchMd = sourceGitRepository.md {
             Of course normally, you'd specify some kind of query. One valid way is to simply pass that as a string.
             Kotlin of course has multiline strings that can be templated as well. So, this may be all you need.
         """.trimIndent()
-        suspendingExample {
+        example {
             val term = "legumes"
             client.search(
                 indexName, rawJson = """
@@ -97,7 +97,7 @@ val searchMd = sourceGitRepository.md {
             Of course it is nicer to query using a Kotlin Search DSL (Domain Specific Language). 
             Here is the same query using the `SearchDSL`.
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 query = term(TestDoc::tags, "legumes")
             }.ids
@@ -125,7 +125,7 @@ val searchMd = sourceGitRepository.md {
             and anything that isn't supported, you can still add by using the map functionality.          
             For example, this is how you would construct the term query using the underlying map:
         """.trimIndent()
-        suspendingExample {
+        example {
             client.search(indexName) {
                 // you can assign maps, lists, primitives, etc.
                 this["query"] = mapOf(
@@ -157,7 +157,7 @@ val searchMd = sourceGitRepository.md {
                 
                 Here is a more complex query that returns fruit with `ban` as the name prefix.
             """.trimIndent()
-            suspendingExample {
+            example {
                 val resp = client.search(indexName) {
                     from = 0
                     // size is of course also a thing in Map
@@ -199,7 +199,7 @@ val searchMd = sourceGitRepository.md {
         +"""
             Elasticsearch also has a more limited _count API dedicated to simply counting results.
         """.trimIndent()
-        suspendingExample {
+        example {
             // count all documents
             println("Number of docs" + client.count(indexName).count)
             // or with a query
@@ -218,7 +218,7 @@ val searchMd = sourceGitRepository.md {
             The msearch DSL in kt-search makes this very easy to do:
         """.trimIndent()
 
-        suspendingExample {
+        example {
             client.msearch(indexName) {
                 // the header is optional, this will simply add
                 // {} as the header
@@ -246,7 +246,7 @@ val searchMd = sourceGitRepository.md {
             Similar to the normal search, you can also construct your body manually. The format is ndjson
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val resp = client.msearch(
                 body = """
                 {"index":"$indexName"}

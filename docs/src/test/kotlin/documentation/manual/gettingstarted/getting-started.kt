@@ -68,7 +68,7 @@ val gettingStartedMd = sourceGitRepository.md {
             The main purpose of kt-search is of course searching. This is how you do a simple search and work with 
             data classes:
         """.trimIndent()
-        suspendingExample(runExample = false) {
+        example(runExample = false) {
 
             // define a model for your indexed json documents
             data class MyModelClass(val title: String, )

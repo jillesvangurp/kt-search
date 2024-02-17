@@ -38,7 +38,7 @@ val dataStreamsMd = sourceGitRepository.md {
             For a full overview of ILM see the Elastic documentation for this.
         """.trimMargin()
 
-        suspendingExample(runExample = false) {
+        example(runExample = false) {
             client.setIlmPolicy("my-ilm") {
                 hot {
                     // this is where your data goes
@@ -66,7 +66,7 @@ val dataStreamsMd = sourceGitRepository.md {
             Once you have defined an ILM policy, you can refer it in an index template. An index template
             consists of index component templates. So we have to define those first.
         """.trimIndent()
-        suspendingExample(runExample = true) {
+        example(runExample = true) {
 
             // using component templates is a good idea
             // note, Elastic bundles quite a few default ones that you can use

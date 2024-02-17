@@ -22,7 +22,7 @@ val indexManagementMd = sourceGitRepository.md {
             Getting started is easy, simply create an index like this:
         """.trimIndent()
 
-        suspendingExample(runExample = false) {
+        example(runExample = false) {
 
             // creates an index with dynamic mapping turned on
             client.createIndex("my-first-index")
@@ -42,7 +42,7 @@ val indexManagementMd = sourceGitRepository.md {
             index mappings. For this, kt-search provides a convenient Mapping and Settings DSL
         """.trimIndent()
 
-        suspendingExample {
+        example {
             data class TestDocument(
                 val message: String,
                 val number: Double,
@@ -122,7 +122,7 @@ val indexManagementMd = sourceGitRepository.md {
             so all your queries use the new index. After that, you can safely remove the old index.
         """.trimIndent()
 
-        suspendingExample(false) {
+        example(false) {
             client.createIndex("foo-1")
 
             client.updateAliases {

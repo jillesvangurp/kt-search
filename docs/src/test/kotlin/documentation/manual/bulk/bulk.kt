@@ -27,7 +27,7 @@ val bulkMd = sourceGitRepository.md {
     section("Bulk Sessions") {
 
 
-        suspendingExample(runExample = false) {
+        example(runExample = false) {
             @Serializable
             data class Foo(val foo: String)
 
@@ -64,7 +64,7 @@ val bulkMd = sourceGitRepository.md {
         +"""
             You can of course customize the bulk session:
         """.trimIndent()
-        suspendingExample(false) {
+        example(false) {
             // bulk several parameters that you can set
             client.bulk(
                 // will send a bulk request every 5 bulk operations
@@ -89,7 +89,7 @@ val bulkMd = sourceGitRepository.md {
             Of course the `IndexRepository` supports bulk sessions as well.
         """.trimIndent()
 
-        suspendingExample(false) {
+        example(false) {
             val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
@@ -99,7 +99,7 @@ val bulkMd = sourceGitRepository.md {
     }
 
     section("Bulk Updates") {
-        suspendingExample() {
+        example() {
             val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
@@ -151,7 +151,7 @@ val bulkMd = sourceGitRepository.md {
             To make this easy, you can use a `BulkItemCallBack` with your bulk session.
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val itemCallBack = object : BulkItemCallBack {
                 override fun itemFailed(
                     operationType: OperationType,

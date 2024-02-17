@@ -28,7 +28,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             val point: List<Double>,
         )
 
-        suspendingExample {
+        example {
             @Serializable
             data class TestDoc(
                 val name: String,
@@ -60,7 +60,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             Now we can score documents on physical distance as follows:
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val first = client.search(indexName) {
                 query = distanceFeature(
                     field = TestDoc::point,
@@ -78,7 +78,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             And on the building year like this:
         """.trimIndent()
 
-        suspendingExample {
+        example {
             val first = client.search(indexName) {
                 query = distanceFeature(
                     field = TestDoc::buildingTime,
@@ -109,7 +109,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             val name: String,
             val ktSearchRank: Int,
         )
-        suspendingExample {
+        example {
             @Serializable
             data class TestDoc(
                 val name: String,
@@ -148,7 +148,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             - linear. Simple linear score based on te numeric value.
         """.trimIndent()
 
-        suspendingExample(runExample = false) {
+        example(runExample = false) {
             client.search(indexName) {
                 // saturation query with default pivot
                 query = rankFeature(TestDoc::ktSearchRank)

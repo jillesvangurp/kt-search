@@ -94,7 +94,7 @@ val projectReadme = sourceGitRepository.md {
         val indexName = "readme-index"
         runBlocking {  runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) } }
 
-        suspendingExample {
+        example {
             val indexName = "readme-index"
 
             // create an index and use our mappings dsl
@@ -130,7 +130,7 @@ val projectReadme = sourceGitRepository.md {
             The optional `refresh` parameter uses WaitFor as the default. This means that after the block exits, the documents
             will have been indexed and are available for searching. 
         """.trimIndent()
-        suspendingExample {
+        example {
             client.bulk(
                 refresh = Refresh.WaitFor,
                 // send operations every 2 ops
@@ -168,7 +168,7 @@ val projectReadme = sourceGitRepository.md {
             
             Now that we have some documents in an index, we can do some queries:
         """.trimIndent()
-        suspendingExample {
+        example {
             // search for some fruit
             val results = client.search(indexName) {
                 query = bool {
@@ -198,7 +198,7 @@ val projectReadme = sourceGitRepository.md {
         +"""
             You can also construct complex aggregations with the query DSL:
         """.trimIndent()
-        suspendingExample {
+        example {
             val resp = client.search(indexName) {
                 // we don't care about retrieving hits
                 resultSize = 0
