@@ -13,9 +13,15 @@ to supporting a particular feature.
 
 ## Creating custom Json DSLs with JsonDsl
 
-All of the DSLs in this library are based on `JsonDSL`, which lives in a separat module 
-and is intended to build custom JsonDSLs.
-To create your own JsonDSL, all you need to do is extend this class.
+All of the DSLs in this library are based on [json-dsl](https://github.com/jillesvangurp/json-dsl).
+This is a library that I wrote specifically to create the DSLs for kt-search. But it can of course also
+be used for other JSON dialects.
+
+The key feature in json-dsl is that it uses a `MutableMap` for storing property values. This enables you
+to define classes with properties that delegate storing their value to this map. For anything that your 
+classes don't implement, the user can always write to the map directly using a simple `put`.
+
+To create your own JsonDSL, all you need to do is extend the `JsonDsl` class.
 
 For example, consider this bit of Json:
 
@@ -106,54 +112,46 @@ This prints:
 {
   "foo": "Hello World",
   "bar": {
-  "xxx": 123,
-  "yYy": false,
-  "zzz": [
-    1, 
-    2, 
-    3
-  ],
-  "missingFeature": {
-    "another": " field",
-    "camelCasing": "may be forced",
-    "foo": "bar",
-    "raw": {"foo":"bar"}
-  },
-  "anotherObject": {
-    "value": "Priceless!",
-    "list": [
-    1, 
-    2, 
-    3
-    ],
-    "list2": [
-    1, 
-    2, 
-    3
-    ],
-    "map": {
-    "foo": [
+    "xxx": 123,
+    "yYy": false,
+    "zzz": [
       1, 
-      "2", 
-      3.0, 
-      {"n":42}
-    ]
+      2, 
+      3
+    ],
+    "missingFeature": {
+      "another": " field",
+      "camelCasing": "may be forced",
+      "foo": "bar",
+      "raw": {"foo":"bar"}
+    },
+    "anotherObject": {
+      "value": "Priceless!",
+      "list": [
+        1, 
+        2, 
+        3
+      ],
+      "list2": [
+        1, 
+        2, 
+        3
+      ],
+      "map": {
+        "foo": [
+          1, 
+          "2", 
+          3.0, 
+          {"n":42}
+        ]
+      }
     }
-  }
   }
 }
 ```
 
-As you can see, JsonDsl is very flexible and you can use it to create model classes for 
-just about any json dialect. It's also a very minimalistic library with no library dependencies.
-It does not even depend on kotlinx.serialiation and instead uses its own serializer. 
-
-No parser is provided currently as this would be redundant for the intended use case of sending 
-serialized json to some API. But of course if people feel inspired, I will consider pull requests for this.
-
-Because JsonDsl implements `MutableMap<String, Any?>` (via delegation), you can manipulate the underlying 
-data structure easily. The `property` helper function is there to help you setup property delegation. It 
-knows how to deal with most. It has a few optional parameters that you can use to control the behavior.
+Refer to the documentation of [json-dsl](https://github.com/jillesvangurp/json-dsl) for 
+more details on how to use it. Or look at the implementation of the various DSLs in kt-search. 
 
 ## Naming Convention and Naming Things
 
@@ -170,7 +168,7 @@ can't use it to e.g. specify the query size attribute.
 
 ## Implementing your own queries
 
-As an example, we'll use the `term` query implementation in this library.                       
+As an example, we'll show how the `term` query implementation is implemented in kt-search.                       
 
 ```kotlin
 class TermQueryConfig : JsonDsl() {
@@ -208,7 +206,7 @@ fun QueryClauses.term(
   TermQuery(field, value, block = block)
 ```
 
-The query dsl has this convention of wrapping various types of queries with a single 
+The Elasticsearch query dsl has this convention of wrapping various types of queries with a single 
 field object where the object key is the name of the query. Therefore, `TermQuery` extends `EsQuery`, which
 takes care of this. 
 
