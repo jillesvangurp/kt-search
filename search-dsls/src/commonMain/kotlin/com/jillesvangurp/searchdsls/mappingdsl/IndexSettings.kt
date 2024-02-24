@@ -76,8 +76,9 @@ class IndexSettings : JsonDsl() {
     }
 }
 
+@Suppress("LeakingThis")
 @JsonDslMarker
-class FieldMappingConfig(typeName: String) : JsonDsl() {
+open class FieldMappingConfig(typeName: String) : JsonDsl() {
     var type by property<String>()
     var boost by property<Double>()
     var store by property<Boolean>()
@@ -88,13 +89,10 @@ class FieldMappingConfig(typeName: String) : JsonDsl() {
     var normalizer by property<String>()
     var searchAnalyzer by property<String>()
 
-    var ignoreAbove by property<String>()
-    var docValues by property<Boolean>()
     var norms by property<Boolean>()
     var index by property<Boolean>()
     var splitQueriesOnWhitespace by property<Boolean>()
     var indexOptions by property<String>()
-    var nullValue by property<String>()
     var script by property<String>()
     var onScriptError by property<String>()
     var meta by property<Map<String, String>>()
@@ -110,6 +108,13 @@ class FieldMappingConfig(typeName: String) : JsonDsl() {
     }
 }
 
+class KeywordFieldMappingConfig : FieldMappingConfig(typeName = "keyword") {
+    var eagerGlobalOrdinals by property<Boolean>()
+    var docValues by property<Boolean>()
+    var ignoreAbove by property<String>()
+    var nullValue by property<String>()
+}
+
 enum class KnnSimilarity {
     L2Norm,
     Cosine,
@@ -122,10 +127,14 @@ class FieldMappings : JsonDsl() {
     fun text(property: KProperty<*>) = field(property.name, "text") {}
     fun text(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "text", block)
     fun text(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) = field(property.name, "text", block)
-    fun keyword(name: String) = field(name, "keyword") {}
-    fun keyword(property: KProperty<*>) = field(property.name, "keyword") {}
-    fun keyword(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "keyword", block)
-    fun keyword(property: KProperty<*>, block: FieldMappingConfig.() -> Unit) = field(property.name, "keyword", block)
+    fun keyword(name: String) = keyword(name) {}
+    fun keyword(property: KProperty<*>) = keyword(property.name) {}
+    fun keyword(name: String, block: KeywordFieldMappingConfig.() -> Unit)  {
+        val mapping = KeywordFieldMappingConfig()
+        block.invoke(mapping)
+        put(name, mapping, PropertyNamingConvention.AsIs)
+    }
+    fun keyword(property: KProperty<*>, block: KeywordFieldMappingConfig.() -> Unit) = keyword(property.name, block)
     fun bool(name: String) = field(name, "boolean") {}
     fun bool(property: KProperty<*>) = field(property.name, "boolean") {}
     fun bool(name: String, block: FieldMappingConfig.() -> Unit) = field(name, "boolean", block)
