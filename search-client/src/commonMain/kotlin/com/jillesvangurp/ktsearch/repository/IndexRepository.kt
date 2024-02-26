@@ -960,6 +960,13 @@ class IndexRepository<T : Any>(
                 serializer.deSerialize(src)
             }
         }
+
+    fun parse(hits: List<SearchResponse.Hit>): List<T> =
+        hits.mapNotNull { hit ->
+            hit.source?.let { src ->
+                serializer.deSerialize(src)
+            }
+        }
 }
 
 fun <T : Any> SearchClient.repository(
