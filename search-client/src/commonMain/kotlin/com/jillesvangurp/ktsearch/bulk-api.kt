@@ -120,7 +120,13 @@ class BulkException(bulkResponse: BulkResponse) : Exception(
 )
 
 interface BulkSession {
-    suspend fun create(source: String, index: String? = null, id: String? = null, requireAlias: Boolean? = null)
+    suspend fun create(
+        source: String,
+        index: String? = null,
+        id: String? = null,
+        requireAlias: Boolean? = null,
+        routing: String? = null
+    )
 
     suspend fun index(
         source: String,
@@ -129,9 +135,10 @@ interface BulkSession {
         requireAlias: Boolean? = null,
         ifSeqNo: Int? = null,
         ifPrimaryTerm: Int? = null,
+        routing: String? = null
     )
 
-    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null)
+    suspend fun delete(id: String, index: String? = null, requireAlias: Boolean? = null, routing: String? = null)
 
     suspend fun update(
         id: String,
@@ -141,6 +148,7 @@ interface BulkSession {
         upsert: JsonObject? = null,
         ifSeqNo: Int? = null,
         ifPrimaryTerm: Int? = null,
+        routing: String? = null,
     )
 
     suspend fun update(
@@ -151,7 +159,7 @@ interface BulkSession {
         docAsUpsert: Boolean? = null,
         ifSeqNo: Int? = null,
         ifPrimaryTerm: Int? = null,
-
+        routing: String? = null,
         )
 
     suspend fun update(
@@ -162,7 +170,7 @@ interface BulkSession {
         docAsUpsert: Boolean? = null,
         ifSeqNo: Int? = null,
         ifPrimaryTerm: Int? = null,
-
+        routing: String? = null,
         )
 
     suspend fun flush()
@@ -202,7 +210,7 @@ internal class DefaultBulkSession internal constructor(
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 
-    override suspend fun create(source: String, index: String?, id: String?, requireAlias: Boolean?) {
+    override suspend fun create(source: String, index: String?, id: String?, requireAlias: Boolean?, routing: String?) {
         val opDsl = withJsonDsl {
             this["create"] = withJsonDsl {
                 index?.let {
@@ -213,6 +221,9 @@ internal class DefaultBulkSession internal constructor(
                 }
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
+                }
+                routing?.let {
+                    this["routing"] = routing
                 }
             }
         }
@@ -226,6 +237,7 @@ internal class DefaultBulkSession internal constructor(
         requireAlias: Boolean?,
         ifSeqNo: Int?,
         ifPrimaryTerm: Int?,
+        routing: String?,
     ) {
         val opDsl = withJsonDsl {
             this["index"] = withJsonDsl {
@@ -245,12 +257,15 @@ internal class DefaultBulkSession internal constructor(
                 ifPrimaryTerm?.let {
                     this["if_primary_term"] = ifPrimaryTerm
                 }
+                routing?.let {
+                    this["routing"] = routing
+                }
             }
         }
         operation(opDsl.json(), source)
     }
 
-    override suspend fun delete(id: String, index: String?, requireAlias: Boolean?) {
+    override suspend fun delete(id: String, index: String?, requireAlias: Boolean?, routing: String?) {
         val opDsl = withJsonDsl {
             this["delete"] = withJsonDsl {
                 this["_id"] = id
@@ -259,6 +274,9 @@ internal class DefaultBulkSession internal constructor(
                 }
                 requireAlias?.let {
                     this["require_alias"] = requireAlias
+                }
+                routing?.let {
+                    this["routing"] = routing
                 }
             }
         }
@@ -273,6 +291,7 @@ internal class DefaultBulkSession internal constructor(
         upsert: JsonObject?,
         ifSeqNo: Int?,
         ifPrimaryTerm: Int?,
+        routing: String?
     ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
@@ -292,7 +311,9 @@ internal class DefaultBulkSession internal constructor(
                 ifPrimaryTerm?.let {
                     this["if_primary_term"] = ifPrimaryTerm
                 }
-
+                routing?.let {
+                    this["routing"] = routing
+                }
             }
         }
 
@@ -311,8 +332,8 @@ internal class DefaultBulkSession internal constructor(
         docAsUpsert: Boolean?,
         ifSeqNo: Int?,
         ifPrimaryTerm: Int?,
-
-        ) {
+        routing: String?
+    ) {
         update(
             id = id,
             doc = DEFAULT_JSON.decodeFromString(JsonObject.serializer(), doc),
@@ -320,7 +341,8 @@ internal class DefaultBulkSession internal constructor(
             requireAlias = requireAlias,
             docAsUpsert = docAsUpsert,
             ifSeqNo = ifSeqNo,
-            ifPrimaryTerm = ifPrimaryTerm
+            ifPrimaryTerm = ifPrimaryTerm,
+            routing = routing
         )
     }
 
@@ -332,8 +354,8 @@ internal class DefaultBulkSession internal constructor(
         docAsUpsert: Boolean?,
         ifSeqNo: Int?,
         ifPrimaryTerm: Int?,
-
-        ) {
+        routing: String?
+    ) {
         val opDsl = withJsonDsl {
             this["update"] = withJsonDsl {
                 index?.let {
@@ -351,6 +373,9 @@ internal class DefaultBulkSession internal constructor(
                 }
                 ifPrimaryTerm?.let {
                     this["if_primary_term"] = ifPrimaryTerm
+                }
+                routing?.let {
+                    this["routing"] = routing
                 }
             }
         }
@@ -439,18 +464,20 @@ suspend inline fun <reified T> BulkSession.create(
     doc: T,
     index: String? = null,
     id: String? = null,
-    requireAlias: Boolean? = null
+    requireAlias: Boolean? = null,
+    routing: String? = null
 ) {
-    create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
+    create(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias, routing)
 }
 
 suspend inline fun <reified T> BulkSession.index(
     doc: T,
     index: String? = null,
     id: String? = null,
-    requireAlias: Boolean? = null
+    requireAlias: Boolean? = null,
+    routing: String? = null
 ) {
-    index(DEFAULT_JSON.encodeToString(doc), index, id, requireAlias)
+    index(source = DEFAULT_JSON.encodeToString(doc), index = index, id = id, requireAlias = requireAlias, routing = routing)
 }
 
 suspend inline fun <reified T> BulkSession.update(
