@@ -19,7 +19,7 @@ class AliasAction: JsonDsl() {
 }
 
 class AliasUpdateRequest: JsonDsl() {
-    private var actions by property(mutableListOf<JsonDsl>())
+    private var actions by property("actions",mutableListOf<JsonDsl>())
     fun add(block: AliasAction.()->Unit) {
         actions.add(withJsonDsl {
             this["add"] =AliasAction().apply(block)

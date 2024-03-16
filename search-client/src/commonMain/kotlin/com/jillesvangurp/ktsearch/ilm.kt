@@ -49,7 +49,7 @@ class ILMPhaseConfiguration : JsonDsl() {
             }
         }
     }
-    var actions by property(defaultValue = ILMActions())
+    var actions by property("actions",defaultValue = ILMActions())
 
     fun actions(block: ILMActions.() -> Unit) {
         actions.apply(block)
@@ -76,11 +76,11 @@ class IMLPhases : JsonDsl() {
 }
 
 class IMLPolicy : JsonDsl() {
-    var phases by property(defaultValue = IMLPhases())
+    var phases by property("phases",defaultValue = IMLPhases())
 }
 
 class ILMConfiguration: JsonDsl() {
-    var policy by property(defaultValue = IMLPolicy())
+    var policy by property("policy",defaultValue = IMLPolicy())
 }
 
 suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Unit): AcknowledgedResponse {

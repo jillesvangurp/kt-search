@@ -57,7 +57,7 @@ open class Field(name: String) : ESQuery(name) {
     var boundaryScanner by queryDetails.property<BoundaryScanner>()
     var boundaryScannerLocale by queryDetails.property<String>()
     var encoder by queryDetails.property<Encoder>()
-    var fragmenter by queryDetails.property(Fragmenter.span)
+    var fragmenter by queryDetails.property("fragmenter",Fragmenter.span)
     var fragmentOffset by queryDetails.property<Int>()
     var fragmentSize by queryDetails.property<Int>()
 
