@@ -8,7 +8,7 @@ import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import kotlinx.serialization.json.JsonObject
 
 class ComponentTemplate: JsonDsl() {
-    var template by property(defaultValue = IndexSettingsAndMappingsDSL())
+    var template by property("template",defaultValue = IndexSettingsAndMappingsDSL())
 }
 
 suspend fun SearchClient.updateComponentTemplate(templateId: String, block: IndexSettingsAndMappingsDSL.()->Unit): JsonObject {
@@ -27,10 +27,10 @@ suspend fun SearchClient.deleteComponentTemplate(templateId: String): JsonObject
 }
 
 class IndexTemplate: JsonDsl() {
-    var indexPatterns by property(defaultValue = listOf<String>())
+    var indexPatterns by property("index_patterns",defaultValue = listOf<String>())
     var dataStream by property<JsonDsl>()
-    var composedOf by property(defaultValue = listOf<String>())
-    var priority by property(defaultValue = 300)
+    var composedOf by property("composed_of",defaultValue = listOf<String>())
+    var priority by property("priority",defaultValue = 300)
     var meta by property<Map<String,String>>(customPropertyName = "_meta")
 
 }

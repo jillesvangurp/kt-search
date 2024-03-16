@@ -185,7 +185,7 @@ class GeoShapeQueryConfig : JsonDsl() {
     fun shape(rawJson: String) {
         this["shape"] = RawJson(rawJson)
     }
-    var relation by property<GeoShapeQuery.Relation>(defaultValue = GeoShapeQuery.Relation.intersects)
+    var relation by property("relation", GeoShapeQuery.Relation.intersects)
 }
 
 class GeoShapeQuery(val field: String, block: GeoShapeQueryConfig.() -> Unit) : ESQuery("geo_shape") {
