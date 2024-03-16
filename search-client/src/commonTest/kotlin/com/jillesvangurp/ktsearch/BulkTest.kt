@@ -1,13 +1,10 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.Script
-import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.assertions.nondeterministic.eventuallyConfig
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlin.random.Random
-import kotlin.random.nextULong
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
 
 class BulkTest : SearchTestBase() {
 
@@ -93,5 +90,30 @@ class BulkTest : SearchTestBase() {
         }
         val resp = client.getDocument(index,"42").source!!.parse<TestDocument>()
         resp.name shouldBe "changed"
+    }
+
+    @Test
+    fun shouldOverrideBulkRoutingForItemsWithRouting() = coRun {
+        val index = testDocumentIndex()
+        client.bulk(target = index, source="true", routing = "1") {
+            create(doc = TestDocument(name = "document with specific routing"), id = "42", routing = "2")
+            create(doc = TestDocument(name = "document without specific routing"), id = "43")
+            index(doc = TestDocument(name = "document to delete"), id = "44", routing = "3")
+
+            update(id = "42", doc = TestDocument(name = "document with specific routing updated").json(), routing = "2")
+
+            delete(id = "44", routing = "3")
+        }
+
+        val docWithSpecificRouting = client.getDocument(index, "42")
+        val docWithoutSpecificRouting = client.getDocument(index, "43")
+
+        shouldThrow<RestException> {
+            client.getDocument(index, "44")
+        }.message shouldContain "RequestIsWrong 404"
+
+        docWithSpecificRouting.routing shouldBe "2"
+        docWithSpecificRouting.source!!.parse<TestDocument>().name shouldBe "document with specific routing updated"
+        docWithoutSpecificRouting.routing shouldBe "1"
     }
 }
