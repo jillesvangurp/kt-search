@@ -15,7 +15,7 @@ allprojects {
         mavenCentral()
         maven("https://maven.tryformation.com/releases") {
             content {
-                includeGroup("com.github.jillesvangurp")
+                includeGroup("com.jillesvangurp")
             }
         }
     }

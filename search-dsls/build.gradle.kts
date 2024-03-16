@@ -25,7 +25,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib-common", "_"))
-                implementation("com.github.jillesvangurp:json-dsl:_")
+                implementation("com.jillesvangurp:json-dsl:_")
 
             }
         }

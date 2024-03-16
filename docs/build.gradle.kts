@@ -37,7 +37,7 @@ val searchEngine: String = getProperty("searchEngine", "es-7").toString()
 dependencies {
     testImplementation(project(":search-dsls"))
     testImplementation(project(":search-client"))
-    testImplementation("com.github.jillesvangurp:json-dsl:_")
+    testImplementation("com.jillesvangurp:json-dsl:_")
 
     testImplementation(Kotlin.stdlib.jdk8)
     testImplementation(KotlinX.coroutines.jdk8)
