@@ -23,6 +23,8 @@ val projectReadme = sourceGitRepository.md {
 
     includeMdFile("gradle.md")
 
+    includeMdFile("maven.md")
+
     section("Usage") {
         // our test server runs on port 9999
         val client = SearchClient(
