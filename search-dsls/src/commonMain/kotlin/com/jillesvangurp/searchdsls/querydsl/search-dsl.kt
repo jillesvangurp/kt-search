@@ -154,6 +154,30 @@ class SortBuilder {
             block?.invoke(this)
         }, PropertyNamingConvention.AsIs)
     })
+
+    fun addScript(
+        source: String,
+        type: String,
+        order: SortOrder = SortOrder.DESC,
+        lang: String? = "painless",
+        params: Map<String, Any>? = null,
+        block: (JsonDsl.() -> Unit)? = null
+    ) = _sortFields.add(withJsonDsl {
+        this["_script"] = dslObject {
+            this["order"] = order.name
+            this["type"] = type
+            this["script"] = dslObject {
+                this["source"] = source
+                lang?.let {
+                    this["lang"] = lang
+                }
+                if (params?.isNotEmpty() == true) {
+                    this["params"] = withJsonDsl { params.forEach { (key, value) -> this[key] = value } }
+                }
+            }
+            block?.invoke(this)
+        }
+    })
 }
 
 fun SearchDSL.sort(block: SortBuilder.() -> Unit) {
