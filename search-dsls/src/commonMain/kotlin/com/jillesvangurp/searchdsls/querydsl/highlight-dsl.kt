@@ -74,7 +74,9 @@ open class Field(name: String) : ESQuery(name) {
     var tagsSchema by queryDetails.property<String>()
     var type by queryDetails.property<Type>()
 
-    fun matchedFields(vararg matchedFields: String) = queryDetails.getOrCreateMutableList("matched_fields")
+    fun matchedFields(vararg matchedFields: String) = queryDetails.getOrCreateMutableList("matched_fields").also {
+        it.addAll(matchedFields)
+    }
 }
 
 class Highlight : Field("highlight") {
