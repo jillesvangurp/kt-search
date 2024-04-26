@@ -45,6 +45,7 @@ val compoundQueriesMd = sourceGitRepository.md {
                             gte = 20
                         },
                     )
+                    minimumShouldMatch(1)
                     filter(range(TestDoc::price) {
                         gte = 0
                     })
