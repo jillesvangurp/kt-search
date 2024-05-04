@@ -61,7 +61,7 @@ open class Field(name: String) : ESQuery(name) {
     var fragmentOffset by queryDetails.property<Int>()
     var fragmentSize by queryDetails.property<Int>()
 
-    var highlightQuery by queryDetails.property<ESQuery>()
+    var highlightQuery by queryDetails.esQueryProperty()
 
     var noMatchSize by queryDetails.property<Int>()
     var numberOfFragments by queryDetails.property<Int>()
