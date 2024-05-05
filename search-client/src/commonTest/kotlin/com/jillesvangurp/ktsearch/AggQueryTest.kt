@@ -119,6 +119,38 @@ class AggQueryTest : SearchTestBase() {
     }
 
     @Test
+    fun shouldDoDateRangesAgg() = coRun {
+        before()
+        val aggName = "timestamp_ranges"
+        val response = repository.search {
+            resultSize = 0 // we only care about the aggs
+            agg(aggName, DateRangesAgg(TestDocument::timestamp) {
+                format = "dd-MM-yyyy"
+                ranges = listOf(
+                    AggDateRange.create {
+                        key = "before"
+                        to = "now-4d"
+                    },
+                    AggDateRange.create {
+                        key = "after"
+                        from = "now-4d"
+                    }
+                )
+            })
+        }
+
+        response.aggregations shouldNotBe null
+
+        val rangesAgg = response.aggregations.dateRangesResult(aggName)
+        rangesAgg shouldNotBe null
+        val rangeCounts = rangesAgg.parsedBuckets.map { it.parsed }.dateRangeCounts()
+
+        rangeCounts.size shouldBe 2
+        rangeCounts["before"] shouldBe 2
+        rangeCounts["after"] shouldBe 2
+    }
+
+    @Test
     fun nestedAggregationQuery() = coRun {
         before()
         val response = repository.search {
