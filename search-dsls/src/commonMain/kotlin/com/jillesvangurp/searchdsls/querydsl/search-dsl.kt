@@ -250,3 +250,80 @@ fun SearchDSL.dotted(vararg elements: Any) = elements.joinToString(".") { pathCo
         else -> pathComponent.toString()
     }
 }
+
+fun SearchDSL.rescore(vararg rescores: Rescorer) = getOrCreateMutableList("rescore").addAll(rescores)
+
+/**
+ * Rescoring can help to improve precision by reordering just the top (e.g. 100 - 500) documents
+ * returned by the query and post_filter phases, using a secondary (usually more costly) algorithm,
+ * instead of applying the costly algorithm to all documents in the index.
+ */
+class Rescorer : JsonDsl() {
+    /**
+     * The number of docs which will be examined on each shard
+     */
+    var windowSize by property<Int>()
+
+    /**
+     * Second query excuted only on the Top-K results returned by the query and post_filter phases.
+     */
+    var query by property<RescoreQuery>()
+}
+
+class RescoreQuery : JsonDsl() {
+    /**
+     * Query to apply
+     */
+    var rescoreQuery by esQueryProperty()
+
+    /**
+     * The relative importance of the original query
+     */
+    var queryWeight by property<Double>()
+
+    /**
+     * The relative importance of the rescore query
+     */
+    var rescoreQueryWeight by property<Double>()
+
+    /**
+     * way the original score and rescore score are combined
+     */
+    var scoreMode by property<RescoreScoreMode>()
+}
+
+/**
+ * Controls the way the original score and rescore score are combined
+ */
+enum class RescoreScoreMode {
+    /**
+     * Average the original score and the rescore query score.
+     */
+    avg,
+
+    /**
+     * Take the min of the original score and the rescore query score.
+     */
+    min,
+
+    /**
+     * Take the max of original score and the rescore query score.
+     */
+    max,
+
+    /**
+     * Add the original score and the rescore query score. The default.
+     */
+    total,
+
+    /**
+     * Multiply the original score by the rescore query score.
+     */
+    multiply
+}
+
+fun SearchDSL.rescorer(windowSize: Int, queryBlock: RescoreQuery.() -> Unit) =
+    Rescorer().apply {
+        this.windowSize = windowSize
+        this.query = RescoreQuery().apply(queryBlock)
+    }
