@@ -26,13 +26,15 @@ open class ESQuery(
 fun JsonDsl.esQueryProperty(): ReadWriteProperty<Any, ESQuery> {
     return object : ReadWriteProperty<Any, ESQuery> {
         override fun getValue(thisRef: Any, property: KProperty<*>): ESQuery {
-            val map = this@esQueryProperty[property.name] as Map<String, JsonDsl>
+            val propertyName = property.name.convertPropertyName(defaultNamingConvention)
+            val map = this@esQueryProperty[propertyName] as Map<String, JsonDsl>
             val (name, queryDetails) = map.entries.first()
             return ESQuery(name, queryDetails)
         }
 
         override fun setValue(thisRef: Any, property: KProperty<*>, value: ESQuery) {
-            this@esQueryProperty[property.name] = value.wrapWithName()
+            val propertyName = property.name.convertPropertyName(defaultNamingConvention)
+            this@esQueryProperty[propertyName] = value.wrapWithName()
         }
     }
 }
@@ -228,7 +230,10 @@ fun Collapse.InnerHits.collapse(field: String, block: (Collapse.() -> Unit)? = n
 
 fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit)? = null) = collapse(field.name, block)
 
-fun QueryClauses.matchAll() = ESQuery("match_all")
+fun QueryClauses.matchAll(boost: Double? = null) = ESQuery("match_all").apply {
+    boost?.let { this["boost"] = boost }
+}
+fun QueryClauses.matchNone() = ESQuery("match_none")
 
 class Script : JsonDsl() {
     var source by property<String>()

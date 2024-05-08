@@ -86,6 +86,59 @@ class RangesAgg(val field: String, block: (RangesAggConfig.() -> Unit)? = null) 
     }
 }
 
+class AggDateRange: JsonDsl() {
+    /**
+     * Customizes the key for each range
+     */
+    var key by property<String>()
+    /**
+     * Aggregation includes the `from` value
+     */
+    var from by property<String>()
+    /**
+     * Aggregation excludes the `to` value
+     */
+    var to by property<String>()
+
+    companion object {
+        fun create(block: AggDateRange.() -> Unit) = AggDateRange().apply(block)
+    }
+}
+
+class DateRangesAggConfig : JsonDsl() {
+    var field by property<String>()
+
+    /**
+     * Defines how documents that are missing a value should be treated.
+     * By default, they will be ignored, but it is also possible to treat them as if they had a value.
+     */
+    var missing by property<String>()
+
+    /**
+     *  Specifies a date format by which the from and to response fields will be returned.
+     */
+    var format by property<String>()
+
+    /**
+     * Time zones may either be specified as an ISO 8601 UTC offset (e.g. +01:00 or -08:00)
+     * or as one of the time zone ids from the TZ database.
+     */
+    var timeZone by property<String>()
+
+    var ranges by property<List<AggDateRange>>()
+}
+
+class DateRangesAgg(val field: String, block: (DateRangesAggConfig.() -> Unit)? = null) : AggQuery("date_range") {
+    constructor(field: KProperty<*>, block: (DateRangesAggConfig.() -> Unit)? = null) : this(field.name, block)
+
+    init {
+        val config = DateRangesAggConfig()
+        config.field = field
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class DateHistogramAggConfig : JsonDsl() {
     var field by property<String>()
     var calendarInterval by property<String>("calendar_interval") // can't redefine Map.size sadly

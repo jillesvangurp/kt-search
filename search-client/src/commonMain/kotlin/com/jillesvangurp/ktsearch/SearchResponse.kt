@@ -157,6 +157,8 @@ data class TermsBucket(
     val key: String,
     @SerialName("doc_count")
     val docCount: Long,
+    @SerialName("key_as_string")
+    val keyAsString: String?,
 )
 
 @Serializable
@@ -193,7 +195,7 @@ data class RangesBucket(
 @Serializable
 data class RangesAggregationResult(
     override val buckets: List<JsonObject>
-) : BucketAggregationResult<TermsBucket>
+) : BucketAggregationResult<RangesBucket>
 
 val RangesAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, RangesBucket.serializer()) }
 
@@ -205,6 +207,34 @@ fun Aggregations?.rangesResult(name: String, json: Json = DEFAULT_JSON): RangesA
     getAggResult(name, json)
 
 fun Aggregations?.rangesResult(name: Enum<*>, json: Json = DEFAULT_JSON): RangesAggregationResult =
+    getAggResult(name, json)
+
+@Serializable
+data class DateRangesBucket(
+    val key: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+    val from: Double?,
+    @SerialName("from_as_string")
+    val fromAsString: String?,
+    val to: Double?,
+    @SerialName("to_as_string")
+    val toAsString: String?
+)
+
+@Serializable
+data class DateRangesAggregationResult(
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<DateRangesBucket>
+
+val DateRangesAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, DateRangesBucket.serializer()) }
+
+fun List<DateRangesBucket>.dateRangeCounts() = this.associate { it.key to it.docCount }
+
+fun Aggregations?.dateRangesResult(name: String, json: Json = DEFAULT_JSON): DateRangesAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.dateRangesResult(name: Enum<*>, json: Json = DEFAULT_JSON): DateRangesAggregationResult =
     getAggResult(name, json)
 
 @Serializable

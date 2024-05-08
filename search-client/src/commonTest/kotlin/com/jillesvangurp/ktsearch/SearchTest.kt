@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.count
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class SearchTest : SearchTestBase() {
@@ -45,6 +44,34 @@ class SearchTest : SearchTestBase() {
         client.search("$index,$index") {
             query = ids("1", "3")
         }.total shouldBe 2
+    }
+
+    @Test
+    fun shouldReturnAllDocumentsWithMatchAll() = coRun {
+        val index = testDocumentIndex()
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+        client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+        val result = client.search("$index,$index") {
+            query = matchAll(boost = 3.5)
+        }
+        result.hits!!.hits shouldHaveSize 3
+        result.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(3.5, 3.5, 3.5)
+    }
+
+    @Test
+    fun shouldReturnEmptyResultWithMatchNone() = coRun {
+        val index = testDocumentIndex()
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+        client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+        val result = client.search("$index,$index") {
+            query = matchNone()
+        }
+        result.total shouldBe 0
+        result.hits!!.hits shouldHaveSize 0
     }
 
     @Test
@@ -237,12 +264,45 @@ class SearchTest : SearchTestBase() {
             index(TestDocument("doc 3", tags = listOf("group2")).json())
         }
         client.search(indexName) {
-            seqNoPrimaryTerm=true
-            version=true
+            seqNoPrimaryTerm = true
+            version = true
         }.hits!!.hits.forEach { hit ->
             hit.primaryTerm shouldBe 1
             hit.seqNo shouldNotBe null
             hit.version shouldBe 1
         }
+    }
+
+    @Test
+    fun shouldHighlightResults() = coRun {
+        val index = testDocumentIndex()
+        client.bulk(target = index, refresh = Refresh.WaitFor) {
+            index(TestDocument(id = 1, name = "bar", description = "another bar value").json())
+            index(TestDocument(id = 2, name = "foo", description = "another foo").json())
+            index(TestDocument(id = 3, name = "bar", description = "just foo").json())
+        }
+        val results = client.search(target = index) {
+            query = match(TestDocument::name, "bar")
+            sort {
+                add(TestDocument::id, SortOrder.ASC)
+            }
+            highlight {
+                fields(
+                    field(TestDocument::description.name) {
+                        preTags = "<b>"
+                        postTags = "</b>"
+                        highlightQuery = match(TestDocument::description, "bar")
+                    }
+                )
+            }
+        }
+        results.parseHits<TestDocument>().size shouldBe 2
+        val hits = results.hits?.hits!!
+
+        val highlight = hits[0].highlight?.parse<Map<String, List<String>>>()
+        highlight shouldNotBe null
+        highlight!![TestDocument::description.name] shouldBe listOf("another <b>bar</b> value")
+
+        hits[1].highlight shouldBe null
     }
 }
