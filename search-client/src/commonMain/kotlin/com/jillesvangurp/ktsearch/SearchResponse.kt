@@ -157,6 +157,8 @@ data class TermsBucket(
     val key: String,
     @SerialName("doc_count")
     val docCount: Long,
+    @SerialName("key_as_string")
+    val keyAsString: String?,
 )
 
 @Serializable
