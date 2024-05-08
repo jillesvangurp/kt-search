@@ -47,6 +47,34 @@ class SearchTest : SearchTestBase() {
     }
 
     @Test
+    fun shouldReturnAllDocumentsWithMatchAll() = coRun {
+        val index = testDocumentIndex()
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+        client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+        val result = client.search("$index,$index") {
+            query = matchAll(boost = 3.5)
+        }
+        result.hits!!.hits shouldHaveSize 3
+        result.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(3.5, 3.5, 3.5)
+    }
+
+    @Test
+    fun shouldReturnEmptyResultWithMatchNone() = coRun {
+        val index = testDocumentIndex()
+        client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+        client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+        client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+        val result = client.search("$index,$index") {
+            query = matchNone()
+        }
+        result.total shouldBe 0
+        result.hits!!.hits shouldHaveSize 0
+    }
+
+    @Test
     fun shouldDoScrollingSearch() = coRun {
         val index = testDocumentIndex()
         client.bulk(target = index, refresh = Refresh.WaitFor) {

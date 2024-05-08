@@ -230,7 +230,10 @@ fun Collapse.InnerHits.collapse(field: String, block: (Collapse.() -> Unit)? = n
 
 fun Collapse.InnerHits.collapse(field: KProperty<*>, block: (Collapse.() -> Unit)? = null) = collapse(field.name, block)
 
-fun QueryClauses.matchAll() = ESQuery("match_all")
+fun QueryClauses.matchAll(boost: Double? = null) = ESQuery("match_all").apply {
+    boost?.let { this["boost"] = boost }
+}
+fun QueryClauses.matchNone() = ESQuery("match_none")
 
 class Script : JsonDsl() {
     var source by property<String>()
