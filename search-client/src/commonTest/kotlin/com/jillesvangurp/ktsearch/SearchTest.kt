@@ -218,6 +218,44 @@ class SearchTest : SearchTestBase() {
     }
 
     @Test
+    fun shouldApplyRescore() = coRun {
+        val indexName = testDocumentIndex()
+        client.bulk(target = indexName, refresh = Refresh.WaitFor) {
+            index(TestDocument("doc 1", tags = listOf("rescore")).json())
+            index(TestDocument("doc 2", tags = listOf("nope")).json())
+            index(TestDocument("doc 3", tags = listOf("another")).json())
+        }
+        val response = client.search(indexName, explain = true) {
+            query = matchAll()
+            val firstRescoreQuery = constantScore {
+                filter = match(TestDocument::tags, "rescore")
+            }
+
+            val secondRescoreQuery = constantScore {
+                filter = match(TestDocument::tags, "another")
+            }
+            rescore(
+                rescorer(3) {
+                    scoreMode = RescoreScoreMode.total
+                    rescoreQueryWeight = 20.0
+                    queryWeight = 2.0
+                    rescoreQuery = firstRescoreQuery
+                },
+                rescorer(3) {
+                    scoreMode = RescoreScoreMode.multiply
+                    rescoreQueryWeight = 5.0
+                    queryWeight = 1.0
+                    rescoreQuery = secondRescoreQuery
+                }
+            )
+        }
+
+        response.hits!!.hits shouldHaveSize 3
+        response.parseHits<TestDocument>().map(TestDocument::name) shouldBe listOf("doc 1", "doc 3", "doc 2")
+        response.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(22.0, 10.0, 2.0)
+    }
+
+    @Test
     fun shouldExposeSeqNo() = coRun {
         val indexName = testDocumentIndex()
         client.bulk(target = indexName, refresh = Refresh.WaitFor) {
