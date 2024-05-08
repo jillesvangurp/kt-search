@@ -3,6 +3,8 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.*
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeGreaterThan
@@ -20,7 +22,8 @@ data class MockDoc(
     val tags: List<String>? = null,
     val color: String? = null,
     val value: Long? = null,
-    val timestamp: Instant? = null
+    val timestamp: Instant? = null,
+    val enabled: Boolean? = null,
 ) {
     companion object {
         val mapping = IndexSettingsAndMappingsDSL().apply {
@@ -30,6 +33,7 @@ data class MockDoc(
                 keyword(MockDoc::tags)
                 number<Long>(MockDoc::value)
                 date(MockDoc::timestamp)
+                bool(MockDoc::enabled)
             }
         }
     }
@@ -59,9 +63,9 @@ class AggQueryTest : SearchTestBase() {
         repository.bulk {
             val now = Clock.System.now()
             index(MockDoc(name = "1", tags = listOf(Tags.bar), value = 1, color = Colors.green, timestamp = now))
-            index(MockDoc(name = "2", tags = listOf(Tags.foo), value = 2, color = Colors.red, timestamp = now - 1.days))
+            index(MockDoc(name = "2", tags = listOf(Tags.foo), value = 2, color = Colors.red, timestamp = now - 1.days, enabled = true))
             index(MockDoc(name = "3", tags = listOf(Tags.foo, Tags.bar), value = 3, color = Colors.red, timestamp = now - 5.days))
-            index(MockDoc(name = "4", tags = listOf(Tags.fooBar), value = 4, color = Colors.green, timestamp = now - 10.days))
+            index(MockDoc(name = "4", tags = listOf(Tags.fooBar), value = 4, color = Colors.green, timestamp = now - 10.days, enabled = false))
         }
     }
 
@@ -85,6 +89,25 @@ class AggQueryTest : SearchTestBase() {
         buckets.size shouldBe 3
         buckets.counts()[Tags.bar] shouldBe 2
         buckets.counts()[Tags.fooBar] shouldBe 1
+    }
+
+    @Test
+    fun shouldReturnKeyAsStringForBooleanAgg() = coRun {
+        before()
+        val response = repository.search {
+            resultSize = 0 // we only care about the aggs
+            agg(MockDoc::enabled.name, TermsAgg(MockDoc::enabled) {
+                aggSize = 3
+            })
+        }
+
+        response.aggregations shouldNotBe null
+
+        val booleanAgg = response.aggregations.termsResult(MockDoc::enabled.name)
+        booleanAgg shouldNotBe null
+        val stringKeys = booleanAgg.parsedBuckets.map { it.parsed.keyAsString }
+        stringKeys shouldHaveSize 2
+        stringKeys shouldContainAll listOf("true", "false")
     }
 
     @Test
