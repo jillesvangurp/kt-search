@@ -773,9 +773,10 @@ $dokka.location:com.jillesvangurp.ktsearch/TermsAggregationResult/buckets/#/Poin
 $dokka.location:com.jillesvangurp.ktsearch/TermsAggregationResult/docCountErrorUpperBound/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-aggregation-result/doc-count-error-upper-bound.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsAggregationResult/sumOtherDocCount/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-aggregation-result/sum-other-doc-count.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/index.html
-$dokka.location:com.jillesvangurp.ktsearch/TermsBucket/TermsBucket/#kotlin.String#kotlin.Long/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/-terms-bucket.html
+$dokka.location:com.jillesvangurp.ktsearch/TermsBucket/TermsBucket/#kotlin.String#kotlin.Long#kotlin.String?/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/-terms-bucket.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket/docCount/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/doc-count.html
 $dokka.location:com.jillesvangurp.ktsearch/TermsBucket/key/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/key.html
+$dokka.location:com.jillesvangurp.ktsearch/TermsBucket/keyAsString/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-terms-bucket/key-as-string.html
 $dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/index.html
 $dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult/TopHitsAggregationResult/#com.jillesvangurp.ktsearch.SearchResponse.Hits/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/-top-hits-aggregation-result.html
 $dokka.location:com.jillesvangurp.ktsearch/TopHitsAggregationResult/hits/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-top-hits-aggregation-result/hits.html
