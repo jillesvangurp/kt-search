@@ -1,6 +1,6 @@
 # Deleting by query 
 
-| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Document Manipulation](DocumentManipulation.md) |
+| [KT Search Manual](README.md) | Previous: [Highlighting](Highlighting.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -25,5 +25,5 @@ If you need the optional query parameters on this API, use `client.deleteByQuery
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Document Manipulation](DocumentManipulation.md) |
+| [KT Search Manual](README.md) | Previous: [Highlighting](Highlighting.md) | Next: [Document Manipulation](DocumentManipulation.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

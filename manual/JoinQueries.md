@@ -1,6 +1,6 @@
 # Join Queries 
 
-| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Highlighting](Highlighting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -137,5 +137,5 @@ client.search(indexName) {
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Deep Paging Using search_after and scroll](DeepPaging.md) | Next: [Highlighting](Highlighting.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
