@@ -287,13 +287,12 @@ class SearchTest : SearchTestBase() {
                 add(TestDocument::id, SortOrder.ASC)
             }
             highlight {
-                fields(
-                    field(TestDocument::description.name) {
-                        preTags = "<b>"
-                        postTags = "</b>"
-                        highlightQuery = match(TestDocument::description, "bar")
-                    }
-                )
+                preTags = "<b>"
+                postTags = "</b>"
+                add(TestDocument::description.name) {
+                    highlightQuery = match(TestDocument::description, "bar")
+                }
+
             }
         }
         results.parseHits<TestDocument>().size shouldBe 2

@@ -1,23 +1,6 @@
 package com.jillesvangurp.searchdsls.querydsl
 
-fun SearchDSL.highlight(block: Highlight.() -> Unit) {
-    val builder = Highlight()
-    block.invoke(builder)
-    this["highlight"] = builder
-}
-
-fun Highlight.field(name: String): Field {
-    return Field(name)
-}
-
-fun Highlight.field(
-    name: String,
-    block: Field.() -> Unit,
-): Field {
-    val hf = Field(name)
-    block.invoke(hf)
-    return hf
-}
+import kotlin.reflect.KProperty
 
 @Suppress("EnumEntryName")
 enum class BoundaryScanner {
@@ -51,7 +34,9 @@ enum class Type {
     fvh,
 }
 
-open class Field(name: String) : ESQuery(name) {
+open class HighlightField(name: String) : ESQuery(name) {
+    constructor(property: KProperty<*>) : this(property.name)
+
     var boundaryChars by queryDetails.property<String>()
     var boundaryMaxScan by queryDetails.property<Int>()
     var boundaryScanner by queryDetails.property<BoundaryScanner>()
@@ -65,11 +50,7 @@ open class Field(name: String) : ESQuery(name) {
 
     var noMatchSize by queryDetails.property<Int>()
     var numberOfFragments by queryDetails.property<Int>()
-    var order by queryDetails.property<Order>()
     var phraseLimit by queryDetails.property<Int>()
-    var preTags by queryDetails.property<String>()
-    var postTags by queryDetails.property<String>()
-    var requireFieldMatch by queryDetails.property<Boolean>()
     var maxAnalyzedOffset by queryDetails.property<Int>()
     var tagsSchema by queryDetails.property<String>()
     var type by queryDetails.property<Type>()
@@ -79,8 +60,42 @@ open class Field(name: String) : ESQuery(name) {
     }
 }
 
-class Highlight : Field("highlight") {
-    fun fields(vararg fields: Field) =
+class Highlight : ESQuery("highlight") {
+    var preTags by queryDetails.property<String>()
+    var postTags by queryDetails.property<String>()
+    var requireFieldMatch by queryDetails.property<Boolean>()
+    var order by queryDetails.property<Order>()
+
+    fun fields(vararg fields: HighlightField) =
         queryDetails.getOrCreateMutableList("fields")
             .addAll(fields.map { it.wrapWithName() })
+
+    fun add(
+        name: String,
+        block: (HighlightField.() -> Unit)? = null,
+    ) {
+        val hf = HighlightField(name)
+        block?.invoke(hf)
+        fields(hf)
+    }
+    fun add(
+        name: KProperty<*>,
+        block: (HighlightField.() -> Unit)? = null,
+    ) {
+        val hf = HighlightField(name)
+        block?.invoke(hf)
+        fields(hf)
+    }
+}
+
+fun SearchDSL.highlight(
+    vararg fields: HighlightField,
+    block: (Highlight.() -> Unit)?=null
+) {
+    val builder = Highlight()
+    if(fields.isNotEmpty()) {
+        builder.fields(*fields)
+    }
+    block?.invoke(builder)
+    this["highlight"] = builder
 }
