@@ -19,12 +19,13 @@ val searchMd = sourceGitRepository.md {
     client.indexTestFixture(indexName)
 
     +"""
-        Searching is of course the main reason for using Opensearch and Elasticsearch. Kt-search supports this
-        with a rich Kotlin DSL. However, you can also use string literals to search.
+        Searching is of course the main reason for using Opensearch or Elasticsearch. Kt-search supports this
+        with a rich Kotlin DSL.
         
         The advantage of using a Kotlin DSL for writing your queries is that you can rely on Kotlin's type safety
         and also use things like refactoring, property references to fields in your model classes, functional programming,
         etc.
+        
                 
     """.trimIndent()
 
@@ -64,27 +65,7 @@ val searchMd = sourceGitRepository.md {
             Of course normally, you'd specify some kind of query. One valid way is to simply pass that as a string.
             Kotlin of course has multiline strings that can be templated as well. So, this may be all you need.
         """.trimIndent()
-        example {
-            val term = "legumes"
-            client.search(
-                indexName, rawJson = """
-                {
-                    "query": {
-                        "term": {
-                            // using property references is a good idea
-                            "tags": {                             
-                              "value":"$term"
-                            }
-                        }
-                    }
-                }
-            """.trimIndent()
-            ).ids
-        }.let {
-            +"""
-                This returns: `${it.result.getOrNull()}`
-            """.trimIndent()
-        }
+
     }
 
     +"""
@@ -195,6 +176,37 @@ val searchMd = sourceGitRepository.md {
 
         }
     }
+
+    section("Searching without the DSL") {
+        +"""
+            It's not required to use the DSL and you can also use Kotlin's raw String literals to 
+            compose a query and use Kotlin's String templating. This is convenient if you are prototyping
+            your queries in Kibana's dev console as you can simply copy paste the query into your code and
+            have a working query. 
+
+        """.trimIndent()
+        example {
+            val term = "legumes"
+            client.search(
+                indexName, rawJson = """
+                {
+                    "query": {
+                        "term": {
+                            "tags": {                             
+                              "value":"$term"
+                            }
+                        }
+                    }
+                }
+            """.trimIndent()
+            ).ids
+        }.let {
+            +"""
+                This returns: `${it.result.getOrNull()}`
+            """.trimIndent()
+        }
+    }
+
     section("Count API") {
         +"""
             Elasticsearch also has a more limited _count API dedicated to simply counting results.
