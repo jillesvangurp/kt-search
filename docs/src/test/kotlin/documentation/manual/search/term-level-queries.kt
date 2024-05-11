@@ -20,6 +20,16 @@ val termLevelQueriesMd = sourceGitRepository.md {
             }.pretty("Term Query.").let { println(it) }
         }.printStdOut()
 
+        +"""
+            You can also do terms queries using numbers or booleans.
+        """.trimIndent()
+        example {
+            client.search(indexName) {
+                query = term(TestDoc::price, 0.80)
+            }.pretty("Term Query.").let { println(it) }
+        }
+
+
     }
     section("Terms query") {
         example {

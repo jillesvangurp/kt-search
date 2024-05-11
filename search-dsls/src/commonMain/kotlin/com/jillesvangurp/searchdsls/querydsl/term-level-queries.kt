@@ -171,14 +171,14 @@ fun QueryClauses.regExp(
 
 // BEGIN term-query
 class TermQueryConfig : JsonDsl() {
-    var value by property<String>()
+    var value by property<Any>()
     var boost by property<Double>()
 }
 
 @SearchDSLMarker
 class TermQuery(
     field: String,
-    value: String,
+    value: Any,
     termQueryConfig: TermQueryConfig = TermQueryConfig(),
     block: (TermQueryConfig.() -> Unit)? = null
 ) : ESQuery("term") {
@@ -203,6 +203,35 @@ fun QueryClauses.term(
     block: (TermQueryConfig.() -> Unit)? = null
 ) =
     TermQuery(field,value, block = block)
+
+fun QueryClauses.term(
+    field: KProperty<*>,
+    value: Number,
+    block: (TermQueryConfig.() -> Unit)? = null
+) =
+    TermQuery(field.name,value, block = block)
+
+fun QueryClauses.term(
+    field: String,
+    value: Number,
+    block: (TermQueryConfig.() -> Unit)? = null
+) =
+    TermQuery(field,value, block = block)
+
+fun QueryClauses.term(
+    field: KProperty<*>,
+    value: Boolean,
+    block: (TermQueryConfig.() -> Unit)? = null
+) =
+    TermQuery(field.name,value, block = block)
+
+fun QueryClauses.term(
+    field: String,
+    value: Boolean,
+    block: (TermQueryConfig.() -> Unit)? = null
+) =
+    TermQuery(field,value, block = block)
+
 // END term-query
 
 @SearchDSLMarker
