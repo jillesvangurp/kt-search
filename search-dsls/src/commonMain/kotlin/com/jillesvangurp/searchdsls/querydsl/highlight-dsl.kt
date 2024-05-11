@@ -61,7 +61,7 @@ open class Field(name: String) : ESQuery(name) {
     var fragmentOffset by queryDetails.property<Int>()
     var fragmentSize by queryDetails.property<Int>()
 
-    var highlightQuery by queryDetails.property<ESQuery>()
+    var highlightQuery by queryDetails.esQueryProperty()
 
     var noMatchSize by queryDetails.property<Int>()
     var numberOfFragments by queryDetails.property<Int>()
@@ -74,7 +74,9 @@ open class Field(name: String) : ESQuery(name) {
     var tagsSchema by queryDetails.property<String>()
     var type by queryDetails.property<Type>()
 
-    fun matchedFields(vararg matchedFields: String) = queryDetails.getOrCreateMutableList("matched_fields")
+    fun matchedFields(vararg matchedFields: String) = queryDetails.getOrCreateMutableList("matched_fields").also {
+        it.addAll(matchedFields)
+    }
 }
 
 class Highlight : Field("highlight") {

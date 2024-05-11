@@ -18,6 +18,8 @@ class BoolQuery : ESQuery(name = "bool") {
     fun mustNot(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("must_not").addAll(q.map { it.wrapWithName() })
     fun filter(q: List<ESQuery>) = queryDetails.getOrCreateMutableList("filter").addAll(q.map { it.wrapWithName() })
 
+    fun minimumShouldMatch(value: Int) = queryDetails.put("minimum_should_match", value)
+
     var boost by queryDetails.property<Double>()
 }
 
