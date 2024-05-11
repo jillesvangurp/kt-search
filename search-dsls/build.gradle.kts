@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+
 plugins {
     kotlin("multiplatform")
 }
@@ -21,6 +25,9 @@ kotlin {
     mingwX64()
     macosX64()
     macosArm64()
+    wasmJs()
+    // not supported by kotest yet
+//    wasmWasi()
     sourceSets {
         commonMain {
             dependencies {
