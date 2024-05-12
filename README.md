@@ -345,6 +345,8 @@ There are of course a lot more features that this library supports. The
 
 - [Join Queries](https://jillesvangurp.github.io/kt-search/manual/JoinQueries.html)
 
+- [Highlighting](https://jillesvangurp.github.io/kt-search/manual/Highlighting.html)
+
 ### Indices and Documents
 
 - [Deleting by query](https://jillesvangurp.github.io/kt-search/manual/DeleteByQuery.html)
