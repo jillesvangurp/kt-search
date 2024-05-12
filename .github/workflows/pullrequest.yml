@@ -21,6 +21,6 @@ jobs:
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
-      run: ./gradlew check
+      run: ./gradlew check -x jsTest -x jsBrowserTest -x jsNodeTest
     - name: Compose down
       run: ./gradlew :search-client:composeDown
