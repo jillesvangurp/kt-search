@@ -12,3 +12,6 @@ actual fun coRun(timeout: Duration, block: suspend () -> Unit) {
         }
     }
 }
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+actual annotation class IgnoreJs

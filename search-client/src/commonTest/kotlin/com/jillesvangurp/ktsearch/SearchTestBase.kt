@@ -14,6 +14,9 @@ import kotlin.time.Duration.Companion.seconds
 
 expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
 
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+expect annotation class IgnoreJs()
+
 private val logger = KotlinLogging.logger {  }
 private var versionInfo: SearchEngineInformation?=null
 
