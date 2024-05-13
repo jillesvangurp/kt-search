@@ -23,6 +23,14 @@ Term Query. Found 2 results:
 - 0.4700036 2 Banana
 ```
 
+You can also do terms queries using numbers or booleans.
+
+```kotlin
+client.search(indexName) {
+  query = term(TestDoc::price, 0.80)
+}.pretty("Term Query.").let { println(it) }
+```
+
 ## Terms query
 
 ```kotlin
