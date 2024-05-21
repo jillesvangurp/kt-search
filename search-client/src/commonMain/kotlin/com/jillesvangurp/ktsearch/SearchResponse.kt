@@ -413,3 +413,14 @@ fun Aggregations?.topHitResult(name: String, json: Json = DEFAULT_JSON): TopHits
 fun Aggregations?.topHitResult(name: Enum<*>, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
     getAggResult(name.name, json)
 
+@Serializable
+data class SumAggregationResult(
+    val value: Double,
+)
+
+fun Aggregations?.sumAggregationResult(name: String, json: Json = DEFAULT_JSON): SumAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.sumAggregationResult(name: Enum<*>, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
+    getAggResult(name.name, json)
+
