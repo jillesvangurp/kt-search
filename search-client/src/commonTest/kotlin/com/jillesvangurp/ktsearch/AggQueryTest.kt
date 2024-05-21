@@ -259,4 +259,14 @@ class AggQueryTest : SearchTestBase() {
             b.topHitResult("top").hits.hits.size shouldBeGreaterThan 0
         }
     }
+
+    @Test
+    fun sumAgg() = coRun {
+        before()
+        val response = repository.search {
+            resultSize = 0
+            agg("by_value", SumAgg(MockDoc::value)){}
+        }
+        response.aggregations.sumAggregationResult("by_value").value shouldBe 10.0
+    }
 }
