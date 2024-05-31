@@ -58,7 +58,7 @@ println(first.name)
 This prints:
 
 ```text
-Brandenburger Tor
+
 ```
 
 The Brandenburger Tor is closer to itself than the TV tower so it comes out on top.
@@ -80,7 +80,7 @@ print(first.name)
 This prints:
 
 ```text
-Tv Tower
+
 ```
 
 The building year of the TV tower is closer to 2020 than the Brandenburger Gate
