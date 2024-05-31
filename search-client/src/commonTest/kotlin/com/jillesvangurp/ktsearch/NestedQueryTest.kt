@@ -5,6 +5,8 @@ import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.ScoreMode
 import com.jillesvangurp.searchdsls.querydsl.nested
 import com.jillesvangurp.searchdsls.querydsl.range
+import com.jillesvangurp.serializationext.DEFAULT_JSON
+import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

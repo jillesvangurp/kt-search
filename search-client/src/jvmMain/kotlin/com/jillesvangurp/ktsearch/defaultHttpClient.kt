@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.engine.java.*

@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test

@@ -3,6 +3,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.SearchEngineVariant
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json

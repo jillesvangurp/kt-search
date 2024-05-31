@@ -102,6 +102,7 @@ kotlin {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
                 api("com.jillesvangurp:json-dsl:_")
+                api("com.jillesvangurp:kotlinx-serialization-extensions:_")
                 api(KotlinX.datetime)
                 implementation(Ktor.client.core)
                 api(KotlinX.coroutines.core)
@@ -116,6 +117,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")
                 implementation("io.ktor:ktor-client-content-negotiation:_")
+
             }
         }
         commonTest {

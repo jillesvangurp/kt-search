@@ -5,6 +5,7 @@ package documentation.manual.bulk
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable

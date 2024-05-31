@@ -38,7 +38,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common", "_"))
                 implementation("com.jillesvangurp:json-dsl:_")
-
             }
         }
         commonTest {
