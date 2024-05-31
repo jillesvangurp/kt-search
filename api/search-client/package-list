@@ -43,8 +43,6 @@ $dokka.location:com.jillesvangurp.ktsearch.repository/TypedDocumentIBulkSession/
 $dokka.location:com.jillesvangurp.ktsearch.repository/TypedDocumentIBulkSession/update/#com.jillesvangurp.ktsearch.SourceInformation#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch.repository/-typed-document-i-bulk-session/update.html
 $dokka.location:com.jillesvangurp.ktsearch.repository/TypedDocumentIBulkSession/update/#kotlin.String#TypeParam(bounds=[kotlin.Any?])#kotlin.Int#kotlin.Int#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch.repository/-typed-document-i-bulk-session/update.html
 $dokka.location:com.jillesvangurp.ktsearch////PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/index.html
-$dokka.location:com.jillesvangurp.ktsearch//DEFAULT_JSON/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-d-e-f-a-u-l-t_-j-s-o-n.html
-$dokka.location:com.jillesvangurp.ktsearch//DEFAULT_PRETTY_JSON/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-d-e-f-a-u-l-t_-p-r-e-t-t-y_-j-s-o-n.html
 $dokka.location:com.jillesvangurp.ktsearch//analyze/com.jillesvangurp.ktsearch.SearchClient#kotlin.String?#kotlin.Function1[com.jillesvangurp.ktsearch.AnalyzeRequest,kotlin.Unit]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/analyze.html
 $dokka.location:com.jillesvangurp.ktsearch//asResult/com.jillesvangurp.ktsearch.RestResponse#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/as-result.html
 $dokka.location:com.jillesvangurp.ktsearch//bucket/com.jillesvangurp.ktsearch.FiltersAggregationResult#kotlin.String#kotlinx.serialization.json.Json/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/bucket.html
@@ -375,7 +373,6 @@ $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards///PointingToDeclarati
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/entries/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/entries.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/valueOf/#kotlin.String/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/value-of.html
 $dokka.location:com.jillesvangurp.ktsearch/ExpandWildCards/values/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-expand-wild-cards/values.html
-$dokka.location:com.jillesvangurp.ktsearch/ExperimentalFeature///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-experimental-feature/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ExtendedStatsBucketResult.Bounds///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-extended-stats-bucket-result/-bounds/index.html
 $dokka.location:com.jillesvangurp.ktsearch/ExtendedStatsBucketResult.Bounds/Bounds/#kotlin.Double#kotlin.Double#kotlin.Double#kotlin.Double#kotlin.Double#kotlin.Double/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-extended-stats-bucket-result/-bounds/-bounds.html
 $dokka.location:com.jillesvangurp.ktsearch/ExtendedStatsBucketResult.Bounds/lower/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-extended-stats-bucket-result/-bounds/lower.html
