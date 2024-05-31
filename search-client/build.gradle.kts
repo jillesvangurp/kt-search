@@ -90,7 +90,11 @@ kotlin {
     macosX64()
     macosArm64()
     // Blocked on ktor-client support
-    // wasmJs()
+//    wasmJs {
+//        browser()
+//        nodejs()
+//        d8()
+//    }
 
     sourceSets {
         commonMain {
@@ -156,8 +160,13 @@ kotlin {
         }
 
         all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            languageSettings {
+                optIn("kotlin.RequiresOptIn")
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                languageVersion = "1.9"
+                apiVersion = "1.9"
+            }
+
         }
     }
 }

@@ -8,6 +8,7 @@ plugins {
 
 kotlin {
     jvm {
+
     }
     js(IR) {
         browser()
@@ -25,7 +26,11 @@ kotlin {
     mingwX64()
     macosX64()
     macosArm64()
-    wasmJs()
+    wasmJs {
+        browser()
+        nodejs()
+        d8()
+    }
     // not supported by kotest yet
 //    wasmWasi()
     sourceSets {
@@ -65,6 +70,10 @@ kotlin {
         }
 
         all {
+            languageSettings {
+                languageVersion = "1.9"
+                apiVersion = "1.9"
+            }
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
     }

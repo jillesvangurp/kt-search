@@ -29,7 +29,6 @@ subprojects {
         kotlinOptions {
             // this is the minimum LTS version we support, 11 and 8 are no longer supported
             jvmTarget = "17"
-            languageVersion = "1.9"
         }
     }
 
