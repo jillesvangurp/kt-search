@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

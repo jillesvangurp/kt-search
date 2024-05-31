@@ -90,7 +90,11 @@ kotlin {
     macosX64()
     macosArm64()
     // Blocked on ktor-client support
-    // wasmJs()
+//    wasmJs {
+//        browser()
+//        nodejs()
+//        d8()
+//    }
 
     sourceSets {
         commonMain {
@@ -98,6 +102,7 @@ kotlin {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
                 api("com.jillesvangurp:json-dsl:_")
+                api("com.jillesvangurp:kotlinx-serialization-extensions:_")
                 api(KotlinX.datetime)
                 implementation(Ktor.client.core)
                 api(KotlinX.coroutines.core)
@@ -112,6 +117,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")
                 implementation("io.ktor:ktor-client-content-negotiation:_")
+
             }
         }
         commonTest {
@@ -156,8 +162,13 @@ kotlin {
         }
 
         all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            languageSettings {
+                optIn("kotlin.RequiresOptIn")
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                languageVersion = "1.9"
+                apiVersion = "1.9"
+            }
+
         }
     }
 }

@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

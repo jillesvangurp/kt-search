@@ -3,9 +3,16 @@
 package documentation.manual.knn
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.ktsearch.bulk
+import com.jillesvangurp.ktsearch.create
+import com.jillesvangurp.ktsearch.createIndex
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.parseHit
+import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.searchHits
 import com.jillesvangurp.searchdsls.mappingdsl.KnnSimilarity
 import com.jillesvangurp.searchdsls.querydsl.KnnQuery
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import documentation.manual.search.client
 import documentation.printStdOut
 import documentation.sourceGitRepository

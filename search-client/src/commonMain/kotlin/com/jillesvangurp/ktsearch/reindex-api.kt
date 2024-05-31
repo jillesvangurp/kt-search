@@ -38,7 +38,6 @@ data class ReindexResponse(
 data class ReindexRetries(val bulk: Int, val search: Int)
 
 @VariantRestriction(ES7, ES8)
-@ExperimentalFeature
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
     timeout: Duration? = null,
@@ -64,7 +63,6 @@ suspend fun SearchClient.reindex(
 
 
 @VariantRestriction(ES7, ES8)
-@ExperimentalFeature
 suspend fun SearchClient.reindexAsync(
     refresh: Boolean? = null,
     timeout: Duration? = null,
@@ -118,11 +116,6 @@ private suspend fun SearchClient.reindexGeneric(
         body = reindexDSL.toString()
     }
 }
-
-@RequiresOptIn(level = WARNING, message = "This API is experimental. It can be incompatibly changed in the future.")
-@Retention(BINARY)
-@Target(FUNCTION)
-annotation class ExperimentalFeature
 
 @Serializable
 data class TaskResponse(val task: String) {

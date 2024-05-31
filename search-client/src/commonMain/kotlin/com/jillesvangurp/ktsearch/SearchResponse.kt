@@ -3,6 +3,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull

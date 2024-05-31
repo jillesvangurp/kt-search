@@ -1,6 +1,6 @@
 package com.jillesvangurp.ktsearch.repository
 
-import com.jillesvangurp.ktsearch.DEFAULT_JSON
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.ktsearch.SearchClient
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json

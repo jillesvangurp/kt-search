@@ -8,6 +8,7 @@ plugins {
 
 kotlin {
     jvm {
+
     }
     js(IR) {
         browser()
@@ -25,7 +26,11 @@ kotlin {
     mingwX64()
     macosX64()
     macosArm64()
-    wasmJs()
+    wasmJs {
+        browser()
+        nodejs()
+        d8()
+    }
     // not supported by kotest yet
 //    wasmWasi()
     sourceSets {
@@ -33,7 +38,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common", "_"))
                 implementation("com.jillesvangurp:json-dsl:_")
-
             }
         }
         commonTest {
@@ -65,6 +69,10 @@ kotlin {
         }
 
         all {
+            languageSettings {
+                languageVersion = "1.9"
+                apiVersion = "1.9"
+            }
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
     }

@@ -38,6 +38,7 @@ dependencies {
     testImplementation(project(":search-dsls"))
     testImplementation(project(":search-client"))
     testImplementation("com.jillesvangurp:json-dsl:_")
+    testImplementation("com.jillesvangurp:kotlinx-serialization-extensions:_")
 
     testImplementation(Kotlin.stdlib.jdk8)
     testImplementation(KotlinX.coroutines.jdk8)

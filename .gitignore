@@ -2,6 +2,7 @@
 bin
 build/
 !gradle/wrapper/gradle-wrapper.jar
+.kotlin
 
 ### STS ###
 .apt_generated

@@ -1,6 +1,6 @@
 package documentation.manual.search
 
-import com.jillesvangurp.ktsearch.DEFAULT_PRETTY_JSON
+import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.searchdsls.querydsl.Fragmenter
 import com.jillesvangurp.searchdsls.querydsl.Type

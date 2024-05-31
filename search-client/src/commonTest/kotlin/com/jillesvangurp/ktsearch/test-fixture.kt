@@ -1,6 +1,8 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
+import com.jillesvangurp.serializationext.DEFAULT_JSON
+import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.EncodeDefault

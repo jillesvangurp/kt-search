@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

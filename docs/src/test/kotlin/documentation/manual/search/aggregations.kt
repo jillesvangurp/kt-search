@@ -5,6 +5,8 @@ package documentation.manual.search
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.serializationext.DEFAULT_JSON
+import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
