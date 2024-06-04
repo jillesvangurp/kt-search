@@ -29,6 +29,17 @@ val termLevelQueriesMd = sourceGitRepository.md {
             }.pretty("Term Query.").let { println(it) }
         }
 
+        +"""
+            By default term queries are case sensitive. But you can turn that off.
+        """.trimIndent()
+        example {
+            client.search(indexName) {
+                query = term(TestDoc::tags, "fRuIt") {
+                    caseInsensitive = true
+                }
+            }.pretty("Term Query.").let { println(it) }
+        }.printStdOut()
+
 
     }
     section("Terms query") {

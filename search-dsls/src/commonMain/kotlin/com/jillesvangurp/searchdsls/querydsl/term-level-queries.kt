@@ -173,6 +173,7 @@ fun QueryClauses.regExp(
 class TermQueryConfig : JsonDsl() {
     var value by property<Any>()
     var boost by property<Double>()
+    var caseInsensitive by property<Boolean>()
 }
 
 @SearchDSLMarker
