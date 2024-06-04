@@ -133,39 +133,39 @@ This prints:
 
 ```text
 query for vector of rice:
-g38azo8BZBRlp7VgkQOr - 0.9389602: chicken
-gX8azo8BZBRlp7VgkQOq - 0.916195: chicken teriyaki with rice
-fX8azo8BZBRlp7VgkQOq - 0.91184926: apple pie
+p8Fl4Y8BMB3V5H2myPzl - 0.9389602: chicken
+pcFl4Y8BMB3V5H2myPzl - 0.916195: chicken teriyaki with rice
+ocFl4Y8BMB3V5H2myPzl - 0.91184926: apple pie
 ---
 query for vector of gebak en taart:
-gH8azo8BZBRlp7VgkQOq - 0.9021788: pattiserie
-gn8azo8BZBRlp7VgkQOq - 0.9010898: tikka massala
-fX8azo8BZBRlp7VgkQOq - 0.89891326: apple pie
+pMFl4Y8BMB3V5H2myPzl - 0.9021788: pattiserie
+psFl4Y8BMB3V5H2myPzl - 0.9010898: tikka massala
+ocFl4Y8BMB3V5H2myPzl - 0.89891326: apple pie
 ---
 query for vector of muppets:
-fX8azo8BZBRlp7VgkQOq - 0.9121342: apple pie
-g38azo8BZBRlp7VgkQOr - 0.91064054: chicken
-gH8azo8BZBRlp7VgkQOq - 0.90385926: pattiserie
+ocFl4Y8BMB3V5H2myPzl - 0.9121342: apple pie
+p8Fl4Y8BMB3V5H2myPzl - 0.91064054: chicken
+pMFl4Y8BMB3V5H2myPzl - 0.90385926: pattiserie
 ---
 query for vector of artisanal baker:
-fn8azo8BZBRlp7VgkQOq - 0.9168335: chocolate chip cookie
-f38azo8BZBRlp7VgkQOq - 0.9078536: the cookie monster
-e38azo8BZBRlp7VgkQOq - 0.9031166: banana muffin with chocolate chips
+osFl4Y8BMB3V5H2myPzl - 0.9168335: chocolate chip cookie
+o8Fl4Y8BMB3V5H2myPzl - 0.9078536: the cookie monster
+n8Fl4Y8BMB3V5H2myPzl - 0.9031166: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-g38azo8BZBRlp7VgkQOr - 0.9383265: chicken
-gX8azo8BZBRlp7VgkQOq - 0.93595815: chicken teriyaki with rice
-gn8azo8BZBRlp7VgkQOq - 0.9253379: tikka massala
+p8Fl4Y8BMB3V5H2myPzl - 0.9383265: chicken
+pcFl4Y8BMB3V5H2myPzl - 0.93595815: chicken teriyaki with rice
+psFl4Y8BMB3V5H2myPzl - 0.9253379: tikka massala
 ---
 query for vector of japanese food:
-gX8azo8BZBRlp7VgkQOq - 0.9337205: chicken teriyaki with rice
-g38azo8BZBRlp7VgkQOr - 0.9329303: chicken
-fX8azo8BZBRlp7VgkQOq - 0.9222199: apple pie
+pcFl4Y8BMB3V5H2myPzl - 0.9337205: chicken teriyaki with rice
+p8Fl4Y8BMB3V5H2myPzl - 0.9329303: chicken
+ocFl4Y8BMB3V5H2myPzl - 0.9222199: apple pie
 ---
 query for vector of baked goods:
-fX8azo8BZBRlp7VgkQOq - 0.9228046: apple pie
-fn8azo8BZBRlp7VgkQOq - 0.91771054: chocolate chip cookie
-fH8azo8BZBRlp7VgkQOq - 0.9135959: apple crumble
+ocFl4Y8BMB3V5H2myPzl - 0.9228046: apple pie
+osFl4Y8BMB3V5H2myPzl - 0.91771054: chocolate chip cookie
+oMFl4Y8BMB3V5H2myPzl - 0.9135959: apple crumble
 ---
 ```
 

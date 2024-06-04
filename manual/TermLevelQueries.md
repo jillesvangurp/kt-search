@@ -31,6 +31,24 @@ client.search(indexName) {
 }.pretty("Term Query.").let { println(it) }
 ```
 
+By default term queries are case sensitive. But you can turn that off.
+
+```kotlin
+client.search(indexName) {
+  query = term(TestDoc::tags, "fRuIt") {
+    caseInsensitive = true
+  }
+}.pretty("Term Query.").let { println(it) }
+```
+
+This prints:
+
+```text
+Term Query. Found 2 results:
+- 1.0 1 Apple
+- 1.0 2 Banana
+```
+
 ## Terms query
 
 ```kotlin
