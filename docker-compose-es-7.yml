@@ -1,12 +1,11 @@
-version: '2.2'
 services:
   es7:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
       - cluster.routing.allocation.disk.threshold_enabled=true
       # make sure it works on nearly full disk
       - cluster.routing.allocation.disk.watermark.low=3gb

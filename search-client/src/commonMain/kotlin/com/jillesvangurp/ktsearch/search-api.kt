@@ -823,3 +823,21 @@ suspend fun SearchClient.msearch(
 
 @Serializable
 data class MultiSearchResponse(val took: Long, val responses: List<SearchResponse>)
+
+fun MultiSearchResponse.rrf(k: Int = 60): List<Pair<String, Double>> {
+    val aggregatedScores = mutableMapOf<String, Double>()
+
+    // Score all the hits based on their aggregate ranking across the results
+    this.responses.forEach { searchResponse ->
+        // Process each SearchHit in the SearchResponse
+        searchResponse.hits?.hits.orEmpty().forEachIndexed { rank, searchHit ->
+            // Calculate the RRF score and add it to the aggregated score
+            val score = 1.0 / (k + rank)
+
+            aggregatedScores[searchHit.id] = (aggregatedScores[searchHit.id]?:0.0) + score
+        }
+    }
+
+    // Convert the aggregated scores to a sorted list
+    return aggregatedScores.toList().sortedByDescending { it.second }
+}
