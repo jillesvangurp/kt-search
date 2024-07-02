@@ -89,6 +89,10 @@ kotlin {
     mingwX64()
     macosX64()
     macosArm64()
+    // iOS targets
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
     // Blocked on ktor-client support
 //    wasmJs {
 //        browser()
