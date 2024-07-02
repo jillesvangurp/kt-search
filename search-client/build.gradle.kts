@@ -92,7 +92,8 @@ kotlin {
     // iOS targets
     iosArm64()
     iosX64()
-    iosSimulatorArm64()
+    // Blocked on json-dsl and kotlinx-serialization-extensions support
+    // iosSimulatorArm64()
     // Blocked on ktor-client support
 //    wasmJs {
 //        browser()
@@ -101,7 +102,7 @@ kotlin {
 //    }
 
     sourceSets {
-        commonMain {
+        val commonMain by getting {
             dependencies {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
@@ -162,6 +163,19 @@ kotlin {
         nativeMain {
             dependencies {
                 implementation(Ktor.client.curl)
+            }
+        }
+
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        // val iosSimulatorArm64Main by getting
+        val iosMain by creating {
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            // iosSimulatorArm64Main.dependsOn(this)
+            dependencies {
+                implementation(Ktor.client.darwin)
             }
         }
 
