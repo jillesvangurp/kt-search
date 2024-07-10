@@ -102,7 +102,7 @@ kotlin {
 //    }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(kotlin("stdlib-common", "_"))
                 api(project(":search-dsls"))
