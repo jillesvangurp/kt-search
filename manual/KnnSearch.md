@@ -133,39 +133,39 @@ This prints:
 
 ```text
 query for vector of rice:
-699yWJABqQXJk1kWntpn - 0.93660545: chicken
-6d9yWJABqQXJk1kWntpn - 0.9159527: chicken teriyaki with rice
-5d9yWJABqQXJk1kWntpn - 0.91181946: apple pie
+rymBoJABr5f-ueae2RIm - 0.93660545: chicken
+rSmBoJABr5f-ueae2RIm - 0.9159527: chicken teriyaki with rice
+qSmBoJABr5f-ueae2RIm - 0.91181946: apple pie
 ---
 query for vector of gebak en taart:
-5d9yWJABqQXJk1kWntpn - 0.8899498: apple pie
-6t9yWJABqQXJk1kWntpn - 0.8890915: tikka massala
-6N9yWJABqQXJk1kWntpn - 0.88838005: pattiserie
+qSmBoJABr5f-ueae2RIm - 0.8899498: apple pie
+rimBoJABr5f-ueae2RIm - 0.8890915: tikka massala
+rCmBoJABr5f-ueae2RIm - 0.88838005: pattiserie
 ---
 query for vector of muppets:
-5d9yWJABqQXJk1kWntpn - 0.9113884: apple pie
-699yWJABqQXJk1kWntpn - 0.90841866: chicken
-599yWJABqQXJk1kWntpn - 0.90057564: the cookie monster
+qSmBoJABr5f-ueae2RIm - 0.9113884: apple pie
+rymBoJABr5f-ueae2RIm - 0.90841866: chicken
+qymBoJABr5f-ueae2RIm - 0.90057564: the cookie monster
 ---
 query for vector of artisanal baker:
-5t9yWJABqQXJk1kWntpn - 0.9066143: chocolate chip cookie
-599yWJABqQXJk1kWntpn - 0.89697075: the cookie monster
-499yWJABqQXJk1kWntpn - 0.8922405: banana muffin with chocolate chips
+qimBoJABr5f-ueae2RIm - 0.9066143: chocolate chip cookie
+qymBoJABr5f-ueae2RIm - 0.89697075: the cookie monster
+pymBoJABr5f-ueae2RIm - 0.8922405: banana muffin with chocolate chips
 ---
 query for vector of indian curry:
-699yWJABqQXJk1kWntpn - 0.9322586: chicken
-6d9yWJABqQXJk1kWntpn - 0.9312973: chicken teriyaki with rice
-6t9yWJABqQXJk1kWntpn - 0.9182453: tikka massala
+rymBoJABr5f-ueae2RIm - 0.9322586: chicken
+rSmBoJABr5f-ueae2RIm - 0.9312973: chicken teriyaki with rice
+rimBoJABr5f-ueae2RIm - 0.9182453: tikka massala
 ---
 query for vector of japanese food:
-6d9yWJABqQXJk1kWntpn - 0.92860985: chicken teriyaki with rice
-699yWJABqQXJk1kWntpn - 0.9264393: chicken
-5d9yWJABqQXJk1kWntpn - 0.9177284: apple pie
+rSmBoJABr5f-ueae2RIm - 0.92860985: chicken teriyaki with rice
+rymBoJABr5f-ueae2RIm - 0.9264393: chicken
+qSmBoJABr5f-ueae2RIm - 0.9177284: apple pie
 ---
 query for vector of baked goods:
-5d9yWJABqQXJk1kWntpn - 0.9216957: apple pie
-5t9yWJABqQXJk1kWntpn - 0.91723824: chocolate chip cookie
-5N9yWJABqQXJk1kWntpn - 0.91052055: apple crumble
+qSmBoJABr5f-ueae2RIm - 0.9216957: apple pie
+qimBoJABr5f-ueae2RIm - 0.91723824: chocolate chip cookie
+qCmBoJABr5f-ueae2RIm - 0.91052055: apple crumble
 ---
 ```
 
