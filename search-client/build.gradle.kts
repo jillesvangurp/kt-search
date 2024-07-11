@@ -89,6 +89,11 @@ kotlin {
     mingwX64()
     macosX64()
     macosArm64()
+    // iOS targets
+    iosArm64()
+    iosX64()
+    // Blocked on json-dsl and kotlinx-serialization-extensions support
+    // iosSimulatorArm64()
     // Blocked on ktor-client support
 //    wasmJs {
 //        browser()
@@ -155,7 +160,19 @@ kotlin {
             }
         }
 
-        nativeMain {
+        iosMain {
+            dependencies {
+                implementation(Ktor.client.darwin)
+            }
+        }
+
+        macosMain {
+            dependencies {
+                implementation(Ktor.client.darwin)
+            }
+        }
+
+        mingwMain {
             dependencies {
                 implementation(Ktor.client.curl)
             }
