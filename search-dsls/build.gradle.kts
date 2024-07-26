@@ -85,6 +85,11 @@ kotlin {
                 languageVersion = "1.9"
                 apiVersion = "1.9"
             }
+
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
     }
