@@ -1,5 +1,7 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
@@ -8,8 +10,13 @@ plugins {
 
 kotlin {
     jvm {
-
+        // should work for android as well
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
+
     js(IR) {
         browser()
         nodejs {
@@ -81,4 +88,11 @@ kotlin {
         }
     }
 }
+
+tasks.named("iosSimulatorArm64Test") {
+    // requires IOS simulator and tens of GB of other stuff to be installed
+    // so keep it disabled
+    enabled = false
+}
+
 

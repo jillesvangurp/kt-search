@@ -7,6 +7,8 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.net.URI
 import java.net.URL
 import java.util.*
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 // Stub secrets to let the project sync and build without the publication values set up
@@ -59,6 +61,11 @@ val searchEngine = getStringProperty("searchEngine", "es-8")
 
 kotlin {
     jvm {
+        // should work for android as well
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
     js(IR) {
         browser {
@@ -185,11 +192,15 @@ kotlin {
                 languageVersion = "1.9"
                 apiVersion = "1.9"
             }
-
         }
     }
 }
 
+tasks.named("iosSimulatorArm64Test") {
+    // requires IOS simulator and tens of GB of other stuff to be installed
+    // so keep it disabled
+    enabled = false
+}
 
 configure<ComposeExtension> {
     buildAdditionalArgs.set(listOf("--force-rm"))

@@ -23,15 +23,6 @@ allprojects {
 
 subprojects {
 
-    tasks.withType<KotlinJvmCompile> {
-        jvmTargetValidationMode.set(WARNING)
-
-        kotlinOptions {
-            // this is the minimum LTS version we support, 11 and 8 are no longer supported
-            jvmTarget = "17"
-        }
-    }
-
     tasks.register("versionCheck") {
         doLast {
             if (rootProject.version == "unspecified") {
