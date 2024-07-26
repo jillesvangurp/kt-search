@@ -99,6 +99,7 @@ kotlin {
     // iOS targets
     iosArm64()
     iosX64()
+    iosSimulatorArm64()
     // Blocked on json-dsl and kotlinx-serialization-extensions support
     // iosSimulatorArm64()
     // Blocked on ktor-client support
