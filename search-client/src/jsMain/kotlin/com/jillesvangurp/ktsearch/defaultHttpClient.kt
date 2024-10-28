@@ -1,13 +1,13 @@
 package com.jillesvangurp.ktsearch
 
-import io.ktor.client.*
-import io.ktor.client.engine.js.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.js.Js
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
+import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.headers
 
 actual fun defaultKtorHttpClient(
     logging: Boolean,
