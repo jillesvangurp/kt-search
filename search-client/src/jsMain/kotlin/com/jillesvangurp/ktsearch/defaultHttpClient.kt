@@ -42,8 +42,5 @@ actual fun defaultKtorHttpClient(
                 append("Authorization", "ApiKey $elasticApiKey")
             }
         }
-        install(ContentNegotiation) {
-            json()
-        }
     }
 }

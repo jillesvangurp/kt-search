@@ -37,9 +37,6 @@ actual fun defaultKtorHttpClient(
                 append("Authorization", "ApiKey $elasticApiKey")
             }
         }
-        install(ContentNegotiation) {
-            json(DEFAULT_JSON)
-        }
         if (logging) {
             install(Logging) {
                 level = LogLevel.ALL
