@@ -56,8 +56,6 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation:_")
 
 
-    testImplementation("io.github.microutils:kotlin-logging:_")
-
     // bring your own logging, but we need some in tests
     testImplementation("org.slf4j:slf4j-api:_")
     testImplementation("org.slf4j:jcl-over-slf4j:_")
