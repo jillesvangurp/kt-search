@@ -1,15 +1,15 @@
 package com.jillesvangurp.ktsearch
 
-import com.jillesvangurp.serializationext.DEFAULT_JSON
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.engine.java.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.engine.java.Java
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
+import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.headers
 import java.time.Duration
 
 
@@ -57,9 +57,6 @@ fun ktorClientWithJavaEngine(
             }
         }
 
-        install(ContentNegotiation) {
-            json(DEFAULT_JSON)
-        }
         if (logging) {
             install(Logging) {
                 level = LogLevel.ALL
@@ -105,8 +102,5 @@ fun ktorClientWithCIOEngine(
         install(Logging) {
             level = LogLevel.ALL
         }
-    }
-    install(ContentNegotiation) {
-        json(DEFAULT_JSON)
     }
 }

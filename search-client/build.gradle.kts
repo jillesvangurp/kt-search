@@ -152,8 +152,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-logging:_")
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")
-                implementation("io.ktor:ktor-client-content-negotiation:_")
-
             }
         }
         commonTest {
@@ -166,7 +164,7 @@ kotlin {
         }
         jvmMain {
             dependencies {
-                implementation(Ktor.client.cio)
+                api(Ktor.client.cio)
                 api(Ktor.client.java)
             }
         }
