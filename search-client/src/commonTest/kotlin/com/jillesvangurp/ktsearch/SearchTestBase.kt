@@ -3,7 +3,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import kotlinx.coroutines.test.TestResult
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.random.Random
 import kotlin.random.nextULong
 import kotlin.time.Duration
@@ -14,6 +14,7 @@ import kotlin.time.Duration.Companion.seconds
 
 expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 expect annotation class IgnoreJs()
 
@@ -44,11 +45,13 @@ open class SearchTestBase {
 
     fun randomIndexName() = "index-${Random.nextULong()}"
 
-    suspend fun testDocumentIndex(): String {
+    suspend fun testDocumentIndex(block: suspend (String) -> Unit) {
         val index = randomIndexName()
-        return TestDocument.mapping.let {
+        TestDocument.mapping.let {
             client.createIndex(index,it)
         }.index
+        block.invoke(index)
+        client.deleteIndex(index)
     }
 
     val repo by lazy {

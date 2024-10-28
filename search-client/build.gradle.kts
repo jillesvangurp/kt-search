@@ -1,12 +1,14 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import com.avast.gradle.dockercompose.ComposeExtension
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.gradle.api.tasks.testing.logging.TestLogEvent.*
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.net.URI
-import java.net.URL
-import java.util.*
+import java.util.Properties
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
+import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
@@ -100,14 +102,34 @@ kotlin {
     iosArm64()
     iosX64()
     iosSimulatorArm64()
-    // Blocked on json-dsl and kotlinx-serialization-extensions support
-    // iosSimulatorArm64()
-    // Blocked on ktor-client support
-//    wasmJs {
-//        browser()
-//        nodejs()
-//        d8()
-//    }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useMocha {
+                    // javascript is a lot slower than Java, we hit the default timeout of 2000
+                    timeout = "30s"
+                }
+            }
+        }
+        nodejs {
+            testTask {
+                useMocha {
+                    // javascript is a lot slower than Java, we hit the default timeout of 2000
+                    timeout = "30s"
+                }
+            }
+        }
+        // errors
+//        d8 {
+//            testTask {
+//                useMocha {
+//                    // javascript is a lot slower than Java, we hit the default timeout of 2000
+//                    timeout = "30s"
+//                }
+//            }
+//        }
+    }
 
     sourceSets {
         commonMain {
@@ -125,7 +147,8 @@ kotlin {
                 api(Ktor.client.auth)
                 api(Ktor.client.logging)
                 api(Ktor.client.serialization)
-                api("io.github.microutils:kotlin-logging:_")
+                implementation("io.github.oshai:kotlin-logging:_")
+
                 implementation("io.ktor:ktor-client-logging:_")
                 implementation("io.ktor:ktor-serialization-kotlinx:_")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:_")
@@ -139,7 +162,6 @@ kotlin {
                 implementation(kotlin("test-annotations-common", "_"))
                 implementation(Testing.kotest.assertions.core)
                 implementation(KotlinX.coroutines.test)
-                api("io.github.microutils:kotlin-logging:_")
             }
         }
         jvmMain {
@@ -165,6 +187,18 @@ kotlin {
         jsTest {
             dependencies {
                 implementation(kotlin("test-js", "_"))
+            }
+        }
+
+        wasmJsMain {
+            dependencies {
+                implementation("io.ktor:ktor-client-js-wasm-js:_")
+            }
+        }
+
+        wasmJsTest {
+            dependencies {
+                implementation(kotlin("test-wasm-js"))
             }
         }
 
