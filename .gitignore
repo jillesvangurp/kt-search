@@ -32,3 +32,4 @@ secring.gpg
 local.properties
 localRepo
 .ipynb_checkpoints
+.direnv
