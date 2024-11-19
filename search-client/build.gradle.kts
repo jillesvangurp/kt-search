@@ -9,8 +9,10 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 // Stub secrets to let the project sync and build without the publication values set up
@@ -87,14 +89,19 @@ kotlin {
             }
         }
     }
-    // several issues with the linux build that prevent this from working
-    // keep disabled for now.
-//    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-//        // some weird linking error
-//        linuxX64()
-//        // lib curl is not found for this one :-(
-//        linuxArm64()
-//    }
+    if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+        fun KotlinNativeTarget.configureLinuxTarget() {
+            binaries {
+                all {
+                    linkerOpts =
+                        System.getenv("LDFLAGS")?.split(":")?.map { "-L$it" }?.toMutableList()
+                            ?: mutableListOf()
+                }
+            }
+        }
+        linuxX64 { configureLinuxTarget() }
+        linuxArm64 { configureLinuxTarget() }
+    }
     mingwX64()
     macosX64()
     macosArm64()
@@ -212,6 +219,12 @@ kotlin {
             }
         }
 
+        linuxMain {
+            dependencies {
+                implementation(Ktor.client.curl)
+            }
+        }
+
         mingwMain {
             dependencies {
                 implementation(Ktor.client.curl)
@@ -245,7 +258,7 @@ configure<ComposeExtension> {
     dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
     useComposeFiles.set(listOf(composeFile))
 
-    listOf("/usr/bin/docker","/usr/local/bin/docker").firstOrNull {
+    listOf("/usr/bin/docker", "/usr/local/bin/docker").firstOrNull {
         File(it).exists()
     }?.let { docker ->
         // works around an issue where the docker
