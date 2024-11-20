@@ -13,7 +13,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 // Stub secrets to let the project sync and build without the publication values set up
 ext["signing.keyId"] = null
@@ -112,7 +112,7 @@ kotlin {
     iosArm64()
     iosX64()
     iosSimulatorArm64()
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
             testTask {
@@ -277,12 +277,9 @@ tasks.named("jsNodeTest") {
     // on gh actions jsNodeTest manages to run before tasks of type
     // Test are initialized. So explicitly bring up compose before jsNodeTest fixes
     // that problem
-    val isUp = try {
+    val isUp = kotlin.runCatching {
         URI("http://localhost:9999").toURL().openConnection().connect()
-        true
-    } catch (e: Exception) {
-        false
-    }
+    }.isSuccess
     if (!isUp) {
         dependsOn(
             "composeUp"
@@ -291,12 +288,9 @@ tasks.named("jsNodeTest") {
 }
 
 tasks.withType<Test> {
-    val isUp = try {
+    val isUp = kotlin.runCatching {
         URI("http://localhost:9999").toURL().openConnection().connect()
-        true
-    } catch (e: Exception) {
-        false
-    }
+    }.isSuccess
     if (!isUp) {
         dependsOn(
             "composeUp"
@@ -323,14 +317,11 @@ tasks.withType<Test> {
     )
     addTestListener(object : TestListener {
         val failures = mutableListOf<String>()
-        override fun beforeSuite(desc: TestDescriptor) {
-        }
+        override fun beforeSuite(desc: TestDescriptor) = Unit
 
-        override fun afterSuite(desc: TestDescriptor, result: TestResult) {
-        }
+        override fun afterSuite(desc: TestDescriptor, result: TestResult) = Unit
 
-        override fun beforeTest(desc: TestDescriptor) {
-        }
+        override fun beforeTest(desc: TestDescriptor) = Unit
 
         override fun afterTest(desc: TestDescriptor, result: TestResult) {
             if (result.resultType == TestResult.ResultType.FAILURE) {
