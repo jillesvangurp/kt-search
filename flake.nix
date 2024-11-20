@@ -29,7 +29,6 @@
 
           env = {
             LDFLAGS = "${pkgs.lib.makeLibraryPath libraries}";
-            LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libraries}";
           };
         };
       }
