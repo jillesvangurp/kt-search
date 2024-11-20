@@ -93,9 +93,12 @@ kotlin {
         fun KotlinNativeTarget.configureLinuxTarget() {
             binaries {
                 all {
-                    linkerOpts =
-                        System.getenv("LDFLAGS")?.split(":")?.map { "-L$it" }?.toMutableList()
-                            ?: mutableListOf()
+                    linkerOpts = System.getenv()
+                        .getOrDefault("LDFLAGS", "")
+                        .split(":")
+                        .filter { it.isNotBlank() }
+                        .map { "-L$it" }
+                        .toMutableList()
                 }
             }
         }
