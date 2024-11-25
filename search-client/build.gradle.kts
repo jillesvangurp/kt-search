@@ -9,9 +9,11 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 // Stub secrets to let the project sync and build without the publication values set up
 ext["signing.keyId"] = null
@@ -87,14 +89,22 @@ kotlin {
             }
         }
     }
-    // several issues with the linux build that prevent this from working
-    // keep disabled for now.
-//    if(DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-//        // some weird linking error
-//        linuxX64()
-//        // lib curl is not found for this one :-(
-//        linuxArm64()
-//    }
+    if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+        fun KotlinNativeTarget.configureLinuxTarget() {
+            binaries {
+                all {
+                    linkerOpts = System.getenv()
+                        .getOrDefault("LDFLAGS", "")
+                        .split(":")
+                        .filter { it.isNotBlank() }
+                        .map { "-L$it" }
+                        .toMutableList()
+                }
+            }
+        }
+        linuxX64 { configureLinuxTarget() }
+        linuxArm64 { configureLinuxTarget() }
+    }
     mingwX64()
     macosX64()
     macosArm64()
@@ -102,7 +112,7 @@ kotlin {
     iosArm64()
     iosX64()
     iosSimulatorArm64()
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
             testTask {
@@ -212,6 +222,12 @@ kotlin {
             }
         }
 
+        linuxMain {
+            dependencies {
+                implementation(Ktor.client.curl)
+            }
+        }
+
         mingwMain {
             dependencies {
                 implementation(Ktor.client.curl)
@@ -245,7 +261,7 @@ configure<ComposeExtension> {
     dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
     useComposeFiles.set(listOf(composeFile))
 
-    listOf("/usr/bin/docker","/usr/local/bin/docker").firstOrNull {
+    listOf("/usr/bin/docker", "/usr/local/bin/docker").firstOrNull {
         File(it).exists()
     }?.let { docker ->
         // works around an issue where the docker
@@ -261,12 +277,9 @@ tasks.named("jsNodeTest") {
     // on gh actions jsNodeTest manages to run before tasks of type
     // Test are initialized. So explicitly bring up compose before jsNodeTest fixes
     // that problem
-    val isUp = try {
+    val isUp = kotlin.runCatching {
         URI("http://localhost:9999").toURL().openConnection().connect()
-        true
-    } catch (e: Exception) {
-        false
-    }
+    }.isSuccess
     if (!isUp) {
         dependsOn(
             "composeUp"
@@ -275,12 +288,9 @@ tasks.named("jsNodeTest") {
 }
 
 tasks.withType<Test> {
-    val isUp = try {
+    val isUp = kotlin.runCatching {
         URI("http://localhost:9999").toURL().openConnection().connect()
-        true
-    } catch (e: Exception) {
-        false
-    }
+    }.isSuccess
     if (!isUp) {
         dependsOn(
             "composeUp"
@@ -307,14 +317,11 @@ tasks.withType<Test> {
     )
     addTestListener(object : TestListener {
         val failures = mutableListOf<String>()
-        override fun beforeSuite(desc: TestDescriptor) {
-        }
+        override fun beforeSuite(desc: TestDescriptor) = Unit
 
-        override fun afterSuite(desc: TestDescriptor, result: TestResult) {
-        }
+        override fun afterSuite(desc: TestDescriptor, result: TestResult) = Unit
 
-        override fun beforeTest(desc: TestDescriptor) {
-        }
+        override fun beforeTest(desc: TestDescriptor) = Unit
 
         override fun afterTest(desc: TestDescriptor, result: TestResult) {
             if (result.resultType == TestResult.ResultType.FAILURE) {
