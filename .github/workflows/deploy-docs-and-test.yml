@@ -46,8 +46,6 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@master
-      - name: Install cURL Headers
-        run: sudo apt-get install libcurl4-openssl-dev
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
