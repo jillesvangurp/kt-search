@@ -33,3 +33,6 @@ local.properties
 localRepo
 .ipynb_checkpoints
 .direnv
+flake.nix
+flake.lock
+.envrc
