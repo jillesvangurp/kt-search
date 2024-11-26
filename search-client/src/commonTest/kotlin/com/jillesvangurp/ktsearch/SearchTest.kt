@@ -327,4 +327,60 @@ class SearchTest : SearchTestBase() {
             hits[1].highlight shouldBe null
         }
     }
+
+    @Test
+    fun shouldReturnMatchedNamedQueries() = coRun {
+        testDocumentIndex { index ->
+
+            client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+            client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+            client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+            val result = client.search("$index,$index") {
+                query = match(TestDocument::name, "bar") {
+                    put("_name", "name_filter")
+                }
+            }
+            result.hits!!.hits shouldHaveSize 2
+            result.hits!!.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf("name_filter"), listOf("name_filter"))
+        }
+    }
+
+    @Test
+    fun shouldReturnMatchedNamedQueriesWithScores() = coRun {
+        testDocumentIndex { index ->
+
+            client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+            client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+            client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+            val result =
+                client.search("$index,$index", extraParameters = mapOf("include_named_queries_score" to "true")) {
+                    query = match(TestDocument::name, "bar") {
+                        put("_name", "name_filter")
+                    }
+                }
+            result.hits!!.hits shouldHaveSize 2
+            val scoreByQueryName = result.hits!!.hits.first().matchedQueries.scoreByName()
+            scoreByQueryName.size shouldBe 1
+            scoreByQueryName.containsKey("name_filter") shouldBe true
+        }
+    }
+
+    @Test
+    fun shouldReturnEmptyMatchedNamedQueriesIfRequestHasNoNamedQueries() = coRun {
+        testDocumentIndex { index ->
+
+            client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+            client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+            client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+
+            val result = client.search("$index,$index") {
+                query = match(TestDocument::name, "bar")
+            }
+            result.hits!!.hits shouldHaveSize 2
+            result.hits!!.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf(), listOf())
+            result.hits!!.hits.map { it.matchedQueries.scoreByName() } shouldBe listOf(mapOf(), mapOf())
+        }
+    }
 }

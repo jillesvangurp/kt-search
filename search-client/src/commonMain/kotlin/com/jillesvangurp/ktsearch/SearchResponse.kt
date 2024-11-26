@@ -12,6 +12,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 typealias Aggregations = JsonObject
+typealias MatchedQueries = JsonElement
 
 @Suppress("unused")
 @Serializable
@@ -54,6 +55,17 @@ data class SearchResponse(
         override val version: Long?,
         @SerialName("_explanation")
         val explanation: JsonObject?,
+        /**
+         * If named queries are used, the response includes a matched_queries property for each hit.
+         * There are two forms of the matched_queries response:
+         *   - if include_named_queries_score was set, response includes map with named query and score
+         *   - otherwise just list of the named queries.
+         *  so the field is just a JsonElement with 2 extension functions:
+         *   - MatchedQueries::names()
+         *   - MatchedQueries::scoreByName()
+         */
+        @SerialName("matched_queries")
+        val matchedQueries: MatchedQueries?,
     ) : SourceInformation
 
     @Serializable
@@ -425,3 +437,17 @@ fun Aggregations?.sumAggregationResult(name: String, json: Json = DEFAULT_JSON):
 fun Aggregations?.sumAggregationResult(name: Enum<*>, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
     getAggResult(name.name, json)
 
+/**
+ * If include_named_queries_score parameter is not `true` only ES returns only query names for each Hit.
+ * If include_named_queries_score is `true` please use the `scoreByName` function.
+ */
+fun MatchedQueries?.names(json: Json = DEFAULT_JSON): List<String> =
+    this?.let { json.decodeFromJsonElement(it) } ?: emptyList()
+
+/**
+ * The request parameter named include_named_queries_score controls whether scores associated
+ * with the matched queries are returned or not. When set, the response includes a matched_queries map
+ * that contains the name of the query that matched as a key and its associated score as the value.
+ */
+fun MatchedQueries?.scoreByName(json: Json = DEFAULT_JSON): Map<String, Double> =
+    this?.let { json.decodeFromJsonElement(it) } ?: emptyMap()
