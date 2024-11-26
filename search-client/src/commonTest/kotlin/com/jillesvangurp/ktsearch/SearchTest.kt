@@ -348,22 +348,28 @@ class SearchTest : SearchTestBase() {
 
     @Test
     fun shouldReturnMatchedNamedQueriesWithScores() = coRun {
-        testDocumentIndex { index ->
+        onlyOn(
+            "OS1 and ES7 don't support include_named_queries_score",
+            SearchEngineVariant.OS2,
+            SearchEngineVariant.ES8,
+        ) {
+            testDocumentIndex { index ->
 
-            client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
-            client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
-            client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
+                client.indexDocument(index, TestDocument("foo bar").json(false), refresh = Refresh.WaitFor, id = "1")
+                client.indexDocument(index, TestDocument("fooo").json(false), refresh = Refresh.WaitFor, id = "2")
+                client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
 
-            val result =
-                client.search("$index,$index", extraParameters = mapOf("include_named_queries_score" to "true")) {
-                    query = match(TestDocument::name, "bar") {
-                        put("_name", "name_filter")
+                val result =
+                    client.search("$index,$index", include_named_queries_score = true) {
+                        query = match(TestDocument::name, "bar") {
+                            put("_name", "name_filter")
+                        }
                     }
-                }
-            result.hits!!.hits shouldHaveSize 2
-            val scoreByQueryName = result.hits!!.hits.first().matchedQueries.scoreByName()
-            scoreByQueryName.size shouldBe 1
-            scoreByQueryName.containsKey("name_filter") shouldBe true
+                result.hits!!.hits shouldHaveSize 2
+                val scoreByQueryName = result.hits!!.hits.first().matchedQueries.scoreByName()
+                scoreByQueryName.size shouldBe 1
+                scoreByQueryName.containsKey("name_filter") shouldBe true
+            }
         }
     }
 
