@@ -99,7 +99,7 @@ This prints:
 
 ```text
 {
-  "took": 3,
+  "took": 7,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -351,13 +351,13 @@ This prints:
 2024-11-25T00:00:00.000Z: 1
 2024-11-26T00:00:00.000Z: 1
 green: 2
-  Min: 1.73174846351E12
-  Max: 1.73261246351E12
+  Min: 1.731749886027E12
+  Max: 1.732613886027E12
   Time span: 8.64E8
   Top: [1,4]
 red: 2
-  Min: 1.73218046351E12
-  Max: 1.73252606351E12
+  Min: 1.732181886027E12
+  Max: 1.732527486027E12
   Time span: 3.456E8
   Top: [2,3]
 Avg time span: 6.048E8
