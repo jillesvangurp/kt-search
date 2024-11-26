@@ -38,6 +38,7 @@ suspend fun SearchClient.search(
     from: Int? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
+    include_named_queries_score: Boolean? = null,
     lenient: Boolean? = null,
     maxConcurrentShardRequests: Int? = null,
     preFilterShardSize: Int? = null,
@@ -88,6 +89,7 @@ suspend fun SearchClient.search(
         from = from,
         ignoreThrottled = ignoreThrottled,
         ignoreUnavailable = ignoreUnavailable,
+        include_named_queries_score = include_named_queries_score,
         lenient = lenient,
         maxConcurrentShardRequests = maxConcurrentShardRequests,
         preFilterShardSize = preFilterShardSize,
@@ -137,6 +139,7 @@ suspend fun SearchClient.search(
     from: Int? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
+    include_named_queries_score: Boolean? = null,
     lenient: Boolean? = null,
     maxConcurrentShardRequests: Int? = null,
     preFilterShardSize: Int? = null,
@@ -187,6 +190,7 @@ suspend fun SearchClient.search(
         from = from,
         ignoreThrottled = ignoreThrottled,
         ignoreUnavailable = ignoreUnavailable,
+        include_named_queries_score = include_named_queries_score,
         lenient = lenient,
         maxConcurrentShardRequests = maxConcurrentShardRequests,
         preFilterShardSize = preFilterShardSize,
@@ -245,6 +249,7 @@ suspend fun SearchClient.search(
     from: Int? = null,
     ignoreThrottled: Boolean? = null,
     ignoreUnavailable: Boolean? = null,
+    include_named_queries_score: Boolean? = null,
     lenient: Boolean? = null,
     maxConcurrentShardRequests: Int? = null,
     preFilterShardSize: Int? = null,
@@ -295,6 +300,7 @@ suspend fun SearchClient.search(
             parameter("from", from)
             parameter("ignore_throttled", ignoreThrottled)
             parameter("ignore_unavailable", ignoreUnavailable)
+            parameter("include_named_queries_score",include_named_queries_score)
             parameter("lenient", lenient)
             parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
             parameter("pre_filter_shard_size", preFilterShardSize)
