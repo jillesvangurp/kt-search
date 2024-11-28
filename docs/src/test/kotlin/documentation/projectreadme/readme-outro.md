@@ -56,19 +56,20 @@ The search client module is the main module of this library. I extracted the jso
 
 ## Contributing
 
-Pull requests are very welcome! Please consider communicating your intentions in advance to avoid conflicts, or redundant work.
+Pull requests are very welcome! This project runs on community contributions. If you don't like something, suggest changes. Is a feature you need missing from the DSL? Add it. To avoid conflicts or double work, please reach out via the issue tracker for bigger things. I try to be as responsive as I can
 
 Some suggestions of things you could work on:
 
 - Extend the mapping or query DSLs. Our goal is to have coverage of all the common things we and other users need. The extensibility of `JsonDsl` always gives you the option to add whatever is not directly supported by manipulating the underlying map. But creating extension functions that do this properly is not har.
 - Add more API support for things in Opensearch/Elasticsearch that are not currently supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you to customize any requests.
 - Work on one of the issues or suggest some new ones.
+- Refine the documentation. Add examples. Document missing things.
 
 ## Support and Community
 
 Please file issues if you find any or have any suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, training, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your Elasticsearch/Opensearch setup and your product roadmap.
 
 The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
 
