@@ -3,9 +3,11 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
 open class AggQuery(name: String) : ESQuery(name)
+
 inline fun <reified T : AggQuery> JsonDsl.add(name: String, aggQuery: T) {
     this[name] = aggQuery
 }
@@ -22,18 +24,21 @@ private fun AggQuery.aggs(): JsonDsl {
     }
 }
 
-fun SearchDSL.agg(name: String, aggQuery: AggQuery, block: (AggQuery.() -> Unit)?=null) {
+fun SearchDSL.agg(name: String, aggQuery: AggQuery, block: (AggQuery.() -> Unit)? = null) {
     aggs().add(name, aggQuery)
     block?.invoke(aggQuery)
 }
 
-fun AggQuery.agg(name: String, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=null) {
+fun AggQuery.agg(name: String, aggQuery: AggQuery, block: (AggQuery.() -> Unit)? = null) {
     aggs().add(name, aggQuery)
     block?.invoke(aggQuery)
 }
 
-fun SearchDSL.agg(name: Enum<*>, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=null) = agg(name.name, aggQuery,block)
-fun AggQuery.agg(name: Enum<*>, aggQuery: AggQuery,block: (AggQuery.() -> Unit)?=null) = agg(name.name, aggQuery,block)
+fun SearchDSL.agg(name: Enum<*>, aggQuery: AggQuery, block: (AggQuery.() -> Unit)? = null) =
+    agg(name.name, aggQuery, block)
+
+fun AggQuery.agg(name: Enum<*>, aggQuery: AggQuery, block: (AggQuery.() -> Unit)? = null) =
+    agg(name.name, aggQuery, block)
 
 class TermsAggConfig : JsonDsl() {
     var field by property<String>()
@@ -41,6 +46,55 @@ class TermsAggConfig : JsonDsl() {
     var minDocCount by property<Long>("min_doc_count")
     var shardSize by property<Long>("shard_size")
     var showTermDocCountError by property<Long>("show_term_doc_count_error")
+
+    /** include values by regex or exact valye; use the includePartition function for partitions. */
+    var include by property<List<String>>()
+
+    /** exclude values by regex or exact valye */
+    var exclude by property<List<String>>()
+
+    /**
+     * Partitions the keys into the specified [numPartitions] and only returns keys falling in [partition].
+     * Use for large terms aggregations to get results with multiple aggregation requests to avoid stressing with huge
+     * responses.
+     *
+     * Note, cannot be used with an `exclude` clause.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions
+     * Elasticsearch 8.x only
+     */
+    fun includePartition(numPartitions: Int, partition: Int) {
+        this["include"] = withJsonDsl {
+            this["num_partitions"] = numPartitions
+            this["partition"] = partition
+        }
+    }
+
+
+    fun orderByKey(direction: SortOrder) {
+        getOrCreateMutableList("order").add(
+            withJsonDsl {
+                this["_key"] = direction.name.lowercase()
+            }
+        )
+    }
+
+    fun orderByField(field: String, direction: SortOrder) {
+        getOrCreateMutableList("order").add(
+            withJsonDsl {
+                this[field] = direction.name.lowercase()
+            }
+        )
+    }
+
+    fun orderByField(field: KProperty<*>, direction: SortOrder) {
+        getOrCreateMutableList("order").add(
+            withJsonDsl {
+                this[field.name] = direction.name.lowercase()
+            }
+        )
+    }
+
 }
 
 class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : AggQuery("terms") {
@@ -54,19 +108,21 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : 
     }
 }
 
-class AggRange: JsonDsl() {
+class AggRange : JsonDsl() {
     var key by property<String>()
+
     /**
      * Aggregation includes the `from` value
      */
     var from by property<Double>()
+
     /**
      * Aggregation excludes the `to` value
      */
     var to by property<Double>()
 
     companion object {
-      fun create(block: AggRange.() -> Unit) = AggRange().apply(block)
+        fun create(block: AggRange.() -> Unit) = AggRange().apply(block)
     }
 }
 
@@ -86,15 +142,17 @@ class RangesAgg(val field: String, block: (RangesAggConfig.() -> Unit)? = null) 
     }
 }
 
-class AggDateRange: JsonDsl() {
+class AggDateRange : JsonDsl() {
     /**
      * Customizes the key for each range
      */
     var key by property<String>()
+
     /**
      * Aggregation includes the `from` value
      */
     var from by property<String>()
+
     /**
      * Aggregation excludes the `to` value
      */
@@ -286,6 +344,7 @@ class TopHitsAggConfig : JsonDsl() {
         this["sort"] = builder.sortFields
     }
 }
+
 class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_hits") {
     init {
         val config = TopHitsAggConfig()
@@ -306,24 +365,25 @@ class FilterConfig : JsonDsl() {
         set(value) {
             this["query"] = value.wrapWithName()
         }
-    fun namedFilter(name: String, query:ESQuery) {
-        val filters = this["filters"]?.let { it as JsonDsl} ?: JsonDsl()
+
+    fun namedFilter(name: String, query: ESQuery) {
+        val filters = this["filters"]?.let { it as JsonDsl } ?: JsonDsl()
         this["filters"] = filters
-        filters[name]=query.wrapWithName()
+        filters[name] = query.wrapWithName()
     }
 }
 
 class FiltersAgg(
-    block: FilterConfig.()->Unit
+    block: FilterConfig.() -> Unit
 ) : AggQuery("filters") {
     init {
         this[name] = FilterConfig().apply(block)
     }
 }
 
-class FilterAgg(filter: ESQuery): AggQuery("filter") {
+class FilterAgg(filter: ESQuery) : AggQuery("filter") {
     init {
-        this[name]=filter.wrapWithName()
+        this[name] = filter.wrapWithName()
     }
 }
 
