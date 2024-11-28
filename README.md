@@ -6,20 +6,20 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
 
 ## Why Kt-search?
 
-If you develop software in Kotlin and would like to use Opensearch or Elasticsearch, you have a few choices to make. There are multiple clients to choose from and not all of them work for each version. And then there is Kotlin multi platform to consider as well. Maybe you are running spring boot on the jvm. Or maybe you are using ktor compiled to native or wasm and using that to run lambda functions. 
+If you develop software in Kotlin and would like to use Opensearch or Elasticsearch, you have a few choices to make. There are multiple clients to choose from and not all of them work for each version. And then there is Kotlin multi platform to consider as well. Maybe you are running spring boot on the jvm. Or maybe you are using ktor compiled to native or WASM and using that to run lambda functions. 
 
 Kt-search has you covered for all of those. The official Elastic or Opensearch clients are Java clients. You can use them from Kotlin but only on the JVM. And they are not source compatible with each other. The Opensearch client is based on a fork of the old Java client which after the fork was deprecated. On top of that, it uses opensearch specific package names.
 
 Kt-search solves a few important problems here:
 
 - It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use co-routines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
-- It's a multiplatform library. We use it on the jvm and in the browser (javascript). Wasm support is coming soon and there is also native and mobile support. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
+- It's a multiplatform library. We use it on the jvm and in the browser (javascript). Targets for native, IOS, WASM, etc. are also there. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
 - It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
 - It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
 
 ## License
 
-This project is [licensed](LICENSE) under the MIT license.
+This project is [licensed](LICENSE) under the MIT license and will always be. 
 
 ## Learn more
 
@@ -443,19 +443,20 @@ The search client module is the main module of this library. I extracted the jso
 
 ## Contributing
 
-Pull requests are very welcome! Please consider communicating your intentions in advance to avoid conflicts, or redundant work.
+Pull requests are very welcome! This project runs on community contributions. If you don't like something, suggest changes. Is a feature you need missing from the DSL? Add it. To avoid conflicts or double work, please reach out via the issue tracker for bigger things. I try to be as responsive as I can
 
 Some suggestions of things you could work on:
 
 - Extend the mapping or query DSLs. Our goal is to have coverage of all the common things we and other users need. The extensibility of `JsonDsl` always gives you the option to add whatever is not directly supported by manipulating the underlying map. But creating extension functions that do this properly is not har.
 - Add more API support for things in Opensearch/Elasticsearch that are not currently supported. The REST api has dozens of end point other than search. Like the DSL, adding extension functions is easy and using the underlying rest client allows you to customize any requests.
 - Work on one of the issues or suggest some new ones.
+- Refine the documentation. Add examples. Document missing things.
 
 ## Support and Community
 
 Please file issues if you find any or have any suggestions for changes.
 
-Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, trainings, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your search setup and your product roadmap.
+Within reason, I can help with simple issues. Beyond that, I offer my services as a consultant as well if you need some more help with getting started or just using Elasticsearch/Opensearch in general with just about any tech stack. I can help with discovery projects, training, architecture analysis, query and mapping optimizations, or just generally help you get the most out of your Elasticsearch/Opensearch setup and your product roadmap.
 
 The best way to reach me is via email if you wish to use my services professionally. Please refer to my [website](https://www.jillesvangurp.com) for that.
 
