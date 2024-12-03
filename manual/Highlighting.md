@@ -20,7 +20,7 @@ client.search(indexName) {
 ```
 
 {
-    "took": 47,
+    "took": 46,
     "_shards": {
         "total": 1,
         "successful": 1,
@@ -80,7 +80,7 @@ client.search(indexName) {
 ```
 
 {
-    "took": 16,
+    "took": 19,
     "_shards": {
         "total": 1,
         "successful": 1,
