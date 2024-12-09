@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package com.jillesvangurp.ktsearch
 
@@ -373,39 +374,58 @@ fun Aggregations?.bucketScriptResult(name: Enum<*>, json: Json = DEFAULT_JSON): 
 
 @Serializable
 data class ExtendedStatsBucketResult(
-    val count: Int,
-    val min: Double,
-    val max: Double,
-    val avg: Double,
-    val sum: Double,
+    @EncodeDefault
+    val count: Int = 0,
+    @EncodeDefault
+    val min: Double = 0.0,
+    @EncodeDefault
+    val max: Double = 0.0,
+    @EncodeDefault
+    val avg: Double= 0.0,
+    @EncodeDefault
+    val sum: Double= 0.0,
     @SerialName("sum_of_squares")
-    val sumOfSquares: Double,
-    val variance: Double,
+    @EncodeDefault
+    val sumOfSquares: Double= 0.0,
+    @EncodeDefault
+    val variance: Double= 0.0,
     @SerialName("variance_population")
-    val variancePopulation: Double,
+    @EncodeDefault
+    val variancePopulation: Double= 0.0,
     @SerialName("variance_sampling")
-    val varianceSampling: Double,
+    @EncodeDefault
+    val varianceSampling: Double= 0.0,
     @SerialName("std_deviation")
-    val stdDeviation: Double,
+    @EncodeDefault
+    val stdDeviation: Double= 0.0,
     @SerialName("std_deviation_population")
-    val stdDeviationPopulation: Double,
+    @EncodeDefault
+    val stdDeviationPopulation: Double= 0.0,
     @SerialName("std_deviation_sampling")
-    val stdDeviationSampling: Double,
+    @EncodeDefault
+    val stdDeviationSampling: Double= 0.0,
     @SerialName("std_deviation_bounds")
-    val stdDeviationBounds: Bounds
+    @EncodeDefault
+    val stdDeviationBounds: Bounds = Bounds()
 ) {
     @Serializable
     data class Bounds(
-        val upper: Double,
-        val lower: Double,
+        @EncodeDefault
+        val upper: Double= 0.0,
+        @EncodeDefault
+        val lower: Double= 0.0,
         @SerialName("upper_population")
-        val upperPopulation: Double,
+        @EncodeDefault
+        val upperPopulation: Double= 0.0,
         @SerialName("lower_population")
-        val lowerPopulation: Double,
+        @EncodeDefault
+        val lowerPopulation: Double= 0.0,
         @SerialName("upper_sampling")
-        val upperSampling: Double,
+        @EncodeDefault
+        val upperSampling: Double= 0.0,
         @SerialName("lower_sampling")
-        val lowerSampling: Double,
+        @EncodeDefault
+        val lowerSampling: Double= 0.0,
     )
 }
 
