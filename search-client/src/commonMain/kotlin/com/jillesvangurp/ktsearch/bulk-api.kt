@@ -114,7 +114,7 @@ interface BulkItemCallBack {
     fun bulkRequestFailed(e: Exception, ops: List<Pair<String, String?>>)
 }
 
-class BulkException(bulkResponse: BulkResponse) : Exception(
+class BulkException(val bulkResponse: BulkResponse) : Exception(
     "Bulk request completed with errors item statuses: [${
         bulkResponse.itemDetails.map { (_, details) -> details.status }.distinct().joinToString(",")
     }]"
