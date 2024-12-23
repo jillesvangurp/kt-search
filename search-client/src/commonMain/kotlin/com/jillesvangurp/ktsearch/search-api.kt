@@ -418,7 +418,14 @@ suspend fun SearchClient.scroll(scrollId: String, scroll: Duration = 60.seconds)
 suspend fun SearchClient.deleteScroll(scrollId: String?): JsonObject {
     return if (scrollId != null) {
         restClient.delete {
-            path("_search", "scroll", scrollId)
+            path("_search", "scroll")
+            rawBody(
+                """
+                {
+                    "scroll_id": "$scrollId"
+                }
+            """.trimIndent()
+            )
         }.parseJsonObject()
     } else {
         JsonObject(emptyMap())
