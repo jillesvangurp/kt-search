@@ -237,6 +237,7 @@ $dokka.location:com.jillesvangurp.ktsearch/BucketAggregationResult///PointingToD
 $dokka.location:com.jillesvangurp.ktsearch/BucketAggregationResult/buckets/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bucket-aggregation-result/buckets.html
 $dokka.location:com.jillesvangurp.ktsearch/BulkException///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-exception/index.html
 $dokka.location:com.jillesvangurp.ktsearch/BulkException/BulkException/#com.jillesvangurp.ktsearch.BulkResponse/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-exception/-bulk-exception.html
+$dokka.location:com.jillesvangurp.ktsearch/BulkException/bulkResponse/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-exception/bulk-response.html
 $dokka.location:com.jillesvangurp.ktsearch/BulkItemCallBack///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-item-call-back/index.html
 $dokka.location:com.jillesvangurp.ktsearch/BulkItemCallBack/bulkRequestFailed/#kotlin.Exception#kotlin.collections.List[kotlin.Pair[kotlin.String,kotlin.String?]]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-item-call-back/bulk-request-failed.html
 $dokka.location:com.jillesvangurp.ktsearch/BulkItemCallBack/itemFailed/#com.jillesvangurp.ktsearch.OperationType#com.jillesvangurp.ktsearch.BulkResponse.ItemDetails/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-bulk-item-call-back/item-failed.html
