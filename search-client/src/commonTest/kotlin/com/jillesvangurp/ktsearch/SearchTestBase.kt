@@ -66,7 +66,7 @@ open class SearchTestBase {
             )
             KtorRestClient(
                 nodes = nodes,
-                client = defaultKtorHttpClient(true),
+                client = defaultKtorHttpClient(true) {},
                 // sniffing is a bit weird in docker, publish address is not always reachable
                 nodeSelector = SniffingNodeSelector(initialNodes = nodes, maxNodeAge = 5.hours)
             )

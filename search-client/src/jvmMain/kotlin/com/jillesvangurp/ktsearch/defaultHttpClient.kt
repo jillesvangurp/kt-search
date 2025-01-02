@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.engine.java.Java
@@ -18,15 +19,17 @@ actual fun defaultKtorHttpClient(
     user: String?,
     password: String?,
     elasticApiKey: String?,
+    block: HttpClientConfig<*>.()->Unit
     ): HttpClient {
     // We experienced some threading issues with CIO. Java engine seems more stable currently.
-    return ktorClientWithJavaEngine(logging, user, password, elasticApiKey)
+    return ktorClientWithJavaEngine(logging, user, password, elasticApiKey, block)
 }
 fun ktorClientWithJavaEngine(
     logging: Boolean,
     user: String?,
     password: String?,
     elasticApiKey: String?,
+    block: HttpClientConfig<*>.() -> Unit,
 ): HttpClient {
     return HttpClient(Java) {
         // note the Java engine uses the IO dispatcher
@@ -39,30 +42,7 @@ fun ktorClientWithJavaEngine(
             }
             pipelining = true
         }
-        if(!user.isNullOrBlank() && !password.isNullOrBlank()) {
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(user, password)
-                    }
-                    sendWithoutRequest {
-                        true
-                    }
-                }
-            }
-        }
-        if(!elasticApiKey.isNullOrBlank()) {
-            headers {
-                append("Authorization", "ApiKey $elasticApiKey")
-            }
-        }
-
-        if (logging) {
-            install(Logging) {
-                level = LogLevel.ALL
-            }
-        }
-
+        block(this)
     }
 }
 
@@ -71,6 +51,7 @@ fun ktorClientWithCIOEngine(
     user: String?,
     password: String?,
     elasticApiKey: String?,
+    block: HttpClientConfig<*>.() -> Unit,
 ) = HttpClient(CIO) {
     engine {
         maxConnectionsCount = 100
@@ -81,26 +62,5 @@ fun ktorClientWithCIOEngine(
             connectAttempts = 3
         }
     }
-    if (!user.isNullOrBlank() && !password.isNullOrBlank()) {
-        install(Auth) {
-            basic {
-                credentials {
-                    BasicAuthCredentials(user, password)
-                }
-                sendWithoutRequest {
-                    true
-                }
-            }
-        }
-    }
-    if(!elasticApiKey.isNullOrBlank()) {
-        headers {
-            append("Authorization", "ApiKey $elasticApiKey")
-        }
-    }
-    if (logging) {
-        install(Logging) {
-            level = LogLevel.ALL
-        }
-    }
+    block(this)
 }
