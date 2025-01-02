@@ -16,6 +16,8 @@ expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit): Tes
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+// in js and wasm we have this implementation which causes the test to be ignored
+// actual typealias IgnoreJs = kotlin.test.Ignore
 expect annotation class IgnoreJs()
 
 private val logger = KotlinLogging.logger {  }
