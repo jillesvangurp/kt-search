@@ -1,14 +1,13 @@
 package com.jillesvangurp.ktsearch
 
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.*
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 class IndexCreateTest: SearchTestBase() {
     @Test
-    fun createIndex() = runTest {
+    fun createIndex() = coRun {
         val indexName = randomIndexName()
         val response = client.createIndex(indexName) {
             dynamicTemplate("test_fields") {
