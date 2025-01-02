@@ -9,7 +9,7 @@ import kotlin.test.Test
 class IndexTemplateTest : SearchTestBase() {
 
     @Test
-    @IgnoreJs // keeps failing with some weird error
+    @IgnoreJs // keeps failing with some weird fail to fetch error in js/wasm, no idea why
     fun shouldCreateDataStream() = coRun {
 
         val suffix = Random.nextULong()

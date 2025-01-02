@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
@@ -14,7 +15,8 @@ actual fun defaultKtorHttpClient(
     logging: Boolean,
     user: String?,
     password: String?,
-    elasticApiKey: String?
+    elasticApiKey: String?,
+    block: HttpClientConfig<*>.()->Unit
 ): HttpClient {
     return HttpClient(Darwin) {
         engine {
@@ -23,28 +25,6 @@ actual fun defaultKtorHttpClient(
                 setAllowsCellularAccess(true)
             }
         }
-        if(!user.isNullOrBlank() && !password.isNullOrBlank()) {
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(user, password)
-                    }
-                    sendWithoutRequest {
-                        true
-                    }
-                }
-            }
-        }
-        if(!elasticApiKey.isNullOrBlank()) {
-            headers {
-                append("Authorization", "ApiKey $elasticApiKey")
-            }
-        }
-        if (logging) {
-            install(Logging) {
-                level = LogLevel.ALL
-            }
-        }
-
+        block(this)
     }
 }

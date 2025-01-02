@@ -2,6 +2,12 @@ package com.jillesvangurp.ktsearch
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
+import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.content.*
@@ -13,7 +19,46 @@ expect fun defaultKtorHttpClient(
     user: String? = null,
     password: String? = null,
     elasticApiKey: String? = null,
+    block: HttpClientConfig<*>.()->Unit
 ): HttpClient
+
+fun HttpClientConfig<*>.defaultInit(
+    logging: Boolean ,
+    user: String? ,
+    password: String? ,
+    elasticApiKey: String?,
+
+) {
+    engine {
+        pipelining = true
+    }
+    if(!user.isNullOrBlank() && !password.isNullOrBlank()) {
+        install(Auth) {
+            basic {
+                credentials {
+                    BasicAuthCredentials(user, password)
+                }
+                sendWithoutRequest {
+                    true
+                }
+            }
+        }
+    }
+    if(!elasticApiKey.isNullOrBlank()) {
+        defaultRequest {
+            header("Authorization","ApiKey $elasticApiKey")
+        }
+    }
+    if (logging) {
+        install(Logging) {
+            level = LogLevel.ALL
+        }
+    } else {
+        install(Logging) {
+            level = LogLevel.NONE
+        }
+    }
+}
 
 /**
  * Ktor-client implementation of the RestClient.
@@ -35,7 +80,9 @@ class KtorRestClient(
         user = user,
         password = password,
         elasticApiKey = elasticApiKey
-    ),
+    ) {
+        defaultInit(logging, user, password, elasticApiKey)
+    },
 ) : RestClient, Closeable {
     constructor(
         host: String = "localhost",
@@ -50,7 +97,9 @@ class KtorRestClient(
             user = user,
             password = password,
             elasticApiKey = elasticApiKey
-        ),
+        ) {
+            defaultInit(logging, user, password, elasticApiKey)
+        },
     ) : this(
         client = client,
         https = https,

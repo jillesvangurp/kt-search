@@ -6,124 +6,120 @@ import com.jillesvangurp.searchdsls.querydsl.ReindexOperationType.INDEX
 import com.jillesvangurp.searchdsls.querydsl.ReindexVersionType.EXTERNAL
 import com.jillesvangurp.searchdsls.querydsl.term
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.jsonObject
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.json.jsonObject
 
 class ReindexTest : SearchTestBase() {
-    private val sourceName = randomIndexName()
-    private val destinationName = randomIndexName()
 
-    @BeforeTest
-    fun before() = coRun {
-        createIndices()
-    }
+    private suspend fun withSourceAndDestination(block: suspend (String, String)->Unit) {
+        val sourceName = randomIndexName()
+        val destinationName = randomIndexName()
 
-    @AfterTest
-    fun after() = coRun {
-        deleteIndices()
-    }
-
-    @Test
-    fun basicReindex() = runTest {
-        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
-
-        val response = client.reindex {
-            conflicts = PROCEED
-            source {
-                index = sourceName
-            }
-            destination {
-                index = destinationName
-            }
-        }
-
-        response.shouldHave(total = 1, created = 1, batches = 1)
-    }
-
-    @Test
-    fun basicReindexWithSpecificValue() = runTest {
-        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
-
-        val response = client.reindex(
-            refresh = false,
-            timeout = 10.seconds,
-            waitForActiveShards = "1",
-            requestsPerSecond = 10,
-            requireAlias = false,
-            scroll = 10.seconds,
-            slices = 3,
-            maxDocs = 9
-        ) {
-            conflicts = PROCEED
-            maxDocs = 9
-            source {
-                index = sourceName
-                batchSize = 10
-                fields("name")
-            }
-            destination {
-                index = destinationName
-                versionType = EXTERNAL
-                operationType = INDEX
-            }
-        }
-
-        response.shouldHave(total = 1, created = 1, batches = 1)
-    }
-
-    @Test
-    fun reindexWithQuery() = runTest {
-        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
-        client.indexDocument(sourceName, TestDocument(name = "t2"), refresh = WaitFor)
-
-        val response = client.reindex {
-            source {
-                index = sourceName
-                query = term("name", "t1")
-            }
-            destination {
-                index = destinationName
-            }
-        }
-
-        response.shouldHave(total = 1, created = 1, batches = 1)
-    }
-
-    @Test
-    fun asyncReindex() = runTest {
-        client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
-
-        val taskId = client.reindexAsync {
-            source {
-                index = sourceName
-            }
-            destination {
-                index = destinationName
-            }
-        }
-
-        val taskResponse = client.getTask(taskId.value, waitForCompletion = true)
-        val jsonResponse = requireNotNull(taskResponse["response"]?.jsonObject) { "response element is missing on $taskResponse"}
-        val response = jsonResponse.parse(ReindexResponse.serializer())
-
-        response.shouldHave(total = 1, created = 1, batches = 1)
-    }
-
-
-    private suspend fun deleteIndices() {
+        client.createIndex(sourceName, mapping = TestDocument.mapping)
+        client.createIndex(destinationName, mapping = TestDocument.mapping)
+        block(sourceName,destinationName)
         client.deleteIndex(sourceName)
         client.deleteIndex(destinationName)
     }
 
-    private suspend fun createIndices() {
-        client.createIndex(sourceName, mapping = TestDocument.mapping)
-        client.createIndex(destinationName, mapping = TestDocument.mapping)
+    @Test
+    fun basicReindex() = coRun {
+        withSourceAndDestination { sourceName, destinationName ->
+            client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+
+            val response = client.reindex {
+                conflicts = PROCEED
+                source {
+                    index = sourceName
+                }
+                destination {
+                    index = destinationName
+                }
+            }
+
+            response.shouldHave(total = 1, created = 1, batches = 1)
+        }
     }
 
+    @Test
+    fun basicReindexWithSpecificValue() = coRun {
+        withSourceAndDestination { sourceName, destinationName ->
+
+            client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+
+            val response = client.reindex(
+                refresh = false,
+                timeout = 10.seconds,
+                waitForActiveShards = "1",
+                requestsPerSecond = 10,
+                requireAlias = false,
+                scroll = 10.seconds,
+                slices = 3,
+                maxDocs = 9
+            ) {
+                conflicts = PROCEED
+                maxDocs = 9
+                source {
+                    index = sourceName
+                    batchSize = 10
+                    fields("name")
+                }
+                destination {
+                    index = destinationName
+                    versionType = EXTERNAL
+                    operationType = INDEX
+                }
+            }
+
+            response.shouldHave(total = 1, created = 1, batches = 1)
+        }
+    }
+
+    @Test
+    fun reindexWithQuery() = coRun {
+        withSourceAndDestination { sourceName, destinationName ->
+
+            client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+            client.indexDocument(sourceName, TestDocument(name = "t2"), refresh = WaitFor)
+
+            val response = client.reindex {
+                source {
+                    index = sourceName
+                    query = term("name", "t1")
+                }
+                destination {
+                    index = destinationName
+                }
+            }
+
+            response.shouldHave(total = 1, created = 1, batches = 1)
+        }
+    }
+
+    @Test
+    fun asyncReindex() = coRun {
+        withSourceAndDestination { sourceName, destinationName ->
+
+            client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+
+            val taskId = client.reindexAsync {
+                source {
+                    index = sourceName
+                }
+                destination {
+                    index = destinationName
+                }
+            }
+
+            val taskResponse = client.getTask(taskId.value, waitForCompletion = true)
+            val jsonResponse =
+                requireNotNull(taskResponse["response"]?.jsonObject) { "response element is missing on $taskResponse" }
+            val response = jsonResponse.parse(ReindexResponse.serializer())
+
+            response.shouldHave(total = 1, created = 1, batches = 1)
+        }
+    }
 }
 
 private fun ReindexResponse.shouldHave(
@@ -152,5 +148,4 @@ private fun ReindexResponse.shouldHave(
         it.retries.search shouldBe retriesSearch
         it.failures shouldBe failures
     }
-
 }
