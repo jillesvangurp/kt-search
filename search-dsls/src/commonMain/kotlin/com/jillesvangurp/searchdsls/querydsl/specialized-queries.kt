@@ -10,7 +10,7 @@ class DistanceFeature() : ESQuery("distance_feature") {
     var boost by property<Double>()
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: KProperty<*>,
     pivot: String,
     origin: String,
@@ -23,7 +23,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: String,
     pivot: String,
     origin: String,
@@ -36,7 +36,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: KProperty<*>,
     pivot: String,
     origin: List<Double>,
@@ -49,7 +49,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: String,
     pivot: String,
     origin: List<Double>,
@@ -62,7 +62,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: KProperty<*>,
     pivot: String,
     origin: Array<Double>,
@@ -75,7 +75,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: String,
     pivot: String,
     origin: Array<Double>,
@@ -88,7 +88,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: KProperty<*>,
     pivot: String,
     origin: DoubleArray,
@@ -101,7 +101,7 @@ fun SearchDSL.distanceFeature(
     it
 }
 
-fun SearchDSL.distanceFeature(
+fun QueryClauses.distanceFeature(
     field: String,
     pivot: String,
     origin: DoubleArray,
@@ -166,5 +166,5 @@ class RankFeature(val field: String, block: (RankFeature.() -> Unit)? = null) : 
     }
 }
 
-fun SearchDSL.rankFeature(field: String, block: (RankFeature.() -> Unit)? = null) = RankFeature(field, block)
-fun SearchDSL.rankFeature(field: KProperty<*>, block: (RankFeature.() -> Unit)? = null) = RankFeature(field, block)
+fun QueryClauses.rankFeature(field: String, block: (RankFeature.() -> Unit)? = null) = RankFeature(field, block)
+fun QueryClauses.rankFeature(field: KProperty<*>, block: (RankFeature.() -> Unit)? = null) = RankFeature(field, block)

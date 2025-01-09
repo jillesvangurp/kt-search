@@ -58,7 +58,9 @@ class SearchTest : SearchTestBase() {
             client.indexDocument(index, TestDocument("bar").json(false), refresh = Refresh.WaitFor, id = "3")
 
             val result = client.search("$index,$index") {
-                query = matchAll(boost = 3.5)
+                query = constructQueryClause {
+                    matchAll(boost = 3.5)
+                }
             }
             result.hits!!.hits shouldHaveSize 3
             result.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(3.5, 3.5, 3.5)
