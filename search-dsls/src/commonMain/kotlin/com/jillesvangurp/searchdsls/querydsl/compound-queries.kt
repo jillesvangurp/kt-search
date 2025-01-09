@@ -23,19 +23,19 @@ class BoolQuery : ESQuery(name = "bool") {
     var boost by queryDetails.property<Double>()
 }
 
-fun SearchDSL.bool(block: BoolQuery.() -> Unit): BoolQuery {
+fun QueryClauses.bool(block: BoolQuery.() -> Unit): BoolQuery {
     val q = BoolQuery()
     block.invoke(q)
     return q
 }
 
-fun SearchDSL.or(queries: List<ESQuery>) = bool { should(queries) }
-fun SearchDSL.and(queries: List<ESQuery>) = bool { filter(queries) }
-fun SearchDSL.not(queries: List<ESQuery>) = bool { mustNot(queries) }
+fun QueryClauses.or(queries: List<ESQuery>) = bool { should(queries) }
+fun QueryClauses.and(queries: List<ESQuery>) = bool { filter(queries) }
+fun QueryClauses.not(queries: List<ESQuery>) = bool { mustNot(queries) }
 
-fun SearchDSL.or(vararg queries: ESQuery) = bool { should(*queries) }
-fun SearchDSL.and(vararg queries: ESQuery) = bool { filter(*queries) }
-fun SearchDSL.not(vararg queries: ESQuery) = bool { mustNot(*queries) }
+fun QueryClauses.or(vararg queries: ESQuery) = bool { should(*queries) }
+fun QueryClauses.and(vararg queries: ESQuery) = bool { filter(*queries) }
+fun QueryClauses.not(vararg queries: ESQuery) = bool { mustNot(*queries) }
 
 @SearchDSLMarker
 class BoostingQuery : ESQuery(name = "boosting") {
@@ -51,7 +51,7 @@ class BoostingQuery : ESQuery(name = "boosting") {
     }
 }
 
-fun SearchDSL.boosting(block: BoostingQuery.() -> Unit): BoostingQuery {
+fun QueryClauses.boosting(block: BoostingQuery.() -> Unit): BoostingQuery {
     val q = BoostingQuery()
     block.invoke(q)
     return q
@@ -63,7 +63,7 @@ class ConstantScoreQuery : ESQuery(name = "constant_score") {
     var boost: Double by queryDetails.property()
 }
 
-fun SearchDSL.constantScore(block: ConstantScoreQuery.() -> Unit): ConstantScoreQuery {
+fun QueryClauses.constantScore(block: ConstantScoreQuery.() -> Unit): ConstantScoreQuery {
     val q = ConstantScoreQuery()
     block.invoke(q)
     return q
@@ -77,7 +77,7 @@ class DisMaxQuery : ESQuery(name = "dis_max") {
     var boost: Double by queryDetails.property()
 }
 
-fun SearchDSL.disMax(block: DisMaxQuery.() -> Unit): DisMaxQuery {
+fun QueryClauses.disMax(block: DisMaxQuery.() -> Unit): DisMaxQuery {
     val q = DisMaxQuery()
     block.invoke(q)
     return q
@@ -212,6 +212,6 @@ class FunctionScoreQuery(
     }
 }
 
-fun SearchDSL.functionScore(block: FunctionScoreQuery.() -> Unit): FunctionScoreQuery {
+fun QueryClauses.functionScore(block: FunctionScoreQuery.() -> Unit): FunctionScoreQuery {
     return FunctionScoreQuery(block)
 }

@@ -19,6 +19,7 @@ enum class ManualPages(title: String = "") {
     GettingStarted("Getting Started"),
     ClientConfiguration("Client Configuration"),
     Search("Search and Queries"),
+    ReusableSearchQueries("Reusing your Query logic"),
     TextQueries("Text Queries"),
     TermLevelQueries("Term Level Queries"),
     CompoundQueries("Compound Queries"),
@@ -70,6 +71,7 @@ val sections = listOf(
             ManualPages.DeepPaging to deepPagingMd,
             ManualPages.JoinQueries to joinQueriesMd,
             ManualPages.Highlighting to highlightingMd,
+            ManualPages.ReusableSearchQueries to reusingQueryLogicMd
         )
     ),
     Section("Indices and Documents", listOf(

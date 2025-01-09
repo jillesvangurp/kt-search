@@ -370,6 +370,8 @@ There are of course a lot more features that this library supports. The
 
 - [Highlighting](https://jillesvangurp.github.io/kt-search/manual/Highlighting.html)
 
+- [Reusing your Query logic](https://jillesvangurp.github.io/kt-search/manual/ReusableSearchQueries.html)
+
 ### Indices and Documents
 
 - [Deleting by query](https://jillesvangurp.github.io/kt-search/manual/DeleteByQuery.html)
