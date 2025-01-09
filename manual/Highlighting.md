@@ -1,6 +1,6 @@
 # Highlighting 
 
-| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Reusing your Query logic](ReusableSearchQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |
 
 ---                
@@ -20,7 +20,7 @@ client.search(indexName) {
 ```
 
 {
-    "took": 41,
+    "took": 47,
     "_shards": {
         "total": 1,
         "successful": 1,
@@ -80,7 +80,7 @@ client.search(indexName) {
 ```
 
 {
-    "took": 12,
+    "took": 16,
     "_shards": {
         "total": 1,
         "successful": 1,
@@ -121,5 +121,5 @@ client.search(indexName) {
 
 ---
 
-| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Deleting by query](DeleteByQuery.md) |
+| [KT Search Manual](README.md) | Previous: [Join Queries](JoinQueries.md) | Next: [Reusing your Query logic](ReusableSearchQueries.md) |
 | [Github](https://github.com/jillesvangurp/kt-search) | &copy; Jilles van Gurp |  |

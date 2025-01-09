@@ -36,6 +36,8 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
 
 [Highlighting](Highlighting.md)
 
+[Reusing your Query logic](ReusableSearchQueries.md)
+
 ### Indices and Documents
 
 [Deleting by query](DeleteByQuery.md)
