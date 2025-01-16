@@ -1,18 +1,21 @@
 services:
-  os2:
-    image: opensearchproject/opensearch:2.18.0
+  es8:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
       - cluster.routing.allocation.disk.threshold_enabled=true
       # make sure it works on nearly full disk
       - cluster.routing.allocation.disk.watermark.low=3gb
       - cluster.routing.allocation.disk.watermark.high=2gb
       - cluster.routing.allocation.disk.watermark.flood_stage=1gb
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - DISABLE_SECURITY_PLUGIN=true
+      - xpack.security.enabled=false
+      - network.host=127.0.0.1
+      - http.host=0.0.0.0
+
     ulimits:
       memlock:
         soft: -1
@@ -20,12 +23,3 @@ services:
     ports:
       # give our test instance a port number that is for sure not going to write to some poor cluster listening on 9200
       - "9999:9200"
-#  os2-dashboards:
-#    image: opensearchproject/opensearch-dashboards:2.18.0
-#    environment:
-#      - OPENSEARCH_HOSTS=http://os2:9200
-#      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
-#    ports:
-#      - "5601:5601"
-#    depends_on:
-#      - os2
