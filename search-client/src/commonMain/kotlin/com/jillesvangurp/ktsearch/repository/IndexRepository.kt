@@ -929,6 +929,37 @@ class IndexRepository<T : Any>(
         ).parseHits(serializer)
     }
 
+    suspend fun msearch(
+        allowNoIndices: Boolean? = null,
+        cssMinimizeRoundtrips: Boolean? = null,
+        expandWildcards: ExpandWildCards? = null,
+        ignoreThrottled: Boolean? = null,
+        ignoreUnavailable: Boolean? = null,
+        maxConcurrentSearches: Int? = null,
+        maxConcurrentShardRequests: Int? = null,
+        preFilterShardSize: Int? = null,
+        routing: String? = null,
+        searchType: SearchType? = null,
+        typedKeys: Boolean? = null,
+        block: MsearchRequest.() -> Unit,
+        ): MultiSearchResponse {
+        return client.msearch(
+            target = indexReadAlias,
+            allowNoIndices = allowNoIndices,
+            cssMinimizeRoundtrips = cssMinimizeRoundtrips,
+            expandWildcards = expandWildcards,
+            ignoreThrottled = ignoreThrottled,
+            ignoreUnavailable = ignoreUnavailable,
+            maxConcurrentSearches = maxConcurrentSearches,
+            maxConcurrentShardRequests = maxConcurrentShardRequests,
+            preFilterShardSize = preFilterShardSize,
+            routing = routing,
+            searchType = searchType,
+            typedKeys = typedKeys,
+            block = block
+        )
+    }
+
     suspend fun deleteByQuery(block: SearchDSL.() -> Unit): DeleteByQueryResponse {
         return client.deleteByQuery(target = indexWriteAlias, block = block)
     }
