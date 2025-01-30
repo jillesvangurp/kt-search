@@ -67,7 +67,6 @@ class GeoBoundingBoxQueryConfig : JsonDsl() {
     fun bottomRight(bottomRight: String) {
         this["bottom_right"] = bottomRight
     }
-
 }
 
 class GeoBoundingBoxQuery(val field: String, block: GeoBoundingBoxQueryConfig.() -> Unit) :

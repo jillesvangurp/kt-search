@@ -7,6 +7,8 @@ import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.*
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
+import documentation.manual.ManualPages
+import documentation.manual.manualPages
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
@@ -220,6 +222,49 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }.printStdOut()
     }
+    section("Geo Aggregations") {
+        +"""
+            Elasticsearch has great support for geospatial information. And part of 
+            its support includes breaking things down by area. The common way for most maps to break 
+            down in digital maps is using map tiles. 
+            
+            Tiles follow a `z/x/y` coordinate system:  
+            
+            - `z` (zoom level): Controls the scale of the map. Lower values show the whole world in a few tiles, while higher values provide detailed views with many tiles.  
+            - `x` and `y` (tile position): Define the column (`x`) and row (`y`) of the tile in a grid at the given zoom level.  
+            
+            For example, at **zoom level 0**, the entire world fits into a **single tile (0/0/0)**.  
+            At **zoom level 1**, the world is divided into **4 tiles (0/0/0, 1/0/0, 0/1/0, 1/1/0)**.  
+            At **zoom level 2**, it is further divided into **16 tiles**, and so on, following a `2^z × 2^z` grid structure.  
+            
+            Each tile typically contains **256×256 pixels** or vector data and is projected using the **Web Mercator (EPSG:3857) projection**, which distorts land areas near the poles but is widely used for interactive maps.
+            
+            In the examples below, we'll reuse the same geo points we used in the ${ManualPages.GeoQueries.publicLink} documentation:
+        """
+        val points = runBlocking {
+            createGeoPoints(indexName)
+        }
+        createGeoPointsDoc()
+        +"""
+            The main bucket aggregation for geo spatial information is the `geotile_grid` aggregation:
+            
+        """.trimIndent()
+
+        example {
+            client.search(indexName) {
+                resultSize = 0
+                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+                    agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
+                }
+            }
+        }.let {
+            it.result.getOrNull()?.let {
+                mdCodeBlock(DEFAULT_PRETTY_JSON.encodeToString(it), type="json",wrap = true)
+            }
+        }
+
+    }
+
     section("Other aggregations") {
         +"""
             Here is a more complicated example where we use various other aggregations.
