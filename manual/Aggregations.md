@@ -262,6 +262,155 @@ foobar: 1
   green: 1
 ```
 
+## Geo Aggregations
+
+Elasticsearch has great support for geospatial information. And part of 
+its support includes breaking things down by area. The common way for most maps to break 
+down in digital maps is using map tiles. 
+
+Tiles follow a `z/x/y` coordinate system:  
+
+- `z` (zoom level): Controls the scale of the map. Lower values show the whole world in a few tiles, while higher values provide detailed views with many tiles.  
+- `x` and `y` (tile position): Define the column (`x`) and row (`y`) of the tile in a grid at the given zoom level.  
+
+For example, at **zoom level 0**, the entire world fits into a **single tile (0/0/0)**.  
+At **zoom level 1**, the world is divided into **4 tiles (0/0/0, 1/0/0, 0/1/0, 1/1/0)**.  
+At **zoom level 2**, it is further divided into **16 tiles**, and so on, following a `2^z × 2^z` grid structure.  
+
+Each tile typically contains **256×256 pixels** or vector data and is projected using the **Web Mercator (EPSG:3857) projection**, which distorts land areas near the poles but is widely used for interactive maps.
+
+In the examples below, we'll reuse the same geo points we used in the https://jillesvangurp.github.io/kt-search/manual/GeoQueries.html documentation:
+
+First, let's create an index with some documents with a geospatial information for a TestGeoDoc class
+
+```kotlin
+@Serializable
+data class TestGeoDoc(val id: String, val name: String, val point: List<Double>)
+```
+
+```kotlin
+client.createIndex(indexName) {
+  mappings {
+    keyword(TestGeoDoc::id)
+    text(TestGeoDoc::name)
+    geoPoint(TestGeoDoc::point)
+  }
+}
+val points = listOf(
+  TestGeoDoc(
+    id = "bar",
+    name = "Kommerzpunk",
+    point = listOf(13.400544, 52.530286)
+  ),
+  TestGeoDoc(
+    id = "tower",
+    name = "Tv Tower",
+    point = listOf(13.40942173843226, 52.52082388531597)
+  ),
+  TestGeoDoc(
+    id = "tor",
+    name = "Brandenburger Tor",
+    point = listOf(13.377622382132417, 52.51632993824314)
+  ),
+  TestGeoDoc(
+    id = "tegel",
+    name = "Tegel Airport (Closed)",
+    point = listOf(13.292043211510515, 52.55955614073912)
+  ),
+  TestGeoDoc(
+    id = "airport",
+    name = "Brandenburg Airport",
+    point = listOf(13.517282872748005, 52.367036750575814)
+  )
+).associateBy { it.id }
+
+client.bulk(target = indexName) {
+  // note longitude comes before latitude with geojson
+  points.values.forEach { create(it) }
+}
+```
+
+The main bucket aggregation for geo spatial information is the `geotile_grid` aggregation:
+
+```kotlin
+client.search(indexName) {
+  resultSize = 0
+  agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+    agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
+  }
+}
+```
+
+```json
+{
+  "took": 15,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "timed_out": false,
+  "hits": {
+    "total": {
+      "value": 5,
+      "relation": "eq"
+    },
+    "hits": []
+  },
+  "aggregations": {
+    "grid": {
+      "buckets": [
+        {
+          "key": "13/4400/2686",
+          "doc_count": 2,
+          "centroid": {
+            "location": {
+              "lat": 52.52330794930458,
+              "lon": 13.38908314704895
+            },
+            "count": 2
+          }
+        },
+        {
+          "key": "13/4403/2692",
+          "doc_count": 1,
+          "centroid": {
+            "location": {
+              "lat": 52.36703671049327,
+              "lon": 13.517282847315073
+            },
+            "count": 1
+          }
+        },
+        {
+          "key": "13/4401/2686",
+          "doc_count": 1,
+          "centroid": {
+            "location": {
+              "lat": 52.52082384657115,
+              "lon": 13.409421667456627
+            },
+            "count": 1
+          }
+        },
+        {
+          "key": "13/4398/2685",
+          "doc_count": 1,
+          "centroid": {
+            "location": {
+              "lat": 52.55955611821264,
+              "lon": 13.292043171823025
+            },
+            "count": 1
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
 ## Other aggregations
 
 Here is a more complicated example where we use various other aggregations.
@@ -339,29 +488,8 @@ println(
 This prints:
 
 ```text
-2025-01-17T00:00:00.000Z: 1
-2025-01-18T00:00:00.000Z: 0
-2025-01-19T00:00:00.000Z: 0
-2025-01-20T00:00:00.000Z: 0
-2025-01-21T00:00:00.000Z: 0
-2025-01-22T00:00:00.000Z: 1
-2025-01-23T00:00:00.000Z: 0
-2025-01-24T00:00:00.000Z: 0
-2025-01-25T00:00:00.000Z: 0
-2025-01-26T00:00:00.000Z: 1
-2025-01-27T00:00:00.000Z: 1
-green: 2
-  Min: 1.737143810171E12
-  Max: 1.738007810171E12
-  Time span: 8.64E8
-  Top: [1,4]
-red: 2
-  Min: 1.737575810171E12
-  Max: 1.737921410171E12
-  Time span: 3.456E8
-  Top: [2,3]
-Avg time span: 6.048E8
-Tag cardinality: 3
+Avg time span: 0.0
+Tag cardinality: 0
 ```
 
 ## Filter aggregations
@@ -390,8 +518,7 @@ repo.search {
 This prints:
 
 ```text
-filtered: 2
-red: 2
+filtered: 0
 ```
 
 You can also use the filters aggregation to use multiple named filter aggregations at the same time

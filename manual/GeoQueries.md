@@ -7,41 +7,43 @@
 
 Elasticearch has some nice geo spatial query support that is of course supported in this client.
 
-First, let's create an index with some documents with a geospatial information:
+First, let's create an index with some documents with a geospatial information for a TestGeoDoc class
 
 ```kotlin
 @Serializable
-data class TestDoc(val id: String, val name: String, val point: List<Double>)
+data class TestGeoDoc(val id: String, val name: String, val point: List<Double>)
+```
 
+```kotlin
 client.createIndex(indexName) {
   mappings {
-    keyword(TestDoc::id)
-    text(TestDoc::name)
-    geoPoint(TestDoc::point)
+    keyword(TestGeoDoc::id)
+    text(TestGeoDoc::name)
+    geoPoint(TestGeoDoc::point)
   }
 }
 val points = listOf(
-  TestDoc(
+  TestGeoDoc(
     id = "bar",
     name = "Kommerzpunk",
     point = listOf(13.400544, 52.530286)
   ),
-  TestDoc(
+  TestGeoDoc(
     id = "tower",
     name = "Tv Tower",
     point = listOf(13.40942173843226, 52.52082388531597)
   ),
-  TestDoc(
+  TestGeoDoc(
     id = "tor",
     name = "Brandenburger Tor",
     point = listOf(13.377622382132417, 52.51632993824314)
   ),
-  TestDoc(
+  TestGeoDoc(
     id = "tegel",
-    name = "Tegel Airport",
+    name = "Tegel Airport (Closed)",
     point = listOf(13.292043211510515, 52.55955614073912)
   ),
-  TestDoc(
+  TestGeoDoc(
     id = "airport",
     name = "Brandenburg Airport",
     point = listOf(13.517282872748005, 52.367036750575814)
@@ -60,11 +62,11 @@ Bounding box searches return everything inside a bounding box specified by a top
 
 ```kotlin
 client.search(indexName) {
-  query = GeoBoundingBoxQuery(TestDoc::point) {
+  query = GeoBoundingBoxQuery(TestGeoDoc::point) {
     topLeft(points["tegel"]!!.point)
     bottomRight(points["airport"]!!.point)
   }
-}.parseHits(TestDoc.serializer()).map {
+}.parseHits(TestGeoDoc.serializer()).map {
   it.id
 }
 ```
@@ -72,7 +74,7 @@ client.search(indexName) {
 You can specify points in a variety of ways:
 
 ```kotlin
-GeoBoundingBoxQuery(TestDoc::point) {
+GeoBoundingBoxQuery(TestGeoDoc::point) {
   topLeft(latitude = 52.0, longitude = 13.0)
   // geojson coordinates
   topLeft(arrayOf(13.0, 52.0))
@@ -92,8 +94,8 @@ Searching by distance is also possible.
 
 ```kotlin
 client.search(indexName) {
-  query = GeoDistanceQuery(TestDoc::point, "3km", points["tower"]!!.point)
-}.parseHits(TestDoc.serializer()).map {
+  query = GeoDistanceQuery(TestGeoDoc::point, "3km", points["tower"]!!.point)
+}.parseHits(TestGeoDoc.serializer()).map {
   it.id
 }
 ```
@@ -120,14 +122,14 @@ val polygon = Shape.Polygon(
 )
 
 client.search(indexName) {
-  query = GeoShapeQuery(TestDoc::point) {
+  query = GeoShapeQuery(TestGeoDoc::point) {
     shape = polygon
     relation = GeoShapeQuery.Relation.contains
   }
 }
 
 client.search(indexName) {
-  query = GeoShapeQuery(TestDoc::point) {
+  query = GeoShapeQuery(TestGeoDoc::point) {
     // you can also use string literals for the geometry
     // this is useful if you have some other representation
     // of geojson that you can serialize to string
@@ -147,7 +149,7 @@ client.search(indexName) {
     )
     relation = GeoShapeQuery.Relation.intersects
   }
-}.parseHits(TestDoc.serializer()).map {
+}.parseHits(TestGeoDoc.serializer()).map {
   it.id
 }
 ```
@@ -160,20 +162,20 @@ this is translated into another geo_shape query.
 
 ```kotlin
 client.search(indexName) {
-  query = GeoGridQuery(TestDoc::point) {
+  query = GeoGridQuery(TestGeoDoc::point) {
     geotile = "6/50/50"
   }
 }
 client.search(indexName) {
-  query = GeoGridQuery(TestDoc::point) {
+  query = GeoGridQuery(TestGeoDoc::point) {
     geohex = "8a283082a677fff"
   }
 }
 client.search(indexName) {
-  query = GeoGridQuery(TestDoc::point) {
+  query = GeoGridQuery(TestGeoDoc::point) {
     geohash = "u33d"
   }
-}.parseHits(TestDoc.serializer()).map {
+}.parseHits(TestGeoDoc.serializer()).map {
   it.id
 }
 ```
