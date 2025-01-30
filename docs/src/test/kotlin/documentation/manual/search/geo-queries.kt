@@ -2,104 +2,92 @@
 
 package documentation.manual.search
 
+import com.jillesvangurp.kotlin4example.Kotlin4Example
 import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.searchdsls.querydsl.*
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 
-val geoQueriesMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
+@Serializable
+data class TestGeoDoc(val id: String, val name: String, val point: List<Double>)
 
-    @Serializable
-    data class TestDoc(val id: String, val name: String, val point: List<Double>)
-
+suspend fun createGeoPoints(indexName: String): Map<String, TestGeoDoc> {
+    runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) }
+    // BEGIN GEOPOINTCREATE
+    client.createIndex(indexName) {
+        mappings {
+            keyword(TestGeoDoc::id)
+            text(TestGeoDoc::name)
+            geoPoint(TestGeoDoc::point)
+        }
+    }
     val points = listOf(
-        TestDoc(
+        TestGeoDoc(
             id = "bar",
             name = "Kommerzpunk",
             point = listOf(13.400544, 52.530286)
         ),
-        TestDoc(
+        TestGeoDoc(
             id = "tower",
             name = "Tv Tower",
             point = listOf(13.40942173843226, 52.52082388531597)
         ),
-        TestDoc(
+        TestGeoDoc(
             id = "tor",
             name = "Brandenburger Tor",
             point = listOf(13.377622382132417, 52.51632993824314)
         ),
-        TestDoc(
+        TestGeoDoc(
             id = "tegel",
-            name = "Tegel Airport",
+            name = "Tegel Airport (Closed)",
             point = listOf(13.292043211510515, 52.55955614073912)
         ),
-        TestDoc(
+        TestGeoDoc(
             id = "airport",
             name = "Brandenburg Airport",
             point = listOf(13.517282872748005, 52.367036750575814)
         )
     ).associateBy { it.id }
 
-    val indexName = "docs-geo-queries-demo"
-    runBlocking {
+    client.bulk(target = indexName) {
+        // note longitude comes before latitude with geojson
+        points.values.forEach { create(it) }
+    }
+    // END GEOPOINTCREATE
+    return points
+}
 
-        runCatching { client.deleteIndex(target = indexName, ignoreUnavailable = true) }
-        // BEGIN GEOPOINTCREATE
+/**
+ * Call createGeoPoints separately.
+ */
+fun Kotlin4Example.createGeoPointsDoc() {
+    +"""
+        First, let's create an index with some documents with a geospatial information for a TestGeoDoc class
+    """.trimIndent()
+
+    example {
         @Serializable
-        data class TestDoc(val id: String, val name: String, val point: List<Double>)
+        data class TestGeoDoc(val id: String, val name: String, val point: List<Double>)
+    }
 
-        client.createIndex(indexName) {
-            mappings {
-                keyword(TestDoc::id)
-                text(TestDoc::name)
-                geoPoint(TestDoc::point)
-            }
-        }
-        val points = listOf(
-            TestDoc(
-                id = "bar",
-                name = "Kommerzpunk",
-                point = listOf(13.400544, 52.530286)
-            ),
-            TestDoc(
-                id = "tower",
-                name = "Tv Tower",
-                point = listOf(13.40942173843226, 52.52082388531597)
-            ),
-            TestDoc(
-                id = "tor",
-                name = "Brandenburger Tor",
-                point = listOf(13.377622382132417, 52.51632993824314)
-            ),
-            TestDoc(
-                id = "tegel",
-                name = "Tegel Airport",
-                point = listOf(13.292043211510515, 52.55955614073912)
-            ),
-            TestDoc(
-                id = "airport",
-                name = "Brandenburg Airport",
-                point = listOf(13.517282872748005, 52.367036750575814)
-            )
-        ).associateBy { it.id }
+    this.exampleFromSnippet("documentation/manual/search/geo-queries.kt", "GEOPOINTCREATE")
 
-        client.bulk(target = indexName) {
-            // note longitude comes before latitude with geojson
-            points.values.forEach { create(it) }
-        }
-        // END GEOPOINTCREATE
+}
 
+val geoQueriesMd = sourceGitRepository.md {
+    val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
+    
+    val indexName = "docs-geo-queries-demo"
+
+    val points = runBlocking {
+        createGeoPoints(indexName)
     }
 
     +"""
         Elasticearch has some nice geo spatial query support that is of course supported in this client.
-        
-        First, let's create an index with some documents with a geospatial information:
-    """.trimIndent()
-
-    this.exampleFromSnippet("documentation/manual/search/geo-queries.kt", "GEOPOINTCREATE")
+    """
+    createGeoPointsDoc()
 
     section("Bounding Box Search") {
         +"""
@@ -108,11 +96,11 @@ val geoQueriesMd = sourceGitRepository.md {
 
         example {
             client.search(indexName) {
-                query = GeoBoundingBoxQuery(TestDoc::point) {
+                query = GeoBoundingBoxQuery(TestGeoDoc::point) {
                     topLeft(points["tegel"]!!.point)
                     bottomRight(points["airport"]!!.point)
                 }
-            }.parseHits(TestDoc.serializer()).map {
+            }.parseHits(TestGeoDoc.serializer()).map {
                 it.id
             }
         }
@@ -120,7 +108,7 @@ val geoQueriesMd = sourceGitRepository.md {
             You can specify points in a variety of ways:
         """.trimIndent()
         example {
-            GeoBoundingBoxQuery(TestDoc::point) {
+            GeoBoundingBoxQuery(TestGeoDoc::point) {
                 topLeft(latitude = 52.0, longitude = 13.0)
                 // geojson coordinates
                 topLeft(arrayOf(13.0, 52.0))
@@ -141,8 +129,8 @@ val geoQueriesMd = sourceGitRepository.md {
         """.trimIndent()
         example {
             client.search(indexName) {
-                query = GeoDistanceQuery(TestDoc::point, "3km", points["tower"]!!.point)
-            }.parseHits(TestDoc.serializer()).map {
+                query = GeoDistanceQuery(TestGeoDoc::point, "3km", points["tower"]!!.point)
+            }.parseHits(TestGeoDoc.serializer()).map {
                 it.id
             }
         }
@@ -171,14 +159,14 @@ val geoQueriesMd = sourceGitRepository.md {
             )
 
             client.search(indexName) {
-                query = GeoShapeQuery(TestDoc::point) {
+                query = GeoShapeQuery(TestGeoDoc::point) {
                     shape = polygon
                     relation = GeoShapeQuery.Relation.contains
                 }
             }
 
             client.search(indexName) {
-                query = GeoShapeQuery(TestDoc::point) {
+                query = GeoShapeQuery(TestGeoDoc::point) {
                     // you can also use string literals for the geometry
                     // this is useful if you have some other representation
                     // of geojson that you can serialize to string
@@ -198,7 +186,7 @@ val geoQueriesMd = sourceGitRepository.md {
                     )
                     relation = GeoShapeQuery.Relation.intersects
                 }
-            }.parseHits(TestDoc.serializer()).map {
+            }.parseHits(TestGeoDoc.serializer()).map {
                 it.id
             }
         }
@@ -213,20 +201,20 @@ val geoQueriesMd = sourceGitRepository.md {
         """.trimIndent()
         example {
             client.search(indexName) {
-                query = GeoGridQuery(TestDoc::point) {
+                query = GeoGridQuery(TestGeoDoc::point) {
                     geotile = "6/50/50"
                 }
             }
             client.search(indexName) {
-                query = GeoGridQuery(TestDoc::point) {
+                query = GeoGridQuery(TestGeoDoc::point) {
                     geohex = "8a283082a677fff"
                 }
             }
             client.search(indexName) {
-                query = GeoGridQuery(TestDoc::point) {
+                query = GeoGridQuery(TestGeoDoc::point) {
                     geohash = "u33d"
                 }
-            }.parseHits(TestDoc.serializer()).map {
+            }.parseHits(TestGeoDoc.serializer()).map {
                 it.id
             }
         }

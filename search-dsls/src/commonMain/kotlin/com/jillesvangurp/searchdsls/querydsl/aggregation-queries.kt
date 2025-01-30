@@ -353,7 +353,6 @@ class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_h
     }
 }
 
-
 class FilterConfig : JsonDsl() {
     var query: ESQuery
         get() {
@@ -402,4 +401,36 @@ class SumAgg(val field: String, block: (SumAggConfig.() -> Unit)? = null) : AggQ
     }
 }
 
+class GeoTileGridAggConfig: JsonDsl() {
+    var field by property<String>()
+    /**
+     * Zoom level (0..22). Corresponds to the
+     */
+    var precision by property<Int>()
+    var aggSize by property<Long>("size")
+    var shardSize by property<Long>()
+
+    fun bounds(boundingBoxQueryConfig: GeoBoundingBoxQueryConfig.() -> Unit) {
+        this["bounds"]= GeoBoundingBoxQueryConfig().apply(boundingBoxQueryConfig)
+    }
+}
+
+class GeoTileGridAgg(field: String, precision: Int, block: (GeoTileGridAggConfig.() ->Unit)?=null): AggQuery("geotile_grid") {
+    init {
+        val config = GeoTileGridAggConfig()
+        config.field = field
+        config.precision = precision
+        block?.let { config.apply(it)}
+        put(name, config)
+    }
+}
+
+
+class GeoCentroidAgg(field: String): AggQuery("geo_centroid") {
+    init {
+        put(name, withJsonDsl {
+            this["field"] = field
+        })
+    }
+}
 
