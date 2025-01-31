@@ -333,17 +333,30 @@ client.bulk(target = indexName) {
 The main bucket aggregation for geo spatial information is the `geotile_grid` aggregation:
 
 ```kotlin
-client.search(indexName) {
+val response = client.search(indexName) {
   resultSize = 0
   agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
   }
 }
+
+println(
+  DEFAULT_PRETTY_JSON.encodeToString(response)
+)
+val geoTiles = response.aggregations.geoTileGridResult("grid")
+geoTiles.parsedBuckets.forEach { bucket ->
+  bucket.aggregations.geoCentroid("centroid").let {
+    val key = bucket.parsed.key
+    println("$key: ${it.location} - ${it.count} ")
+  }
+}
 ```
 
-```json
+This prints:
+
+```text
 {
-  "took": 15,
+  "took": 11,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -409,6 +422,10 @@ client.search(indexName) {
     }
   }
 }
+13/4400/2686: Point(lat=52.52330794930458, lon=13.38908314704895) - 2 
+13/4403/2692: Point(lat=52.36703671049327, lon=13.517282847315073) - 1 
+13/4401/2686: Point(lat=52.52082384657115, lon=13.409421667456627) - 1 
+13/4398/2685: Point(lat=52.55955611821264, lon=13.292043171823025) - 1 
 ```
 
 ## Other aggregations
