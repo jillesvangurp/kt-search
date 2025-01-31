@@ -4,6 +4,8 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
+import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
+import com.jillesvangurp.searchdsls.querydsl.Shape
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -131,6 +133,7 @@ inline fun <reified T> Flow<SearchResponse.Hit>.parseHits(
 ): Flow<T> = map {
     it.parseHit<T>()
 }
+
 fun <T> Flow<SearchResponse.Hit>.parseHits(
     deserializationStrategy: DeserializationStrategy<T>,
     json: Json = DEFAULT_JSON
@@ -138,7 +141,7 @@ fun <T> Flow<SearchResponse.Hit>.parseHits(
     it.parseHit(deserializationStrategy, json)
 }
 
-fun <T: Any> Flow<SearchResponse.Hit>.parseHits(deserializationStrategy: ModelSerializationStrategy<T>): Flow<T> =
+fun <T : Any> Flow<SearchResponse.Hit>.parseHits(deserializationStrategy: ModelSerializationStrategy<T>): Flow<T> =
     mapNotNull { hit ->
         hit.source?.let { deserializationStrategy.deSerialize(it) }
     }
@@ -381,29 +384,29 @@ data class ExtendedStatsBucketResult(
     @EncodeDefault
     val max: Double = 0.0,
     @EncodeDefault
-    val avg: Double= 0.0,
+    val avg: Double = 0.0,
     @EncodeDefault
-    val sum: Double= 0.0,
+    val sum: Double = 0.0,
     @SerialName("sum_of_squares")
     @EncodeDefault
-    val sumOfSquares: Double= 0.0,
+    val sumOfSquares: Double = 0.0,
     @EncodeDefault
-    val variance: Double= 0.0,
+    val variance: Double = 0.0,
     @SerialName("variance_population")
     @EncodeDefault
-    val variancePopulation: Double= 0.0,
+    val variancePopulation: Double = 0.0,
     @SerialName("variance_sampling")
     @EncodeDefault
-    val varianceSampling: Double= 0.0,
+    val varianceSampling: Double = 0.0,
     @SerialName("std_deviation")
     @EncodeDefault
-    val stdDeviation: Double= 0.0,
+    val stdDeviation: Double = 0.0,
     @SerialName("std_deviation_population")
     @EncodeDefault
-    val stdDeviationPopulation: Double= 0.0,
+    val stdDeviationPopulation: Double = 0.0,
     @SerialName("std_deviation_sampling")
     @EncodeDefault
-    val stdDeviationSampling: Double= 0.0,
+    val stdDeviationSampling: Double = 0.0,
     @SerialName("std_deviation_bounds")
     @EncodeDefault
     val stdDeviationBounds: Bounds = Bounds()
@@ -411,21 +414,21 @@ data class ExtendedStatsBucketResult(
     @Serializable
     data class Bounds(
         @EncodeDefault
-        val upper: Double= 0.0,
+        val upper: Double = 0.0,
         @EncodeDefault
-        val lower: Double= 0.0,
+        val lower: Double = 0.0,
         @SerialName("upper_population")
         @EncodeDefault
-        val upperPopulation: Double= 0.0,
+        val upperPopulation: Double = 0.0,
         @SerialName("lower_population")
         @EncodeDefault
-        val lowerPopulation: Double= 0.0,
+        val lowerPopulation: Double = 0.0,
         @SerialName("upper_sampling")
         @EncodeDefault
-        val upperSampling: Double= 0.0,
+        val upperSampling: Double = 0.0,
         @SerialName("lower_sampling")
         @EncodeDefault
-        val lowerSampling: Double= 0.0,
+        val lowerSampling: Double = 0.0,
     )
 }
 
@@ -445,6 +448,42 @@ fun Aggregations?.topHitResult(name: String, json: Json = DEFAULT_JSON): TopHits
 
 fun Aggregations?.topHitResult(name: Enum<*>, json: Json = DEFAULT_JSON): TopHitsAggregationResult =
     getAggResult(name.name, json)
+
+@Serializable
+data class GeoTileGridBucket(
+    val key: String,
+    @SerialName("doc_count")
+    val docCount: Long,
+)
+
+@Serializable
+data class GeoTileGridResult(
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<GeoTileGridBucket>
+
+val GeoTileGridResult.parsedBuckets get() = buckets.map { Bucket(it, GeoTileGridBucket.serializer()) }
+
+fun Aggregations?.geoTileGridResult(name: String, json: Json = DEFAULT_JSON): GeoTileGridResult =
+    getAggResult(name, json)
+
+fun Aggregations?.geoTileGridResult(name: Enum<*>, json: Json = DEFAULT_JSON): GeoTileGridResult =
+    getAggResult(name, json)
+
+
+@Serializable
+data class GeoCentroidResult(
+    val location: Point,
+    val count: Long,
+
+    ) {
+    val pointCoordinate get() = doubleArrayOf(location.lon, location.lat)
+
+    @Serializable
+    data class Point(val lat: Double, val lon: Double)
+}
+
+fun Aggregations?.geoCentroid(name: String) = getAggResult<GeoCentroidResult>(name)
+fun Aggregations?.geoCentroid(name: Enum<*>) = getAggResult<GeoCentroidResult>(name)
 
 @Serializable
 data class SumAggregationResult(
