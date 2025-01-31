@@ -251,17 +251,24 @@ val aggregationsMd = sourceGitRepository.md {
         """.trimIndent()
 
         example {
-            client.search(indexName) {
+            val response = client.search(indexName) {
                 resultSize = 0
                 agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
                     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
                 }
             }
-        }.let {
-            it.result.getOrNull()?.let {
-                mdCodeBlock(DEFAULT_PRETTY_JSON.encodeToString(it), type="json",wrap = true)
+
+            println(
+                DEFAULT_PRETTY_JSON.encodeToString(response)
+            )
+            val geoTiles = response.aggregations.geoTileGridResult("grid")
+            geoTiles.parsedBuckets.forEach { bucket ->
+                bucket.aggregations.geoCentroid("centroid").let {
+                    val key = bucket.parsed.key
+                    println("$key: ${it.location} - ${it.count} ")
+                }
             }
-        }
+        }.printStdOut()
 
     }
 
