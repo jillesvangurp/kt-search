@@ -31,3 +31,4 @@ fun SearchDSL.filterSource(block: SourceBuilder.() -> Unit) {
     block.invoke(builder)
     this["_source"] = builder.sourceFilter
 }
+
