@@ -337,12 +337,43 @@ class TopHitsAggConfig : JsonDsl() {
     var resultSize by property<Long>("size")
     var from by property<Long>()
     var sort by property<List<SortField>>()
+    var explain by property<Boolean>()
 
     fun sort(block: SortBuilder.() -> Unit) {
         val builder = SortBuilder()
         block.invoke(builder)
         this["sort"] = builder.sortFields
     }
+}
+
+fun TopHitsAggConfig.filterSource(returnSource: Boolean) {
+    this["_source"] = returnSource
+}
+
+fun TopHitsAggConfig.filterSource(vararg fields: KProperty<*>) {
+    this["_source"] = arrayOf(*fields.map { it.name }.toTypedArray())
+}
+
+fun TopHitsAggConfig.filterSource(vararg fields: String) {
+    this["_source"] = arrayOf(*fields)
+}
+
+fun TopHitsAggConfig.filterSource(block: SourceBuilder.() -> Unit) {
+    val builder = SourceBuilder()
+    block.invoke(builder)
+    this["_source"] = builder.sourceFilter
+}
+
+fun TopHitsAggConfig.highlight(
+    vararg fields: HighlightField,
+    block: (Highlight.() -> Unit)?=null
+) {
+    val builder = Highlight()
+    if(fields.isNotEmpty()) {
+        builder.fields(*fields)
+    }
+    block?.invoke(builder)
+    this["highlight"] = builder
 }
 
 class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_hits") {
