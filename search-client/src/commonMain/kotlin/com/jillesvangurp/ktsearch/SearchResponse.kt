@@ -4,8 +4,6 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
-import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
-import com.jillesvangurp.searchdsls.querydsl.Shape
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,8 +29,27 @@ data class SearchResponse(
     @SerialName("_scroll_id")
     val scrollId: String?,
     @SerialName("pit_id")
-    val pitId: String?
+    val pitId: String?,
+    val suggest: Map<String, List<Suggest>>?
 ) {
+    @Serializable
+    data class Suggest(
+        val text: String,
+        val offset: Int,
+        val length: Int,
+        val options: List<Option>
+    ) {
+        @Serializable
+        data class Option(
+            val text: String,
+            val score: Double,
+            val freq: Int?,
+            @SerialName("collate_match")
+            val collateMatch: Boolean?,
+            val highlighted: String?
+        )
+    }
+
     @Serializable
     data class Hit(
         @SerialName("_index")
