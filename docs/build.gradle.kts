@@ -64,6 +64,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-to-slf4j:_") // es seems to insist on log4j2
     testImplementation("ch.qos.logback:logback-classic:_")
 
+    testImplementation(kotlin("test-junit5"))
     testImplementation(Testing.junit.jupiter.api)
     testImplementation(Testing.junit.jupiter.engine)
 
