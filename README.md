@@ -453,13 +453,20 @@ onlyOn("opensearch has search_after but it works a bit different",
     SearchEngineVariant.ES8)
 ```
 
+## Kotlin & Multiplatform compatibility
+
+New releases of this library generally update dependencies to their current versions. There currently is no LTS release of Kotlin. Generally this library should work with recent stable releases of Kotlin. At this point, that means Kotlin 2.0 or higher.
+
+Also, because this is a multi platform project, you should be aware that several of the platforms are experimental. Because of this, we try to track the latest stable releases of Kotlin. IOS, Linux, Wasm, etc. are expected to generally work but are not something that we actively use ourselves and something that at this point is not stable on the Kotlin side yet. Also, there are some issues with WASM and Karma not playing nice. I've disabled tests for that. The IOS simulator tests are disabled for the same reason.
+
+If you try and find issues, use the issue tracker please.
+
 ## Module Overview
 
 This repository contains several kotlin modules that each may be used independently.
 
 | Module          | Description                                                                                                              |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------|
-| `json-dsl`      | Kotlin framework for creating kotlin DSLs for JSON dialects. Such as those in Elasticsearch.                             |
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                        |
 | `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1. This is what you would want to use in your projects. |
 | `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..       |

@@ -8,6 +8,10 @@ plugins {
     kotlin("multiplatform")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 kotlin {
     jvm {
         // should work for android as well

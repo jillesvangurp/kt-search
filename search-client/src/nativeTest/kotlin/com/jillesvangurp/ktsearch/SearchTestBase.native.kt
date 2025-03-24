@@ -12,7 +12,3 @@ actual fun coRun(timeout: Duration, block: suspend () -> Unit) {
         }
     }
 }
-
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-actual annotation class IgnoreJs
