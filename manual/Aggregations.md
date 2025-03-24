@@ -356,7 +356,7 @@ This prints:
 
 ```text
 {
-  "took": 8,
+  "took": 9,
   "_shards": {
     "total": 1,
     "successful": 1,
