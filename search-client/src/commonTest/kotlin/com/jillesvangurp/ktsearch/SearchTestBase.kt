@@ -2,23 +2,15 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.SearchEngineVariant
-import kotlinx.coroutines.test.TestResult
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.random.Random
 import kotlin.random.nextULong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 
-expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit): TestResult
-
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-// in js and wasm we have this implementation which causes the test to be ignored
-// actual typealias IgnoreJs = kotlin.test.Ignore
-expect annotation class IgnoreJs()
+expect fun coRun(timeout: Duration = 30.seconds, block: suspend () -> Unit)
 
 private val logger = KotlinLogging.logger {  }
 private var versionInfo: SearchEngineInformation?=null

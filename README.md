@@ -453,6 +453,8 @@ onlyOn("opensearch has search_after but it works a bit different",
     SearchEngineVariant.ES8)
 ```
 
+New releases of this library generally update dependencies to their current versions. There currently is no LTS release of Kotlin. Generally this library should work with recent stable releases of Kotlin. At this point, that means Kotlin 2.0 or higher.
+
 ## Module Overview
 
 This repository contains several kotlin modules that each may be used independently.
