@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["es-7","es-8","os-1", "os-2"]
+        version: ["es-7","es-8","es-9","os-1", "os-2","os-3"]
     steps:
       - name: Checkout the code
         uses: actions/checkout@master
