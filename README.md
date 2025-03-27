@@ -427,30 +427,36 @@ For additional details, refer to the build file.
 
 ## Compatibility
 
-The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2.
+The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x.
 
 It may work fine with earlier Elasticsearch versions as well. But we don't actively test this and the tests are known to not pass with Elasticsearch 6 due to some changes in the mapping dsl. You may be able to work around some of this, however.
 
-There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and and has the following annotation to indicate that:
+There is an annotation that is used to restrict APIs when needed. E.g. `search-after` support was added in Opensearch 2.x but is missing in 1.x:
 
 ```kotlin
 @VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
     validateEngine("search_after does not work on OS1",
         SearchEngineVariant.ES7, 
-        SearchEngineVariant.ES8)
+        SearchEngineVariant.ES8,
+        SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2,
+        SearchEngineVariant.OS3,
+        )
 
     // ...
 }
 ```
 
 The annotation is informational only for now. In our tests, we use `onlyon` to prevent tests from
-failing on unsupported engines For example, this is added to the test for `search_after`:
+failing on unsupported engines:
 
 ```kotlin
-onlyOn("opensearch has search_after but it works a bit different",
+onlyOn("doesn't work on Opensearch",
     SearchEngineVariant.ES7,
-    SearchEngineVariant.ES8)
+    SearchEngineVariant.ES8,
+    SearchEngineVariant.ES9,
+)
 ```
 
 ## Kotlin & Multiplatform compatibility
@@ -465,11 +471,11 @@ If you try and find issues, use the issue tracker please.
 
 This repository contains several kotlin modules that each may be used independently.
 
-| Module          | Description                                                                                                              |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------|
-| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                        |
-| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1. This is what you would want to use in your projects. |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..       |
+| Module          | Description                                                                                                                                    |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
+| `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
 
 The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 
