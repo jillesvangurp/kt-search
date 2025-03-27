@@ -11,7 +11,9 @@ class IlmTest: SearchTestBase()  {
     fun shouldSetUpIlmPolicy() = coRun {
         onlyOn("ilm only works on elasticsearch",
             SearchEngineVariant.ES7,
-            SearchEngineVariant.ES8) {
+            SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
+            ) {
             client.setIlmPolicy("my-ilm") {
                 hot {
                     actions {

@@ -47,6 +47,8 @@ Kt-search is extensible and modular. You can easily add your own custom DSLs for
 
 ## Gradle
 
+Kt-search is published to the FORMATION maven repository. 
+
 Add the `maven.tryformation.com` repository:
 
 ```kotlin
@@ -59,21 +61,16 @@ repositories {
     }
 }
 ```
-
-And then the dependency to commonsMain or main:
+And then add the dependency like this:
 
 ```kotlin
     // check the latest release tag for the latest version
     implementation("com.jillesvangurp:search-client:2.x.y")
 ```
 
-**About maven central ...** I've switched maven repositories a couple of times now. Jitpack and multiplatform just doesn't work. Of course I would have liked to get this on maven central. However, after repeated attempts to get that done, I've decided to not sacrifice more time on this. The (lack of) documentation, the Jira bureaucracy, the uninformative errors, the gradle plugin, etc.  just doesn't add up to something that works for a multi module, multi platform project. I'm sure it can be done but I'm not taking more time out my schedule to find out.
-
-If somebody decides to fix a proper, modern solution for hosting packages, I'll consider using it but I'm done with maven central for now. Google buckets work fine for hosting. So does ssh or any old web server. So does aws. It's just maven central that's a huge PITA. 
-
 ## Maven
 
-If you have maven based kotlin project targeting jvm and can't use kotlin multiplatform dependency, you would need to add jvm targeting artifacts.  
+If you have maven based kotlin project targeting jvm and can't use kotlin multiplatform dependency, you will need to **append '-jvm' to the artifacts**.
 
 Add the `maven.tryformation.com` repository:
 
@@ -87,24 +84,24 @@ Add the `maven.tryformation.com` repository:
 </repositories>
 ```
 
-And then add dependencies to jvm targets:
+And then add dependencies for jvm targets:
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>search-client-jvm</artifactId>
-        <version>2.1.25</version>
+        <version>2.x.y</version>
     </dependency>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>search-dsls-jvm</artifactId>
-        <version>2.1.25</version>
+        <version>2.x.y</version>
     </dependency>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>json-dsl-jvm</artifactId>
-        <version>3.0.0</version>
+        <version>3.x.y</version>
     </dependency>
 </dependencies>
 ```
@@ -427,30 +424,36 @@ For additional details, refer to the build file.
 
 ## Compatibility
 
-The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7 & 8 and Opensearch 1 & 2.
+The integration tests on GitHub Actions use a **matrix build** that tests everything against Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x.
 
 It may work fine with earlier Elasticsearch versions as well. But we don't actively test this and the tests are known to not pass with Elasticsearch 6 due to some changes in the mapping dsl. You may be able to work around some of this, however.
 
-There is an annotation that is used to restrict APIs when needed. E.g. `search-after` only works with Elasticsearch and and has the following annotation to indicate that:
+There is an annotation that is used to restrict APIs when needed. E.g. `search-after` support was added in Opensearch 2.x but is missing in 1.x:
 
 ```kotlin
 @VariantRestriction(SearchEngineVariant.ES7,SearchEngineVariant.ES8)
 suspend fun SearchClient.searchAfter(target: String, keepAlive: Duration, query: SearchDSL): Pair<SearchResponse,Flow<SearchResponse.Hit>> {
     validateEngine("search_after does not work on OS1",
         SearchEngineVariant.ES7, 
-        SearchEngineVariant.ES8)
+        SearchEngineVariant.ES8,
+        SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2,
+        SearchEngineVariant.OS3,
+        )
 
     // ...
 }
 ```
 
 The annotation is informational only for now. In our tests, we use `onlyon` to prevent tests from
-failing on unsupported engines For example, this is added to the test for `search_after`:
+failing on unsupported engines:
 
 ```kotlin
-onlyOn("opensearch has search_after but it works a bit different",
+onlyOn("doesn't work on Opensearch",
     SearchEngineVariant.ES7,
-    SearchEngineVariant.ES8)
+    SearchEngineVariant.ES8,
+    SearchEngineVariant.ES9,
+)
 ```
 
 ## Kotlin & Multiplatform compatibility
@@ -465,11 +468,11 @@ If you try and find issues, use the issue tracker please.
 
 This repository contains several kotlin modules that each may be used independently.
 
-| Module          | Description                                                                                                              |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------|
-| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                        |
-| `search-client` | Multiplatform REST client for Elasticsearch 7 & 8 and Opensearch 1. This is what you would want to use in your projects. |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..       |
+| Module          | Description                                                                                                                                    |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
+| `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
 
 The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 

@@ -87,7 +87,8 @@ suspend fun SearchClient.setIlmPolicy(policyId: String, block: IMLPhases.()->Uni
     validateEngine(
         "ilm only works on Elasticsearch",
         SearchEngineVariant.ES7,
-        SearchEngineVariant.ES8
+        SearchEngineVariant.ES8,
+        SearchEngineVariant.ES9
     )
 
     val config = ILMConfiguration()

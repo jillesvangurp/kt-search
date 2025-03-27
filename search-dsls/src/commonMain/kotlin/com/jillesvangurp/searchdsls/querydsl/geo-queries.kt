@@ -109,7 +109,7 @@ class GeoGridQueryConfig : JsonDsl() {
 }
 
 // only works on Elasticsearch 8
-@VariantRestriction(SearchEngineVariant.ES8)
+@VariantRestriction(SearchEngineVariant.ES8, SearchEngineVariant.ES9)
 class GeoGridQuery(val field: String, block: GeoGridQueryConfig.() -> Unit) : ESQuery("geo_grid") {
     constructor(field: KProperty<*>, block: GeoGridQueryConfig.() -> Unit) : this(field.name, block)
 

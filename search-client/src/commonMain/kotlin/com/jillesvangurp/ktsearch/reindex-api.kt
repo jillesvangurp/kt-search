@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.SearchEngineVariant.ES7
 import com.jillesvangurp.searchdsls.SearchEngineVariant.ES8
+import com.jillesvangurp.searchdsls.SearchEngineVariant.ES9
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
 import kotlinx.serialization.SerialName
@@ -37,7 +38,7 @@ data class ReindexResponse(
 @Serializable
 data class ReindexRetries(val bulk: Int, val search: Int)
 
-@VariantRestriction(ES7, ES8)
+@VariantRestriction(ES7, ES8,ES9)
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
     timeout: Duration? = null,
@@ -62,7 +63,7 @@ suspend fun SearchClient.reindex(
 ).parse(ReindexResponse.serializer())
 
 
-@VariantRestriction(ES7, ES8)
+@VariantRestriction(ES7, ES8, ES9)
 suspend fun SearchClient.reindexAsync(
     refresh: Boolean? = null,
     timeout: Duration? = null,

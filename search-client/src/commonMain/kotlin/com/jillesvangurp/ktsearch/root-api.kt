@@ -40,8 +40,10 @@ data class SearchEngineInformation(
                 // opensearch added the distribution
                 this.version.distribution == "opensearch" && this.version.number.startsWith("1.") -> SearchEngineVariant.OS1
                 this.version.distribution == "opensearch" && this.version.number.startsWith("2.") ->SearchEngineVariant.OS2
+                this.version.distribution == "opensearch" && this.version.number.startsWith("3.") ->SearchEngineVariant.OS3
                 this.version.number.startsWith("7.") -> SearchEngineVariant.ES7
                 this.version.number.startsWith("8.") -> SearchEngineVariant.ES8
+                this.version.number.startsWith("9.") -> SearchEngineVariant.ES9
                 else -> error("version not recognized")
             },
             versionString = version.number
