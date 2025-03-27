@@ -54,10 +54,7 @@ Because you can sort on multiple fields, this has to be an array. To guarantee c
 is generally used in combination with the Point in Time API. Kt-search adds a sort on "_shard_doc" for you.
 
 If you want to add your own sort, you have to opt-in to this and deal with any issues yourself as you can
-easily break search_after this way.
-
-Note. Currently only works with Elasticsearch. Opensearch has a very similar implementation but it works 
-slightly differently and currently kt-search only supports the elastic variant for this.
+easily break search_after this way.            
 
 ```kotlin
 val (resp,hitsFlow) = client.searchAfter(
@@ -82,7 +79,7 @@ This prints:
 
 ```text
 reported result set size 3
-results in the hits flow: 1
+results in the hits flow: 3
 ```
 
 ## Reindexing using search_after and bulk
