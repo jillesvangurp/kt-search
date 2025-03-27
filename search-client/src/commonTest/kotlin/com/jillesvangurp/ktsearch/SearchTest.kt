@@ -106,6 +106,9 @@ class SearchTest : SearchTestBase() {
             "opensearch implemented search_after with v2 later changed their _pit API",
             SearchEngineVariant.ES7,
             SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
+            SearchEngineVariant.OS2,
+            SearchEngineVariant.OS3,
         ) {
             testDocumentIndex { index ->
 
@@ -131,6 +134,9 @@ class SearchTest : SearchTestBase() {
             "opensearch implemented search_after with v2 but then later changed their _pit API",
             SearchEngineVariant.ES7,
             SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
+            SearchEngineVariant.OS2,
+            SearchEngineVariant.OS3,
         ) {
             testDocumentIndex { index ->
 
@@ -353,7 +359,9 @@ class SearchTest : SearchTestBase() {
         onlyOn(
             "OS1 and ES7 don't support include_named_queries_score",
             SearchEngineVariant.OS2,
+            SearchEngineVariant.OS3,
             SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
         ) {
             testDocumentIndex { index ->
 

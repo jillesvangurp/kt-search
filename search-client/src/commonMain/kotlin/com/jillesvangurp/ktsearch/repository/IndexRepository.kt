@@ -970,7 +970,7 @@ class IndexRepository<T : Any>(
                 ?: error("cannot deserialize because hit has no source!")
         } ?: listOf()
 
-    @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
+    @VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9)
     suspend fun searchAfter(
         keepAlive: Duration = 1.minutes,
         optInToCustomSort: Boolean = false,

@@ -15,7 +15,8 @@ class KnnSearchTest : SearchTestBase() {
     fun shouldDoKnnSearch() = coRun {
         onlyOn(
             "knn only works with ES8",
-            SearchEngineVariant.ES8
+            SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
         ) {
             val index = randomIndexName()
             client.createIndex(index) {

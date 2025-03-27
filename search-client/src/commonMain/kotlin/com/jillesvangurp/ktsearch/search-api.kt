@@ -5,6 +5,7 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
+import com.jillesvangurp.searchdsls.SearchEngineFamily
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.*
@@ -300,7 +301,7 @@ suspend fun SearchClient.search(
             parameter("from", from)
             parameter("ignore_throttled", ignoreThrottled)
             parameter("ignore_unavailable", ignoreUnavailable)
-            parameter("include_named_queries_score",include_named_queries_score)
+            parameter("include_named_queries_score", include_named_queries_score)
             parameter("lenient", lenient)
             parameter("max_concurrent_shard_requests", maxConcurrentShardRequests)
             parameter("pre_filter_shard_size", preFilterShardSize)
@@ -467,24 +468,32 @@ data class CreatePointInTimeResponse(val id: String)
  *
  * @return point in time id
  */
-@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
+@VariantRestriction(
+    SearchEngineVariant.ES7,
+    SearchEngineVariant.ES8,
+    SearchEngineVariant.ES9,
+    SearchEngineVariant.OS2,
+    SearchEngineVariant.OS3
+)
 suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String {
     validateEngine(
         "PIT-api is not supported by OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8,
-        SearchEngineVariant.OS2
+        SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2,
+        SearchEngineVariant.OS3,
     )
     val keepAliveParam = "${keepAlive.inWholeSeconds}s"
     val id = when (engineInfo().variantInfo.variant) {
 
-        SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
+        SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9 ->
             restClient.post {
                 path(name, "_pit")
                 parameter("keep_alive", keepAliveParam)
             }.parse(CreatePointInTimeResponse.serializer(), json).id
 
-        SearchEngineVariant.OS2 -> {
+        SearchEngineVariant.OS2, SearchEngineVariant.OS3 -> {
             val result = restClient.post {
                 path(name, "_search", "point_in_time")
                 parameter("keep_alive", keepAliveParam)
@@ -501,17 +510,25 @@ suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): S
     return id
 }
 
-@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.OS2)
+@VariantRestriction(
+    SearchEngineVariant.ES7,
+    SearchEngineVariant.ES8,
+    SearchEngineVariant.ES9,
+    SearchEngineVariant.OS2,
+    SearchEngineVariant.OS3
+)
 suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
     validateEngine(
         "PIT-api is not supported by OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8,
-        SearchEngineVariant.OS2
+        SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2,
+        SearchEngineVariant.OS3,
     )
     val result: JsonObject = when (val variant = this.engineInfo().variantInfo.variant) {
 
-        SearchEngineVariant.ES7, SearchEngineVariant.ES8 ->
+        SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9 ->
             restClient.delete {
                 path("_pit")
                 body = withJsonDsl {
@@ -519,7 +536,7 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
                 }.json()
             }.parse(JsonObject.serializer())
 
-        SearchEngineVariant.OS2 ->
+        SearchEngineVariant.OS2, SearchEngineVariant.OS3 ->
             return restClient.delete {
                 path("_search", "point_in_time")
                 body = withJsonDsl {
@@ -544,7 +561,7 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
  * @return a pair of the first response and a flow of hits that when consumed pages through
  * the results using the point in time id and the sort.
  */
-@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9)
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration,
@@ -558,6 +575,9 @@ suspend fun SearchClient.searchAfter(
         "search_after and pit api work slightly different on Opensearch 2.x and not at all on OS1",
         SearchEngineVariant.ES7,
         SearchEngineVariant.ES8,
+        SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2,
+        SearchEngineVariant.OS3,
     )
     var pitId = createPointInTime(target, keepAlive)
     query["pit"] = withJsonDsl {
@@ -565,11 +585,18 @@ suspend fun SearchClient.searchAfter(
     }
     if (!query.containsKey("sort")) {
         query.apply {
-            // FIXME Opensearch 2 seems to not support this
-            sort {
-                // field is added implicitly, the sort isn't.
-                // so add it explicitly
-                add("_shard_doc", SortOrder.ASC)
+            if (engineInfo().variantInfo.variant.family == SearchEngineFamily.Elasticsearch) {
+                sort {
+                    // field is added implicitly, the sort isn't.
+                    // so add it explicitly
+                    add("_shard_doc", SortOrder.ASC)
+                }
+            } else {
+                sort {
+                    // field is added implicitly, the sort isn't.
+                    // so add it explicitly
+                    add("_id", SortOrder.ASC)
+                }
             }
         }
     } else {
@@ -582,26 +609,26 @@ suspend fun SearchClient.searchAfter(
         }
     }
 
-    val response = search(
-        null,
-        query.json(),
-        retries = retries,
-        retryDelay = retryDelay
-    )
-
+    val response =
+        search(
+            null,
+            query.json(),
+            retries = retries,
+            retryDelay = retryDelay
+        )
     val hitFlow = flow {
         var resp: SearchResponse = response
         emit(resp)
         while (resp.searchHits.isNotEmpty()) {
             resp.hits?.hits?.last()?.sort?.let { sort ->
-                query["search_after"] = sort
+                query["search_after"] = sort.map { it.jsonPrimitive.content }
             }
-            resp.pitId?.let { id ->
-                pitId = id
-                query["pit"] = withJsonDsl {
-                    this["id"] = pitId
-                    this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
-                }
+            pitId = resp.pitId ?: error("no pit_id")
+
+
+            query["pit"] = withJsonDsl {
+                this["id"] = pitId
+                this["keep_alive"] = "${keepAlive.inWholeSeconds}s"
             }
             resp = search(
                 null,
@@ -609,13 +636,14 @@ suspend fun SearchClient.searchAfter(
                 retries = retries,
                 retryDelay = retryDelay
             )
+
             emit(resp)
         }
     }.flatMapConcat { it.searchHits.asFlow() }
     return response to hitFlow
 }
 
-@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8)
+@VariantRestriction(SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9)
 suspend fun SearchClient.searchAfter(
     target: String,
     keepAlive: Duration = 1.minutes,
@@ -847,7 +875,7 @@ fun MultiSearchResponse.rrf(k: Int = 60): List<Pair<String, Double>> {
             // Calculate the RRF score and add it to the aggregated score
             val score = 1.0 / (k + rank)
 
-            aggregatedScores[searchHit.id] = (aggregatedScores[searchHit.id]?:0.0) + score
+            aggregatedScores[searchHit.id] = (aggregatedScores[searchHit.id] ?: 0.0) + score
         }
     }
 

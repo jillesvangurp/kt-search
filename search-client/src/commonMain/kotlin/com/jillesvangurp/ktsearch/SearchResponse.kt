@@ -30,6 +30,8 @@ data class SearchResponse(
     val scrollId: String?,
     @SerialName("pit_id")
     val pitId: String?,
+    @SerialName("point_in_time_id")
+    val pointInTimeId: String?,
     val suggest: Map<String, List<Suggest>>?
 ) {
     @Serializable

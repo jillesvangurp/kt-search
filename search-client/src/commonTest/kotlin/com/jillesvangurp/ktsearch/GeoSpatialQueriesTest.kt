@@ -42,7 +42,8 @@ class GeoSpatialQueriesTest : SearchTestBase() {
     fun shouldDoGridQuery() = coRun {
         onlyOn(
             "elasticsearch only feature that was introduced in recent 8.x releases",
-            SearchEngineVariant.ES8
+            SearchEngineVariant.ES8,
+            SearchEngineVariant.ES9,
         ) {
             geoTestFixture { index ->
                 client.search(index) {
