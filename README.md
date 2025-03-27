@@ -47,6 +47,8 @@ Kt-search is extensible and modular. You can easily add your own custom DSLs for
 
 ## Gradle
 
+Kt-search is published to the FORMATION maven repository. 
+
 Add the `maven.tryformation.com` repository:
 
 ```kotlin
@@ -59,21 +61,16 @@ repositories {
     }
 }
 ```
-
-And then the dependency to commonsMain or main:
+And then add the dependency like this:
 
 ```kotlin
     // check the latest release tag for the latest version
     implementation("com.jillesvangurp:search-client:2.x.y")
 ```
 
-**About maven central ...** I've switched maven repositories a couple of times now. Jitpack and multiplatform just doesn't work. Of course I would have liked to get this on maven central. However, after repeated attempts to get that done, I've decided to not sacrifice more time on this. The (lack of) documentation, the Jira bureaucracy, the uninformative errors, the gradle plugin, etc.  just doesn't add up to something that works for a multi module, multi platform project. I'm sure it can be done but I'm not taking more time out my schedule to find out.
-
-If somebody decides to fix a proper, modern solution for hosting packages, I'll consider using it but I'm done with maven central for now. Google buckets work fine for hosting. So does ssh or any old web server. So does aws. It's just maven central that's a huge PITA. 
-
 ## Maven
 
-If you have maven based kotlin project targeting jvm and can't use kotlin multiplatform dependency, you would need to add jvm targeting artifacts.  
+If you have maven based kotlin project targeting jvm and can't use kotlin multiplatform dependency, you will need to **append '-jvm' to the artifacts**.
 
 Add the `maven.tryformation.com` repository:
 
@@ -87,24 +84,24 @@ Add the `maven.tryformation.com` repository:
 </repositories>
 ```
 
-And then add dependencies to jvm targets:
+And then add dependencies for jvm targets:
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>search-client-jvm</artifactId>
-        <version>2.1.25</version>
+        <version>2.x.y</version>
     </dependency>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>search-dsls-jvm</artifactId>
-        <version>2.1.25</version>
+        <version>2.x.y</version>
     </dependency>
     <dependency>
         <groupId>com.jillesvangurp</groupId>
         <artifactId>json-dsl-jvm</artifactId>
-        <version>3.0.0</version>
+        <version>3.x.y</version>
     </dependency>
 </dependencies>
 ```

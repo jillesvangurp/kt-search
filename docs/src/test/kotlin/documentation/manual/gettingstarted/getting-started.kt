@@ -26,7 +26,7 @@ val gettingStartedMd = sourceGitRepository.md {
         To get started, simply add the dependency to your project and create a client. 
         The process is the same for both jvm and kotlin-js.
     """.trimIndent()
-    includeMdFile("../../projectreadme/gradle.md")
+    includeMdFile("../../projectreadme/gradle-maven.md")
     // test server runs on 9999, so we need to override
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
 
