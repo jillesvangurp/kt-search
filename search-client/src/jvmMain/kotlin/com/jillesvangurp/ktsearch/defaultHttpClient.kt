@@ -53,6 +53,7 @@ fun ktorClientWithCIOEngine(
     elasticApiKey: String?,
     block: HttpClientConfig<*>.() -> Unit,
 ) = HttpClient(CIO) {
+    // there are some known issues with using CIO and weird EOF errors in combination with pipelining
     engine {
         maxConnectionsCount = 100
         endpoint {
