@@ -24,9 +24,9 @@ data class DocumentUpdateResponse(
     @SerialName("_shards")
     val shards: Shards,
     @SerialName("_seq_no")
-    val seqNo: Int,
+    val seqNo: Long,
     @SerialName("_primary_term")
-    val primaryTerm: Int,
+    val primaryTerm: Long,
     val get: DocumentUpdateResponse.UpdatedSourceInformation?=null
 ) {
     @Serializable
@@ -34,9 +34,9 @@ data class DocumentUpdateResponse(
         @SerialName("_source")
         val source: JsonObject?,
         @SerialName("_seq_no")
-        val seqNo: Int?,
+        val seqNo: Long?,
         @SerialName("_primary_term")
-        val primaryTerm: Int?,
+        val primaryTerm: Long?,
         val version: Long?,
         val found: Boolean,
         @SerialName("_routing")
@@ -50,8 +50,8 @@ suspend inline fun <reified T> SearchClient.updateDocument(
     doc: T,
     json: Json = DEFAULT_JSON,
     detectNoop: Boolean? = null,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     requireAlias: Boolean? = null,
     retryOnConflict: Int? = null,
     refresh: Refresh? = null,
@@ -86,8 +86,8 @@ suspend fun SearchClient.updateDocument(
     id: String,
     docJson: String,
     detectNoop: Boolean? = null,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     requireAlias: Boolean? = null,
     retryOnConflict: Int? = null,
     refresh: Refresh? = null,
@@ -125,8 +125,8 @@ suspend inline fun <reified T> SearchClient.updateDocument(
     script: Script,
     upsertJson: T,
     json: Json = DEFAULT_JSON,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     requireAlias: Boolean? = null,
     retryOnConflict: Int? = null,
     refresh: Refresh? = null,
@@ -161,8 +161,8 @@ suspend fun SearchClient.updateDocument(
     id: String,
     script: Script,
     upsertJson: String? = null,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     requireAlias: Boolean? = null,
     retryOnConflict: Int? = null,
     refresh: Refresh? = null,

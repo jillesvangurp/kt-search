@@ -1,20 +1,18 @@
 package com.jillesvangurp.ktsearch
 
-import io.ktor.utils.io.core.*
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 internal data class VerifiedNode(val lastChecked: Instant, val node: Node)
 
@@ -109,8 +107,7 @@ class SniffingNodeSelector(
                         affinity.remove(aid)
                     }
                 }
-            } else {
-            }
+            } 
         } finally {
             sniffing = false
         }

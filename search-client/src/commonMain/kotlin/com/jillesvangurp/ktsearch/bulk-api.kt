@@ -134,8 +134,8 @@ interface BulkSession {
         index: String? = null,
         id: String? = null,
         requireAlias: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         routing: String? = null
     )
 
@@ -147,8 +147,8 @@ interface BulkSession {
         index: String? = null,
         requireAlias: Boolean? = null,
         upsert: JsonObject? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         routing: String? = null,
     )
 
@@ -158,8 +158,8 @@ interface BulkSession {
         index: String? = null,
         requireAlias: Boolean? = null,
         docAsUpsert: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         routing: String? = null,
         )
 
@@ -169,8 +169,8 @@ interface BulkSession {
         index: String? = null,
         requireAlias: Boolean? = null,
         docAsUpsert: Boolean? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         routing: String? = null,
         )
 
@@ -236,8 +236,8 @@ internal class DefaultBulkSession internal constructor(
         index: String?,
         id: String?,
         requireAlias: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?,
+        ifSeqNo: Long?,
+        ifPrimaryTerm: Long?,
         routing: String?,
     ) {
         val opDsl = withJsonDsl {
@@ -290,8 +290,8 @@ internal class DefaultBulkSession internal constructor(
         index: String?,
         requireAlias: Boolean?,
         upsert: JsonObject?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?,
+        ifSeqNo: Long?,
+        ifPrimaryTerm: Long?,
         routing: String?
     ) {
         val opDsl = withJsonDsl {
@@ -331,8 +331,8 @@ internal class DefaultBulkSession internal constructor(
         index: String?,
         requireAlias: Boolean?,
         docAsUpsert: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?,
+        ifSeqNo: Long?,
+        ifPrimaryTerm: Long?,
         routing: String?
     ) {
         update(
@@ -353,8 +353,8 @@ internal class DefaultBulkSession internal constructor(
         index: String?,
         requireAlias: Boolean?,
         docAsUpsert: Boolean?,
-        ifSeqNo: Int?,
-        ifPrimaryTerm: Int?,
+        ifSeqNo: Long?,
+        ifPrimaryTerm: Long?,
         routing: String?
     ) {
         val opDsl = withJsonDsl {

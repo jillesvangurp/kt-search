@@ -12,8 +12,8 @@ import kotlin.time.Duration
 
 interface SourceInformation {
     val id: String
-    val seqNo: Int?
-    val primaryTerm: Int?
+    val seqNo: Long?
+    val primaryTerm: Long?
     val version: Long?
     val source: JsonObject?
 }
@@ -33,9 +33,9 @@ data class DocumentIndexResponse(
     @SerialName("_shards")
     val shards: Shards,
     @SerialName("_seq_no")
-    override val seqNo: Int,
+    override val seqNo: Long,
     @SerialName("_primary_term")
-    override val primaryTerm: Int,
+    override val primaryTerm: Long,
     @SerialName("_source")
     override val source: JsonObject? = null,
 ): SourceInformation
@@ -44,8 +44,8 @@ suspend inline fun <reified T> SearchClient.indexDocument(
     target: String,
     document: T,
     id: String? = null,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     opType: OperationType? = null,
     pipeline: String? = null,
     refresh: Refresh? = null,
@@ -82,8 +82,8 @@ suspend fun SearchClient.indexDocument(
     target: String,
     serializedJson: String,
     id: String? = null,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     opType: OperationType? = null,
     pipeline: String? = null,
     refresh: Refresh? = null,
@@ -132,9 +132,9 @@ data class GetDocumentResponse(
     @SerialName("_source")
     override val source: JsonObject?,
     @SerialName("_seq_no")
-    override val seqNo: Int?,
+    override val seqNo: Long?,
     @SerialName("_primary_term")
-    override val primaryTerm: Int?,
+    override val primaryTerm: Long?,
     val found: Boolean,
     @SerialName("_routing")
     val routing: String? = null,
@@ -144,8 +144,8 @@ data class GetDocumentResponse(
 suspend fun SearchClient.deleteDocument(
     target: String,
     id: String,
-    ifSeqNo: Int? = null,
-    ifPrimaryTerm: Int? = null,
+    ifSeqNo: Long? = null,
+    ifPrimaryTerm: Long? = null,
     refresh: Refresh? = null,
     routing: String? = null,
     timeout: Duration? = null,

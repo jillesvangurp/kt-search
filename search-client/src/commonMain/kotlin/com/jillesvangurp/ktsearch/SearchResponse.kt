@@ -70,9 +70,9 @@ data class SearchResponse(
         val innerHits: Map<String, HitsContainer>?,
         val highlight: JsonObject?,
         @SerialName("_seq_no")
-        override val seqNo: Int? = null,
+        override val seqNo: Long? = null,
         @SerialName("_primary_term")
-        override val primaryTerm: Int? = null,
+        override val primaryTerm: Long? = null,
         @SerialName("_version")
         override val version: Long?,
         @SerialName("_explanation")

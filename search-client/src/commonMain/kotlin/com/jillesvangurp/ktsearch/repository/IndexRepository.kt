@@ -88,8 +88,8 @@ interface TypedDocumentIBulkSession<T> : BulkSession {
     suspend fun update(
         id: String,
         original: T,
-        ifSeqNo: Int,
-        ifPrimaryTerm: Int,
+        ifSeqNo: Long,
+        ifPrimaryTerm: Long,
         updateBlock: (T) -> T,
     )
 }
@@ -116,8 +116,8 @@ internal class BulkUpdateSession<T : Any>(
     override suspend fun update(
         id: String,
         original: T,
-        ifSeqNo: Int,
-        ifPrimaryTerm: Int,
+        ifSeqNo: Long,
+        ifPrimaryTerm: Long,
         updateBlock: (T) -> T,
     ) {
         if (updateFunctions.containsKey(id)) {
@@ -266,8 +266,8 @@ class IndexRepository<T : Any>(
     suspend fun index(
         value: T,
         id: String? = null,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         opType: OperationType? = null,
         pipeline: String? = null,
         refresh: Refresh? = null,
@@ -382,8 +382,8 @@ class IndexRepository<T : Any>(
 
     suspend fun delete(
         id: String,
-        ifSeqNo: Int? = null,
-        ifPrimaryTerm: Int? = null,
+        ifSeqNo: Long? = null,
+        ifPrimaryTerm: Long? = null,
         refresh: Refresh? = null,
         routing: String? = null,
         timeout: Duration? = null,
