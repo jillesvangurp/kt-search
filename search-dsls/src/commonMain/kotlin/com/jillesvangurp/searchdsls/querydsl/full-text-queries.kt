@@ -203,10 +203,6 @@ fun QueryClauses.multiMatch(
     query: String,
     vararg fields: String, block: (MultiMatchQuery.() -> Unit)? = null
 ) = MultiMatchQuery(query, *fields, block = block)
-fun QueryClauses.multiMatch(
-    query: String,
-    fields: Collection<KProperty<*>>, block: (MultiMatchQuery.() -> Unit)? = null
-) = MultiMatchQuery(query, *fields.map { it.name }.toTypedArray(), block = block)
 
 fun QueryClauses.multiMatch(
     query: String,
