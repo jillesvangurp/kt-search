@@ -55,6 +55,11 @@ class ReindexSourceDSL : JsonDsl(), QueryClauses {
             this["_source"] = names.toList()
         }
     }
+    fun fields(names: Collection<String>) {
+        if (names.isNotEmpty()) {
+            this["_source"] = names
+        }
+    }
 
     fun remote(block: ReindexRemoteDSL.() -> Unit) {
         val scriptDSL = ReindexRemoteDSL()

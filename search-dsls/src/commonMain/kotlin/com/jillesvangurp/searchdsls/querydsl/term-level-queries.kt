@@ -67,6 +67,10 @@ fun QueryClauses.ids(
     vararg values: String,
     block: (IdsQuery.() -> Unit)? = null
 ) = IdsQuery(*values,block = block)
+fun QueryClauses.ids(
+    values: Collection<String>,
+    block: (IdsQuery.() -> Unit)? = null
+) = IdsQuery(*values.toTypedArray(),block = block)
 
 class PrefixQueryConfig : JsonDsl() {
     var boost by property<Double>()
@@ -267,6 +271,20 @@ fun QueryClauses.terms(
 ) =
     TermsQuery(field,*values, block = block)
 
+fun QueryClauses.terms(
+    field: KProperty<*>,
+    values: Collection<String>,
+    block: (TermsQuery.() -> Unit)? = null
+) =
+    TermsQuery(field.name,*values.toTypedArray(), block = block)
+
+fun QueryClauses.terms(
+    field: String,
+    values: Collection<String>,
+    block: (TermsQuery.() -> Unit)? = null
+) =
+    TermsQuery(field,*values.toTypedArray(), block = block)
+
 class WildCardQueryConfig : JsonDsl() {
     var value by property<String>()
     var boost by property<Double>()
@@ -323,4 +341,6 @@ class TermsSetQuery(field: String, vararg terms: String, block: (TermsSetQueryCo
 
 fun QueryClauses.termsSet(field: String, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field,terms=terms,block)
 fun QueryClauses.termsSet(field: KProperty<*>, vararg terms: String,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field.name,terms=terms,block)
+fun QueryClauses.termsSet(field: String,  terms: Collection<String>,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field,terms=terms.toTypedArray(),block)
+fun QueryClauses.termsSet(field: KProperty<*>, terms: Collection<String>,block: (TermsSetQueryConfig.() -> Unit)?=null) = TermsSetQuery(field.name,terms=terms.toTypedArray(),block)
 
