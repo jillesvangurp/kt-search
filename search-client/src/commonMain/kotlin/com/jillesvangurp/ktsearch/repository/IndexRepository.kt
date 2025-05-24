@@ -451,10 +451,14 @@ class IndexRepository<T : Any>(
             target = indexWriteAlias
         )
 
-        val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
-        block.invoke(updatingBulkSession)
-        session.flush()
-        retryCallback.awaitJobCompletion(refresh = session.refresh, timeout = retryTimeout)
+        try {
+            val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
+            block.invoke(updatingBulkSession)
+            session.flush()
+            retryCallback.awaitJobCompletion(refresh = session.refresh, timeout = retryTimeout)
+        } finally {
+            session.close()
+        }
     }
 
     suspend fun mGet(

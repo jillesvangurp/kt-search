@@ -1,18 +1,26 @@
 package com.jillesvangurp.ktsearch
 
-import io.ktor.client.*
-import io.ktor.client.call.*
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.basic
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.content.*
-import io.ktor.http.*
-import io.ktor.utils.io.core.*
+import io.ktor.client.request.header
+import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.content.TextContent
+import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
+import io.ktor.http.path
+import io.ktor.utils.io.core.Closeable
 
 expect fun defaultKtorHttpClient(
     logging: Boolean = false,
@@ -115,16 +123,16 @@ class KtorRestClient(
     @Suppress("UNCHECKED_CAST")
     override suspend fun doRequest(
         pathComponents: List<String>,
-        httpMethod: HttpMethod,
+        httpMethod: com.jillesvangurp.ktsearch.HttpMethod,
         parameters: Map<String, Any>?,
         payload: String?,
-        contentType: ContentType,
+        contentType: String,
         headers: Map<String, Any>?
     ): RestResponse {
 
         val response = client.request {
             val node = nextNode()
-            method = httpMethod
+            method = HttpMethod.parse(httpMethod.value)
             url {
                 host = node.host
                 node.port?.let {
@@ -152,14 +160,14 @@ class KtorRestClient(
                 }
             }
             if (payload != null) {
-                setBody(TextContent(payload, contentType = contentType))
+                setBody(TextContent(payload, contentType = ContentType.parse(contentType)))
             }
         }
 
 
         val responseBody = try {
             response.body<ByteArray>()
-        } catch (e: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             ByteArray(0)
         }
 

@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -15,6 +16,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 internal data class VerifiedNode(val lastChecked: Instant, val node: Node)
+
+private val logger = KotlinLogging.logger {  }
 
 /**
  * If you are running against a cluster without a node balancer
@@ -70,14 +73,18 @@ class SniffingNodeSelector(
 
     private suspend fun sniffNode(node: Node): List<Node>? {
         return try {
-            createClient(node).use { client ->
-                // make sure to close the client
-                client.restClient.get {
-                    path("_nodes", "http")
-                }.parseJsonObject().extractNodes()
+            createClient(node).let { client ->
+                try {
+                    client.restClient.get {
+                        path("_nodes", "http")
+                    }.parseJsonObject().extractNodes()
+                } finally {
+                    // make sure to close the client
+                    client.close()
+                }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.warn(e) { "error while sniffing node ${node.host}:${node.port}: ${e.message}" }
             null
         }
     }

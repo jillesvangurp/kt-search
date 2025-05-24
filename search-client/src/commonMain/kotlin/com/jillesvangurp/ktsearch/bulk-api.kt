@@ -4,14 +4,12 @@ import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.searchdsls.querydsl.Script
 import com.jillesvangurp.serializationext.DEFAULT_JSON
-import io.ktor.utils.io.core.*
+import kotlin.time.Duration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
-import kotlin.time.Duration
 
 @Serializable
 data class BulkResponse(
@@ -175,6 +173,8 @@ interface BulkSession {
         )
 
     suspend fun flush()
+
+    fun close()
 }
 
 /**
@@ -207,7 +207,7 @@ internal class DefaultBulkSession internal constructor(
     val sourceIncludes: String? = null,
     val extraParameters: Map<String, String>? = null,
     val closeOnRequestError: Boolean = true
-) : Closeable, BulkSession {
+) : BulkSession {
     private val operations: MutableList<Pair<String, String?>> = mutableListOf()
     private var closed: Boolean = false
 

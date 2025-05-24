@@ -4,12 +4,11 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.JsonDsl
 import com.jillesvangurp.jsondsl.json
-import io.ktor.http.*
 import kotlin.time.Duration
 
 data class SearchAPIRequest(
     internal var body: String? = null,
-    internal var contentType: ContentType = ContentType.Application.Json,
+    internal var contentType: String = "application/json",
     internal var pathComponents: List<String> = listOf(),
     internal val parameters: MutableMap<String, String> = mutableMapOf(),
     internal val headers: MutableMap<String, Any> = mutableMapOf()
@@ -64,7 +63,7 @@ data class SearchAPIRequest(
         body = dsl.json(pretty)
     }
 
-    fun rawBody(body: String, contentType: ContentType = ContentType.Application.Json) {
+    fun rawBody(body: String, contentType: String = "application/json") {
         this.body = body
         this.contentType = contentType
     }
