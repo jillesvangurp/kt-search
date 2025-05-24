@@ -30,6 +30,17 @@ And then add the dependency like this:
     // check the latest release tag for the latest version
     implementation("com.jillesvangurp:search-client:2.x.y")
 ```
+Note, several of the search-client dependencies for ktor client are marked as implementation. This means you have to explicitly add those on your side. This is intentional as some people may want to use their own rest client with the kt-search search client.
+
+If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the lates ktor-client 3.x:
+
+```kotlin
+implementation("io.ktor:ktor-client-core:3.x.y")
+implementation("io.ktor:ktor-client-auth:3.x.y")
+implementation("io.ktor:ktor-client-logging:3.x.y")
+implementation("io.ktor:ktor-client-serialization:3.x.y")
+implementation("io.ktor:ktor-client-json:3.x.y")
+```
 
 ## Maven
 
