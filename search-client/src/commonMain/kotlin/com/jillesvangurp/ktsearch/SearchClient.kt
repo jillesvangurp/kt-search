@@ -4,7 +4,6 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.serializationext.DEFAULT_JSON
-import io.ktor.utils.io.core.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -25,7 +24,7 @@ fun Result<RestResponse>.parseJsonObject() = parse(JsonObject.serializer())
  * @param json kotlinx.serialization Json used to deserialize responses.
  * Defaults to [DEFAULT_JSON] which is configured with some sane defaults.
  */
-class SearchClient(val restClient: RestClient=KtorRestClient(), val json: Json = DEFAULT_JSON): Closeable {
+class SearchClient(val restClient: RestClient=KtorRestClient(), val json: Json = DEFAULT_JSON) {
     private lateinit var info: SearchEngineInformation
 
     /**
@@ -47,7 +46,7 @@ class SearchClient(val restClient: RestClient=KtorRestClient(), val json: Json =
         }
     }
 
-    override fun close() {
+    fun close() {
         restClient.close()
     }
 }
