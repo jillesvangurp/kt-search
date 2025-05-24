@@ -134,19 +134,16 @@ kotlin {
                 api("com.jillesvangurp:json-dsl:_")
                 api("com.jillesvangurp:kotlinx-serialization-extensions:_")
                 api(KotlinX.datetime)
-                implementation(Ktor.client.core)
                 api(KotlinX.coroutines.core)
 
+                api("io.github.oshai:kotlin-logging:_")
                 api(KotlinX.serialization.json)
-                api(Ktor.client.core)
-                api(Ktor.client.auth)
-                api(Ktor.client.logging)
-                api(Ktor.client.serialization)
-                implementation("io.github.oshai:kotlin-logging:_")
 
-                implementation("io.ktor:ktor-client-logging:_")
-                implementation("io.ktor:ktor-serialization-kotlinx:_")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:_")
+                implementation(Ktor.client.core)
+                implementation(Ktor.client.auth)
+                implementation(Ktor.client.logging)
+                implementation(Ktor.client.serialization)
+                implementation(Ktor.client.json)
             }
         }
         commonTest {
