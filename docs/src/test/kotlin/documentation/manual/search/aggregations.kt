@@ -68,7 +68,7 @@ val aggregationsMd = sourceGitRepository.md {
         First lets create some sample documents to aggregate on:
         
     """.trimIndent()
-    example() {
+    example(false) {
         @Serializable
         data class MockDoc(
             val name: String,
@@ -129,7 +129,7 @@ val aggregationsMd = sourceGitRepository.md {
         +"""
             Probably the most used aggregation is the `terms` aggregation:
         """.trimIndent()
-        example {
+        example(false) {
             val response = client.search(indexName) {
                 // we don't care about the results here
                 resultSize = 0

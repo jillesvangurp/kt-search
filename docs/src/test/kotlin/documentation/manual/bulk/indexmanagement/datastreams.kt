@@ -66,7 +66,7 @@ val dataStreamsMd = sourceGitRepository.md {
             Once you have defined an ILM policy, you can refer it in an index template. An index template
             consists of index component templates. So we have to define those first.
         """.trimIndent()
-        example(runExample = true) {
+        example(runExample = false) {
 
             // using component templates is a good idea
             // note, Elastic bundles quite a few default ones that you can use

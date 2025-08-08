@@ -100,7 +100,7 @@ val bulkMd = sourceGitRepository.md {
     }
 
     section("Bulk Updates") {
-        example() {
+        example(false) {
             val repo = client.repository("test", Foo.serializer())
 
             repo.bulk {
@@ -152,7 +152,7 @@ val bulkMd = sourceGitRepository.md {
             To make this easy, you can use a `BulkItemCallBack` with your bulk session.
         """.trimIndent()
 
-        example {
+        example(false) {
             val itemCallBack = object : BulkItemCallBack {
                 override fun itemFailed(
                     operationType: OperationType,

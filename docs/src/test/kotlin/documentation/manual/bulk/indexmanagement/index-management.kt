@@ -42,7 +42,7 @@ val indexManagementMd = sourceGitRepository.md {
             index mappings. For this, kt-search provides a convenient mapping and settings DSL
         """.trimIndent()
 
-        example {
+        example(runExample = false) {
             data class TestDocument(
                 val message: String,
                 val number: Double,
@@ -95,8 +95,10 @@ val indexManagementMd = sourceGitRepository.md {
                 }
             }
         }
-        runBlocking {
-            client.deleteIndex(target = "an-index", ignoreUnavailable = true)
+        kotlin.runCatching {
+            runBlocking {
+                client.deleteIndex(target = "an-index", ignoreUnavailable = true)
+            }
         }
         +"""
             This is a deliberately more elaborate example that shows off a few of the features of the DSL:
