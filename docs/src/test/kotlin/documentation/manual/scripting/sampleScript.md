@@ -23,7 +23,7 @@ parser.parse(args)
 // extension function in kt-search-kts that uses the params
 val client = searchClientParams.searchClient
 
-// now use the client as normally in a runBlocking block (creates a co-routine)
+// now use the client as normally in a runBlocking block (creates a coroutine)
 runBlocking {
     val clusterStatus=client.clusterHealth()
     client.root().let {

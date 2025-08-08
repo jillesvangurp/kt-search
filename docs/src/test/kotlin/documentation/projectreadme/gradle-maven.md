@@ -22,7 +22,7 @@ And then add the dependency like this:
 ```
 Note, several of the search-client dependencies for ktor client are marked as implementation. This means you have to explicitly add those on your side. This is intentional as some people may want to use their own rest client with the kt-search search client.
 
-If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the lates ktor-client 3.x:
+If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the latest ktor client 3.x:
 
 ```kotlin
 implementation("io.ktor:ktor-client-core:3.x.y")

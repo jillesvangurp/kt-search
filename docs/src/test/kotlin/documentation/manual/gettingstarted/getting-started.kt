@@ -44,13 +44,13 @@ val gettingStartedMd = sourceGitRepository.md {
 
     section("Using the client") {
         +"""
-            After creating the client, you can use it. Since kt-search uses non blocking IO via ktor client, all 
-            calls are suspending and have to be inside a co-routine.
+            After creating the client, you can use it. Since kt-search uses non-blocking IO via ktor client, all
+            calls are suspending and have to be inside a coroutine.
         """.trimIndent()
 
         example {
             // use a simple runBlocking
-            // normally you would get a co-routine via e.g. Spring's flux async framework.
+            // normally you would get a coroutine via e.g. Spring's flux async framework.
             runBlocking {
                 // call the root API with some version information
                 client.root().let { resp ->
@@ -77,7 +77,7 @@ val gettingStartedMd = sourceGitRepository.md {
             val results = client.search("myindex") {
                 query = matchPhrase(
                     field = "title",
-                    query = "lorum ipsum")
+                  query = "lorem ipsum")
             }
 
             // returns a list of MyModelClass
