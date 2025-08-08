@@ -51,7 +51,7 @@ onlyOn("doesn't work on Opensearch",
 
 New releases of this library generally update dependencies to their current versions. There currently is no LTS release of Kotlin. Generally this library should work with recent stable releases of Kotlin. At this point, that means Kotlin 2.0 or higher.
 
-Also, because this is a multi platform project, you should be aware that several of the platforms are experimental. Because of this, we try to track the latest stable releases of Kotlin. IOS, Linux, Wasm, etc. are expected to generally work but are not something that we actively use ourselves and something that at this point is not stable on the Kotlin side yet. Also, there are some issues with WASM and Karma not playing nice. I've disabled tests for that. The IOS simulator tests are disabled for the same reason.
+Also, because this is a multiplatform project, you should be aware that several of the platforms are experimental. Because of this, we try to track the latest stable releases of Kotlin. IOS, Linux, Wasm, etc. are expected to generally work but are not something that we actively use ourselves and something that at this point is not stable on the Kotlin side yet. Also, there are some issues with WASM and Karma not playing nice. I've disabled tests for that. The IOS simulator tests are disabled for the same reason.
 
 If you try and find issues, use the issue tracker please.
 

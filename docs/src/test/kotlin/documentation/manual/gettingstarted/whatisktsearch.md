@@ -26,13 +26,13 @@ The whole point of kt-search is to provide a best in class developer experience 
 
 ## Kt Search 2.0 - What's new and what is different
 
-A few years of development on the es-kotlin-client has produced quite a few learnings. Additionally, I added a lot of features over time and gradually introduced things like asynchronous IO using Kotlin co-routines, Query DSL support, and a few other things. These are all things that ended up being useful and preserved in the new client.
+ A few years of development on the es-kotlin-client has produced quite a few learnings. Additionally, I added a lot of features over time and gradually introduced things like asynchronous IO using Kotlin coroutines, Query DSL support, and a few other things. These are all things that ended up being useful and preserved in the new client.
 
-- Kotlin multi-platform and no more Java dependencies, such as the RestHighLevelClient. You can use kt-search in browsers using kotlin-js and on the jvm.
+ - Kotlin multiplatform and no more Java dependencies, such as the RestHighLevelClient. You can use kt-search in browsers using kotlin-js and on the jvm.
 - You can still plug in custom HTTP and Json parsers and still use your favorite libraries for that on the JVM. However, the default setup uses `ktor-client` for http communication and `kotlinx-serialization` for JSON parsing.
 - With Kt-Search, the Kotlin Query DSL stays mostly the same (but with some additions of course) and has moved to its own module. Aside from some package renames and minor feature work, the DSL should be backwards compatible with the one bundled with the es-kotlin client.
 - More DSLs. Since building Json DSLs seems like a nice feature to have, I extracted the classes that I used as a basis for the query, mapping, and other DSLs to a separate module called `json-dsl`. So, in addition to querying there are now also DSLs for mappings and settings, index life cycle management, templates, and more.
-- All IO is now done using `suspend` functions and co-routines. I've found that I did not ever use the synchronous calls in the old es-kotlin-client and doing synchronous IO in Kotlin does not make a lot of sense. Especially not in a multi-platform library as the IO support for multi-platform kotlin is of course asynchronous only.
+ - All IO is now done using `suspend` functions and coroutines. I've found that I did not ever use the synchronous calls in the old es-kotlin-client and doing synchronous IO in Kotlin does not make a lot of sense. Especially not in a multiplatform library as the IO support for multiplatform Kotlin is of course asynchronous only.
 - Functionality similar to the Repository class in the es-kotlin-client is also supported in Kt-Search. However, there were some API changes as we no longer can rely on Elastic's Java response model classes. Where needed, similar classes are provided for Kotlin and those are parsed with `kotlinx-serialization`.
 - Kt-search is now asynchronous only. Blocking IO in Kotlin just doesn't make a lot of sense and it's easy to make everything suspending. If you really need blocking behavior, just surround it with a `runBlocking`.
 
@@ -46,7 +46,7 @@ The rewrite in `kt-search` 2.0 was necessitated by the deprecation of Elastic's 
 
 However, Elasticsearch and Opensearch still share the same REST API with only very minor variations mostly related to advanced features. For most common uses they are identical products.
 
-Kt-search, removes the dependency on the Java client entirely. This in turn makes it possible to use all the wonderful new libraries in the Kotlin ecosystem. Therefore, it also is a **Kotlin multi-platform library**. This is a feature we get for free simply by using what is there. Kotlin-multi platform makes it possible to use Elasticsearch or Opensearch on any platform where you can compile this library.
+Kt-search, removes the dependency on the Java client entirely. This in turn makes it possible to use all the wonderful new libraries in the Kotlin ecosystem. Therefore, it also is a **Kotlin multiplatform library**. This is a feature we get for free simply by using what is there. Kotlin multiplatform makes it possible to use Elasticsearch or Opensearch on any platform where you can compile this library.
 
 Currently, that includes the **jvm** and **kotlin-js** compilers. However, it should be straightforward to compile this for e.g. IOS or linux as well using the **kotlin-native** compiler and the new **wasm** compiler. I just lack a project to test all this properly.
 

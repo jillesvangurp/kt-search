@@ -94,13 +94,13 @@ val projectReadme = sourceGitRepository.md {
             part of the code dependent on kotlinx serialization is the client module. But for example the Search DSL 
              and the other DSLs are not actually dependent on this.
              
-            Additionally, if you chooes to use the `IndexRepository`, it comes with a ModelSerialization strategy 
+            Additionally, if you choose to use the `IndexRepository`, it comes with a ModelSerialization strategy
             that abstracts how to parse/serialize your model classes. A kotlinx serialization implementation is included
             but that's easily swapped out for something else. So, if you need to use e.g. 
             jackson or gson instead, you can do so easily. However, kotlinx serialization is of course the only thing
-            that works on multi platform.
+            that works on multiplatform.
             
-            ### Creating  an index
+            ### Creating an index
                        
             Before we can query for `TestDocument` documents, we need to create an index and store some objects:
             
