@@ -32,7 +32,7 @@ And then add the dependency like this:
 ```
 Note, several of the search-client dependencies for ktor client are marked as implementation. This means you have to explicitly add those on your side. This is intentional as some people may want to use their own rest client with the kt-search search client.
 
-If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the lates ktor-client 3.x:
+If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the latest ktor client 3.x:
 
 ```kotlin
 implementation("io.ktor:ktor-client-core:3.x.y")
@@ -94,12 +94,12 @@ val client = SearchClient()
 
 ## Using the client
 
-After creating the client, you can use it. Since kt-search uses non blocking IO via ktor client, all 
-calls are suspending and have to be inside a co-routine.
+After creating the client, you can use it. Since kt-search uses non-blocking IO via ktor client, all
+calls are suspending and have to be inside a coroutine.
 
 ```kotlin
 // use a simple runBlocking
-// normally you would get a co-routine via e.g. Spring's flux async framework.
+// normally you would get a coroutine via e.g. Spring's flux async framework.
 runBlocking {
   // call the root API with some version information
   client.root().let { resp ->
@@ -125,7 +125,7 @@ data class MyModelClass(val title: String, )
 val results = client.search("myindex") {
   query = matchPhrase(
     field = "title",
-    query = "lorum ipsum")
+    query = "lorem ipsum")
 }
 
 // returns a list of MyModelClass

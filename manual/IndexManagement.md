@@ -7,7 +7,7 @@
 
 ## Creating Indices
 
-A Crucial part of working with Elasticsearch is creating and managing indices, mappings, and settings.
+A crucial part of working with Elasticsearch is creating and managing indices, mappings, and settings.
         
 Getting started is easy, simply create an index like this:
 
@@ -26,8 +26,8 @@ client.deleteIndex("my-first-index")
 
 ## Using the mappings and settings DSL
 
-While dynamic mapping is convenient when you are getting started, you should explictly manage your
-index mappings. For this, kt-search provides a convenient Mapping and Settings DSL
+While dynamic mapping is convenient when you are getting started, you should explicitly manage your
+index mappings. For this, kt-search provides a convenient mapping and settings DSL
 
 ```kotlin
 data class TestDocument(

@@ -40,7 +40,7 @@ parser.parse(args)
 // extension function in kt-search-kts that uses the params
 val client = searchClientParams.searchClient
 
-// now use the client as normally in a runBlocking block (creates a co-routine)
+// now use the client as normally in a runBlocking block (creates a coroutine)
 runBlocking {
     val clusterStatus=client.clusterHealth()
     client.root().let {
@@ -116,8 +116,8 @@ Limitations:
   that means that defining new serializable data classes is not possible in 
   KTS unless you can add the compiler plugin. There are some workarounds for that documented 
   here: https://youtrack.jetbrains.com/issue/KT-47384. Alternatively, put your model classes in a separate library (that builds with the compiler plugin) and add a dependency to that.             
-- KTS is a bit limited in with respect to handling multi-platform dependencies. 
-  Make sure to depend on the `-jvm` dependency for multi-platform dependencies 
+- KTS is a bit limited with respect to handling multiplatform dependencies.
+    Make sure to depend on the `-jvm` dependency for multiplatform dependencies
   (like kt-search). The `kt-search-kts` library has a transitive dependency and that 
   works out fine.
 - if you add a custom repository, you also have to specify maven 

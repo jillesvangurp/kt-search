@@ -8,7 +8,7 @@
 One of the parameters on `SearchClient` is the `restClient` parameter which has a default value
 that uses the built in `KtorRestClient`. KtorRestClient has several constructors with parameters 
 with default values that you can override. The `client` parameter specifies the ktor http client
-that is used and for this we provide a `defaultKtorHttpClient` function that creates an apprpriate
+that is used and for this we provide a `defaultKtorHttpClient` function that creates an appropriate
 client for jvm, js, or native platforms. But of course you can create your own and choose one of the 
 many ktor client engines that are available.       
 
@@ -16,13 +16,13 @@ many ktor client engines that are available.
 
 `KtorRestClient` allows you to control in detail how to
 connect to your cluster. The default parameters simply connect to localhost on port 9200 (the default
-http port for Elasticsearch and Opensearch. You can specify this explicitly as follows.
+http port for Elasticsearch and Opensearch). You can specify this explicitly as follows.
 
 ```kotlin
 val client3 = SearchClient(restClient = KtorRestClient("127.0.0.1", 9200))
 ```
 
-You may want to override some of other default parameter values to e.g. set up basic authentication and https. 
+You may want to override some of the other default parameter values to e.g. set up basic authentication and https.
 For example, this is how you would
 connect to your cluster in Elastic Cloud using basic authentication.
 
@@ -49,8 +49,8 @@ val client = SearchClient(
 )
 ```
 
-For Opensearch clusters in AWS, you need to use Amazon's [sigv4](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html) to sign requests. This is currently 
-not directly supported directly in the client. However, it should be pretty easy to construct your own rest client that does this.
+For Opensearch clusters in AWS, you need to use Amazon's [sigv4](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html) to sign requests. This is currently
+not directly supported in the client. However, it should be pretty easy to construct your own REST client that does this.
  
  See this [gist](https://gist.github.com/hassaku63/e3ed3cac288d429563cdddf1768613d6) on how
  to do curl requests against an AWS Opensearch cluster.
@@ -58,9 +58,9 @@ not directly supported directly in the client. However, it should be pretty easy
 To work around this, you can provide your own customized ktor client that 
  does this; or provide an alternative `RestClient` implementation in case you don't want to use ktor client. 
  
- Pull requests that document authenticating with opensearch in AWS in more detail 
- or enable this in a multi platform way with the ktor client are welcome. I currently
- do not have access to an opensearch cluster in AWS.
+ Pull requests that document authenticating with Opensearch in AWS in more detail
+ or enable this in a multiplatform way with the ktor client are welcome. I currently
+ do not have access to an Opensearch cluster in AWS.
 
 ## Node selectors
 
@@ -95,9 +95,9 @@ The `SniffingNodeSelector` is a bit smarter and periodically retrieves the activ
  cluster nodes from the cluster. This strategy is useful if you need to perform cluster 
  modifications without downtime. E.g. adding new nodes to the cluster and removing existing nodes
  during an update would cause the node configuration you used to get out of date. The 
- `SniffingNodeSelector` updates it's list of nodes as this happens and you should not need
+ `SniffingNodeSelector` updates its list of nodes as this happens and you should not need
  to restart your application servers. At least not right away, you may still want to update
- it's initial list of nodes of course.
+ its initial list of nodes of course.
 
 ```kotlin
 val nodes = arrayOf(
@@ -116,12 +116,12 @@ val client = SearchClient(
 )
 ```
 
-To control which node is used with the `SniffingNodeSelector`, you can use an `AffinityId` co routine scope. 
+To control which node is used with the `SniffingNodeSelector`, you can use an `AffinityId` coroutine scope.
 
-This ensures that repeated calls within the same co-routine scope use the same client. Without this, 
+This ensures that repeated calls within the same coroutine scope use the same client. Without this,
 it uses the thread name as the affinityId (jvm only) or randomly picks an active node (other platforms). 
 
-Using an affinity id helps performance a bit if you do multiple elastic search calls
+Using an affinity id helps performance a bit if you do multiple Elasticsearch calls
 in one web request or transaction and benefits from http pipelining and connection reuse.
 
 Regardless of whether you use an affinity id, the node list is refreshed periodically (as per the `maxNodeAge` parameter).

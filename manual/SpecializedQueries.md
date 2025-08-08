@@ -127,7 +127,7 @@ You can use different functions:
 - saturation (default). Uses a default pivot based on the mean value of the rank_feature field. Or you can provide custom one
 - sigmoid. Similar to saturation but uses an exponential that you (typically) learn from your data.
 - log. Logarithmic function with a scaling factory that you can specify.
-- linear. Simple linear score based on te numeric value.
+- linear. Simple linear score based on the numeric value.
 
 ```kotlin
 client.search(indexName) {
