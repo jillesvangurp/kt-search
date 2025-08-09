@@ -92,20 +92,22 @@ val sections = listOf(
 
 val manualPages = sections.flatMap { it.pages }.map { (mp,md) -> mp.page to md }
 
-val manualIndexMd = sourceGitRepository.md {
+fun manualIndexMd(includeToc: Boolean = true) = sourceGitRepository.md {
     includeMdFile("../projectreadme/oneliner.md")
 
-    section("Table of contents") {
+    if (includeToc) {
+        section("Table of contents") {
 
-        sections.forEach {
-            +"""
-            ### ${it.title}
-                
-            """.trimIndent()
-            it.pages.forEach {(mp,_) ->
-                +"${mp.page.mdLink}\n"
+            sections.forEach {
+                +"""
+                ### ${it.title}
+
+                """.trimIndent()
+                it.pages.forEach {(mp,_) ->
+                    +"${mp.page.mdLink}\n"
+                }
+
             }
-
         }
     }
     section("About this Manual") {
