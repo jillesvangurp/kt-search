@@ -84,5 +84,29 @@ $navigation
         pagesWithNav.forEach { (page, md) ->
             page.write(md)
         }
+
+        // Quarto expects an index.md as entry point. Keep README.md and write
+        // a copy so existing markdown remains unaffected.
+        val readme = File(manualOutputDir, "README.md")
+        File(manualOutputDir, "index.md").writeText(readme.readText())
+
+        // Basic Quarto configuration. This produces html, pdf and epub output
+        // in build/quarto. Customize as needed.
+        val chapters = listOf("index.md") + manualPages.map { it.first.fileName }
+        val quartoConfig = buildString {
+            appendLine("project:")
+            appendLine("  type: book")
+            appendLine("  output-dir: ../quarto")
+            appendLine("book:")
+            appendLine("  title: \"KT Search Manual\"")
+            appendLine("  chapters:")
+            chapters.forEach { appendLine("    - $it") }
+            appendLine("format:")
+            appendLine("  html:")
+            appendLine("    theme: cosmo")
+            appendLine("  pdf: default")
+            appendLine("  epub: default")
+        }
+        File(manualOutputDir, "_quarto.yml").writeText(quartoConfig)
     }
 }
