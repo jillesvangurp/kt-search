@@ -96,7 +96,7 @@ $navigation
         val quartoConfig = buildString {
             appendLine("project:")
             appendLine("  type: book")
-            appendLine("  output-dir: ../quarto")
+            appendLine("  output-dir: quarto")
             appendLine("book:")
             appendLine("  title: \"KT Search Manual\"")
             appendLine("  chapters:")
