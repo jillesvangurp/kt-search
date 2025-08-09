@@ -1,9 +1,12 @@
+@file:Suppress("DSL_SCOPE_VIOLATION")
+
 import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode.WARNING
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    kotlin("multiplatform") apply false
-    id("org.jetbrains.dokka") apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.versions)
 }
 
 println("project: $path")

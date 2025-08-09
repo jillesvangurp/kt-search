@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalWasmDsl::class)
+@file:Suppress("DSL_SCOPE_VIOLATION")
 
 import com.avast.gradle.dockercompose.ComposeExtension
 import java.net.URI
@@ -52,9 +53,9 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("com.avast.gradle.docker-compose")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.docker.compose)
 }
 
 repositories {
@@ -129,60 +130,60 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(kotlin("stdlib-common", "_"))
+                api(kotlin("stdlib-common"))
                 api(project(":search-dsls"))
-                api("com.jillesvangurp:json-dsl:_")
-                api("com.jillesvangurp:kotlinx-serialization-extensions:_")
-                api(KotlinX.datetime)
-                api(KotlinX.coroutines.core)
+                api(libs.json.dsl)
+                api(libs.kotlinx.serialization.extensions)
+                api(libs.kotlinx.datetime)
+                api(libs.kotlinx.coroutines.core)
 
-                api("io.github.oshai:kotlin-logging:_")
-                api(KotlinX.serialization.json)
+                api(libs.kotlin.logging)
+                api(libs.kotlinx.serialization.json)
 
-                implementation(Ktor.client.core)
-                implementation(Ktor.client.auth)
-                implementation(Ktor.client.logging)
-                implementation(Ktor.client.serialization)
-                implementation(Ktor.client.json)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.auth)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktor.client.serialization)
+                implementation(libs.ktor.client.json)
             }
         }
         commonTest {
             dependencies {
-                implementation(kotlin("test-common", "_"))
-                implementation(kotlin("test-annotations-common", "_"))
-                implementation(Testing.kotest.assertions.core)
-                implementation(KotlinX.coroutines.test)
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotest.assertions.core)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         jvmMain {
             dependencies {
-                api(Ktor.client.cio)
-                api(Ktor.client.java)
+                api(libs.ktor.client.cio)
+                api(libs.ktor.client.java)
             }
         }
         jvmTest {
             dependencies {
-                implementation(kotlin("test-junit5", "_"))
-                implementation("ch.qos.logback:logback-classic:_")
+                implementation(kotlin("test-junit5"))
+                implementation(libs.logback.classic)
 
-                implementation(Testing.junit.jupiter.api)
-                implementation(Testing.junit.jupiter.engine)
+                implementation(libs.junit.jupiter.api)
+                implementation(libs.junit.jupiter.engine)
             }
         }
         jsMain {
             dependencies {
-                implementation("io.ktor:ktor-client-js:_")
+                implementation(libs.ktor.client.js)
             }
         }
         jsTest {
             dependencies {
-                implementation(kotlin("test-js", "_"))
+                implementation(kotlin("test-js"))
             }
         }
 
         wasmJsMain {
             dependencies {
-                implementation("io.ktor:ktor-client-js-wasm-js:_")
+                implementation(libs.ktor.client.js.wasm.js)
             }
         }
 
@@ -194,27 +195,27 @@ kotlin {
 
         iosMain {
             dependencies {
-                implementation(Ktor.client.darwin)
+                implementation(libs.ktor.client.darwin)
             }
         }
 
         macosMain {
             dependencies {
-                implementation(Ktor.client.darwin)
+                implementation(libs.ktor.client.darwin)
             }
         }
 
         if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
             linuxMain {
                 dependencies {
-                    implementation(Ktor.client.curl)
+                    implementation(libs.ktor.client.curl)
                 }
             }
         }
 
         mingwMain {
             dependencies {
-                implementation(Ktor.client.curl)
+                implementation(libs.ktor.client.curl)
             }
         }
 

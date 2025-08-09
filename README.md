@@ -78,6 +78,20 @@ implementation("io.ktor:ktor-client-logging:3.x.y")
 implementation("io.ktor:ktor-client-serialization:3.x.y")
 implementation("io.ktor:ktor-client-json:3.x.y")
 ```
+### Updating dependencies
+
+This project uses a Gradle version catalog (`gradle/libs.versions.toml`) to manage versions for both plugins and libraries. To check for new releases, run:
+
+```bash
+./gradlew dependencyUpdates
+```
+
+Review the generated report and update the entries in `gradle/libs.versions.toml` as needed. After updating the catalog, verify everything builds:
+
+```bash
+./gradlew build
+```
+
 
 ## Maven
 

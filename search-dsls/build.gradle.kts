@@ -1,11 +1,12 @@
 @file:OptIn(ExperimentalWasmDsl::class)
+@file:Suppress("DSL_SCOPE_VIOLATION")
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
-    kotlin("multiplatform")
+    alias(libs.plugins.kotlin.multiplatform)
 }
 
 java {
@@ -52,15 +53,15 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(kotlin("stdlib-common", "_"))
-                implementation("com.jillesvangurp:json-dsl:_")
+                implementation(kotlin("stdlib-common"))
+                implementation(libs.json.dsl)
             }
         }
         commonTest {
             dependencies {
-                implementation(kotlin("test-common", "_"))
-                implementation(kotlin("test-annotations-common", "_"))
-                implementation(Testing.kotest.assertions.core)
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotest.assertions.core)
             }
         }
         jvmMain {
@@ -69,18 +70,18 @@ kotlin {
         }
         jvmTest {
             dependencies {
-                implementation(kotlin("test-junit5", "_"))
-                implementation("ch.qos.logback:logback-classic:_")
+                implementation(kotlin("test-junit5"))
+                implementation(libs.logback.classic)
 
-                implementation(Testing.junit.jupiter.api)
-                implementation(Testing.junit.jupiter.engine)
+                implementation(libs.junit.jupiter.api)
+                implementation(libs.junit.jupiter.engine)
             }
         }
         jsMain {
         }
         jsTest {
             dependencies {
-                implementation(kotlin("test-js", "_"))
+                implementation(kotlin("test-js"))
             }
         }
 
