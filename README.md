@@ -1,4 +1,8 @@
-# KT Search Client 
+---
+title: KT Search Client
+---
+
+# KT Search Client
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
@@ -6,13 +10,13 @@ Kt-search is a Kotlin Multi Platform library to search across the Opensearch and
 
 ## Why Kt-search?
 
-If you develop software in Kotlin and would like to use Opensearch or Elasticsearch, you have a few choices to make. There are multiple clients to choose from and not all of them work for each version. And then there is Kotlin multi platform to consider as well. Maybe you are running spring boot on the jvm. Or maybe you are using ktor compiled to native or WASM and using that to run lambda functions. 
+If you develop software in Kotlin and would like to use Opensearch or Elasticsearch, you have a few choices to make. There are multiple clients to choose from and not all of them work for each version. And then there is Kotlin multiplatform to consider as well. Maybe you are running spring boot on the jvm. Or maybe you are using ktor compiled to native or WASM and using that to run lambda functions.
 
 Kt-search has you covered for all of those. The official Elastic or Opensearch clients are Java clients. You can use them from Kotlin but only on the JVM. And they are not source compatible with each other. The Opensearch client is based on a fork of the old Java client which after the fork was deprecated. On top of that, it uses opensearch specific package names.
 
 Kt-search solves a few important problems here:
 
-- It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use co-routines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
+ - It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use coroutines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
 - It's a multiplatform library. We use it on the jvm and in the browser (javascript). Targets for native, IOS, WASM, etc. are also there. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
 - It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
 - It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
@@ -69,7 +73,7 @@ And then add the dependency like this:
 ```
 Note, several of the search-client dependencies for ktor client are marked as implementation. This means you have to explicitly add those on your side. This is intentional as some people may want to use their own rest client with the kt-search search client.
 
-If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the lates ktor-client 3.x:
+If you use the KtorRestClient that comes with kt-search you need to add the relevant ktor dependencies for the latest ktor client 3.x:
 
 ```kotlin
 implementation("io.ktor:ktor-client-core:3.x.y")
@@ -167,13 +171,13 @@ framework.
 part of the code dependent on kotlinx serialization is the client module. But for example the Search DSL 
  and the other DSLs are not actually dependent on this.
  
-Additionally, if you chooes to use the `IndexRepository`, it comes with a ModelSerialization strategy 
+Additionally, if you choose to use the `IndexRepository`, it comes with a ModelSerialization strategy
 that abstracts how to parse/serialize your model classes. A kotlinx serialization implementation is included
 but that's easily swapped out for something else. So, if you need to use e.g. 
 jackson or gson instead, you can do so easily. However, kotlinx serialization is of course the only thing
-that works on multi platform.
+that works on multiplatform.
 
-### Creating  an index
+### Creating an index
            
 Before we can query for `TestDocument` documents, we need to create an index and store some objects:
 
@@ -471,7 +475,7 @@ onlyOn("doesn't work on Opensearch",
 
 New releases of this library generally update dependencies to their current versions. There currently is no LTS release of Kotlin. Generally this library should work with recent stable releases of Kotlin. At this point, that means Kotlin 2.0 or higher.
 
-Also, because this is a multi platform project, you should be aware that several of the platforms are experimental. Because of this, we try to track the latest stable releases of Kotlin. IOS, Linux, Wasm, etc. are expected to generally work but are not something that we actively use ourselves and something that at this point is not stable on the Kotlin side yet. Also, there are some issues with WASM and Karma not playing nice. I've disabled tests for that. The IOS simulator tests are disabled for the same reason.
+Also, because this is a multiplatform project, you should be aware that several of the platforms are experimental. Because of this, we try to track the latest stable releases of Kotlin. IOS, Linux, Wasm, etc. are expected to generally work but are not something that we actively use ourselves and something that at this point is not stable on the Kotlin side yet. Also, there are some issues with WASM and Karma not playing nice. I've disabled tests for that. The IOS simulator tests are disabled for the same reason.
 
 If you try and find issues, use the issue tracker please.
 
