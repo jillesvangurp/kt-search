@@ -34,10 +34,11 @@ val sourceGitRepository = SourceRepository(
 
 internal const val manualOutputDir = "build/manual"
 
-val manualRootPage = Page("KT Search Manual", "README.md", manualOutputDir)
+val manualReadmePage = Page("KT Search Manual", "README.md", manualOutputDir)
+val manualIndexPage = Page("KT Search Manual", "index.md", manualOutputDir)
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    manualRootPage to manualIndexMd,
+    manualReadmePage to manualIndexMd,
 )
 
 fun loadMd(fileName: String) = sourceGitRepository.md {
@@ -52,6 +53,33 @@ class DocumentationTest {
         readmePages.forEach { (page, md) ->
             page.write(md.value)
         }
+
+        // write bookdown index with yaml front matter
+        val bookdownFrontMatter = """
+            ---
+            title: "KT Search Manual"
+            site: bookdown::bookdown_site
+            output:
+              bookdown::gitbook: default
+              bookdown::pdf_book: default
+              bookdown::epub_book: default
+            ---
+        """.trimIndent()
+        File(manualOutputDir, manualIndexPage.fileName).writeText(
+            bookdownFrontMatter + "\n\n" + manualIndexMd.value
+        )
+
+        // bookdown configuration listing chapters
+        val bookdownConfig = buildString {
+            appendLine("book_filename: \"kt-search-manual\"")
+            appendLine("rmd_files:")
+            appendLine("  - ${manualIndexPage.fileName}")
+            manualPages.forEach { (page, _) ->
+                appendLine("  - ${page.fileName}")
+            }
+        }
+        File(manualOutputDir, "_bookdown.yml").writeText(bookdownConfig)
+
         val pagesWithNav = manualPages.indices.map { index ->
             val (previousPage,_)=if(index>0) {
                  manualPages[index-1]
@@ -64,7 +92,7 @@ class DocumentationTest {
                 null to null
             }
             val navigation = """
-                | ${manualRootPage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
+                | ${manualReadmePage.mdLink} | ${previousPage?.let{ "Previous: ${it.mdLink}" } ?: "-"} | ${nextPage?.let{ "Next: ${it.mdLink}" } ?: "-"} |
                 | [Github]($githubLink) | &copy; Jilles van Gurp |  |
             """.trimIndent()
 
