@@ -54,7 +54,6 @@ class DocumentationTest {
 
     @Test
     fun documentation() {
-        runCatching {
             File(manualOutputDir).mkdirs()
             readmePages.forEach { (page, md) ->
                 page.write(md.value)
@@ -107,9 +106,6 @@ $navigation
             File(manualOutputDir, "bookmarkable.json").writeText(
                 Json { prettyPrint = true }.encodeToString(bookmarkable)
             )
-        }.onFailure { e ->
-            println("Skipping manual generation: ${'$'}{e.message}")
-        }
     }
 }
 

@@ -140,7 +140,7 @@ val extendingMd = sourceGitRepository.md {
             As an example, we'll show how the `term` query implementation is implemented in kt-search.                       
         """.trimIndent()
 
-        example(false) {
+        example {
             class TermQueryConfig : JsonDsl() {
                 var value by property<String>()
                 var boost by property<Double>()

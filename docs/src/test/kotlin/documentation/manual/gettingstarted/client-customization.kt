@@ -123,7 +123,7 @@ val clientConfiguration = sourceGitRepository.md {
             
         """.trimIndent()
 
-        example(runExample = false) {
+        example {
             val nodes = arrayOf(
                 Node("localhost", 9200),
                 Node("127.0.0.1", 9201)
@@ -152,7 +152,7 @@ val clientConfiguration = sourceGitRepository.md {
             Regardless of whether you use an affinity id, the node list is refreshed periodically (as per the `maxNodeAge` parameter).
         """.trimIndent()
 
-        example(runExample = false) {
+        example {
             coroutineScope {
                 async(AffinityId("myid")) {
                     // always ends up using the same node

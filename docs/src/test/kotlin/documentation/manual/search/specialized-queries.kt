@@ -148,7 +148,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             - linear. Simple linear score based on the numeric value.
         """.trimIndent()
 
-        example(runExample = false) {
+        example {
             client.search(indexName) {
                 // saturation query with default pivot
                 query = rankFeature(TestDoc::ktSearchRank)
