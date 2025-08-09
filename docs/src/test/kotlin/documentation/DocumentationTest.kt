@@ -33,11 +33,12 @@ val sourceGitRepository = SourceRepository(
 )
 
 internal const val manualOutputDir = "build/manual"
+internal const val quartoOutputDir = "build/manual-quarto"
 
 val manualRootPage = Page("KT Search Manual", "README.md", manualOutputDir)
 val readmePages = listOf(
     Page("KT Search Client", "README.md", "..") to projectReadme,
-    manualRootPage to manualIndexMd,
+    manualRootPage to manualIndexMd(),
 )
 
 fun loadMd(fileName: String) = sourceGitRepository.md {
@@ -90,8 +91,16 @@ $navigation
         val readme = File(manualOutputDir, "README.md")
         File(manualOutputDir, "index.md").writeText(readme.readText())
 
-        // Basic Quarto configuration. This produces html, pdf and epub output
-        // in build/quarto. Customize as needed.
+        // Produce a Quarto-ready version of the manual without navigation or TOC
+        File(quartoOutputDir).mkdirs()
+        Page(manualRootPage.title, manualRootPage.fileName, quartoOutputDir)
+            .write(manualIndexMd(includeToc = false).value)
+        manualPages.forEach { (page, md) ->
+            Page(page.title, page.fileName, quartoOutputDir).write(md.value)
+        }
+        val quartoReadme = File(quartoOutputDir, "README.md")
+        File(quartoOutputDir, "index.md").writeText(quartoReadme.readText())
+
         val chapters = listOf("index.md") + manualPages.map { it.first.fileName }
         val quartoConfig = buildString {
             appendLine("project:")
@@ -107,6 +116,6 @@ $navigation
             appendLine("  pdf: default")
             appendLine("  epub: default")
         }
-        File(manualOutputDir, "_quarto.yml").writeText(quartoConfig)
+        File(quartoOutputDir, "_quarto.yml").writeText(quartoConfig)
     }
 }
