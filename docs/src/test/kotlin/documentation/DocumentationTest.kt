@@ -23,14 +23,17 @@ data class Page(
 val Page.mdLink get() = "[$title]($fileName)"
 
 fun Page.write(content: String) {
-    val frontMatter = """
-        ---
-        title: $title
-        ---
-    """.trimIndent()
-    File(outputDir, fileName).writeText(
-        frontMatter + "\n\n# $title\n\n" + content
-    )
+    val sb = StringBuilder()
+    if (outputDir != "..") {
+        sb.appendLine("---")
+        sb.appendLine("title: $title")
+        sb.appendLine("---")
+        sb.appendLine()
+    }
+    sb.appendLine("# $title")
+    sb.appendLine()
+    sb.append(content)
+    File(outputDir, fileName).writeText(sb.toString())
 }
 
 val sourceGitRepository = SourceRepository(
