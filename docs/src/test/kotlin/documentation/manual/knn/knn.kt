@@ -149,7 +149,7 @@ val knnMd = sourceGitRepository.md {
                 println("---")
             }
         }
-    }.printStdOut()
+    }.printStdOut(this)
     +"""
         This shows both the power and weakness of knn search:
         

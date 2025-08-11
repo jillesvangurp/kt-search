@@ -12,8 +12,8 @@ import documentation.manual.manualPages
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -144,7 +144,7 @@ val aggregationsMd = sourceGitRepository.md {
             }
             // a pretty printing Json configuration that comes with kt-search
             println(DEFAULT_PRETTY_JSON.encodeToString(response))
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             Note that we are using enum values for the aggregation names. Here is the enum we are using:
@@ -203,7 +203,7 @@ val aggregationsMd = sourceGitRepository.md {
                     println("  ${tb.key}: ${tb.docCount}")
                 }
             }
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             With some more extension function magic we can make this a bit nicer.
@@ -220,7 +220,7 @@ val aggregationsMd = sourceGitRepository.md {
                         println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
                     }
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Geo Aggregations") {
         +"""
@@ -268,7 +268,7 @@ val aggregationsMd = sourceGitRepository.md {
                     println("$key: ${it.location} - ${it.count} ")
                 }
             }
-        }.printStdOut()
+        }.printStdOut(this)
 
     }
 
@@ -345,7 +345,7 @@ val aggregationsMd = sourceGitRepository.md {
                 }"
             )
 
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Filter aggregations") {
         +"""
@@ -368,7 +368,7 @@ val aggregationsMd = sourceGitRepository.md {
                         }
                 }
             }
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             You can also use the filters aggregation to use multiple named filter aggregations at the same time

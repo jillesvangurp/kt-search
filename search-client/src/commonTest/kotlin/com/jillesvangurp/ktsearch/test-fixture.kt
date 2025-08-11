@@ -3,8 +3,8 @@ package com.jillesvangurp.ktsearch
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

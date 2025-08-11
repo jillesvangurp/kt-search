@@ -50,7 +50,7 @@ val crudMd = sourceGitRepository.md {
 
             // delete
             client.deleteDocument("myindex", resp.id)
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Updates") {
@@ -85,7 +85,7 @@ val crudMd = sourceGitRepository.md {
             )
             println(resp.get?.source)
 
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Bulk") {
@@ -142,6 +142,6 @@ val crudMd = sourceGitRepository.md {
             resp.documents<TestDoc>().forEach {
                 println("${it.id}: ${it.name}")
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 }

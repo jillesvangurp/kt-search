@@ -165,7 +165,7 @@ val searchMd = sourceGitRepository.md {
                     val doc = hit.parseHit<TestDoc>()
                     println("${hit.id} - ${hit.score}: ${doc.name} (${doc.price})")
                 }
-            }.printStdOut()
+            }.printStdOut(this)
 
             +"""
                 By default, the source gets deserialized as a `JsonObject`. However, with `kotlinx.serialization`, you can
@@ -218,7 +218,7 @@ val searchMd = sourceGitRepository.md {
             println("Number of docs" + client.count(indexName) {
                 query = term(TestDoc::tags, "fruit")
             }.count)
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Multi Search") {
         +"""
@@ -253,7 +253,7 @@ val searchMd = sourceGitRepository.md {
                 // will print document count for both searches
                 println("document count ${searchResponse.total}")
             }
-        }.printStdOut()
+        }.printStdOut(this)
         +"""
             Similar to the normal search, you can also construct your body manually. The format is ndjson
         """.trimIndent()
@@ -269,6 +269,6 @@ val searchMd = sourceGitRepository.md {
             println("Doc counts: ${
                 resp.responses.joinToString { it.total.toString() }
             }")
-        }.printStdOut()
+        }.printStdOut(this)
     }
 }

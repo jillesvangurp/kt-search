@@ -53,7 +53,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Bool query.").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Dis-max") {
@@ -76,7 +76,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Dismax query.").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Boosting") {
@@ -98,7 +98,7 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Boosting query.").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Function score") {
@@ -161,6 +161,6 @@ val compoundQueriesMd = sourceGitRepository.md {
             }.pretty("Function score").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 }

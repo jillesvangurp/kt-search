@@ -222,9 +222,10 @@ kotlin {
             languageSettings {
                 optIn("kotlin.RequiresOptIn")
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                optIn("kotlin.time.ExperimentalTime")
                 // expect-actual-classes
-                languageVersion = "2.0"
-                apiVersion = "2.0"
+                languageVersion = "2.1"
+                apiVersion = "2.1"
             }
         }
     }

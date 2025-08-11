@@ -210,7 +210,7 @@ val projectReadme = sourceGitRepository.md {
             // you can also get the JsonObject if you don't
             // have a model class
             println(results.hits?.hits?.first()?.source)
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             You can also construct complex aggregations with the query DSL.
@@ -235,7 +235,7 @@ val projectReadme = sourceGitRepository.md {
                 .parsedBuckets.forEach { bucket ->
                     println("${bucket.parsed.key}: ${bucket.parsed.docCount}")
                 }
-        }.printStdOut()
+        }.printStdOut(this)
 
 
         +"""

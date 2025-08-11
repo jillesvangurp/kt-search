@@ -4,7 +4,7 @@ import com.jillesvangurp.searchdsls.querydsl.distanceFeature
 import com.jillesvangurp.searchdsls.querydsl.rankFeature
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
 

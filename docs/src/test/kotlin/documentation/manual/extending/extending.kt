@@ -113,7 +113,7 @@ val extendingMd = sourceGitRepository.md {
             }.let {
                 println(it.json(pretty = true))
             }
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             Refer to the documentation of [json-dsl](https://github.com/jillesvangurp/json-dsl) for 

@@ -92,7 +92,7 @@ val deepPagingMd = sourceGitRepository.md {
             }
             println("reported result set size ${resp.total}")
             println("results in the hits flow: ${hitsFlow.count()}")
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             This orchestrates creating a point in time and paging through results using 
@@ -128,7 +128,7 @@ val deepPagingMd = sourceGitRepository.md {
             }
             println("reported result set size ${resp.total}")
             println("results in the hits flow: ${hitsFlow.count()}")
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
 
@@ -159,7 +159,7 @@ val deepPagingMd = sourceGitRepository.md {
                 }.collect()
             }
             println("$newIndex has ${client.search(newIndex).total} documents")
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Scrolling searches") {
@@ -227,7 +227,7 @@ val deepPagingMd = sourceGitRepository.md {
 
             // repeat ...
             println("found $results results")
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             Like with `search_after` you can also choose to specify scroll ids manually. If you do this,
@@ -253,6 +253,6 @@ val deepPagingMd = sourceGitRepository.md {
             // finally release the scrollId
             client.deleteScroll(resp.scrollId)
             println("found $results results")
-        }.printStdOut()
+        }.printStdOut(this)
     }
 }

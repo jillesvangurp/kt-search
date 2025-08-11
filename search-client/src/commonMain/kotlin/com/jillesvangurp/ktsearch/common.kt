@@ -3,11 +3,12 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.jsondsl.camelCase2SnakeCase
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
+import kotlinx.datetime.number
 
 enum class OperationType {
     Create, Index, Update, Delete
@@ -32,7 +33,7 @@ data class Shards(val total: Int, val successful: Int, val failed: Int, val skip
 private fun Int.formatTwoChars() = if (this < 10) "0$this" else this
 fun formatTimestamp(): String {
     val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-    return "${now.year}${now.monthNumber.formatTwoChars()}${now.dayOfMonth.formatTwoChars()}T${now.hour.formatTwoChars()}${now.minute.formatTwoChars()}${now.second.formatTwoChars()}"
+    return "${now.year}${now.month.number.formatTwoChars()}${now.day.formatTwoChars()}T${now.hour.formatTwoChars()}${now.minute.formatTwoChars()}${now.second.formatTwoChars()}"
 }
 
 @Serializable

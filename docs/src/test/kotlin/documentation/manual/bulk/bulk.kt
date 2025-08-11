@@ -193,7 +193,7 @@ val bulkMd = sourceGitRepository.md {
                 // invalid json would cause an error
                 index("{}}")
             }
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             For successful items, you might want to know what id was assigned 

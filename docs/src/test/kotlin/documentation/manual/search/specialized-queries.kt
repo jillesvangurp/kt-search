@@ -6,7 +6,7 @@ import com.jillesvangurp.searchdsls.querydsl.rankFeature
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 val specializedQueriesMd = sourceGitRepository.md {
@@ -70,7 +70,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             }.hits?.hits?.first()?.parseHit<TestDoc>()!!
 
             println(first.name)
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             The Brandenburger Tor is closer to itself than the TV tower so it comes out on top.
@@ -88,7 +88,7 @@ val specializedQueriesMd = sourceGitRepository.md {
             }.hits?.hits?.first()?.parseHit<TestDoc>()!!
 
             print(first.name)
-        }.printStdOut()
+        }.printStdOut(this)
 
         +"""
             The building year of the TV tower is closer to 2020 than the Brandenburger Gate

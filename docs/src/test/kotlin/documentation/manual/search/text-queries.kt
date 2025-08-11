@@ -31,7 +31,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match query").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Match Phrase") {
         example {
@@ -45,7 +45,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match Phrase query").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Match Phrase Prefix") {
         example {
@@ -59,7 +59,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Match Phrase Prefix query").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Multi Match") {
         example {
@@ -74,7 +74,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Simple Query String") {
@@ -87,7 +87,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 
     section("Query String Query") {
@@ -100,7 +100,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Multi Match").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Intervals query") {
         +"""
@@ -122,7 +122,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
         +"""
             You can combine multiple rules with `any_of`, or `all_of`.
         """.trimIndent()
@@ -147,7 +147,7 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
     section("Combined fields query") {
         example {
@@ -158,6 +158,6 @@ val textQueriesMd = sourceGitRepository.md {
             }.pretty("Combined fields").let {
                 println(it)
             }
-        }.printStdOut()
+        }.printStdOut(this)
     }
 }

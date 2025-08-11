@@ -7,7 +7,7 @@ import com.jillesvangurp.searchdsls.querydsl.constructQueryClause
 import com.jillesvangurp.searchdsls.querydsl.matchPhrase
 import com.jillesvangurp.searchdsls.querydsl.term
 import documentation.sourceGitRepository
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 

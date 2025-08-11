@@ -28,7 +28,11 @@ repositories {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs= listOf("-Xcontext-receivers")
+        optIn.addAll(
+            "kotlin.RequiresOptIn",
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlin.time.ExperimentalTime"
+        )
     }
 }
 
