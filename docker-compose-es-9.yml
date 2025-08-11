@@ -1,6 +1,6 @@
 services:
   es9:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.1
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true

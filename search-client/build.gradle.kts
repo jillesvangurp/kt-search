@@ -61,7 +61,7 @@ repositories {
     mavenCentral()
 }
 
-val searchEngine = getStringProperty("searchEngine", "es-8")
+val searchEngine = getStringProperty("searchEngine", "es-9")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
