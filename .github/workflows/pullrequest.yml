@@ -15,9 +15,11 @@ jobs:
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: temurin
-        java-version: '17'
-        cache: gradle
+        java-version: '21'
+        distribution: 'adopt'
+        java-package: 'jdk'
+        architecture: 'x64'
+        cache: 'gradle'
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
