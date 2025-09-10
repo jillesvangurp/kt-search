@@ -1,15 +1,17 @@
-package documentation.manual.bulk.indexmanagement
+package documentation.manual.indexmanagement
 
 import com.jillesvangurp.ktsearch.*
+import documentation.ensureGone
 import documentation.manual.ManualPages
 import documentation.mdLink
+import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
 
 val indexManagementMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
-    kotlin.runCatching {
+    runCatching {
         runBlocking {
             client.deleteIndex(target = "an-index", ignoreUnavailable = true)
         }
@@ -120,9 +122,55 @@ val indexManagementMd = sourceGitRepository.md {
             point to the actual index. By separating reads and writes, you can implement a reindex strategy 
             where writes  go to a new index and after you have reindexed the old index, you switch over the read alias
             so all your queries use the new index. After that, you can safely remove the old index.
+            
+            For simple use cases around alias management, the client provides a few easy functions:
         """.trimIndent()
 
-        example(false) {
+        client.ensureGone("foo-1", "foo-2")
+        example {
+            client.createIndex("foo-1")
+            client.createIndex("foo-2")
+
+            client.updateAliases {
+                addAliasForIndex("foo-1","foo")
+            }
+
+            println(
+                "indices for foo:"+ client.getIndexesForAlias("foo")
+            )
+            println(
+                "aliases for foo-1:"+ client.getIndexesForAlias("foo-1")
+            )
+            // atomically swap foo from foo-1 to foo-2
+            client.updateAliases {
+                addAliasForIndex(
+                    index = "foo-2",
+                    alias = "foo"
+                )
+                removeAliasForIndex(
+                    index = "foo-1",
+                    alias = "foo",
+                    // setting this to true deletes foo-1
+                    deleteIndex = false
+                )
+            }
+
+            println(
+                "indices for foo:"+ client.getIndexesForAlias("foo")
+            )
+            println(
+                "aliases for foo-1:"+ client.getIndexesForAlias("foo-1")
+            )
+
+
+        }.printStdOut(this)
+
+        +"""
+            You can also manipulate the add, remove, and remove_index actions directly if you prefer and use the `AliasAction` DSL on these actions:
+        """.trimIndent()
+
+        client.ensureGone("foo-1", "foo-2")
+        example {
             client.createIndex("foo-1")
 
             client.updateAliases {
@@ -169,12 +217,13 @@ val indexManagementMd = sourceGitRepository.md {
                     indices = listOf("foo-1", "foo-2")
                 }
             }
-        }
+        }.printStdOut(this)
 
         +"""
             Note. you may also want to consider using data streams instead: ${ManualPages.DataStreams.page.mdLink}
              
             Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
         """.trimIndent()
+
     }
 }

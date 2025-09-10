@@ -162,9 +162,9 @@ kotlin {
         }
         jvmTest {
             dependencies {
-                implementation(kotlin("test-junit5", "_"))
                 implementation("ch.qos.logback:logback-classic:_")
 
+                implementation(kotlin("test-junit5", "_"))
                 implementation(Testing.junit.jupiter.api)
                 implementation(Testing.junit.jupiter.engine)
             }
