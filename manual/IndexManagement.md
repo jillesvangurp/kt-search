@@ -216,6 +216,80 @@ Note. you may also want to consider using data streams instead: [Creating Data S
  
 Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
 
+## Reindexing
+
+Elasticsearch has a reindexing API (opensearch doesn't have this, it seems) that can be used to re-index documents from one index into a new one.
+
+Because reindexing can potentially take a long time, you have to choose whether to use a background task or wait for the response.
+
+The client supports several ways to do this.
+
+### Reindex and poll until done (Recommended)
+
+The client includes a convenient function that takes care of all this. It creates a reindex task and
+it polls until that is done. And then it extracts the IndexResponse.
+
+```kotlin
+val reindexResponse = client.reindexAndAwaitTask {
+  source {
+    index = "old-index"
+  }
+  destination {
+    index = "new-index"
+  }
+}
+```
+
+### Using the task API manually
+
+You can also do this manually with `reindexAsync`. This sets `wait_for-completion=false` and returns
+a task id that you can use to track progress of the task. You can then call `awaitTaskCompleted` and
+pick apart the response to dig out the `IndexResponse`.
+
+```kotlin
+// creates a task and returns immediately
+val taskId = client.reindexAsync {
+  source {
+    index = "old-index"
+  }
+  destination {
+    index = "new-index"
+  }
+}
+// poll until the task is completed
+val taskResponse = client.awaitTaskCompleted(
+  id = taskId,
+  timeout = 10.minutes,
+  interval = 5.seconds
+)
+// task response is a simple JsonObject but contains the response
+val indexResponse = taskResponse?.get("response")?.let {
+  Json.decodeFromJsonElement(ReindexResponse.serializer(), it)
+}
+```
+
+### Reindexing without the task API
+
+This blocks until reindexing is done. Note. for bigger indices, you may get request timeouts with larger indices. 
+
+For this reason, it's better to use the `reindexAsync` variant described below unless your 
+index is small enough that this does not matter.
+
+Note. you should probably just use `reindexAndAwaitTask`; that's a more robust way to do the same thing and 
+it is less likely to timeout.
+
+```kotlin
+val reindexResp = client.reindex {
+  source {
+    index = "old-index"
+  }
+  destination {
+    index = "new-index"
+  }
+}
+// reindexResp has details on what was indexed
+```
+
 
 
 ---
