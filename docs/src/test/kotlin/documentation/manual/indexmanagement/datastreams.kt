@@ -1,4 +1,4 @@
-package documentation.manual.bulk.indexmanagement
+package documentation.manual.indexmanagement
 
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*

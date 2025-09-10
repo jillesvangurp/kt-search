@@ -6,6 +6,7 @@ import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.Script
 import com.jillesvangurp.serializationext.DEFAULT_JSON
+import documentation.ensureGone
 import documentation.printStdOut
 import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
@@ -26,8 +27,6 @@ val bulkMd = sourceGitRepository.md {
     data class Foo(val foo: String)
 
     section("Bulk Sessions") {
-
-
         example(runExample = false) {
             @Serializable
             data class Foo(val foo: String)

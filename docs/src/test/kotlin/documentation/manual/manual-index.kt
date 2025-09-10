@@ -2,8 +2,8 @@ package documentation.manual
 
 import documentation.*
 import documentation.manual.bulk.bulkMd
-import documentation.manual.bulk.indexmanagement.dataStreamsMd
-import documentation.manual.bulk.indexmanagement.indexManagementMd
+import documentation.manual.indexmanagement.dataStreamsMd
+import documentation.manual.indexmanagement.indexManagementMd
 import documentation.manual.crud.crudMd
 import documentation.manual.extending.extendingMd
 import documentation.manual.gettingstarted.clientConfiguration
