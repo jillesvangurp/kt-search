@@ -7,10 +7,10 @@ import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.RequiresOptIn.Level.WARNING
-import kotlin.annotation.AnnotationRetention.BINARY
-import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class ReindexResponse(
@@ -38,6 +38,11 @@ data class ReindexResponse(
 @Serializable
 data class ReindexRetries(val bulk: Int, val search: Int)
 
+/**
+ * Reindex and waits for completion. Returns a reindex response indicating what was reindexed.
+ *
+ * Use [reindexAsync] if you want to process the response in the background and use the tasks API to follow progress.
+ */
 @VariantRestriction(ES7, ES8,ES9)
 suspend fun SearchClient.reindex(
     refresh: Boolean? = null,
@@ -62,7 +67,9 @@ suspend fun SearchClient.reindex(
     block
 ).parse(ReindexResponse.serializer())
 
-
+/**
+ * Reindexes using a background task in ES. Returns a TaskId response with an id that you can use with the task api.
+ */
 @VariantRestriction(ES7, ES8, ES9)
 suspend fun SearchClient.reindexAsync(
     refresh: Boolean? = null,
@@ -86,6 +93,44 @@ suspend fun SearchClient.reindexAsync(
     maxDocs,
     block
 ).parse(TaskResponse.serializer()).toTaskId()
+
+/**
+ * Reindexes using a background task in ES and polls for that task to complete every [pollInterval] for a maximum of [timeout].
+ * Note: the same timeout is passed on to the reindex task
+ *
+ * Returns a nullable [ReindexResponse]
+ */
+@VariantRestriction(ES7, ES8, ES9)
+suspend fun SearchClient.reindexAndAwaitTask(
+    refresh: Boolean? = null,
+    timeout: Duration = 20.minutes,
+    waitForActiveShards: String? = null,
+    requestsPerSecond: Int? = null,
+    requireAlias: Boolean? = null,
+    scroll: Duration? = null,
+    slices: Int? = null,
+    maxDocs: Int? = null,
+    pollInterval: Duration = 5.seconds,
+    block: ReindexDSL.() -> Unit,
+): ReindexResponse? {
+    val taskId = reindexGeneric(
+        refresh,
+        timeout,
+        waitForActiveShards,
+        false,
+        requestsPerSecond,
+        requireAlias,
+        scroll,
+        slices,
+        maxDocs,
+        block
+    ).parse(TaskResponse.serializer()).toTaskId()
+    val taskResp = awaitTaskCompleted(taskId,timeout, interval = pollInterval)
+    return taskResp?.let {
+        // extract the reindex response
+        Json.decodeFromJsonElement(ReindexResponse.serializer(), it)
+    }
+}
 
 
 private suspend fun SearchClient.reindexGeneric(

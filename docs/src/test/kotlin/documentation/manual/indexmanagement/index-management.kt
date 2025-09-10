@@ -6,8 +6,10 @@ import documentation.manual.ManualPages
 import documentation.mdLink
 import documentation.printStdOut
 import documentation.sourceGitRepository
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.json.Json
 
 val indexManagementMd = sourceGitRepository.md {
     val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
@@ -224,6 +226,85 @@ val indexManagementMd = sourceGitRepository.md {
              
             Datastreams work in both Opensearch and Elasticsearch and automate some of the things around index management for timeseries data.
         """.trimIndent()
+    }
 
+    section("Reindexing") {
+        +"""
+            Elasticsearch has a reindexing API (opensearch doesn't have this, it seems) that can be used to re-index documents from one index into a new one.
+            
+            Because reindexing can potentially take a long time, you have to choose whether to use a background task or wait for the response.
+            
+            The client supports several ways to do this.
+        """.trimIndent()
+
+        subSection("Reindex and poll until done (Recommended)") {
+            +"""
+                The client includes a convenient function that takes care of all this. It creates a reindex task and
+                it polls until that is done. And then it extracts the IndexResponse.
+            """.trimIndent()
+
+            example(false) {
+                val reindexResponse = client.reindexAndAwaitTask {
+                    source {
+                        index = "old-index"
+                    }
+                    destination {
+                        index = "new-index"
+                    }
+                }
+            }
+        }
+
+        subSection("Using the task API manually") {
+            +"""
+                You can also do this manually with `reindexAsync`. This sets `wait_for-completion=false` and returns
+                a task id that you can use to track progress of the task. You can then call `awaitTaskCompleted` and
+                pick apart the response to dig out the `IndexResponse`.
+            """.trimIndent()
+
+            example(false) {
+                // creates a task and returns immediately
+                val taskId = client.reindexAsync {
+                    source {
+                        index = "old-index"
+                    }
+                    destination {
+                        index = "new-index"
+                    }
+                }
+                // poll until the task is completed
+                val taskResponse = client.awaitTaskCompleted(
+                    id = taskId,
+                    timeout = 10.minutes,
+                    interval = 5.seconds
+                )
+                // task response is a simple JsonObject but contains the response
+                val indexResponse = taskResponse?.get("response")?.let {
+                    Json.decodeFromJsonElement(ReindexResponse.serializer(), it)
+                }
+            }
+        }
+        subSection("Reindexing without the task API") {
+            +"""
+                This blocks until reindexing is done. Note. for bigger indices, you may get request timeouts with larger indices. 
+                
+                For this reason, it's better to use the `reindexAsync` variant described below unless your 
+                index is small enough that this does not matter.
+                
+                Note. you should probably just use `reindexAndAwaitTask`; that's a more robust way to do the same thing and 
+                it is less likely to timeout.
+            """.trimIndent()
+            example(false) {
+                val reindexResp = client.reindex {
+                    source {
+                        index = "old-index"
+                    }
+                    destination {
+                        index = "new-index"
+                    }
+                }
+                // reindexResp has details on what was indexed
+            }
+        }
     }
 }
