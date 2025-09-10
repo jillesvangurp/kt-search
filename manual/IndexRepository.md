@@ -17,7 +17,7 @@ aliases are used.
 ```kotlin
 val repo = client.repository("test", TestDoc.serializer())
 
-repo.createIndex {
+repo.createIndex(repo.indexNameOrWriteAlias,) {
   mappings {
     text(TestDoc::message)
   }
