@@ -5,6 +5,7 @@ import com.jillesvangurp.searchdsls.SearchEngineVariant.ES8
 import com.jillesvangurp.searchdsls.SearchEngineVariant.ES9
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.ReindexDSL
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
@@ -126,9 +127,9 @@ suspend fun SearchClient.reindexAndAwaitTask(
         block
     ).parse(TaskResponse.serializer()).toTaskId()
     val taskResp = awaitTaskCompleted(taskId,timeout, interval = pollInterval)
-    return taskResp?.let {
+    return taskResp?.get("response")?.let {
         // extract the reindex response
-        Json.decodeFromJsonElement(ReindexResponse.serializer(), it)
+        DEFAULT_JSON.decodeFromJsonElement(ReindexResponse.serializer(), it)
     }
 }
 
