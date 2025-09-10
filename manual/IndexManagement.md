@@ -103,6 +103,57 @@ point to the actual index. By separating reads and writes, you can implement a r
 where writes  go to a new index and after you have reindexed the old index, you switch over the read alias
 so all your queries use the new index. After that, you can safely remove the old index.
 
+For simple use cases around alias management, the client provides a few easy functions:
+
+```kotlin
+client.createIndex("foo-1")
+client.createIndex("foo-2")
+
+client.updateAliases {
+  addAliasForIndex("foo-1","foo")
+}
+
+println(
+  "indices for foo:"+ client.getIndexesForAlias("foo")
+)
+println(
+  "aliases for foo-1:"+ client.getIndexesForAlias("foo-1")
+)
+// atomically swap foo from foo-1 to foo-2
+client.updateAliases {
+  addAliasForIndex(
+    index = "foo-2",
+    alias = "foo"
+  )
+  removeAliasForIndex(
+    index = "foo-1",
+    alias = "foo",
+    // setting this to true deletes foo-1
+    deleteIndex = false
+  )
+}
+
+println(
+  "indices for foo:"+ client.getIndexesForAlias("foo")
+)
+println(
+  "aliases for foo-1:"+ client.getIndexesForAlias("foo-1")
+)
+
+
+```
+
+This prints:
+
+```text
+indices for foo:[foo-1]
+aliases for foo-1:[foo-1]
+indices for foo:[foo-2]
+aliases for foo-1:[foo-1]
+```
+
+You can also manipulate the add, remove, and remove_index actions directly if you prefer and use the `AliasAction` DSL on these actions:
+
 ```kotlin
 client.createIndex("foo-1")
 
@@ -150,6 +201,15 @@ client.updateAliases {
     indices = listOf("foo-1", "foo-2")
   }
 }
+```
+
+This prints:
+
+```text
+Aliases for foo-1: [foo]
+Aliases for foo-2: null
+Aliases for foo-1: []
+Aliases for foo-2: [foo]
 ```
 
 Note. you may also want to consider using data streams instead: [Creating Data Streams](DataStreams.md)
