@@ -59,7 +59,7 @@ class AggQueryTest : SearchTestBase() {
 
     // FIXME @BeforeTest does not seem to work with mocha / node.js and async suspend; so call directly
     suspend fun before()  {
-        repository.createIndex(MockDoc.mapping)
+        repository.createIndex(repository.indexNameOrWriteAlias,MockDoc.mapping)
         repository.bulk {
             val now = Clock.System.now()
             index(MockDoc(name = "1", tags = listOf(Tags.bar), value = 1, color = Colors.green, timestamp = now))

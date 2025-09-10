@@ -34,7 +34,7 @@ val indexRepoMd = sourceGitRepository.md {
         example(false) {
             val repo = client.repository("test", TestDoc.serializer())
 
-            repo.createIndex {
+            repo.createIndex(repo.indexNameOrWriteAlias,) {
                 mappings {
                     text(TestDoc::message)
                 }

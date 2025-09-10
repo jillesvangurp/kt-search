@@ -33,7 +33,7 @@ class IndexRepositoryTest : SearchTestBase() {
 
     @Test
     fun shouldDoBulkWithRepo() = coRun{
-        repo.createIndex {}
+        repo.createIndex(repo.indexNameOrWriteAlias) {}
         repo.bulk {
             index(TestDocument("1").json())
             index(TestDocument("2").json())
@@ -45,7 +45,7 @@ class IndexRepositoryTest : SearchTestBase() {
 
     @Test
     fun shouldDoBulkUpdatesWithOptimisticLocking() = coRun{
-        repo.createIndex {}
+        repo.createIndex(repo.indexNameOrWriteAlias) {}
 
         repo.bulk {
             create(TestDocument("1").json(), id = "1")

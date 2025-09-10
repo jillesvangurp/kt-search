@@ -129,7 +129,7 @@ internal class BulkUpdateSession<T : Any>(
         bulkSession.index(
             source,
             id = id,
-            index = indexRepository.indexWriteAlias,
+            index = indexRepository.indexNameOrWriteAlias,
             ifSeqNo = ifSeqNo,
             ifPrimaryTerm = ifPrimaryTerm
         )
@@ -138,11 +138,10 @@ internal class BulkUpdateSession<T : Any>(
 
 @Suppress("unused")
 class IndexRepository<T : Any>(
-    val indexName: String,
+    val indexNameOrWriteAlias: String,
+    val indexReadAlias: String = indexNameOrWriteAlias,
     private val client: SearchClient,
     val serializer: ModelSerializationStrategy<T>,
-    val indexWriteAlias: String = indexName,
-    val indexReadAlias: String = indexWriteAlias,
     val defaultParameters: Map<String, String>? = null,
     private val defaultRefresh: Refresh? = Refresh.WaitFor,
     private val defaultTimeout: Duration? = null,
@@ -159,6 +158,7 @@ class IndexRepository<T : Any>(
     }
 
     suspend fun createIndex(
+        indexName: String,
         mappingsAndSettings: IndexSettingsAndMappingsDSL,
         waitForActiveShards: Int? = null,
         masterTimeOut: Duration? = null,
@@ -178,6 +178,7 @@ class IndexRepository<T : Any>(
     }
 
     suspend fun createIndex(
+        indexName: String,
         waitForActiveShards: Int? = null,
         masterTimeOut: Duration? = null,
         timeout: Duration? = null,
@@ -196,10 +197,8 @@ class IndexRepository<T : Any>(
         )
     }
 
-//    suspend fun updateIndexMapping(): Unit = TODO()
-//    suspend fun updateIndexSettings(): Unit = TODO()
-
     suspend fun deleteIndex(
+        indexName: String,
         masterTimeOut: Duration? = null,
         timeout: Duration? = null,
         ignoreUnavailable: Boolean? = null,
@@ -208,8 +207,24 @@ class IndexRepository<T : Any>(
         client.deleteIndex(indexName, masterTimeOut, timeout, ignoreUnavailable, combineParams(extraParameters))
     }
 
-//    suspend fun getALiases(): Unit = TODO()
-
+    /**
+     * Convenient way to atomically change over to a new index.
+     *
+     * Assumes there is only one index for the read and write alias. If this is not true, don't use [deleteOldIndex].
+     *
+     * Important. you should of course take care of reindexing yourself before you call this with [deleteOldIndex] set to true
+     */
+    suspend fun updateAliasesToNewIndex(newIndex: String, deleteOldIndex: Boolean=false) {
+        val oldIndex = client.getIndexesForAlias(indexNameOrWriteAlias).firstOrNull()
+        client.updateAliases {
+            addAliasForIndex(newIndex, indexReadAlias)
+            addAliasForIndex(newIndex, indexNameOrWriteAlias)
+            if(oldIndex != null) {
+                removeAliasForIndex(oldIndex,indexReadAlias)
+                removeAliasForIndex(oldIndex,indexNameOrWriteAlias, deleteOldIndex)
+            }
+        }
+    }
 
     suspend fun get(
         id: String,
@@ -281,7 +296,7 @@ class IndexRepository<T : Any>(
 
         ): DocumentIndexResponse {
         return client.indexDocument(
-            target = indexWriteAlias,
+            target = indexNameOrWriteAlias,
             serializedJson = serializer.serialize(value),
             id = id,
             ifSeqNo = ifSeqNo,
@@ -338,7 +353,7 @@ class IndexRepository<T : Any>(
 
         return try {
             updated to client.indexDocument(
-                target = indexWriteAlias,
+                target = indexNameOrWriteAlias,
                 id = id,
                 serializedJson = serializer.serialize(updated),
                 ifSeqNo = resp.seqNo,
@@ -393,7 +408,7 @@ class IndexRepository<T : Any>(
         extraParameters: Map<String, String>? = null,
     ): DocumentIndexResponse {
         return client.deleteDocument(
-            target = indexWriteAlias,
+            target = indexNameOrWriteAlias,
             id = id,
             ifSeqNo = ifSeqNo,
             ifPrimaryTerm = ifPrimaryTerm,
@@ -448,7 +463,7 @@ class IndexRepository<T : Any>(
             source = source,
             sourceExcludes = sourceExcludes,
             sourceIncludes = sourceIncludes,
-            target = indexWriteAlias
+            target = indexNameOrWriteAlias
         )
 
         try {
@@ -965,7 +980,7 @@ class IndexRepository<T : Any>(
     }
 
     suspend fun deleteByQuery(block: SearchDSL.() -> Unit): DeleteByQueryResponse {
-        return client.deleteByQuery(target = indexWriteAlias, block = block)
+        return client.deleteByQuery(target = indexNameOrWriteAlias, block = block)
     }
 
     fun deserialize(response: SearchResponse) =
@@ -1005,17 +1020,15 @@ class IndexRepository<T : Any>(
 }
 
 fun <T : Any> SearchClient.repository(
-    indexName: String,
+    indexWriteAlias: String,
     serializer: KSerializer<T>,
-    indexWriteAlias: String = indexName,
     indexReadAlias: String = indexWriteAlias,
     defaultParameters: Map<String, String>? = null,
 
     ) = IndexRepository(
-    indexName = indexName,
     client = this,
     serializer = this.ktorModelSerializer(serializer),
-    indexWriteAlias = indexWriteAlias,
+    indexNameOrWriteAlias = indexWriteAlias,
     indexReadAlias = indexReadAlias,
     defaultParameters = defaultParameters
 )
