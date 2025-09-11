@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {  }
 internal class RetryingBulkHandler<T : Any>(
-    private val updateFunctions: MutableMap<String, (T) -> T>,
+    private val updateFunctions: MutableMap<String, suspend (T) -> T>,
     private val indexRepository: IndexRepository<T>,
     private val parentBulkItemCallBack: BulkItemCallBack? = null,
     private val maxRetries: Int = 2,
@@ -83,24 +83,24 @@ internal class RetryingBulkHandler<T : Any>(
 }
 
 interface TypedDocumentIBulkSession<T> : BulkSession {
-    suspend fun update(getDocumentResponse: SourceInformation, updateBlock: (T) -> T)
+    suspend fun update(getDocumentResponse: SourceInformation, updateBlock: suspend (T) -> T)
 
     suspend fun update(
         id: String,
         original: T,
         ifSeqNo: Long,
         ifPrimaryTerm: Long,
-        updateBlock: (T) -> T,
+        updateBlock: suspend (T) -> T,
     )
 }
 
 internal class BulkUpdateSession<T : Any>(
     private val indexRepository: IndexRepository<T>,
-    private val updateFunctions: MutableMap<String, (T) -> T>,
+    private val updateFunctions: MutableMap<String, suspend (T) -> T>,
     private val bulkSession: DefaultBulkSession,
 ) : TypedDocumentIBulkSession<T>, BulkSession by bulkSession {
 
-    override suspend fun update(getDocumentResponse: SourceInformation, updateBlock: (T) -> T) {
+    override suspend fun update(getDocumentResponse: SourceInformation, updateBlock: suspend (T) -> T) {
         update(
             id = getDocumentResponse.id,
             // errors only happen if the document does not exist
@@ -118,7 +118,7 @@ internal class BulkUpdateSession<T : Any>(
         original: T,
         ifSeqNo: Long,
         ifPrimaryTerm: Long,
-        updateBlock: (T) -> T,
+        updateBlock: suspend (T) -> T,
     ) {
         if (updateFunctions.containsKey(id)) {
             throw IllegalArgumentException("you can't update the same id $id twice in one session")
@@ -322,7 +322,7 @@ class IndexRepository<T : Any>(
         routing: String? = null,
         timeout: Duration? = null,
         retryDelay: Duration = 2.seconds,
-        block: (T) -> T,
+        block: suspend (T) -> T,
     ): Pair<T, DocumentIndexResponse> =
         update(
             id = id,
@@ -345,7 +345,7 @@ class IndexRepository<T : Any>(
         routing: String?,
         timeout: Duration?,
         retryDelay: Duration,
-        block: (T) -> T
+        block: suspend (T) -> T
     ): Pair<T, DocumentIndexResponse> {
         val (original, resp) = get(id, extraParameters = defaultParameters)
 
@@ -441,7 +441,7 @@ class IndexRepository<T : Any>(
         block: suspend TypedDocumentIBulkSession<T>.() -> Unit
     ) {
 
-        val updateFunctions = mutableMapOf<String, (T) -> T>()
+        val updateFunctions = mutableMapOf<String, suspend (T) -> T>()
         val retryCallback = RetryingBulkHandler(
             updateFunctions = updateFunctions,
             indexRepository = this,
