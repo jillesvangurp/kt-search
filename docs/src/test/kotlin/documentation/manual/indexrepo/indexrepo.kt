@@ -142,8 +142,8 @@ val indexRepoMd = sourceGitRepository.md {
 
     section("Optimistic locking and updates") {
         +"""
-            Elasticsearch is of course not intended to be a database and it does not have transactions. However,
-            it does have a few features that allow you to (ab)use it as one.
+            Elasticsearch is of course **not intended to be a database** and it does not have transactions, for example. However,
+            it does have a few features that allow you to (ab)use it as a DB.
             
             Elasticsearch supports optimistic locking. With optimistic locking you can guarantee that you are not 
             overwriting concurrent updates to documents. Additionally, most write operations have a refresh parameter that you can set to `wait_for`
@@ -162,13 +162,14 @@ val indexRepoMd = sourceGitRepository.md {
             can fail that you can then act on by retrying. Since nothing gets locked, everything stays fast. 
             And with a rare retry operation, performance should not suffer.
             
-            Dealing with this is of course a bit fiddly to do manually. To make optimistic locking really easy,
+            Dealing with this is of course a bit fiddly to do manually. To **make optimistic locking really easy**,
             the `IndexRepository` supports updates with retry both for single documents and with bulk operations.  
             
         """.trimIndent()
         example(false) {
             val id = repo.index(TestDoc("A document")).id
             repo.update(id, maxRetries = 2, block = { oldVersion ->
+                // return the object with modifications
                 oldVersion.copy(message = "An updated document")
             }, retryDelay = 2.seconds)
         }
@@ -176,9 +177,9 @@ val indexRepoMd = sourceGitRepository.md {
             This fetches the document and its `primary_term` and `seq_no` values, applies your update function, 
             and then stores it. In case of a version conflict, it re-fetches the document with the latest 
             `primary_term` and `seq_no` values, and then re-applies your update
-            function to that version. The number of retries is configurable. If all retries fail, you will get a 
+            block to that version. The number of retries is configurable. If all retries fail, you will get a 
             version conflict exception. The only time this may happen is if you have a lot of concurrent writes 
-            to the same documents.
+            to the same documents.                      
         """.trimIndent()
 
         section("Bulk updates and optimistic locking") {
