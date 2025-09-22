@@ -198,11 +198,6 @@ class DateRangesAgg(val field: String, block: (DateRangesAggConfig.() -> Unit)? 
     }
 }
 
-class DateHistogramExtendedBounds: JsonDsl() {
-    var min by property<String>()
-    var max by property<String>()
-}
-
 class DateHistogramAggConfig : JsonDsl() {
     var field by property<String>()
     var calendarInterval by property<String>("calendar_interval") // can't redefine Map.size sadly
@@ -212,7 +207,15 @@ class DateHistogramAggConfig : JsonDsl() {
     var offset by property<String>()
     var missing by property<String>()
     var keyed by property<Boolean>()
-    var extendedBounds by property<DateHistogramExtendedBounds>()
+
+    fun extendedBounds(min: String?=null, max: String?=null) {
+        if(!min.isNullOrBlank() || !max.isNullOrBlank() ) {
+            this["extended_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
 }
 
 class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> Unit)? = null) :
