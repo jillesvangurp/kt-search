@@ -3,6 +3,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
@@ -197,6 +198,11 @@ class DateRangesAgg(val field: String, block: (DateRangesAggConfig.() -> Unit)? 
     }
 }
 
+class DateHistogramExtendedBounds: JsonDsl() {
+    var min by property<String>()
+    var max by property<String>()
+}
+
 class DateHistogramAggConfig : JsonDsl() {
     var field by property<String>()
     var calendarInterval by property<String>("calendar_interval") // can't redefine Map.size sadly
@@ -206,6 +212,7 @@ class DateHistogramAggConfig : JsonDsl() {
     var offset by property<String>()
     var missing by property<String>()
     var keyed by property<Boolean>()
+    var extendedBounds by property<DateHistogramExtendedBounds>()
 }
 
 class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> Unit)? = null) :
