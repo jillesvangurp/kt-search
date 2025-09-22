@@ -203,6 +203,10 @@ class AggQueryTest : SearchTestBase() {
             agg("by_day", DateHistogramAgg(MockDoc::timestamp) {
                 calendarInterval = "1d"
                 minDocCount = 1
+                extendedBounds(
+                    min = "now-60d",
+                    max = "now+7d",
+                )
             }) {
                 agg("by_color", TermsAgg(MockDoc::color))
             }

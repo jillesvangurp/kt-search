@@ -3,6 +3,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.PropertyNamingConvention
 import com.jillesvangurp.jsondsl.withJsonDsl
 import kotlin.reflect.KProperty
 
@@ -206,6 +207,15 @@ class DateHistogramAggConfig : JsonDsl() {
     var offset by property<String>()
     var missing by property<String>()
     var keyed by property<Boolean>()
+
+    fun extendedBounds(min: String?=null, max: String?=null) {
+        if(!min.isNullOrBlank() || !max.isNullOrBlank() ) {
+            this["extended_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
 }
 
 class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> Unit)? = null) :
