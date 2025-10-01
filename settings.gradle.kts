@@ -16,4 +16,5 @@ refreshVersions {
 include("search-dsls")
 include("search-client")
 include("docs")
+include("ktsearch-alert")
 rootProject.name = "kt-search"
