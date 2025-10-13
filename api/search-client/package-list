@@ -212,7 +212,11 @@ $dokka.location:com.jillesvangurp.ktsearch/AliasAction/alias/#/PointingToDeclara
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/aliases/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/aliases.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/filter/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/filter.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/index/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/--index--.html
+$dokka.location:com.jillesvangurp.ktsearch/AliasAction/indexRouting/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/index-routing.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasAction/indices/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/indices.html
+$dokka.location:com.jillesvangurp.ktsearch/AliasAction/isWriteIndex/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/is-write-index.html
+$dokka.location:com.jillesvangurp.ktsearch/AliasAction/routing/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/routing.html
+$dokka.location:com.jillesvangurp.ktsearch/AliasAction/searchRouting/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-action/search-routing.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasResponse///PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-response/index.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasResponse/AliasResponse/#kotlin.collections.Map[kotlin.String,kotlinx.serialization.json.JsonObject]/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-response/-alias-response.html
 $dokka.location:com.jillesvangurp.ktsearch/AliasResponse/aliases/#/PointingToDeclaration/search-client/com.jillesvangurp.ktsearch/-alias-response/aliases.html
