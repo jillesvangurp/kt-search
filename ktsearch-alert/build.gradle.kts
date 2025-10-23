@@ -30,20 +30,15 @@ kotlin {
             jvmTarget = JvmTarget.JVM_11
         }
     }
-    js(IR) {
-        browser {
-            testTask {
-                useMocha {
-                    timeout = "30s"
-                }
-            }
-        }
+    js {
+        browser()
         nodejs {
-            testTask {
+            testTask(Action {
                 useMocha {
-                    timeout = "30s"
+                    // javascript is a lot slower than Java, we hit the default timeout of 2000
+                    timeout = "20s"
                 }
-            }
+            })
         }
     }
 
@@ -77,7 +72,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(project(":search-client"))
                 implementation(kotlin("stdlib-common", "_"))
@@ -87,7 +82,7 @@ kotlin {
                 implementation(Ktor.client.core)
             }
         }
-        val commonTest by getting {
+       commonTest {
             dependencies {
                 implementation(kotlin("test-common", "_"))
                 implementation(kotlin("test-annotations-common", "_"))
@@ -95,12 +90,12 @@ kotlin {
                 implementation(KotlinX.coroutines.test)
             }
         }
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 implementation(Ktor.client.cio)
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5", "_"))
                 implementation(Testing.junit.jupiter.api)
@@ -108,6 +103,22 @@ kotlin {
                 implementation("ch.qos.logback:logback-classic:_")
             }
         }
+
+        jsMain {
+        }
+        jsTest {
+            dependencies {
+                implementation(kotlin("test-js", "_"))
+            }
+        }
+
+        wasmJsTest {
+            dependencies {
+                implementation(kotlin("test-wasm-js", "_"))
+            }
+        }
+
+
         all {
             languageSettings {
                 optIn("kotlin.RequiresOptIn")
