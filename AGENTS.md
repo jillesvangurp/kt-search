@@ -15,15 +15,21 @@ This repository contains the **KT Search** Kotlin multiplatform client. It offer
 
 The project uses the Gradle Wrapper. Typical workflows:
 
-1. **Full build & tests** – `./gradlew build` compiles all multiplatform targets, runs unit tests, and produces artifacts. Publication tasks require setting a `-Pversion` and signing credentials, but the default build/test workflow works without extra configuration.【F:build.gradle.kts†L1-L62】
-2. **Module-specific builds** – use Gradle project selectors, e.g. `./gradlew :search-client:jsTest` or `./gradlew :search-dsls:linuxX64Test` to target individual platforms. Native iOS simulator tests are disabled by default to avoid heavy tooling requirements.【F:search-dsls/build.gradle.kts†L69-L84】
-3. **Integration testing** – Docker Compose definitions under the repository root spin up Elasticsearch and OpenSearch clusters for manual or automated testing when required by specific Gradle tasks.【F:search-client/build.gradle.kts†L3-L43】
+1. **Start elasticsearch** before tests (required by docs and search-client tests). `./gradlew composeUp` 
+1. **Partial tests** `./gradlew jvmTest` Runs just the Java tests; rely on full CI build for multiplatform tests and matrix tests against different elasticsearch and opensearch versions.
 
 ## Documentation Generation
 
 Documentation lives under the `docs` module and is produced by running the module’s tests:
 
-1. Execute `./gradlew :docs:test`. The `DocumentationTest` class materializes markdown for the manual, README, and Quarto book structure under `docs/build/manual` and `docs/build/manual-quarto`. It also creates `_quarto.yml` with the chapter listing.【F:docs/src/test/kotlin/documentation/DocumentationTest.kt†L25-L101】
+1. Execute `./gradlew :docs:test --rerun-tasks`. The `DocumentationTest` class materializes markdown for the manual, README, and Quarto book structure under `docs/build/manual` and `docs/build/manual-quarto`. It also creates `_quarto.yml` with the chapter listing【F:docs/src/test/kotlin/documentation/DocumentationTest.kt†L25-L101). Adding the rerun-tasks flag ensures documentation is regenerated.
 2. To publish rich formats, run the `quarto.sh` helper script from the repository root after the tests complete. It mounts the generated files into the official Quarto Docker image and renders HTML (and optionally PDF/EPUB) outputs inside `docs/build/manual-quarto/quarto`.【F:quarto.sh†L1-L4】【F:docs/src/test/kotlin/documentation/DocumentationTest.kt†L83-L101】
+3. Note. disabling examples in the docs module is not an acceptable change in case the test run fails. Assume the problem is with the branch and the modifications or with the way the tests are run (is elasticsearch running?).
+
+## Pull requests
+
+- ensure code compiles for all platforms
+- ensure tests have been added
+- ensure relevant documentation is updated (if needed)
 
 These steps keep the manual synchronized with the source snippets and ensure the GitHub Pages site stays up to date.【F:README.md†L25-L46】

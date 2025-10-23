@@ -16,6 +16,10 @@ class AliasAction: JsonDsl() {
     var index by property<String>()
     var indices by property<List<String>>()
     var filter by property<ESQuery>()
+    var isWriteIndex by property<Boolean>()
+    var routing by property<String>()
+    var searchRouting by property<String>()
+    var indexRouting by property<String>()
 }
 
 /**
