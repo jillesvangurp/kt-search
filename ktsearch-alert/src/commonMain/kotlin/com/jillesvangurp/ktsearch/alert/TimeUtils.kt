@@ -1,7 +1,7 @@
 package com.jillesvangurp.ktsearch.alert
 
 import kotlin.time.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal fun currentInstant(): Instant {
     val now = Clock.System.now()

@@ -2,7 +2,7 @@ package com.jillesvangurp.ktsearch.alert
 
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 

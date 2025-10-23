@@ -1,13 +1,12 @@
 package com.jillesvangurp.ktsearch.alert
 
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
-import kotlinx.datetime.toInstant
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 
 /**
@@ -36,11 +35,11 @@ class CronSchedule private constructor(
     }
 
     private fun matches(dateTime: LocalDateTime): Boolean {
-        if (!monthField.contains(dateTime.monthNumber)) return false
+        if (!monthField.contains(dateTime.month.number)) return false
         if (!hourField.contains(dateTime.hour)) return false
         if (!minuteField.contains(dateTime.minute)) return false
 
-        val dayOfMonthMatches = dayOfMonthField.contains(dateTime.dayOfMonth)
+        val dayOfMonthMatches = dayOfMonthField.contains(dateTime.day)
         val dow = (dateTime.dayOfWeek.isoDayNumber % 7)
         val dayOfWeekMatches = dayOfWeekField.contains(dow)
 

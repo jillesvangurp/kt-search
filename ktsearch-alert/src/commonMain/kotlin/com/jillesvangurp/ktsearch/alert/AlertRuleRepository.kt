@@ -8,7 +8,7 @@ import com.jillesvangurp.searchdsls.querydsl.matchAll
 import kotlin.random.Random
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class AlertRuleRepository internal constructor(
     private val repository: IndexRepository<AlertRule>,
