@@ -84,11 +84,12 @@ class CronSchedule private constructor(
 
 internal class CronField private constructor(
     private val allowed: IntArray,
-    val isWildcard: Boolean
+    val isWildcard: Boolean,
+    private val translateSevenToZero: Boolean = false
 ) {
     fun contains(value: Int): Boolean {
-        val normalized = if (value == 7) 0 else value
-        return allowed.binarySearch(normalized) >= 0
+        val normalized = if (translateSevenToZero && value == 7) 0 else value
+        return allowed.indexOf(normalized) >= 0
     }
 
     companion object {
