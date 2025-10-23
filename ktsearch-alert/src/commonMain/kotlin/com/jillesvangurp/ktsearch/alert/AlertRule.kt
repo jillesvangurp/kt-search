@@ -21,7 +21,7 @@ data class EmailTemplate(
     val placeholders: Map<String, String> = emptyMap()
 )
 
-data class RenderedEmail(
+data class AlertNotification(
     val from: String,
     val to: List<String>,
     val subject: String,
@@ -189,7 +189,7 @@ class EmailTemplateBuilder {
     }
 }
 
-fun EmailTemplate.render(rule: AlertRule, matches: List<JsonObject>, now: Instant = currentInstant()): RenderedEmail {
+fun EmailTemplate.render(rule: AlertRule, matches: List<JsonObject>, now: Instant = currentInstant()): AlertNotification {
     val context = buildMap {
         put("ruleName", rule.name)
         put("ruleId", rule.id)
@@ -197,7 +197,7 @@ fun EmailTemplate.render(rule: AlertRule, matches: List<JsonObject>, now: Instan
         put("timestamp", now.toString())
         putAll(placeholders)
     }
-    return RenderedEmail(
+    return AlertNotification(
         from = from,
         to = to,
         subject = applyTemplate(subject, context),

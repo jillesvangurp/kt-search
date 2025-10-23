@@ -17,12 +17,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.minus
 import kotlinx.serialization.json.JsonObject
 
 class KtsearchAlert(
     private val client: SearchClient,
-    private val sendPlugin: AlertSendPlugin,
+    private val sendPlugin: NotificationPlugin,
     private val indexWriteAlias: String,
     private val indexReadAlias: String = indexWriteAlias,
     private val nowProvider: () -> Instant = { currentInstant() },

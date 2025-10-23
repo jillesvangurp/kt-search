@@ -12,7 +12,6 @@ import io.ktor.http.isSuccess
 import io.ktor.http.contentType
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -23,8 +22,8 @@ import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
-interface AlertSendPlugin {
-    suspend fun send(renderedEmail: RenderedEmail, context: AlertSendContext)
+interface NotificationPlugin {
+    suspend fun send(message: AlertNotification, context: AlertSendContext)
 }
 
 data class AlertSendContext(
@@ -33,11 +32,11 @@ data class AlertSendContext(
     val triggeredAt: Instant
 )
 
-class SendGridAlertPlugin(
+class SendGridNotificationPlugin(
     private val httpClient: HttpClient,
     private val config: SendGridConfig
-) : AlertSendPlugin {
-    override suspend fun send(renderedEmail: RenderedEmail, context: AlertSendContext) {
+) : NotificationPlugin {
+    override suspend fun send(message: AlertNotification, context: AlertSendContext) {
         retrySuspend(
             description = "sendgrid",
             maxAttempts = config.maxRetries,
@@ -47,31 +46,31 @@ class SendGridAlertPlugin(
             val response = httpClient.post(config.endpoint) {
                 header("Authorization", "Bearer ${config.apiKey}")
                 contentType(ContentType.Application.Json)
-                setBody(buildPayload(renderedEmail))
+                setBody(buildPayload(message))
             }
             handleResponse(response)
         }
-        logger.debug { "SendGrid alert sent for rule ${context.rule.id} to ${renderedEmail.to}" }
+        logger.debug { "SendGrid alert sent for rule ${context.rule.id} to ${message.to}" }
     }
 
-    private fun buildPayload(renderedEmail: RenderedEmail) = buildJsonObject {
+    private fun buildPayload(alertNotification: AlertNotification) = buildJsonObject {
         putJsonArray("personalizations") {
             add(buildJsonObject {
                 putJsonArray("to") {
-                    renderedEmail.to.forEach { address ->
+                    alertNotification.to.forEach { address ->
                         add(buildJsonObject { put("email", address) })
                     }
                 }
-                if (renderedEmail.cc.isNotEmpty()) {
+                if (alertNotification.cc.isNotEmpty()) {
                     putJsonArray("cc") {
-                        renderedEmail.cc.forEach { address ->
+                        alertNotification.cc.forEach { address ->
                             add(buildJsonObject { put("email", address) })
                         }
                     }
                 }
-                if (renderedEmail.bcc.isNotEmpty()) {
+                if (alertNotification.bcc.isNotEmpty()) {
                     putJsonArray("bcc") {
-                        renderedEmail.bcc.forEach { address ->
+                        alertNotification.bcc.forEach { address ->
                             add(buildJsonObject { put("email", address) })
                         }
                     }
@@ -79,13 +78,13 @@ class SendGridAlertPlugin(
             })
         }
         putJsonObject("from") {
-            put("email", renderedEmail.from)
+            put("email", alertNotification.from)
         }
-        put("subject", renderedEmail.subject)
+        put("subject", alertNotification.subject)
         putJsonArray("content") {
             add(buildJsonObject {
-                put("type", renderedEmail.contentType)
-                put("value", renderedEmail.body)
+                put("type", alertNotification.contentType)
+                put("value", alertNotification.body)
             })
         }
     }

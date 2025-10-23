@@ -1,24 +1,18 @@
 package com.jillesvangurp.ktsearch.alert
 
-import com.jillesvangurp.ktsearch.KtorRestClient
-import com.jillesvangurp.ktsearch.Node
-import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.SniffingNodeSelector
-import com.jillesvangurp.ktsearch.defaultKtorHttpClient
-import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
-import kotlin.random.Random
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.Serializable
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.net.URI
 
 class KtsearchAlertIntegrationTest {
@@ -34,8 +28,7 @@ class KtsearchAlertIntegrationTest {
     }
 
     @Test
-    fun `should trigger email when query matches`() = runBlocking {
-        assumeTrue(clusterAvailable(), "Search cluster is not available on localhost:9999")
+    fun `should trigger email when query matches`(): Unit = runBlocking {
         val alertsIndex = randomIndex("alerts")
         val docsIndex = randomIndex("docs")
         resources += alertsIndex
@@ -51,7 +44,7 @@ class KtsearchAlertIntegrationTest {
         }
         logRepository.index(LogEntry(level = "error", message = "disk full"), id = "1")
 
-        val plugin = RecordingSendPlugin()
+        val plugin = RecordingNotificationPlugin()
         val alert = KtsearchAlert(client, plugin, alertsIndex)
         try {
             alert.start()
@@ -74,9 +67,10 @@ class KtsearchAlertIntegrationTest {
             }
 
             val context = withTimeout(30_000) { plugin.await() }
-            assertEquals("test-alert", context.rule.id)
-            assertTrue(context.matches.isNotEmpty())
-            assertEquals("Error monitor", context.rule.name)
+
+            context.rule.id shouldBe "test-alert"
+            context.matches.shouldNotBeEmpty()
+            context.rule.name shouldBe "Error monitor"
         } finally {
             alert.stop()
         }
@@ -98,10 +92,7 @@ class KtsearchAlertIntegrationTest {
         }.getOrElse { false }
 
     private fun createClient(): SearchClient {
-        val nodes = arrayOf(
-            Node("127.0.0.1", 9999),
-            Node("localhost", 9999)
-        )
+        val nodes = arrayOf(Node("127.0.0.1", 9999), Node("localhost", 9999))
         val restClient = KtorRestClient(
             nodes = nodes,
             client = defaultKtorHttpClient(true) {},
@@ -111,20 +102,13 @@ class KtsearchAlertIntegrationTest {
     }
 
     @Serializable
-    data class LogEntry(
-        val level: String,
-        val message: String
-    )
+    data class LogEntry(val level: String, val message: String)
 
-    private class RecordingSendPlugin : AlertSendPlugin {
+    private class RecordingNotificationPlugin : NotificationPlugin {
         private val deferred = CompletableDeferred<AlertSendContext>()
-
         suspend fun await(): AlertSendContext = deferred.await()
-
-        override suspend fun send(renderedEmail: RenderedEmail, context: AlertSendContext) {
-            if (!deferred.isCompleted) {
-                deferred.complete(context)
-            }
+        override suspend fun send(message: AlertNotification, context: AlertSendContext) {
+            if (!deferred.isCompleted) deferred.complete(context)
         }
     }
 }
