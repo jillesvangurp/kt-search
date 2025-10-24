@@ -23,6 +23,9 @@ repositories {
     mavenCentral()
 }
 
+val enableNativeTargets =
+    !(org.gradle.internal.os.OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+
 kotlin {
     jvm {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -42,28 +45,31 @@ kotlin {
         }
     }
 
-    if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-        fun KotlinNativeTarget.configureLinuxTarget() {
-            binaries {
-                all {
-                    linkerOpts = System.getenv()
-                        .getOrDefault("LDFLAGS", "")
-                        .split(":")
-                        .filter { it.isNotBlank() }
-                        .map { "-L$it" }
-                        .toMutableList()
+    if (enableNativeTargets) {
+        if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+            fun KotlinNativeTarget.configureLinuxTarget() {
+                binaries {
+                    all {
+                        linkerOpts = System.getenv()
+                            .getOrDefault("LDFLAGS", "")
+                            .split(":")
+                            .filter { it.isNotBlank() }
+                            .map { "-L$it" }
+                            .toMutableList()
+                    }
                 }
             }
+            linuxX64 { configureLinuxTarget() }
+            linuxArm64 { configureLinuxTarget() }
         }
-        linuxX64 { configureLinuxTarget() }
-        linuxArm64 { configureLinuxTarget() }
+
+        mingwX64()
+        macosX64()
+        macosArm64()
+        iosArm64()
+        iosX64()
+        iosSimulatorArm64()
     }
-    mingwX64()
-    macosX64()
-    macosArm64()
-    iosArm64()
-    iosX64()
-    iosSimulatorArm64()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser { }
