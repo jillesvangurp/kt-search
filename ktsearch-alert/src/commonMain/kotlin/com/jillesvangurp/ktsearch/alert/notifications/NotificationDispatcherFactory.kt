@@ -8,8 +8,6 @@ data class NotificationDispatcherConfig(
     val emailRetryDelay: Duration = 2.seconds,
     val slackRetryAttempts: Int = 3,
     val slackRetryDelay: Duration = 2.seconds,
-    val smsRetryAttempts: Int = 3,
-    val smsRetryDelay: Duration = 2.seconds,
     val includeConsole: Boolean = true,
     val additionalHandlers: List<NotificationHandler> = emptyList()
 )
@@ -36,9 +34,7 @@ fun createNotificationDispatcher(
         if (smsSenders.isNotEmpty()) {
             add(
                 SmsNotificationHandler(
-                    senders = smsSenders,
-                    maxRetries = config.smsRetryAttempts,
-                    retryDelay = config.smsRetryDelay
+                    senders = smsSenders
                 )
             )
         }

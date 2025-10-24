@@ -1,6 +1,5 @@
 package com.jillesvangurp.ktsearch.alert.notifications
 
-import com.jillesvangurp.ktsearch.alert.core.retrySuspend
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
@@ -16,8 +15,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 private val smsLogger = KotlinLogging.logger {}
 
@@ -33,9 +30,7 @@ interface SmsSender {
 }
 
 class SmsNotificationHandler(
-    senders: List<SmsSender>,
-    private val maxRetries: Int = 3,
-    private val retryDelay: Duration = 2.seconds
+    senders: List<SmsSender>
 ) : NotificationHandler {
     override val channel: NotificationChannel = NotificationChannel.SMS
 
@@ -55,12 +50,13 @@ class SmsNotificationHandler(
             recipients = config.to,
             body = renderTemplate(config.message, variables)
         )
-        retrySuspend(
-            description = "sms-${config.provider}-${definition.id}",
-            maxAttempts = maxRetries,
-            initialDelay = retryDelay
-        ) {
+        try {
             sender.send(message)
+        } catch (t: Throwable) {
+            smsLogger.error(t) {
+                "SMS notification '${definition.id}' failed for provider '${config.provider}'"
+            }
+            throw t
         }
         smsLogger.debug { "SMS notification '${definition.id}' sent for rule ${context.ruleId}" }
     }
@@ -70,9 +66,7 @@ data class TwilioConfig(
     val accountSid: String,
     val authToken: String,
     val defaultSenderId: String? = null,
-    val apiBaseUrl: String = "https://api.twilio.com/2010-04-01",
-    val maxRetries: Int = 4,
-    val retryDelay: Duration = 2.seconds
+    val apiBaseUrl: String = "https://api.twilio.com/2010-04-01"
 )
 
 class TwilioSmsSender(
@@ -85,11 +79,7 @@ class TwilioSmsSender(
         val from = message.senderId ?: config.defaultSenderId
             ?: error("Twilio SMS requires a senderId in the notification or defaultSenderId in TwilioConfig")
         for (recipient in message.recipients) {
-            retrySuspend(
-                description = "twilio-sms",
-                maxAttempts = config.maxRetries,
-                initialDelay = config.retryDelay
-            ) {
+            try {
                 val response = httpClient.post("${config.apiBaseUrl}/Accounts/${config.accountSid}/Messages.json") {
                     header(HttpHeaders.Authorization, "Basic ${basicAuthValue(config.accountSid, config.authToken)}")
                     contentType(ContentType.Application.FormUrlEncoded)
@@ -107,12 +97,18 @@ class TwilioSmsSender(
                     val body = runCatching { response.bodyAsText() }.getOrElse { "" }
                     val status = response.status.value
                     val exception = TwilioException(status, body)
-                    if (status == 429 || status >= 500) {
-                        throw RetryableTwilioException(exception)
+                    val failure = if (status == 429 || status >= 500) {
+                        RetryableTwilioException(exception)
                     } else {
-                        throw exception
+                        exception
                     }
+                    throw failure
                 }
+            } catch (t: Throwable) {
+                smsLogger.error(t) {
+                    "Twilio SMS request failed for recipient $recipient"
+                }
+                throw t
             }
         }
     }

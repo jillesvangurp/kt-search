@@ -34,8 +34,7 @@ class TwilioSmsSenderTest {
             config = TwilioConfig(
                 accountSid = "AC123",
                 authToken = "secret",
-                defaultSenderId = "+155501",
-                maxRetries = 1
+                defaultSenderId = "+155501"
             )
         )
         sender.send(
@@ -76,8 +75,7 @@ class TwilioSmsSenderTest {
             config = TwilioConfig(
                 accountSid = "AC123",
                 authToken = "secret",
-                defaultSenderId = "+155501",
-                maxRetries = 1
+                defaultSenderId = "+155501"
             )
         )
 
