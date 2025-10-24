@@ -17,6 +17,7 @@ data class AlertRule(
     val target: String,
     val queryJson: String,
     val notifications: List<RuleNotificationInvocation>,
+    val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val createdAt: Instant,
     val updatedAt: Instant,
     val lastRun: Instant? = null,
@@ -30,6 +31,7 @@ data class AlertRule(
         result = 31 * result + queryJson.hashCode()
         result = 31 * result + enabled.hashCode()
         result = 31 * result + notifications.hashCode()
+        result = 31 * result + failureNotifications.hashCode()
         return result
     }
 }
@@ -65,6 +67,7 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
     private var queryJson: String? = null
     private var startImmediately: Boolean = true
     private val notificationInvocations = mutableListOf<RuleNotificationInvocation>()
+    private val failureNotificationInvocations = mutableListOf<RuleNotificationInvocation>()
 
     fun target(indexOrAlias: String) {
         target = indexOrAlias
@@ -98,6 +101,19 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
         notificationInvocations += builder.build()
     }
 
+    fun failureNotifications(vararg ids: String, block: NotificationVariablesBuilder.() -> Unit = {}) {
+        val variables = NotificationVariablesBuilder().apply(block).build()
+        ids.forEach { id ->
+            failureNotificationInvocations += RuleNotificationInvocation(id, variables)
+        }
+    }
+
+    fun failureNotification(id: String, block: NotificationInvocationBuilder.() -> Unit = {}) {
+        val builder = NotificationInvocationBuilder(id)
+        builder.apply(block)
+        failureNotificationInvocations += builder.build()
+    }
+
     fun build(): AlertRuleDefinition {
         val finalName = name ?: error("Rule name must be specified")
         val cronExpression = cron ?: error("Cron expression must be specified")
@@ -112,6 +128,7 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
             target = targetIndex,
             queryJson = queryPayload,
             notifications = notificationInvocations.toList(),
+            failureNotifications = failureNotificationInvocations.toList(),
             startImmediately = startImmediately
         )
     }

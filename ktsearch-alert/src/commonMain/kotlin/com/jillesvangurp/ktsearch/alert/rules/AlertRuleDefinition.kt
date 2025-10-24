@@ -8,5 +8,6 @@ data class AlertRuleDefinition(
     val target: String,
     val queryJson: String,
     val notifications: List<RuleNotificationInvocation>,
+    val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val startImmediately: Boolean
 )

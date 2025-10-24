@@ -1,6 +1,9 @@
 package com.jillesvangurp.ktsearch.alert.core
 
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
+import com.jillesvangurp.ktsearch.alert.notifications.ConsoleNotificationConfig
+import com.jillesvangurp.ktsearch.alert.notifications.NotificationChannel
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
@@ -98,28 +101,54 @@ class AlertService(
         val definitions = config.rules
         val registry = config.notifications
         val now = nowProvider()
+        val failureActions = mutableListOf<suspend () -> Unit>()
         scheduleMutex.withLock {
             val activeIds = mutableSetOf<String>()
             for (definition in definitions) {
                 val id = resolveRuleId(definition)
-                definition.notifications.forEach { invocation ->
-                    registry.require(invocation.notificationId)
-                }
-                val existing = getRuleState(id)
-                val materialized = materializeRule(id, definition, existing, now)
-                storeRuleState(materialized)
-                activeIds += id
-                if (!materialized.enabled) {
+                try {
+                    validateNotifications(registry, definition)
+                    val existing = getRuleState(id)
+                    val materialized = materializeRule(id, definition, existing, now)
+                    storeRuleState(materialized)
+                    activeIds += id
+                    if (!materialized.enabled) {
+                        scheduledRules.remove(id)?.cancel()
+                        continue
+                    }
+                    val hash = materialized.executionHash()
+                    val existingSchedule = scheduledRules[id]
+                    if (existingSchedule == null || existingSchedule.hash != hash) {
+                        existingSchedule?.cancel()
+                        scheduledRules[id] = scheduleRule(materialized)
+                    } else {
+                        existingSchedule.updateRule(materialized)
+                    }
+                } catch (t: Throwable) {
+                    if (t is CancellationException) throw t
+                    logger.error(t) { "Failed to configure alert rule ${definition.name} ($id)" }
                     scheduledRules.remove(id)?.cancel()
-                    continue
-                }
-                val hash = materialized.executionHash()
-                val existingSchedule = scheduledRules[id]
-                if (existingSchedule == null || existingSchedule.hash != hash) {
-                    existingSchedule?.cancel()
-                    scheduledRules[id] = scheduleRule(materialized)
-                } else {
-                    existingSchedule.updateRule(materialized)
+                    val failureTime = nowProvider()
+                    updateRuleState(id) { current ->
+                        current.copy(
+                            updatedAt = failureTime,
+                            failureCount = (current.failureCount + 1).coerceAtMost(Int.MAX_VALUE),
+                            lastFailureMessage = t.message ?: t::class.simpleName,
+                            nextRun = null
+                        )
+                    }
+                    failureActions += suspend {
+                        notifyRuleFailure(
+                            ruleId = id,
+                            ruleName = definition.name,
+                            target = definition.target,
+                            notifications = definition.failureNotifications,
+                            fallbackNotifications = definition.notifications,
+                            error = t,
+                            triggeredAt = failureTime,
+                            phase = FailurePhase.CONFIGURATION
+                        )
+                    }
                 }
             }
             val removed = scheduledRules.keys - activeIds
@@ -128,12 +157,26 @@ class AlertService(
                 removeRuleState(id)
             }
         }
+        for (action in failureActions) {
+            runCatching { action() }.onFailure { failure ->
+                logger.error(failure) { "Failed to send configuration failure notification" }
+            }
+        }
     }
 
     fun currentRules(): List<AlertRule> =
         ruleStates.values.toList()
 
     fun currentConfiguration(): AlertConfiguration = configuration
+
+    private fun validateNotifications(registry: NotificationRegistry, definition: AlertRuleDefinition) {
+        definition.notifications.forEach { invocation ->
+            registry.require(invocation.notificationId)
+        }
+        definition.failureNotifications.forEach { invocation ->
+            registry.require(invocation.notificationId)
+        }
+    }
 
     private fun scheduleRule(rule: AlertRule): ScheduledRule {
         val cron = CronSchedule.parse(rule.cronExpression)
@@ -173,6 +216,7 @@ class AlertService(
             target = definition.target,
             queryJson = definition.queryJson,
             notifications = definition.notifications,
+            failureNotifications = definition.failureNotifications,
             createdAt = existing?.createdAt ?: now,
             updatedAt = now,
             lastRun = existing?.lastRun,
@@ -270,19 +314,35 @@ class AlertService(
                         updatedAt = triggeredAt
                     )
                 }
+                val updated = getRuleState(id) ?: latestRule
                 logger.warn(t) { "Alert rule ${latestRule.id} execution failed" }
+                notifyRuleFailure(
+                    ruleId = updated.id,
+                    ruleName = updated.name,
+                    target = updated.target,
+                    notifications = updated.failureNotifications,
+                    fallbackNotifications = updated.notifications,
+                    error = t,
+                    triggeredAt = triggeredAt,
+                    phase = FailurePhase.EXECUTION,
+                    failureCount = updated.failureCount
+                )
             }
         }
     }
 
     private suspend fun triggerNotifications(rule: AlertRule, matches: List<JsonObject>, triggeredAt: Instant) {
         val registry = configuration.notifications
-        val baseVariables = mutableMapOf(
-            "ruleName" to rule.name,
-            "ruleId" to rule.id,
-            "matchCount" to matches.size.toString(),
-            "timestamp" to triggeredAt.toString(),
-            "target" to rule.target
+        val baseVariables = baseVariables(
+            ruleId = rule.id,
+            ruleName = rule.name,
+            target = rule.target,
+            triggeredAt = triggeredAt,
+            matchCount = matches.size,
+            status = RuleRunStatus.SUCCESS,
+            failureCount = null,
+            error = null,
+            phase = null
         )
         val context = NotificationContext(
             ruleId = rule.id,
@@ -291,6 +351,7 @@ class AlertService(
             matchCount = matches.size,
             matches = matches
         )
+        val failures = mutableListOf<Throwable>()
         for (invocation in rule.notifications) {
             val definition = registry.get(invocation.notificationId)
             if (definition == null) {
@@ -298,7 +359,15 @@ class AlertService(
                 continue
             }
             val variables = mergedVariables(baseVariables, definition, invocation)
-            dispatcher.dispatch(definition, variables, context)
+            runCatching {
+                dispatcher.dispatch(definition, variables, context)
+            }.onFailure { failure ->
+                failures += failure
+                logger.error(failure) { "Notification '${invocation.notificationId}' failed for rule ${rule.id}" }
+            }
+        }
+        if (failures.isNotEmpty()) {
+            throw NotificationDispatchException(rule.id, failures)
         }
     }
 
@@ -321,6 +390,126 @@ class AlertService(
             retryDelay = 2.seconds
         )
         return response.hits?.hits?.mapNotNull { it.source } ?: emptyList()
+    }
+
+    private suspend fun notifyRuleFailure(
+        ruleId: String,
+        ruleName: String,
+        target: String,
+        notifications: List<RuleNotificationInvocation>,
+        fallbackNotifications: List<RuleNotificationInvocation>,
+        error: Throwable,
+        triggeredAt: Instant,
+        phase: FailurePhase,
+        failureCount: Int? = null
+    ) {
+        val registry = configuration.notifications
+        val invocations = if (notifications.isNotEmpty()) notifications else fallbackNotifications
+        val context = NotificationContext(
+            ruleId = ruleId,
+            ruleName = ruleName,
+            triggeredAt = triggeredAt,
+            matchCount = 0,
+            matches = emptyList()
+        )
+        val baseVariables = baseVariables(
+            ruleId = ruleId,
+            ruleName = ruleName,
+            target = target,
+            triggeredAt = triggeredAt,
+            matchCount = 0,
+            status = RuleRunStatus.FAILURE,
+            failureCount = failureCount,
+            error = error,
+            phase = phase
+        )
+        var dispatched = false
+        for (invocation in invocations) {
+            val definition = registry.get(invocation.notificationId)
+            if (definition == null) {
+                logger.warn { "Skipping failure notification '${invocation.notificationId}' for rule $ruleId because it is not defined" }
+                continue
+            }
+            val variables = mergedVariables(baseVariables, definition, invocation)
+            val result = runCatching { dispatcher.dispatch(definition, variables, context) }
+            if (result.isSuccess) {
+                dispatched = true
+            } else {
+                val failure = result.exceptionOrNull() ?: continue
+                logger.error(failure) { "Failure notification '${invocation.notificationId}' failed for rule $ruleId" }
+            }
+        }
+        if (!dispatched) {
+            sendConsoleFailureNotification(baseVariables, context, error)
+        }
+    }
+
+    private suspend fun sendConsoleFailureNotification(
+        baseVariables: MutableMap<String, String>,
+        context: NotificationContext,
+        error: Throwable
+    ) {
+        if (!dispatcher.hasHandler(NotificationChannel.CONSOLE)) {
+            logger.error(error) { "No failure notifications configured and console handler unavailable for rule ${context.ruleId}" }
+            return
+        }
+        val definition = NotificationDefinition(
+            id = "__internal_failure_${context.ruleId}",
+            config = ConsoleNotificationConfig(
+                level = ConsoleLevel.ERROR,
+                message = "Alert rule {{ruleName}} failed: {{errorMessage}}"
+            )
+        )
+        val variables = baseVariables.toMutableMap()
+        runCatching {
+            dispatcher.dispatch(definition, variables, context)
+        }.onFailure { failure ->
+            logger.error(failure) { "Console failure notification failed for rule ${context.ruleId}" }
+        }
+    }
+
+    private fun baseVariables(
+        ruleId: String,
+        ruleName: String,
+        target: String,
+        triggeredAt: Instant,
+        matchCount: Int,
+        status: RuleRunStatus,
+        failureCount: Int?,
+        error: Throwable?,
+        phase: FailurePhase?
+    ): MutableMap<String, String> = buildMap {
+        put("ruleName", ruleName)
+        put("ruleId", ruleId)
+        put("matchCount", matchCount.toString())
+        put("timestamp", triggeredAt.toString())
+        put("target", target)
+        put("status", status.name)
+        failureCount?.let { put("failureCount", it.toString()) }
+        error?.let {
+            put("errorMessage", it.message ?: it::class.simpleName.orEmpty())
+            put("errorType", it::class.qualifiedName ?: it::class.simpleName.orEmpty())
+        }
+        phase?.let { put("failurePhase", it.name) }
+    }.toMutableMap()
+
+    private enum class FailurePhase {
+        CONFIGURATION,
+        EXECUTION
+    }
+
+    private enum class RuleRunStatus {
+        SUCCESS,
+        FAILURE
+    }
+
+    private class NotificationDispatchException(
+        ruleId: String,
+        causes: List<Throwable>
+    ) : Exception("One or more notifications failed for rule $ruleId") {
+        init {
+            causes.forEach { addSuppressed(it) }
+        }
     }
 
     companion object {
