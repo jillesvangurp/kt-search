@@ -68,10 +68,7 @@ class AlertServiceFailureTest {
         kotlin.test.assertEquals("Failing rule", event.context.ruleName)
         kotlin.test.assertEquals("FAILURE", event.variables[NotificationVariable.STATUS.key])
         kotlin.test.assertEquals("failure", event.definition.id)
-        kotlin.test.assertEquals(
-            com.jillesvangurp.ktsearch.RestException::class.qualifiedName,
-            event.variables[NotificationVariable.ERROR_TYPE.key]
-        )
+        kotlin.test.assertEquals("RestException", event.variables[NotificationVariable.ERROR_TYPE.key])
         kotlin.test.assertEquals("EXECUTION", event.variables[NotificationVariable.FAILURE_PHASE.key])
         kotlin.test.assertEquals("1", event.variables[NotificationVariable.FAILURE_COUNT.key])
     }

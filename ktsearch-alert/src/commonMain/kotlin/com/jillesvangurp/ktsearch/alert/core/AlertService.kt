@@ -490,8 +490,9 @@ class AlertService(
         putVariable(NotificationVariable.STATUS, status.name)
         putVariableIfNotNull(NotificationVariable.FAILURE_COUNT, failureCount?.toString())
         error?.let {
-            putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: it::class.simpleName.orEmpty())
-            putVariable(NotificationVariable.ERROR_TYPE, it::class.qualifiedName ?: it::class.simpleName.orEmpty())
+            val simpleName = it::class.simpleName ?: it::class.toString()
+            putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: simpleName)
+            putVariable(NotificationVariable.ERROR_TYPE, simpleName)
         }
         phase?.let { putVariable(NotificationVariable.FAILURE_PHASE, it.name) }
     }.toMutableMap()
