@@ -11,6 +11,8 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
+import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.ktsearch.defaultKtorHttpClient
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
@@ -56,25 +58,26 @@ class AlertServiceIntegrationTest {
         val dispatcher = NotificationDispatcher(listOf(handler))
         val service = AlertService(client, dispatcher)
         val configuration = alertConfiguration {
-            notifications {
-                email("ops-email") {
-                    from("alerts@example.com")
-                    to("ops@example.com")
-                    subject = "{{ruleName}} triggered"
+            notification(
+                NotificationDefinition.email(
+                    id = "ops-email",
+                    from = "alerts@example.com",
+                    to = listOf("ops@example.com"),
+                    subject = "{{ruleName}} triggered",
                     body = "Found {{matchCount}} error events"
+                )
+            )
+            rule(
+                AlertRuleDefinition.newRule(
+                    id = "test-alert",
+                    name = "Error monitor",
+                    cronExpression = "* * * * *",
+                    target = docsIndex,
+                    notifications = listOf(RuleNotificationInvocation.create("ops-email"))
+                ) {
+                    query = match(LogEntry::level, "error")
                 }
-            }
-            rules {
-                rule("test-alert") {
-                    name = "Error monitor"
-                    target(docsIndex)
-                    cron("* * * * *")
-                    query {
-                        query = match(LogEntry::level, "error")
-                    }
-                    notifications("ops-email")
-                }
-            }
+            )
         }
 
         try {

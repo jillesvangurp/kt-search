@@ -10,6 +10,8 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
+import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -39,26 +41,22 @@ class AlertServiceFailureTest {
     @Test
     fun `rule failure sends failure notification`() = runBlocking {
         val configuration = alertConfiguration {
-            notifications {
-                console("success") {
-                    message = "success"
+            notifications(
+                NotificationDefinition.console(id = "success", message = "success"),
+                NotificationDefinition.console(id = "failure", message = "failure: {{errorMessage}}")
+            )
+            rule(
+                AlertRuleDefinition.newRule(
+                    id = "failing-rule",
+                    name = "Failing rule",
+                    cronExpression = "* * * * *",
+                    target = "logs",
+                    notifications = listOf(RuleNotificationInvocation.create("success")),
+                    failureNotifications = listOf(RuleNotificationInvocation.create("failure"))
+                ) {
+                    query = matchAll()
                 }
-                console("failure") {
-                    message = "failure: {{errorMessage}}"
-                }
-            }
-            rules {
-                rule("failing-rule") {
-                    name = "Failing rule"
-                    target("logs")
-                    cron("* * * * *")
-                    query {
-                        query = matchAll()
-                    }
-                    notifications("success")
-                    failureNotifications("failure")
-                }
-            }
+            )
         }
 
         service.start(configuration)

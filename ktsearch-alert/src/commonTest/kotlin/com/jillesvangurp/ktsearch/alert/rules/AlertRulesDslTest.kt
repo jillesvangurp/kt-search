@@ -9,22 +9,25 @@ import kotlin.test.Test
 class AlertRulesDslTest {
     @Test
     fun `should build rules with notification references`() {
-        val rules = alertRules {
-            rule("rule-id") {
-                name = "Example"
-                target("logs-*")
-                cron("* * * * *")
-                query {
-                    query = matchAll()
-                }
-                notifications("email-critical", "slack-default") {
-                    variable("threshold", "90")
-                }
-                notification("console-log") {
-                    variable("level", "warn")
-                }
+        val notifications = RuleNotificationInvocation.many(
+            "email-critical",
+            "slack-default",
+            variables = mapOf("threshold" to "90")
+        ).plus(
+            RuleNotificationInvocation.withVariables("console-log", "level" to "warn")
+        )
+
+        val rules = listOf(
+            AlertRuleDefinition.newRule(
+                id = "rule-id",
+                name = "Example",
+                cronExpression = "* * * * *",
+                target = "logs-*",
+                notifications = notifications
+            ) {
+                query = matchAll()
             }
-        }
+        )
 
         rules.shouldHaveSize(1)
         val definition = rules.first()

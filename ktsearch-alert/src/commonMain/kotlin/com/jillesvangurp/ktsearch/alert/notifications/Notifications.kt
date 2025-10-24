@@ -1,6 +1,6 @@
 package com.jillesvangurp.ktsearch.alert.notifications
 
-import kotlin.collections.set
+import kotlin.collections.LinkedHashSet
 
 enum class NotificationChannel {
     EMAIL,
@@ -17,7 +17,106 @@ data class NotificationDefinition(
     val id: String,
     val config: NotificationConfig,
     val defaultVariables: Map<String, String> = emptyMap()
-)
+) {
+    companion object {
+        fun email(
+            id: String,
+            from: String,
+            to: List<String>,
+            subject: String,
+            body: String,
+            contentType: String = "text/plain",
+            cc: List<String> = emptyList(),
+            bcc: List<String> = emptyList(),
+            defaultVariables: Map<String, String> = emptyMap()
+        ): NotificationDefinition {
+            require(from.isNotBlank()) { "From address must be set for email notification '$id'" }
+            val toRecipients = to.normalizeAddresses()
+            require(toRecipients.isNotEmpty()) { "At least one recipient must be configured for email notification '$id'" }
+            val finalSubject = subject.ifBlank { error("Email subject must be set for notification '$id'") }
+            val finalBody = body.ifBlank { error("Email body must be set for notification '$id'") }
+            val config = EmailNotificationConfig(
+                from = from,
+                to = toRecipients,
+                subject = finalSubject,
+                body = finalBody,
+                contentType = contentType,
+                cc = cc.normalizeAddresses(),
+                bcc = bcc.normalizeAddresses()
+            )
+            return NotificationDefinition(
+                id = id,
+                config = config,
+                defaultVariables = defaultVariables.toMap()
+            )
+        }
+
+        fun slack(
+            id: String,
+            webhookUrl: String,
+            message: String,
+            channelName: String? = null,
+            username: String? = null,
+            defaultVariables: Map<String, String> = emptyMap()
+        ): NotificationDefinition {
+            require(webhookUrl.isNotBlank()) { "Slack webhookUrl must be set for notification '$id'" }
+            val messageTemplate = message.ifBlank { error("Slack message must be set for notification '$id'") }
+            val config = SlackNotificationConfig(
+                webhookUrl = webhookUrl,
+                channelName = channelName,
+                username = username,
+                message = messageTemplate
+            )
+            return NotificationDefinition(
+                id = id,
+                config = config,
+                defaultVariables = defaultVariables.toMap()
+            )
+        }
+
+        fun sms(
+            id: String,
+            provider: String,
+            to: List<String>,
+            message: String,
+            senderId: String? = null,
+            defaultVariables: Map<String, String> = emptyMap()
+        ): NotificationDefinition {
+            require(provider.isNotBlank()) { "SMS provider must be set for notification '$id'" }
+            val recipients = to.normalizeAddresses()
+            require(recipients.isNotEmpty()) { "At least one recipient must be set for SMS notification '$id'" }
+            val messageTemplate = message.ifBlank { error("SMS message must be set for notification '$id'") }
+            val config = SmsNotificationConfig(
+                provider = provider,
+                senderId = senderId,
+                to = recipients,
+                message = messageTemplate
+            )
+            return NotificationDefinition(
+                id = id,
+                config = config,
+                defaultVariables = defaultVariables.toMap()
+            )
+        }
+
+        fun console(
+            id: String,
+            level: ConsoleLevel = ConsoleLevel.INFO,
+            message: String = "{{ruleName}} triggered with {{matchCount}} matches",
+            defaultVariables: Map<String, String> = emptyMap()
+        ): NotificationDefinition {
+            val config = ConsoleNotificationConfig(
+                level = level,
+                message = message
+            )
+            return NotificationDefinition(
+                id = id,
+                config = config,
+                defaultVariables = defaultVariables.toMap()
+            )
+        }
+    }
+}
 
 class NotificationRegistry internal constructor(
     private val definitions: Map<String, NotificationDefinition>
@@ -34,96 +133,6 @@ class NotificationRegistry internal constructor(
     }
 }
 
-@DslMarker
-annotation class NotificationDslMarker
-
-@NotificationDslMarker
-class NotificationsDsl internal constructor() {
-    private val definitions = linkedMapOf<String, NotificationDefinition>()
-
-    fun email(id: String, block: EmailNotificationBuilder.() -> Unit) {
-        addDefinition(id, EmailNotificationBuilder().apply(block).build(id))
-    }
-
-    fun slack(id: String, block: SlackNotificationBuilder.() -> Unit) {
-        addDefinition(id, SlackNotificationBuilder().apply(block).build(id))
-    }
-
-    fun sms(id: String, block: SmsNotificationBuilder.() -> Unit) {
-        addDefinition(id, SmsNotificationBuilder().apply(block).build(id))
-    }
-
-    fun console(id: String, block: ConsoleNotificationBuilder.() -> Unit = {}) {
-        addDefinition(id, ConsoleNotificationBuilder().apply(block).build(id))
-    }
-
-    fun definition(notificationDefinition: NotificationDefinition) {
-        addDefinition(notificationDefinition.id, notificationDefinition)
-    }
-
-    internal fun build(): NotificationRegistry = NotificationRegistry(definitions.toMap())
-
-    private fun addDefinition(id: String, definition: NotificationDefinition) {
-        require(id.isNotBlank()) { "Notification id must not be blank" }
-        require(definitions[id] == null) { "Notification '$id' already defined" }
-        definitions[id] = definition
-    }
-}
-
-@NotificationDslMarker
-class EmailNotificationBuilder {
-    private var from: String? = null
-    private val to = linkedSetOf<String>()
-    private val cc = linkedSetOf<String>()
-    private val bcc = linkedSetOf<String>()
-    var subject: String? = null
-    var body: String? = null
-    var contentType: String = "text/plain"
-    private val defaultVariables = linkedMapOf<String, String>()
-
-    fun from(address: String) {
-        from = address
-    }
-
-    fun to(vararg addresses: String) {
-        to += addresses
-    }
-
-    fun cc(vararg addresses: String) {
-        cc += addresses
-    }
-
-    fun bcc(vararg addresses: String) {
-        bcc += addresses
-    }
-
-    fun defaultVariable(key: String, value: String) {
-        defaultVariables[key] = value
-    }
-
-    internal fun build(id: String): NotificationDefinition {
-        val fromAddress = from ?: error("From address must be set for email notification '$id'")
-        val recipients = to.toList()
-        require(recipients.isNotEmpty()) { "At least one recipient must be configured for email notification '$id'" }
-        val finalSubject = subject ?: error("Email subject must be set for notification '$id'")
-        val finalBody = body ?: error("Email body must be set for notification '$id'")
-        val config = EmailNotificationConfig(
-            from = fromAddress,
-            to = recipients,
-            subject = finalSubject,
-            body = finalBody,
-            contentType = contentType,
-            cc = cc.toList(),
-            bcc = bcc.toList()
-        )
-        return NotificationDefinition(
-            id = id,
-            config = config,
-            defaultVariables = defaultVariables.toMap()
-        )
-    }
-}
-
 data class EmailNotificationConfig(
     val from: String,
     val to: List<String>,
@@ -136,35 +145,6 @@ data class EmailNotificationConfig(
     override val channel: NotificationChannel = NotificationChannel.EMAIL
 }
 
-@NotificationDslMarker
-class SlackNotificationBuilder {
-    var webhookUrl: String? = null
-    var channelName: String? = null
-    var username: String? = null
-    var message: String? = null
-    private val defaultVariables = linkedMapOf<String, String>()
-
-    fun defaultVariable(key: String, value: String) {
-        defaultVariables[key] = value
-    }
-
-    internal fun build(id: String): NotificationDefinition {
-        val url = webhookUrl ?: error("Slack webhookUrl must be set for notification '$id'")
-        val messageTemplate = message ?: error("Slack message must be set for notification '$id'")
-        val config = SlackNotificationConfig(
-            webhookUrl = url,
-            channelName = channelName,
-            username = username,
-            message = messageTemplate
-        )
-        return NotificationDefinition(
-            id = id,
-            config = config,
-            defaultVariables = defaultVariables.toMap()
-        )
-    }
-}
-
 data class SlackNotificationConfig(
     val webhookUrl: String,
     val channelName: String? = null,
@@ -174,41 +154,6 @@ data class SlackNotificationConfig(
     override val channel: NotificationChannel = NotificationChannel.SLACK
 }
 
-@NotificationDslMarker
-class SmsNotificationBuilder {
-    var provider: String? = null
-    var senderId: String? = null
-    private val to = linkedSetOf<String>()
-    var message: String? = null
-    private val defaultVariables = linkedMapOf<String, String>()
-
-    fun to(vararg numbers: String) {
-        to += numbers
-    }
-
-    fun defaultVariable(key: String, value: String) {
-        defaultVariables[key] = value
-    }
-
-    internal fun build(id: String): NotificationDefinition {
-        val providerName = provider ?: error("SMS provider must be set for notification '$id'")
-        val recipients = to.toList()
-        require(recipients.isNotEmpty()) { "At least one recipient must be set for SMS notification '$id'" }
-        val messageTemplate = message ?: error("SMS message must be set for notification '$id'")
-        val config = SmsNotificationConfig(
-            provider = providerName,
-            senderId = senderId,
-            to = recipients,
-            message = messageTemplate
-        )
-        return NotificationDefinition(
-            id = id,
-            config = config,
-            defaultVariables = defaultVariables.toMap()
-        )
-    }
-}
-
 data class SmsNotificationConfig(
     val provider: String,
     val senderId: String?,
@@ -216,29 +161,6 @@ data class SmsNotificationConfig(
     val message: String
 ) : NotificationConfig {
     override val channel: NotificationChannel = NotificationChannel.SMS
-}
-
-@NotificationDslMarker
-class ConsoleNotificationBuilder {
-    var level: ConsoleLevel = ConsoleLevel.INFO
-    var message: String = "{{ruleName}} triggered with {{matchCount}} matches"
-    private val defaultVariables = linkedMapOf<String, String>()
-
-    fun defaultVariable(key: String, value: String) {
-        defaultVariables[key] = value
-    }
-
-    internal fun build(id: String): NotificationDefinition {
-        val config = ConsoleNotificationConfig(
-            level = level,
-            message = message
-        )
-        return NotificationDefinition(
-            id = id,
-            config = config,
-            defaultVariables = defaultVariables.toMap()
-        )
-    }
 }
 
 data class ConsoleNotificationConfig(
@@ -254,4 +176,14 @@ enum class ConsoleLevel {
     INFO,
     WARN,
     ERROR
+}
+
+private fun Collection<String>.normalizeAddresses(): List<String> {
+    val unique = LinkedHashSet<String>()
+    for (value in this) {
+        if (value.isNotEmpty()) {
+            unique += value
+        }
+    }
+    return unique.toList()
 }

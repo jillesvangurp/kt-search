@@ -70,7 +70,7 @@ The search client module is the main module of this library. I extracted the jso
 
 ### Configuring ktsearch-alert alerts
 
-The alerting module now runs entirely from an in-memory DSL: rules are defined in code and evaluated by a coroutine loop rather than being stored in Elasticsearch. You compose a configuration once at startup, create a notification dispatcher, and hand both to the `AlertService`.
+The alerting module now runs entirely from code: rules are defined via factory functions and evaluated by a coroutine loop rather than being stored in Elasticsearch. You compose a configuration once at startup, create a notification dispatcher, and hand both to the `AlertService`.
 
 ```kotlin
 fun env(key: String) = System.getenv(key) ?: error("Missing $key")
@@ -92,40 +92,46 @@ val dispatcher = createNotificationDispatcher(
 
 val service = AlertService(searchClient, dispatcher)
 service.start {
-    notifications {
-        email("ops-email") {
-            from("alerts@example.com")
-            to("oncall@example.com")
-            subject = "{{ruleName}} fired"
+    notifications(
+        NotificationDefinition.email(
+            id = "ops-email",
+            from = "alerts@example.com",
+            to = listOf("oncall@example.com"),
+            subject = "{{ruleName}} fired",
             body = "Found {{matchCount}} matches at {{timestamp}}"
-        }
-        slack("slack-alerts") {
-            webhookUrl = env("SLACK_WEBHOOK_URL")
-            channelName = "#ops-alerts"
+        ),
+        NotificationDefinition.slack(
+            id = "slack-alerts",
+            webhookUrl = env("SLACK_WEBHOOK_URL"),
+            message = "*{{ruleName}}* matched {{matchCount}} documents",
+            channelName = "#ops-alerts",
             username = "Alertbot"
-            message = "*{{ruleName}}* matched {{matchCount}} documents"
-        }
-        sms("oncall-sms") {
-            provider = "twilio"
-            senderId = env("TWILIO_FROM")
-            to(env("ONCALL_NUMBER"))
+        ),
+        NotificationDefinition.sms(
+            id = "oncall-sms",
+            provider = "twilio",
+            to = listOf(env("ONCALL_NUMBER")),
+            senderId = env("TWILIO_FROM"),
             message = "{{ruleName}} matched {{matchCount}}"
+        )
+    )
+    rule(
+        AlertRuleDefinition.newRule(
+            id = "error-alert",
+            name = "Error monitor",
+            cronExpression = "*/2 * * * *",
+            target = "logs-*",
+            notifications = RuleNotificationInvocation.many(
+                "ops-email",
+                "slack-alerts",
+                "oncall-sms",
+                variables = mapOf("environment" to "prod")
+            )
+        ) {
+            // search-dsl powered query
+            match("level", "error")
         }
-    }
-    rules {
-        rule("error-alert") {
-            name = "Error monitor"
-            target("logs-*")
-            cron("*/2 * * * *")
-            query {
-                // search-dsl powered query
-                match("level", "error")
-            }
-            notifications("ops-email", "slack-alerts", "oncall-sms") {
-                variable("environment", "prod")
-            }
-        }
-    }
+    )
 }
 ```
 
