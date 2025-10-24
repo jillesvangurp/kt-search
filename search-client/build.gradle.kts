@@ -9,7 +9,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -49,6 +49,9 @@ fun getStringProperty(propertyName: String, defaultValue: String) =
     getProperty(propertyName)?.toString() ?: defaultValue
 
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
+
+val enableNativeTargets =
+    !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
 
 
 plugins {
@@ -93,29 +96,31 @@ kotlin {
             }
         }
     }
-    if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-        fun KotlinNativeTarget.configureLinuxTarget() {
-            binaries {
-                all {
-                    linkerOpts = System.getenv()
-                        .getOrDefault("LDFLAGS", "")
-                        .split(":")
-                        .filter { it.isNotBlank() }
-                        .map { "-L$it" }
-                        .toMutableList()
+    if (enableNativeTargets) {
+        if (OperatingSystem.current().isLinux) {
+            fun KotlinNativeTarget.configureLinuxTarget() {
+                binaries {
+                    all {
+                        linkerOpts = System.getenv()
+                            .getOrDefault("LDFLAGS", "")
+                            .split(":")
+                            .filter { it.isNotBlank() }
+                            .map { "-L$it" }
+                            .toMutableList()
+                    }
                 }
             }
+            linuxX64 { configureLinuxTarget() }
+            linuxArm64 { configureLinuxTarget() }
         }
-        linuxX64 { configureLinuxTarget() }
-        linuxArm64 { configureLinuxTarget() }
+        mingwX64()
+        macosX64()
+        macosArm64()
+        // iOS targets
+        iosArm64()
+        iosX64()
+        iosSimulatorArm64()
     }
-    mingwX64()
-    macosX64()
-    macosArm64()
-    // iOS targets
-    iosArm64()
-    iosX64()
-    iosSimulatorArm64()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -192,29 +197,31 @@ kotlin {
             }
         }
 
-        iosMain {
-            dependencies {
-                implementation(Ktor.client.darwin)
+        if (enableNativeTargets) {
+            iosMain {
+                dependencies {
+                    implementation(Ktor.client.darwin)
+                }
             }
-        }
 
-        macosMain {
-            dependencies {
-                implementation(Ktor.client.darwin)
+            macosMain {
+                dependencies {
+                    implementation(Ktor.client.darwin)
+                }
             }
-        }
 
-        if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
-            linuxMain {
+            if (OperatingSystem.current().isLinux) {
+                linuxMain {
+                    dependencies {
+                        implementation(Ktor.client.curl)
+                    }
+                }
+            }
+
+            mingwMain {
                 dependencies {
                     implementation(Ktor.client.curl)
                 }
-            }
-        }
-
-        mingwMain {
-            dependencies {
-                implementation(Ktor.client.curl)
             }
         }
 
@@ -231,7 +238,18 @@ kotlin {
     }
 }
 
-listOf("iosSimulatorArm64Test","wasmJsTest","wasmJsBrowserTest","wasmJsNodeTest","wasmJsD8Test").forEach {target->
+val disabledTestTargets = mutableListOf(
+    "wasmJsTest",
+    "wasmJsBrowserTest",
+    "wasmJsNodeTest",
+    "wasmJsD8Test"
+)
+
+if (enableNativeTargets) {
+    disabledTestTargets += "iosSimulatorArm64Test"
+}
+
+disabledTestTargets.forEach { target ->
     // skip the test weirdness for now
     tasks.named(target) {
         // requires IOS simulator and tens of GB of other stuff to be installed

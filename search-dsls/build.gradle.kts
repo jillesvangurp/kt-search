@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -12,7 +13,12 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
+
+val enableNativeTargets =
+    !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+
 kotlin {
+
     jvm {
         // should work for android as well
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -32,14 +38,16 @@ kotlin {
             })
         }
     }
-    linuxX64()
-    linuxArm64()
-    mingwX64()
-    macosX64()
-    macosArm64()
-    iosArm64()
-    iosX64()
-    iosSimulatorArm64()
+    if (enableNativeTargets) {
+        linuxX64()
+        linuxArm64()
+        mingwX64()
+        macosX64()
+        macosArm64()
+        iosArm64()
+        iosX64()
+        iosSimulatorArm64()
+    }
     // Blocked on json-dsl and kotlinx-serialization-extensions support
     // iosSimulatorArm64()
     wasmJs {
@@ -101,10 +109,12 @@ kotlin {
     }
 }
 
-tasks.named("iosSimulatorArm64Test") {
-    // requires IOS simulator and tens of GB of other stuff to be installed
-    // so keep it disabled
-    enabled = false
+if (enableNativeTargets) {
+    tasks.named("iosSimulatorArm64Test") {
+        // requires IOS simulator and tens of GB of other stuff to be installed
+        // so keep it disabled
+        enabled = false
+    }
 }
 
 
