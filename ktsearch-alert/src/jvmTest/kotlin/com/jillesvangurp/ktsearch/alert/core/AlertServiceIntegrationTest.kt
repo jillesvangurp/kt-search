@@ -10,6 +10,7 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
+import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
 import com.jillesvangurp.ktsearch.defaultKtorHttpClient
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
@@ -83,7 +84,7 @@ class AlertServiceIntegrationTest {
             notification.ruleId shouldBe "test-alert"
             notification.matchCount shouldBe 1
             notification.matches.shouldNotBeEmpty()
-            variables["ruleName"] shouldBe "Error monitor"
+            variables[NotificationVariable.RULE_NAME.key] shouldBe "Error monitor"
         } finally {
             service.stop()
         }

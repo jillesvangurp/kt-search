@@ -9,6 +9,7 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
+import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -65,14 +66,14 @@ class AlertServiceFailureTest {
         val event = withTimeout(5.seconds) { handler.events.receive() }
 
         kotlin.test.assertEquals("Failing rule", event.context.ruleName)
-        kotlin.test.assertEquals("FAILURE", event.variables["status"])
+        kotlin.test.assertEquals("FAILURE", event.variables[NotificationVariable.STATUS.key])
         kotlin.test.assertEquals("failure", event.definition.id)
         kotlin.test.assertEquals(
             com.jillesvangurp.ktsearch.RestException::class.qualifiedName,
-            event.variables["errorType"]
+            event.variables[NotificationVariable.ERROR_TYPE.key]
         )
-        kotlin.test.assertEquals("EXECUTION", event.variables["failurePhase"])
-        kotlin.test.assertEquals("1", event.variables["failureCount"])
+        kotlin.test.assertEquals("EXECUTION", event.variables[NotificationVariable.FAILURE_PHASE.key])
+        kotlin.test.assertEquals("1", event.variables[NotificationVariable.FAILURE_COUNT.key])
     }
 
     private class RecordingNotificationHandler : NotificationHandler {

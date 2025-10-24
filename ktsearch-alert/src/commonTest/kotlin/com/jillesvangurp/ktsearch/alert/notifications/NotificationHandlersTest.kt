@@ -31,7 +31,14 @@ class NotificationHandlersTest {
         )
         val sender = FakeSlackSender()
         val handler = SlackNotificationHandler(sender)
-        handler.send(definition, mapOf("ruleName" to "Overridden", "matchCount" to "2"), sampleContext)
+        handler.send(
+            definition,
+            mapOf(
+                NotificationVariable.RULE_NAME.key to "Overridden",
+                NotificationVariable.MATCH_COUNT.key to "2"
+            ),
+            sampleContext
+        )
 
         sender.captured shouldBe SlackMessage(
             text = "Rule Overridden found 2 issues",
@@ -55,7 +62,14 @@ class NotificationHandlersTest {
         )
         val sender = FakeSmsSender("mock")
         val handler = SmsNotificationHandler(listOf(sender))
-        handler.send(definition, mapOf("ruleName" to "Test Rule", "matchCount" to "5"), sampleContext)
+        handler.send(
+            definition,
+            mapOf(
+                NotificationVariable.RULE_NAME.key to "Test Rule",
+                NotificationVariable.MATCH_COUNT.key to "5"
+            ),
+            sampleContext
+        )
 
         sender.messages.shouldContainExactly(
             SmsMessage(senderId = "alerts", recipients = listOf("+1234567890", "+1987654321"), body = "Rule Test Rule -> 5")

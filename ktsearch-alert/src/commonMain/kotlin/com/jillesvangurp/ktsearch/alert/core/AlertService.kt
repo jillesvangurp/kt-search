@@ -8,6 +8,9 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationRegistry
+import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
+import com.jillesvangurp.ktsearch.alert.notifications.putVariable
+import com.jillesvangurp.ktsearch.alert.notifications.putVariableIfNotNull
 import com.jillesvangurp.ktsearch.alert.rules.AlertRule
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.CronSchedule
@@ -479,18 +482,18 @@ class AlertService(
         error: Throwable?,
         phase: FailurePhase?
     ): MutableMap<String, String> = buildMap {
-        put("ruleName", ruleName)
-        put("ruleId", ruleId)
-        put("matchCount", matchCount.toString())
-        put("timestamp", triggeredAt.toString())
-        put("target", target)
-        put("status", status.name)
-        failureCount?.let { put("failureCount", it.toString()) }
+        putVariable(NotificationVariable.RULE_NAME, ruleName)
+        putVariable(NotificationVariable.RULE_ID, ruleId)
+        putVariable(NotificationVariable.MATCH_COUNT, matchCount.toString())
+        putVariable(NotificationVariable.TIMESTAMP, triggeredAt.toString())
+        putVariable(NotificationVariable.TARGET, target)
+        putVariable(NotificationVariable.STATUS, status.name)
+        putVariableIfNotNull(NotificationVariable.FAILURE_COUNT, failureCount?.toString())
         error?.let {
-            put("errorMessage", it.message ?: it::class.simpleName.orEmpty())
-            put("errorType", it::class.qualifiedName ?: it::class.simpleName.orEmpty())
+            putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: it::class.simpleName.orEmpty())
+            putVariable(NotificationVariable.ERROR_TYPE, it::class.qualifiedName ?: it::class.simpleName.orEmpty())
         }
-        phase?.let { put("failurePhase", it.name) }
+        phase?.let { putVariable(NotificationVariable.FAILURE_PHASE, it.name) }
     }.toMutableMap()
 
     private enum class FailurePhase {
