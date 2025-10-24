@@ -35,7 +35,6 @@ kotlin {
         }
     }
     js {
-        browser()
         nodejs {
             testTask(Action {
                 useMocha {
@@ -72,9 +71,7 @@ kotlin {
         iosSimulatorArm64()
         @OptIn(ExperimentalWasmDsl::class)
         wasmJs {
-            browser { }
             nodejs { }
-            d8 { }
         }
     }
 
