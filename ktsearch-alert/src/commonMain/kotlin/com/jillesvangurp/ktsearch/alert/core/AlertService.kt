@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
+import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
 
@@ -39,7 +40,7 @@ private val logger = KotlinLogging.logger {}
 class AlertService(
     private val client: SearchClient,
     private val dispatcher: NotificationDispatcher,
-    private val nowProvider: () -> Instant = { currentInstant() },
+    private val nowProvider: () -> Instant = { Clock.System.now() },
     dispatcherContext: CoroutineContext = Dispatchers.Default
 ) {
     private val startMutex = Mutex()
@@ -198,7 +199,7 @@ class AlertService(
         return generatedIdsByName.getOrPut(definition.name) { generateId() }
     }
 
-    private suspend fun materializeRule(
+    private fun materializeRule(
         id: String,
         definition: AlertRuleDefinition,
         existing: AlertRule?,
