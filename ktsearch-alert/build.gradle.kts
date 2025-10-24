@@ -101,6 +101,7 @@ kotlin {
                 implementation(Testing.junit.jupiter.api)
                 implementation(Testing.junit.jupiter.engine)
                 implementation("ch.qos.logback:logback-classic:_")
+                implementation(Ktor.client.mock)
             }
         }
 

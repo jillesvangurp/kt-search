@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.rules
 
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDateTime

@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.rules
 
 data class AlertRuleDefinition(
     val id: String?,
@@ -7,6 +7,6 @@ data class AlertRuleDefinition(
     val cronExpression: String,
     val target: String,
     val queryJson: String,
-    val emailTemplate: EmailTemplate,
+    val notifications: List<RuleNotificationInvocation>,
     val startImmediately: Boolean
 )

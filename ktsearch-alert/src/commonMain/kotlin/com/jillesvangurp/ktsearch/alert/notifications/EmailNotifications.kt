@@ -1,43 +1,99 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.notifications
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.isSuccess
 import io.ktor.http.contentType
-import kotlin.time.Instant
+import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
-import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private val logger = KotlinLogging.logger {}
+private val emailLogger = KotlinLogging.logger {}
 
-interface NotificationPlugin {
-    suspend fun send(message: AlertNotification, context: AlertSendContext)
-}
-
-data class AlertSendContext(
-    val rule: AlertRule,
-    val matches: List<JsonObject>,
-    val triggeredAt: Instant
+data class EmailMessage(
+    val from: String,
+    val to: List<String>,
+    val subject: String,
+    val body: String,
+    val contentType: String,
+    val cc: List<String>,
+    val bcc: List<String>
 )
 
-class SendGridNotificationPlugin(
+fun EmailNotificationConfig.render(variables: Map<String, String>): EmailMessage =
+    EmailMessage(
+        from = from,
+        to = to,
+        subject = renderTemplate(subject, variables),
+        body = renderTemplate(body, variables),
+        contentType = contentType,
+        cc = cc,
+        bcc = bcc
+    )
+
+interface EmailSender {
+    suspend fun send(message: EmailMessage)
+}
+
+class EmailNotificationHandler(
+    private val sender: EmailSender
+) : NotificationHandler {
+    override val channel: NotificationChannel = NotificationChannel.EMAIL
+
+    override suspend fun send(
+        definition: NotificationDefinition,
+        variables: Map<String, String>,
+        context: NotificationContext
+    ) {
+        val emailConfig = definition.config as? EmailNotificationConfig
+            ?: error("Notification '${definition.id}' is not configured as an email notification")
+        val rendered = emailConfig.render(variables)
+        sender.send(rendered)
+        emailLogger.debug { "Email notification '${definition.id}' sent for rule ${context.ruleId}" }
+    }
+}
+
+class ConsoleNotificationHandler : NotificationHandler {
+    override val channel: NotificationChannel = NotificationChannel.CONSOLE
+
+    override suspend fun send(
+        definition: NotificationDefinition,
+        variables: Map<String, String>,
+        context: NotificationContext
+    ) {
+        val config = definition.config as? ConsoleNotificationConfig
+            ?: error("Notification '${definition.id}' is not configured as console")
+        val message = renderTemplate(config.message, variables)
+        when (config.level) {
+            ConsoleLevel.TRACE -> emailLogger.trace { message }
+            ConsoleLevel.DEBUG -> emailLogger.debug { message }
+            ConsoleLevel.INFO -> emailLogger.info { message }
+            ConsoleLevel.WARN -> emailLogger.warn { message }
+            ConsoleLevel.ERROR -> emailLogger.error { message }
+        }
+    }
+}
+
+class SendGridEmailSender(
     private val httpClient: HttpClient,
     private val config: SendGridConfig
-) : NotificationPlugin {
-    override suspend fun send(message: AlertNotification, context: AlertSendContext) {
-        retrySuspend(
+) : EmailSender {
+    override suspend fun send(message: EmailMessage) {
+        retrySend(message)
+    }
+
+    private suspend fun retrySend(message: EmailMessage) {
+        com.jillesvangurp.ktsearch.alert.core.retrySuspend(
             description = "sendgrid",
             maxAttempts = config.maxRetries,
             initialDelay = config.retryDelay,
@@ -50,10 +106,9 @@ class SendGridNotificationPlugin(
             }
             handleResponse(response)
         }
-        logger.debug { "SendGrid alert sent for rule ${context.rule.id} to ${message.to}" }
     }
 
-    private fun buildPayload(alertNotification: AlertNotification) = buildJsonObject {
+    private fun buildPayload(alertNotification: EmailMessage) = buildJsonObject {
         putJsonArray("personalizations") {
             add(buildJsonObject {
                 putJsonArray("to") {

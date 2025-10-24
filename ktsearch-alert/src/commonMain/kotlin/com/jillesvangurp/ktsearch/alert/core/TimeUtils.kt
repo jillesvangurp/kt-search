@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.core
 
 import kotlin.time.Clock
 import kotlin.time.Instant

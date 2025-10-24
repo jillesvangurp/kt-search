@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.rules
 
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds

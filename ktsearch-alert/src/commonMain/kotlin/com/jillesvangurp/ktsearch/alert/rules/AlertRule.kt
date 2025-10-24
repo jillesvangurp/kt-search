@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.rules
 
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
@@ -16,7 +16,7 @@ data class AlertRule(
     val cronExpression: String,
     val target: String,
     val queryJson: String,
-    val emailTemplate: EmailTemplate,
+    val notifications: List<RuleNotificationInvocation>,
     val createdAt: Instant,
     val updatedAt: Instant,
     val lastRun: Instant? = null,
@@ -28,11 +28,17 @@ data class AlertRule(
         var result = cronExpression.hashCode()
         result = 31 * result + target.hashCode()
         result = 31 * result + queryJson.hashCode()
-        result = 31 * result + emailTemplate.hashCode()
         result = 31 * result + enabled.hashCode()
+        result = 31 * result + notifications.hashCode()
         return result
     }
 }
+
+@Serializable
+data class RuleNotificationInvocation(
+    val notificationId: String,
+    val variables: Map<String, String> = emptyMap()
+)
 
 @AlertRuleDslMarker
 class AlertRulesDsl internal constructor() {
@@ -58,7 +64,7 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
     private var target: String? = null
     private var queryJson: String? = null
     private var startImmediately: Boolean = true
-    private var emailTemplateBuilder: EmailTemplateBuilder? = null
+    private val notificationInvocations = mutableListOf<RuleNotificationInvocation>()
 
     fun target(indexOrAlias: String) {
         target = indexOrAlias
@@ -79,10 +85,17 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
         queryJson = dsl.json()
     }
 
-    fun email(block: EmailTemplateBuilder.() -> Unit) {
-        val builder = EmailTemplateBuilder()
+    fun notifications(vararg ids: String, block: NotificationVariablesBuilder.() -> Unit = {}) {
+        val variables = NotificationVariablesBuilder().apply(block).build()
+        ids.forEach { id ->
+            notificationInvocations += RuleNotificationInvocation(id, variables)
+        }
+    }
+
+    fun notification(id: String, block: NotificationInvocationBuilder.() -> Unit = {}) {
+        val builder = NotificationInvocationBuilder(id)
         builder.apply(block)
-        emailTemplateBuilder = builder
+        notificationInvocations += builder.build()
     }
 
     fun build(): AlertRuleDefinition {
@@ -90,8 +103,7 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
         val cronExpression = cron ?: error("Cron expression must be specified")
         val targetIndex = target ?: error("Target index or alias must be specified")
         val queryPayload = queryJson ?: error("Query must be provided for rule '$finalName'")
-        val emailTemplate = emailTemplateBuilder?.build()
-            ?: error("Email template must be configured for rule '$finalName'")
+        require(notificationInvocations.isNotEmpty()) { "At least one notification must be configured for rule '$finalName'" }
         return AlertRuleDefinition(
             id = presetId,
             name = finalName,
@@ -99,8 +111,31 @@ class AlertRuleBuilder internal constructor(private val presetId: String?) {
             cronExpression = cronExpression,
             target = targetIndex,
             queryJson = queryPayload,
-            emailTemplate = emailTemplate,
+            notifications = notificationInvocations.toList(),
             startImmediately = startImmediately
         )
     }
+}
+
+@AlertRuleDslMarker
+class NotificationVariablesBuilder internal constructor() {
+    private val variables = linkedMapOf<String, String>()
+
+    fun variable(key: String, value: String) {
+        variables[key] = value
+    }
+
+    internal fun build(): Map<String, String> = variables.toMap()
+}
+
+@AlertRuleDslMarker
+class NotificationInvocationBuilder internal constructor(private val id: String) {
+    private val variables = linkedMapOf<String, String>()
+
+    fun variable(key: String, value: String) {
+        variables[key] = value
+    }
+
+    internal fun build(): RuleNotificationInvocation =
+        RuleNotificationInvocation(notificationId = id, variables = variables.toMap())
 }

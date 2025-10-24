@@ -488,6 +488,74 @@ This repository contains several kotlin modules that each may be used independen
 
 The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 
+### Configuring ktsearch-alert alerts
+
+The alerting module now runs entirely from an in-memory DSL: rules are defined in code and evaluated by a coroutine loop rather than being stored in Elasticsearch. You compose a configuration once at startup, create a notification dispatcher, and hand both to the `AlertService`.
+
+```kotlin
+fun env(key: String) = System.getenv(key) ?: error("Missing $key")
+
+val dispatcher = createNotificationDispatcher(
+    emailSender = SendGridEmailSender(httpClient, SendGridConfig(apiKey = env("SENDGRID_API_KEY"))),
+    slackSender = SlackWebhookSender(httpClient),
+    smsSenders = listOf(
+        TwilioSmsSender(
+            httpClient,
+            TwilioConfig(
+                accountSid = env("TWILIO_ACCOUNT_SID"),
+                authToken = env("TWILIO_AUTH_TOKEN"),
+                defaultSenderId = env("TWILIO_FROM")
+            )
+        )
+    )
+)
+
+val service = AlertService(searchClient, dispatcher)
+service.start {
+    notifications {
+        email("ops-email") {
+            from("alerts@example.com")
+            to("oncall@example.com")
+            subject = "{{ruleName}} fired"
+            body = "Found {{matchCount}} matches at {{timestamp}}"
+        }
+        slack("slack-alerts") {
+            webhookUrl = env("SLACK_WEBHOOK_URL")
+            channelName = "#ops-alerts"
+            username = "Alertbot"
+            message = "*{{ruleName}}* matched {{matchCount}} documents"
+        }
+        sms("oncall-sms") {
+            provider = "twilio"
+            senderId = env("TWILIO_FROM")
+            to(env("ONCALL_NUMBER"))
+            message = "{{ruleName}} matched {{matchCount}}"
+        }
+    }
+    rules {
+        rule("error-alert") {
+            name = "Error monitor"
+            target("logs-*")
+            cron("*/2 * * * *")
+            query {
+                // search-dsl powered query
+                match("level", "error")
+            }
+            notifications("ops-email", "slack-alerts", "oncall-sms") {
+                variable("environment", "prod")
+            }
+        }
+    }
+}
+```
+
+- `createNotificationDispatcher` wires the built-in handlers (email via SendGrid, Slack webhooks, Twilio SMS, and optional console logging) based on which senders you provide.
+- Slack notifications post to an [incoming webhook URL](https://api.slack.com/messaging/webhooks) and can override the channel/username per message.
+- The Twilio sender expects the account SID, auth token, and a default `From` number; each notification can override the sender ID or list multiple recipients.
+- Any custom notification channel can be added by registering your own `NotificationHandler` through the dispatcher config.
+
+With this approach, alerts are versioned alongside your application code, and secrets such as API keys or webhook URLs are supplied at runtime (typically via environment variables).
+
 ## Contributing
 
 Pull requests are very welcome! This project runs on community contributions. If you don't like something, suggest changes. Is a feature you need missing from the DSL? Add it. To avoid conflicts or double work, please reach out via the issue tracker for bigger things. I try to be as responsive as I can
@@ -518,6 +586,4 @@ both the manual and this readme heavily depend on this and it makes maintaining 
 The way it works is that it provides a dsl for writing markdown that you use to write documentation. It allows you to include runnable code blocks and when it builds the documentation it figures out how to extract those from the kotlin source files and adds them as markdown code snippets. It can also intercept printed output and the return values of the blocks.
 
 If you have projects of your own that need documentation, you might get some value out of using this as well. 
-
-
 

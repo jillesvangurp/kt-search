@@ -1,4 +1,4 @@
-package com.jillesvangurp.ktsearch.alert
+package com.jillesvangurp.ktsearch.alert.core
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Duration
