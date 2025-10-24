@@ -1,5 +1,4 @@
 import com.avast.gradle.dockercompose.ComposeExtension
-import java.io.File
 import java.net.URI
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
@@ -9,9 +8,9 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
@@ -26,11 +25,13 @@ repositories {
 val enableNativeTargets =
     !(org.gradle.internal.os.OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
 
+println("native is enabled $enableNativeTargets")
+
 kotlin {
     jvm {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
+            jvmTarget = JvmTarget.JVM_17
         }
     }
     js {
@@ -69,12 +70,12 @@ kotlin {
         iosArm64()
         iosX64()
         iosSimulatorArm64()
-    }
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser { }
-        nodejs { }
-        d8 { }
+        @OptIn(ExperimentalWasmDsl::class)
+        wasmJs {
+            browser { }
+            nodejs { }
+            d8 { }
+        }
     }
 
     sourceSets {
@@ -88,7 +89,7 @@ kotlin {
                 implementation(Ktor.client.core)
             }
         }
-       commonTest {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common", "_"))
                 implementation(kotlin("test-annotations-common", "_"))
@@ -138,15 +139,17 @@ kotlin {
     }
 }
 
-listOf(
-    "iosSimulatorArm64Test",
-    "wasmJsTest",
-    "wasmJsBrowserTest",
-    "wasmJsNodeTest",
-    "wasmJsD8Test"
-).forEach { target ->
-    tasks.named(target) {
-        enabled = false
+if (enableNativeTargets) {
+    listOf(
+        "iosSimulatorArm64Test",
+        "wasmJsTest",
+        "wasmJsBrowserTest",
+        "wasmJsNodeTest",
+        "wasmJsD8Test"
+    ).forEach { target ->
+        tasks.named(target) {
+            enabled = false
+        }
     }
 }
 
