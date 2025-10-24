@@ -140,9 +140,7 @@ if (enableNativeTargets) {
     listOf(
         "iosSimulatorArm64Test",
         "wasmJsTest",
-        "wasmJsBrowserTest",
         "wasmJsNodeTest",
-        "wasmJsD8Test"
     ).forEach { target ->
         tasks.named(target) {
             enabled = false
