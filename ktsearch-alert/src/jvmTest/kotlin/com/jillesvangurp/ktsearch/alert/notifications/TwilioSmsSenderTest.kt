@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch.alert.notifications
 
+import com.jillesvangurp.ktsearch.alert.testutil.coRun
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -10,12 +11,11 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 
 class TwilioSmsSenderTest {
     @Test
-    fun `should send form payload for each recipient`() = runBlocking {
+    fun `should send form payload for each recipient`() = coRun {
         val captured = mutableListOf<FormDataContent>()
         val headers = mutableListOf<Map<String, String>>()
 
@@ -57,11 +57,10 @@ class TwilioSmsSenderTest {
 
         val second = captured[1].formData
         second["To"] shouldBe "+15550002"
-        Unit
     }
 
     @Test
-    fun `should throw retryable exception on transient error`() = runBlocking {
+    fun `should throw retryable exception on transient error`() = coRun {
         val engine = MockEngine { _ ->
             respond(
                 content = "error",
@@ -88,7 +87,6 @@ class TwilioSmsSenderTest {
                 )
             )
         }
-        Unit
     }
 
 }
