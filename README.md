@@ -484,11 +484,12 @@ This repository contains several kotlin modules that each may be used independen
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
 | `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
 | `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
-| `ktsearch-alerts` | Experimental alerting built on top of ktsearch. Not production ready yet.                                                                      |
+| `kt-search-lib-alerts` | Experimental alerting core library built on top of kt-search. Not production ready yet.                                                         |
+| `kt-search-alerts-demo` | JVM demo application that wires the alerting library into a runnable sample for local experimentation.                                            |
 
 The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
 
-### Configuring ktsearch-alert alerts
+### Configuring kt-search alerting
 
 The alerting module now runs entirely from code: rules are defined via factory functions and evaluated by a coroutine loop rather than being stored in Elasticsearch. You compose a configuration once at startup, create a notification dispatcher, and hand both to the `AlertService`.
 
