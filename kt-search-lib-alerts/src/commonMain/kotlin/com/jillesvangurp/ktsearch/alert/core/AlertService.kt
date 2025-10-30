@@ -101,6 +101,7 @@ class AlertService(
     }
 
     suspend fun refreshRules() {
+        logger.info { "Refreshing rules" }
         val config = configuration
         val definitions = config.rules
         val registry = config.notifications
@@ -109,6 +110,7 @@ class AlertService(
         scheduleMutex.withLock {
             val activeIds = mutableSetOf<String>()
             for (definition in definitions) {
+                logger.debug { "Refreshing ${definition.id}" }
                 val id = resolveRuleId(definition)
                 try {
                     validateNotifications(registry, definition)
@@ -157,6 +159,7 @@ class AlertService(
             }
             val removed = scheduledRules.keys - activeIds
             removed.forEach { id ->
+                logger.debug { "Removing rule $id" }
                 scheduledRules.remove(id)?.cancel()
                 removeRuleState(id)
             }
@@ -267,6 +270,7 @@ class AlertService(
                     delay(delayDuration)
                     continue
                 }
+
                 executeRule()
             }
         }

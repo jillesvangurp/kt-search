@@ -59,7 +59,7 @@ class EmailNotificationHandler(
             ?: error("Notification '${definition.id}' is not configured as an email notification")
         val rendered = emailConfig.render(variables)
         sender.send(rendered)
-        emailLogger.debug { "Email notification '${definition.id}' sent for rule ${context.ruleId}" }
+        emailLogger.warn { "Email notification '${definition.id}' sent for rule ${context.ruleId}:\n\n${rendered}" }
     }
 }
 
