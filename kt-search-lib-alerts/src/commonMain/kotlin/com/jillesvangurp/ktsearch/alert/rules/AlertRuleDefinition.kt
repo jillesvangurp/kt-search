@@ -1,0 +1,72 @@
+package com.jillesvangurp.ktsearch.alert.rules
+
+import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+
+data class AlertRuleDefinition(
+    val id: String?,
+    val name: String,
+    val enabled: Boolean,
+    val cronExpression: String,
+    val target: String,
+    val queryJson: String,
+    val notifications: List<RuleNotificationInvocation>,
+    val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
+    val startImmediately: Boolean
+) {
+    companion object {
+        fun newRule(
+            id: String? = null,
+            name: String,
+            cronExpression: String,
+            target: String,
+            notifications: List<RuleNotificationInvocation>,
+            failureNotifications: List<RuleNotificationInvocation> = emptyList(),
+            enabled: Boolean = true,
+            startImmediately: Boolean = true,
+            query: SearchDSL.() -> Unit
+        ): AlertRuleDefinition = fromQueryJson(
+            id = id,
+            name = name,
+            cronExpression = cronExpression,
+            target = target,
+            notifications = notifications,
+            failureNotifications = failureNotifications,
+            enabled = enabled,
+            startImmediately = startImmediately,
+            queryJson = SearchDSL().apply(query).json()
+        )
+
+        fun fromQueryJson(
+            id: String? = null,
+            name: String,
+            cronExpression: String,
+            target: String,
+            notifications: List<RuleNotificationInvocation>,
+            failureNotifications: List<RuleNotificationInvocation> = emptyList(),
+            enabled: Boolean = true,
+            startImmediately: Boolean = true,
+            queryJson: String
+        ): AlertRuleDefinition {
+            require(name.isNotBlank()) { "Rule name must be specified" }
+            require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
+            require(target.isNotBlank()) { "Target index or alias must be specified" }
+            require(queryJson.isNotBlank()) { "Query must be provided for rule '$name'" }
+            require(notifications.isNotEmpty()) { "At least one notification must be configured for rule '$name'" }
+            return AlertRuleDefinition(
+                id = id,
+                name = name,
+                enabled = enabled,
+                cronExpression = cronExpression,
+                target = target,
+                queryJson = queryJson,
+                notifications = notifications.normalizeInvocations(),
+                failureNotifications = failureNotifications.normalizeInvocations(),
+                startImmediately = startImmediately
+            )
+        }
+
+        private fun List<RuleNotificationInvocation>.normalizeInvocations(): List<RuleNotificationInvocation> =
+            map { it.copy(variables = it.variables.toMap()) }
+    }
+}
