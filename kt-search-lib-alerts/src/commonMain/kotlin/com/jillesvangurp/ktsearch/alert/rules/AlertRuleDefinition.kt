@@ -52,7 +52,6 @@ data class AlertRuleDefinition(
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
             require(target.isNotBlank()) { "Target index or alias must be specified" }
             require(queryJson.isNotBlank()) { "Query must be provided for rule '$name'" }
-            require(notifications.isNotEmpty()) { "At least one notification must be configured for rule '$name'" }
             return AlertRuleDefinition(
                 id = id,
                 name = name,

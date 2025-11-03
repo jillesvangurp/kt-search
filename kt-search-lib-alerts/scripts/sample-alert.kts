@@ -32,8 +32,6 @@
 //import com.jillesvangurp.ktsearch.alert.core.AlertService
 //import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
 //import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
-//import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcherConfig
-//import com.jillesvangurp.ktsearch.alert.notifications.createNotificationDispatcher
 //import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 //import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 //import com.jillesvangurp.searchdsls.querydsl.match
@@ -55,21 +53,18 @@
 //    )
 //)
 //
-//val dispatcher = createNotificationDispatcher(
-//    config = NotificationDispatcherConfig(includeConsole = true)
-//)
-//
 //runBlocking {
-//    val alerts = AlertService(client, dispatcher)
+//    val alerts = AlertService(client)
 //
 //    alerts.start {
 //        notifications(
-//            NotificationDefinition.console(
+//            consoleNotification(
 //                id = "console-alerts",
 //                level = ConsoleLevel.INFO,
 //                message = "[{{timestamp}}] {{ruleName}} matched {{matchCount}} documents in $environment"
 //            )
 //        )
+//        defaultNotifications("console-alerts")
 //
 //        rule(
 //            AlertRuleDefinition.newRule(

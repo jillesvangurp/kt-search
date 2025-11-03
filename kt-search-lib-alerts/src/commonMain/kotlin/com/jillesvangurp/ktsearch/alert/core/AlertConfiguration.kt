@@ -3,10 +3,12 @@ package com.jillesvangurp.ktsearch.alert.core
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationRegistry
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import kotlin.collections.LinkedHashSet
 
 data class AlertConfiguration(
     val notifications: NotificationRegistry,
-    val rules: List<AlertRuleDefinition>
+    val rules: List<AlertRuleDefinition>,
+    val defaultNotificationIds: List<String>
 )
 
 @DslMarker
@@ -16,6 +18,7 @@ annotation class AlertConfigurationDslMarker
 class AlertConfigurationBuilder internal constructor() {
     private val notificationDefinitions = linkedMapOf<String, NotificationDefinition>()
     private val ruleDefinitions = mutableListOf<AlertRuleDefinition>()
+    private val defaultNotificationIds = mutableListOf<String>()
 
     fun notification(definition: NotificationDefinition) {
         addNotification(definition)
@@ -41,10 +44,28 @@ class AlertConfigurationBuilder internal constructor() {
         ruleDefinitions += definitions
     }
 
+    fun defaultNotifications(vararg notificationIds: String) {
+        defaultNotifications(notificationIds.asIterable())
+    }
+
+    fun defaultNotifications(notificationIds: Iterable<String>) {
+        notificationIds.forEach { id ->
+            require(id.isNotBlank()) { "Default notification id must not be blank" }
+            defaultNotificationIds += id
+        }
+    }
+
     internal fun build(): AlertConfiguration {
+        val definitions = notificationDefinitions.toMap()
+        val defaults = LinkedHashSet<String>()
+        defaultNotificationIds.forEach { id ->
+            require(definitions.containsKey(id)) { "Default notification '$id' is not defined" }
+            defaults += id
+        }
         return AlertConfiguration(
-            notifications = NotificationRegistry(notificationDefinitions.toMap()),
-            rules = ruleDefinitions.toList()
+            notifications = NotificationRegistry(definitions),
+            rules = ruleDefinitions.toList(),
+            defaultNotificationIds = defaults.toList()
         )
     }
 

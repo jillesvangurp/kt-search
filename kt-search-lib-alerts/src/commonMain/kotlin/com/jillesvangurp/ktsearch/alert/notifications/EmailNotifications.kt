@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch.alert.notifications
 
+import com.jillesvangurp.ktsearch.alert.core.retrySuspend
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
@@ -30,6 +31,16 @@ data class EmailMessage(
     val bcc: List<String>
 )
 
+data class EmailNotificationConfig(
+    val from: String,
+    val to: List<String>,
+    val subject: String,
+    val body: String,
+    val contentType: String = "text/plain",
+    val cc: List<String> = emptyList(),
+    val bcc: List<String> = emptyList()
+)
+
 fun EmailNotificationConfig.render(variables: Map<String, String>): EmailMessage =
     EmailMessage(
         from = from,
@@ -45,41 +56,59 @@ interface EmailSender {
     suspend fun send(message: EmailMessage)
 }
 
-class EmailNotificationHandler(
-    private val sender: EmailSender
-) : NotificationHandler {
-    override val channel: NotificationChannel = NotificationChannel.EMAIL
-
-    override suspend fun send(
-        definition: NotificationDefinition,
-        variables: Map<String, String>,
-        context: NotificationContext
+fun emailNotification(
+    id: String,
+    sender: EmailSender,
+    from: String,
+    to: List<String>,
+    subject: String,
+    body: String,
+    contentType: String = "text/plain",
+    cc: List<String> = emptyList(),
+    bcc: List<String> = emptyList(),
+    defaultVariables: Map<String, String> = emptyMap()
+): NotificationDefinition {
+    require(from.isNotBlank()) { "From address must be set for email notification '$id'" }
+    val toRecipients = to.normalizeAddresses()
+    require(toRecipients.isNotEmpty()) { "At least one recipient must be configured for email notification '$id'" }
+    val finalSubject = subject.ifBlank { error("Email subject must be set for notification '$id'") }
+    val finalBody = body.ifBlank { error("Email body must be set for notification '$id'") }
+    val config = EmailNotificationConfig(
+        from = from,
+        to = toRecipients,
+        subject = finalSubject,
+        body = finalBody,
+        contentType = contentType,
+        cc = cc.normalizeAddresses(),
+        bcc = bcc.normalizeAddresses()
+    )
+    return notification(
+        id = id,
+        defaultVariables = defaultVariables
     ) {
-        val emailConfig = definition.config as? EmailNotificationConfig
-            ?: error("Notification '${definition.id}' is not configured as an email notification")
-        val rendered = emailConfig.render(variables)
+        val rendered = config.render(variables)
         sender.send(rendered)
-        emailLogger.warn { "Email notification '${definition.id}' sent for rule ${context.ruleId}:\n\n${rendered}" }
+        emailLogger.debug { "Email notification '$id' sent for rule ${context.ruleId}" }
     }
 }
 
-class ConsoleNotificationHandler : NotificationHandler {
-    override val channel: NotificationChannel = NotificationChannel.CONSOLE
-
-    override suspend fun send(
-        definition: NotificationDefinition,
-        variables: Map<String, String>,
-        context: NotificationContext
+fun consoleNotification(
+    id: String,
+    level: ConsoleLevel = ConsoleLevel.INFO,
+    message: String = "{{ruleName}} triggered with {{matchCount}} matches",
+    defaultVariables: Map<String, String> = emptyMap()
+): NotificationDefinition {
+    return notification(
+        id = id,
+        defaultVariables = defaultVariables
     ) {
-        val config = definition.config as? ConsoleNotificationConfig
-            ?: error("Notification '${definition.id}' is not configured as console")
-        val message = renderTemplate(config.message, variables)
-        when (config.level) {
-            ConsoleLevel.TRACE -> emailLogger.trace { message }
-            ConsoleLevel.DEBUG -> emailLogger.debug { message }
-            ConsoleLevel.INFO -> emailLogger.info { message }
-            ConsoleLevel.WARN -> emailLogger.warn { message }
-            ConsoleLevel.ERROR -> emailLogger.error { message }
+        val rendered = render(message)
+        when (level) {
+            ConsoleLevel.TRACE -> emailLogger.trace { rendered }
+            ConsoleLevel.DEBUG -> emailLogger.debug { rendered }
+            ConsoleLevel.INFO -> emailLogger.info { rendered }
+            ConsoleLevel.WARN -> emailLogger.warn { rendered }
+            ConsoleLevel.ERROR -> emailLogger.error { rendered }
         }
     }
 }
@@ -93,7 +122,7 @@ class SendGridEmailSender(
     }
 
     private suspend fun retrySend(message: EmailMessage) {
-        com.jillesvangurp.ktsearch.alert.core.retrySuspend(
+        retrySuspend(
             description = "sendgrid",
             maxAttempts = config.maxRetries,
             initialDelay = config.retryDelay,

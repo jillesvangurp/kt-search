@@ -5,14 +5,10 @@ import com.jillesvangurp.ktsearch.Node
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.SniffingNodeSelector
 import com.jillesvangurp.ktsearch.deleteIndex
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationChannel
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
+import com.jillesvangurp.ktsearch.alert.notifications.notification
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
-import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.ktsearch.defaultKtorHttpClient
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
@@ -54,26 +50,20 @@ class AlertServiceIntegrationTest {
         }
         logRepository.index(LogEntry(level = "error", message = "disk full"), id = "1")
 
-        val handler = RecordingNotificationHandler()
-        val dispatcher = NotificationDispatcher(listOf(handler))
-        val service = AlertService(client, dispatcher)
+        val recorder = RecordingNotification()
+        val service = AlertService(client)
         val configuration = alertConfiguration {
             notification(
-                NotificationDefinition.email(
-                    id = "ops-email",
-                    from = "alerts@example.com",
-                    to = listOf("ops@example.com"),
-                    subject = "{{ruleName}} triggered",
-                    body = "Found {{matchCount}} error events"
-                )
+                recorder.definition("ops-email")
             )
+            defaultNotifications("ops-email")
             rule(
                 AlertRuleDefinition.newRule(
                     id = "test-alert",
                     name = "Error monitor",
                     cronExpression = "* * * * *",
                     target = docsIndex,
-                    notifications = listOf(RuleNotificationInvocation.create("ops-email"))
+                    notifications = emptyList()
                 ) {
                     query = match(LogEntry::level, "error")
                 }
@@ -82,7 +72,7 @@ class AlertServiceIntegrationTest {
 
         try {
             service.start(configuration)
-            val (notification, variables) = withTimeout(30_000) { handler.await() }
+            val (notification, variables) = withTimeout(30_000) { recorder.await() }
 
             notification.ruleId shouldBe "test-alert"
             notification.matchCount shouldBe 1
@@ -112,16 +102,11 @@ class AlertServiceIntegrationTest {
     @Serializable
     data class LogEntry(val level: String, val message: String)
 
-    private class RecordingNotificationHandler : NotificationHandler {
+    private class RecordingNotification {
         private val deferred = CompletableDeferred<Pair<NotificationContext, Map<String, String>>>()
-        override val channel: NotificationChannel = NotificationChannel.EMAIL
         suspend fun await(): Pair<NotificationContext, Map<String, String>> = deferred.await()
 
-        override suspend fun send(
-            definition: NotificationDefinition,
-            variables: Map<String, String>,
-            context: NotificationContext
-        ) {
+        fun definition(id: String) = notification(id) {
             if (!deferred.isCompleted) {
                 deferred.complete(context to variables)
             }

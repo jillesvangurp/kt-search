@@ -1,11 +1,7 @@
 package com.jillesvangurp.ktsearch.alert.core
 
 import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
-import com.jillesvangurp.ktsearch.alert.notifications.ConsoleNotificationConfig
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationChannel
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationRegistry
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
@@ -39,7 +35,6 @@ private val logger = KotlinLogging.logger {}
 
 class AlertService(
     private val client: SearchClient,
-    private val dispatcher: NotificationDispatcher,
     private val nowProvider: () -> Instant = { Clock.System.now() },
     dispatcherContext: CoroutineContext = Dispatchers.Default
 ) {
@@ -52,7 +47,7 @@ class AlertService(
     private val coroutineContext: CoroutineContext = dispatcherContext
     private var supervisorJob: Job = SupervisorJob()
     private var scope: CoroutineScope = CoroutineScope(coroutineContext + supervisorJob)
-    private var configuration: AlertConfiguration = AlertConfiguration(NotificationRegistry.empty(), emptyList())
+    private var configuration: AlertConfiguration = AlertConfiguration(NotificationRegistry.empty(), emptyList(), emptyList())
     private var started = false
 
     suspend fun start(configuration: AlertConfiguration) {
@@ -112,10 +107,20 @@ class AlertService(
             for (definition in definitions) {
                 logger.debug { "Refreshing ${definition.id}" }
                 val id = resolveRuleId(definition)
+                val resolvedNotifications = resolveNotifications(definition)
+                val resolvedFailureNotifications = definition.failureNotifications
                 try {
-                    validateNotifications(registry, definition)
+                    validateNotifications(registry, definition.name, resolvedNotifications)
+                    validateNotifications(registry, definition.name, resolvedFailureNotifications)
                     val existing = getRuleState(id)
-                    val materialized = materializeRule(id, definition, existing, now)
+                    val materialized = materializeRule(
+                        id = id,
+                        definition = definition,
+                        existing = existing,
+                        now = now,
+                        notifications = resolvedNotifications,
+                        failureNotifications = resolvedFailureNotifications
+                    )
                     storeRuleState(materialized)
                     activeIds += id
                     if (!materialized.enabled) {
@@ -148,8 +153,8 @@ class AlertService(
                             ruleId = id,
                             ruleName = definition.name,
                             target = definition.target,
-                            notifications = definition.failureNotifications,
-                            fallbackNotifications = definition.notifications,
+                            notifications = resolvedFailureNotifications,
+                            fallbackNotifications = resolvedNotifications,
                             error = t,
                             triggeredAt = failureTime,
                             phase = FailurePhase.CONFIGURATION
@@ -176,12 +181,14 @@ class AlertService(
 
     fun currentConfiguration(): AlertConfiguration = configuration
 
-    private fun validateNotifications(registry: NotificationRegistry, definition: AlertRuleDefinition) {
-        definition.notifications.forEach { invocation ->
-            registry.require(invocation.notificationId)
-        }
-        definition.failureNotifications.forEach { invocation ->
-            registry.require(invocation.notificationId)
+    private fun validateNotifications(
+        registry: NotificationRegistry,
+        ruleName: String,
+        invocations: List<RuleNotificationInvocation>
+    ) {
+        invocations.forEach { invocation ->
+            runCatching { registry.require(invocation.notificationId) }
+                .onFailure { throw IllegalArgumentException("Notification '${invocation.notificationId}' referenced by rule '$ruleName' is not defined", it) }
         }
     }
 
@@ -202,11 +209,24 @@ class AlertService(
         return generatedIdsByName.getOrPut(definition.name) { generateId() }
     }
 
+    private fun resolveNotifications(definition: AlertRuleDefinition): List<RuleNotificationInvocation> {
+        if (definition.notifications.isNotEmpty()) {
+            return definition.notifications
+        }
+        val defaults = configuration.defaultNotificationIds
+        require(defaults.isNotEmpty()) {
+            "No notifications configured for rule '${definition.name}' and no default notifications provided"
+        }
+        return defaults.map { RuleNotificationInvocation.create(it) }
+    }
+
     private fun materializeRule(
         id: String,
         definition: AlertRuleDefinition,
         existing: AlertRule?,
-        now: Instant
+        now: Instant,
+        notifications: List<RuleNotificationInvocation>,
+        failureNotifications: List<RuleNotificationInvocation>
     ): AlertRule {
         val cron = CronSchedule.parse(definition.cronExpression)
         val nextRun = when {
@@ -222,8 +242,8 @@ class AlertService(
             cronExpression = definition.cronExpression,
             target = definition.target,
             queryJson = definition.queryJson,
-            notifications = definition.notifications,
-            failureNotifications = definition.failureNotifications,
+            notifications = notifications,
+            failureNotifications = failureNotifications,
             createdAt = existing?.createdAt ?: now,
             updatedAt = now,
             lastRun = existing?.lastRun,
@@ -367,15 +387,14 @@ class AlertService(
                 continue
             }
             val variables = mergedVariables(baseVariables, definition, invocation)
-            runCatching {
-                dispatcher.dispatch(definition, variables, context)
-            }.onFailure { failure ->
+            val result = runCatching { definition.dispatch(variables, context) }
+            result.onFailure { failure ->
                 failures += failure
                 logger.error(failure) { "Notification '${invocation.notificationId}' failed for rule ${rule.id}" }
             }
         }
         if (failures.isNotEmpty()) {
-            throw NotificationDispatchException(rule.id, failures)
+            throw NotificationDeliveryException(rule.id, failures)
         }
     }
 
@@ -439,7 +458,7 @@ class AlertService(
                 continue
             }
             val variables = mergedVariables(baseVariables, definition, invocation)
-            val result = runCatching { dispatcher.dispatch(definition, variables, context) }
+            val result = runCatching { definition.dispatch(variables, context) }
             if (result.isSuccess) {
                 dispatched = true
             } else {
@@ -448,31 +467,7 @@ class AlertService(
             }
         }
         if (!dispatched) {
-            sendConsoleFailureNotification(baseVariables, context, error)
-        }
-    }
-
-    private suspend fun sendConsoleFailureNotification(
-        baseVariables: MutableMap<String, String>,
-        context: NotificationContext,
-        error: Throwable
-    ) {
-        if (!dispatcher.hasHandler(NotificationChannel.CONSOLE)) {
-            logger.error(error) { "No failure notifications configured and console handler unavailable for rule ${context.ruleId}" }
-            return
-        }
-        val definition = NotificationDefinition(
-            id = "__internal_failure_${context.ruleId}",
-            config = ConsoleNotificationConfig(
-                level = ConsoleLevel.ERROR,
-                message = "Alert rule {{ruleName}} failed: {{errorMessage}}"
-            )
-        )
-        val variables = baseVariables.toMutableMap()
-        runCatching {
-            dispatcher.dispatch(definition, variables, context)
-        }.onFailure { failure ->
-            logger.error(failure) { "Console failure notification failed for rule ${context.ruleId}" }
+            logger.error(error) { "Failure notifications unavailable for rule $ruleId" }
         }
     }
 
@@ -512,7 +507,7 @@ class AlertService(
         FAILURE
     }
 
-    private class NotificationDispatchException(
+    private class NotificationDeliveryException(
         ruleId: String,
         causes: List<Throwable>
     ) : Exception("One or more notifications failed for rule $ruleId") {

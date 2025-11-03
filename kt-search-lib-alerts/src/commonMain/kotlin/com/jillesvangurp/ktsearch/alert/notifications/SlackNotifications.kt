@@ -8,8 +8,8 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.http.content.TextContent
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -17,6 +17,13 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 private val slackLogger = KotlinLogging.logger {}
+
+data class SlackNotificationConfig(
+    val webhookUrl: String,
+    val channelName: String? = null,
+    val username: String? = null,
+    val message: String
+)
 
 data class SlackMessage(
     val text: String,
@@ -28,33 +35,42 @@ interface SlackSender {
     suspend fun send(config: SlackNotificationConfig, message: SlackMessage)
 }
 
-class SlackNotificationHandler(
-    private val sender: SlackSender,
-    private val maxRetries: Int = 3,
-    private val retryDelay: Duration = 2.seconds
-) : NotificationHandler {
-    override val channel: NotificationChannel = NotificationChannel.SLACK
-
-    override suspend fun send(
-        definition: NotificationDefinition,
-        variables: Map<String, String>,
-        context: NotificationContext
+fun slackNotification(
+    id: String,
+    sender: SlackSender,
+    webhookUrl: String,
+    message: String,
+    channelName: String? = null,
+    username: String? = null,
+    defaultVariables: Map<String, String> = emptyMap(),
+    retryAttempts: Int = 3,
+    retryDelay: Duration = 2.seconds
+): NotificationDefinition {
+    require(webhookUrl.isNotBlank()) { "Slack webhookUrl must be set for notification '$id'" }
+    val messageTemplate = message.ifBlank { error("Slack message must be set for notification '$id'") }
+    val config = SlackNotificationConfig(
+        webhookUrl = webhookUrl,
+        channelName = channelName,
+        username = username,
+        message = messageTemplate
+    )
+    return notification(
+        id = id,
+        defaultVariables = defaultVariables
     ) {
-        val config = definition.config as? SlackNotificationConfig
-            ?: error("Notification '${definition.id}' is not configured as Slack")
-        val message = SlackMessage(
-            text = renderTemplate(config.message, variables),
+        val payload = SlackMessage(
+            text = render(config.message),
             channel = config.channelName,
             username = config.username
         )
         retrySuspend(
-            description = "slack-${definition.id}",
-            maxAttempts = maxRetries,
+            description = "slack-$id",
+            maxAttempts = retryAttempts,
             initialDelay = retryDelay
         ) {
-            sender.send(config, message)
+            sender.send(config, payload)
         }
-        slackLogger.debug { "Slack notification '${definition.id}' sent for rule ${context.ruleId}" }
+        slackLogger.debug { "Slack notification '$id' sent for rule ${context.ruleId}" }
     }
 }
 

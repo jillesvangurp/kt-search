@@ -4,12 +4,16 @@ import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.alert.core.AlertService
 import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcherConfig
-import com.jillesvangurp.ktsearch.alert.notifications.createNotificationDispatcher
+import com.jillesvangurp.ktsearch.alert.notifications.SendGridConfig
+import com.jillesvangurp.ktsearch.alert.notifications.SendGridEmailSender
+import com.jillesvangurp.ktsearch.alert.notifications.consoleNotification
+import com.jillesvangurp.ktsearch.alert.notifications.emailNotification
+import com.jillesvangurp.ktsearch.alert.notifications.slackNotification
+import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.searchdsls.querydsl.match
+import io.ktor.client.HttpClient
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
@@ -34,31 +38,64 @@ suspend fun main() {
         )
     )
 
-    val dispatcher = createNotificationDispatcher(
-        config = NotificationDispatcherConfig(includeConsole = true)
-    )
-
-    val alerts = AlertService(client, dispatcher)
-
-    alerts.start {
-        notifications(
-            NotificationDefinition.console(
+    val httpClient = lazy { HttpClient() }
+    val notifications = buildList {
+        add(
+            consoleNotification(
                 id = "console-alerts",
                 level = ConsoleLevel.INFO,
-                message = """{{ruleName}} matched {{matchCount}} documents in env:${environment} at {{timestamp}}.""".trimMargin()
-            ),
-            NotificationDefinition.email("email-alerts","alerts@domain.com",listOf("dude@domain.com"),"ALERT","""
-                    |Yo Dude,
-                    |
-                    |{{ruleName}} matched {{matchCount}} documents in env:${environment} at {{timestamp}}.
-                    |
-                    |
-                    |Kindly,
-                    |
-                    |Alerter
-                    """),
-            NotificationDefinition.slack("slack-alerts", slackHook!!,"","","")
+                message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
+            )
         )
+        slackHook?.let { hook ->
+            add(
+                slackNotification(
+                    id = "slack-alerts",
+                    sender = SlackWebhookSender(httpClient.value),
+                    webhookUrl = hook,
+                    message = "Alert {{ruleName}} found {{matchCount}} documents"
+                )
+            )
+        }
+        sendgrid?.let { key ->
+            add(
+                emailNotification(
+                    id = "email-alerts",
+                    sender = SendGridEmailSender(
+                        httpClient = httpClient.value,
+                        config = SendGridConfig(apiKey = key)
+                    ),
+                    from = "alerts@domain.com",
+                    to = listOf("dude@domain.com"),
+                    subject = "ALERT",
+                    body = """
+                        |Yo Dude,
+                        |
+                        |{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                        |
+                        |
+                        |Kindly,
+                        |
+                        |Alerter
+                    """.trimMargin()
+                )
+            )
+        }
+    }
+
+    val defaultNotificationIds = buildList {
+        notifications.find { it.id == "console-alerts" }?.let { add(it.id) }
+        notifications.find { it.id == "slack-alerts" }?.let { add(it.id) }
+        notifications.find { it.id == "email-alerts" }?.let { add(it.id) }
+    }
+
+    val alerts = AlertService(client)
+
+    alerts.start {
+        notifications(notifications)
+        if (defaultNotificationIds.isNotEmpty()) {
+            defaultNotifications(defaultNotificationIds)
+        }
 
         rule(
             AlertRuleDefinition.newRule(
@@ -66,7 +103,7 @@ suspend fun main() {
                 name = "Error monitor",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
-                notifications = RuleNotificationInvocation.many("console-alerts"),
+                notifications = emptyList(),
                 startImmediately = true
             ) {
                 match("objectType", "ObjectMarker")
@@ -81,5 +118,8 @@ suspend fun main() {
     } finally {
         alerts.stop()
         client.close()
+        if (httpClient.isInitialized()) {
+            httpClient.value.close()
+        }
     }
 }

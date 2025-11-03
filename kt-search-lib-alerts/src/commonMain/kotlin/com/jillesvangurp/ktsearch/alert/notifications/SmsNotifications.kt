@@ -2,12 +2,12 @@ package com.jillesvangurp.ktsearch.alert.notifications
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
@@ -25,40 +25,37 @@ data class SmsMessage(
 )
 
 interface SmsSender {
-    val provider: String
     suspend fun send(message: SmsMessage)
 }
 
-class SmsNotificationHandler(
-    senders: List<SmsSender>
-) : NotificationHandler {
-    override val channel: NotificationChannel = NotificationChannel.SMS
-
-    private val senderByProvider: Map<String, SmsSender> = senders.associateBy { it.provider }
-
-    override suspend fun send(
-        definition: NotificationDefinition,
-        variables: Map<String, String>,
-        context: NotificationContext
+fun smsNotification(
+    id: String,
+    sender: SmsSender,
+    to: List<String>,
+    message: String,
+    senderId: String? = null,
+    defaultVariables: Map<String, String> = emptyMap()
+): NotificationDefinition {
+    val recipients = to.normalizeAddresses()
+    require(recipients.isNotEmpty()) { "At least one recipient must be set for SMS notification '$id'" }
+    val messageTemplate = message.ifBlank { error("SMS message must be set for notification '$id'") }
+    return notification(
+        id = id,
+        defaultVariables = defaultVariables
     ) {
-        val config = definition.config as? SmsNotificationConfig
-            ?: error("Notification '${definition.id}' is not configured as SMS")
-        val sender = senderByProvider[config.provider]
-            ?: error("No SMS sender registered for provider '${config.provider}'")
-        val message = SmsMessage(
-            senderId = config.senderId,
-            recipients = config.to,
-            body = renderTemplate(config.message, variables)
+        val smsMessage = SmsMessage(
+            senderId = senderId,
+            recipients = recipients,
+            body = render(messageTemplate)
         )
-        try {
-            sender.send(message)
-        } catch (t: Throwable) {
-            smsLogger.error(t) {
-                "SMS notification '${definition.id}' failed for provider '${config.provider}'"
+        runCatching { sender.send(smsMessage) }
+            .onFailure { failure ->
+                smsLogger.error(failure) { "SMS notification '$id' failed for rule ${context.ruleId}" }
+                throw failure
             }
-            throw t
-        }
-        smsLogger.debug { "SMS notification '${definition.id}' sent for rule ${context.ruleId}" }
+            .onSuccess {
+                smsLogger.debug { "SMS notification '$id' sent for rule ${context.ruleId}" }
+            }
     }
 }
 
@@ -73,8 +70,6 @@ class TwilioSmsSender(
     private val httpClient: HttpClient,
     private val config: TwilioConfig
 ) : SmsSender {
-    override val provider: String = "twilio"
-
     override suspend fun send(message: SmsMessage) {
         val from = message.senderId ?: config.defaultSenderId
             ?: error("Twilio SMS requires a senderId in the notification or defaultSenderId in TwilioConfig")

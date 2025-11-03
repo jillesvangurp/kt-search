@@ -18,26 +18,23 @@ private val sampleContext = NotificationContext(
 class NotificationHandlersTest {
     @Test
     fun `should render slack message with variables`() = coRun {
-        val config = SlackNotificationConfig(
+        val sender = RecordingSlackSender()
+        val definition = slackNotification(
+            id = "slack-alert",
+            sender = sender,
             webhookUrl = "https://hooks.slack.com/services/ABC",
+            message = "Rule {{ruleName}} found {{matchCount}} issues",
             channelName = "#alerts",
             username = "AlertBot",
-            message = "Rule {{ruleName}} found {{matchCount}} issues"
-        )
-        val definition = NotificationDefinition(
-            id = "slack-alert",
-            config = config,
             defaultVariables = mapOf("extra" to "value")
         )
-        val sender = FakeSlackSender()
-        val handler = SlackNotificationHandler(sender)
-        handler.send(
-            definition,
-            mapOf(
+
+        definition.dispatch(
+            variables = mapOf(
                 NotificationVariable.RULE_NAME.key to "Overridden",
                 NotificationVariable.MATCH_COUNT.key to "2"
             ),
-            sampleContext
+            context = sampleContext
         )
 
         sender.captured shouldBe SlackMessage(
@@ -45,39 +42,68 @@ class NotificationHandlersTest {
             channel = "#alerts",
             username = "AlertBot"
         )
-        sender.config shouldBe config
+        sender.config?.webhookUrl shouldBe "https://hooks.slack.com/services/ABC"
     }
 
     @Test
-    fun `should route sms to matching provider`() = coRun {
-        val config = SmsNotificationConfig(
-            provider = "mock",
-            senderId = "alerts",
-            to = listOf("+1234567890", "+1987654321"),
-            message = "Rule {{ruleName}} -> {{matchCount}}"
-        )
-        val definition = NotificationDefinition(
+    fun `should send sms with rendered body`() = coRun {
+        val sender = RecordingSmsSender()
+        val definition = smsNotification(
             id = "sms-alert",
-            config = config
+            sender = sender,
+            to = listOf("+1234567890", "+1987654321"),
+            message = "Rule {{ruleName}} -> {{matchCount}}",
+            senderId = "alerts"
         )
-        val sender = FakeSmsSender("mock")
-        val handler = SmsNotificationHandler(listOf(sender))
-        handler.send(
-            definition,
-            mapOf(
+
+        definition.dispatch(
+            variables = mapOf(
                 NotificationVariable.RULE_NAME.key to "Test Rule",
                 NotificationVariable.MATCH_COUNT.key to "5"
             ),
-            sampleContext
+            context = sampleContext
         )
 
         sender.messages.shouldContainExactly(
             SmsMessage(senderId = "alerts", recipients = listOf("+1234567890", "+1987654321"), body = "Rule Test Rule -> 5")
         )
     }
+
+    @Test
+    fun `should render email templates`() = coRun {
+        val sender = RecordingEmailSender()
+        val definition = emailNotification(
+            id = "email-alert",
+            sender = sender,
+            from = "alerts@example.com",
+            to = listOf("ops@example.com"),
+            subject = "{{ruleName}} fired",
+            body = "Found {{matchCount}} issues"
+        )
+
+        definition.dispatch(
+            variables = mapOf(
+                NotificationVariable.RULE_NAME.key to "Test Rule",
+                NotificationVariable.MATCH_COUNT.key to "3"
+            ),
+            context = sampleContext
+        )
+
+        sender.messages.shouldContainExactly(
+            EmailMessage(
+                from = "alerts@example.com",
+                to = listOf("ops@example.com"),
+                subject = "Test Rule fired",
+                body = "Found 3 issues",
+                contentType = "text/plain",
+                cc = emptyList(),
+                bcc = emptyList()
+            )
+        )
+    }
 }
 
-private class FakeSlackSender : SlackSender {
+private class RecordingSlackSender : SlackSender {
     var captured: SlackMessage? = null
     var config: SlackNotificationConfig? = null
 
@@ -87,9 +113,16 @@ private class FakeSlackSender : SlackSender {
     }
 }
 
-private class FakeSmsSender(override val provider: String) : SmsSender {
+private class RecordingSmsSender : SmsSender {
     val messages = mutableListOf<SmsMessage>()
     override suspend fun send(message: SmsMessage) {
+        messages += message
+    }
+}
+
+private class RecordingEmailSender : EmailSender {
+    val messages = mutableListOf<EmailMessage>()
+    override suspend fun send(message: EmailMessage) {
         messages += message
     }
 }

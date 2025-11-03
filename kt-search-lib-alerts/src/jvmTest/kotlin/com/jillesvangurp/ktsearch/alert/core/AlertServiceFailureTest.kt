@@ -4,12 +4,9 @@ import com.jillesvangurp.ktsearch.Node
 import com.jillesvangurp.ktsearch.RestClient
 import com.jillesvangurp.ktsearch.RestResponse
 import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationChannel
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationContext
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationDispatcher
-import com.jillesvangurp.ktsearch.alert.notifications.NotificationHandler
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationVariable
+import com.jillesvangurp.ktsearch.alert.notifications.notification
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.searchdsls.querydsl.matchAll
@@ -23,14 +20,13 @@ import kotlin.time.Duration.Companion.seconds
 
 class AlertServiceFailureTest {
     private lateinit var service: AlertService
-    private lateinit var handler: RecordingNotificationHandler
+    private lateinit var recorder: RecordingNotificationSink
 
     @BeforeTest
     fun setup() {
-        handler = RecordingNotificationHandler()
-        val dispatcher = NotificationDispatcher(listOf(handler))
+        recorder = RecordingNotificationSink()
         val client = SearchClient(restClient = FailingRestClient())
-        service = AlertService(client = client, dispatcher = dispatcher)
+        service = AlertService(client = client)
     }
 
     @AfterTest
@@ -42,8 +38,8 @@ class AlertServiceFailureTest {
     fun `rule failure sends failure notification`() = runBlocking {
         val configuration = alertConfiguration {
             notifications(
-                NotificationDefinition.console(id = "success", message = "success"),
-                NotificationDefinition.console(id = "failure", message = "failure: {{errorMessage}}")
+                recorder.definition("success"),
+                recorder.definition("failure")
             )
             rule(
                 AlertRuleDefinition.newRule(
@@ -61,31 +57,26 @@ class AlertServiceFailureTest {
 
         service.start(configuration)
 
-        val event = withTimeout(5.seconds) { handler.events.receive() }
+        val event = withTimeout(5.seconds) { recorder.events.receive() }
 
         kotlin.test.assertEquals("Failing rule", event.context.ruleName)
         kotlin.test.assertEquals("FAILURE", event.variables[NotificationVariable.STATUS.key])
-        kotlin.test.assertEquals("failure", event.definition.id)
+        kotlin.test.assertEquals("failure", event.notificationId)
         kotlin.test.assertEquals("RestException", event.variables[NotificationVariable.ERROR_TYPE.key])
         kotlin.test.assertEquals("EXECUTION", event.variables[NotificationVariable.FAILURE_PHASE.key])
         kotlin.test.assertEquals("1", event.variables[NotificationVariable.FAILURE_COUNT.key])
     }
 
-    private class RecordingNotificationHandler : NotificationHandler {
+    private class RecordingNotificationSink {
         val events: Channel<NotificationEvent> = Channel(Channel.UNLIMITED)
-        override val channel: NotificationChannel = NotificationChannel.CONSOLE
 
-        override suspend fun send(
-            definition: NotificationDefinition,
-            variables: Map<String, String>,
-            context: NotificationContext
-        ) {
-            events.send(NotificationEvent(definition, variables, context))
+        fun definition(id: String) = notification(id) {
+            events.send(NotificationEvent(id, variables, context))
         }
     }
 
     private data class NotificationEvent(
-        val definition: NotificationDefinition,
+        val notificationId: String,
         val variables: Map<String, String>,
         val context: NotificationContext
     )
