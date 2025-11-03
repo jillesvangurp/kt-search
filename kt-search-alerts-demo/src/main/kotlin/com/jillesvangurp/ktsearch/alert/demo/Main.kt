@@ -13,6 +13,7 @@ import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.searchdsls.querydsl.match
 import io.ktor.client.HttpClient
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.awaitCancellation
 
@@ -45,6 +46,7 @@ suspend fun main() {
 
     alerts.start {
         notifications {
+
             +consoleNotification(
                 id = "console-alerts",
                 level = ConsoleLevel.INFO,
@@ -81,11 +83,15 @@ suspend fun main() {
                 )
             }
         }
-
+        notificationDefaults {
+            notifyOnFailures = true
+            repeatNotificationsEvery = 10.minutes
+        }
         rules {
+
             +AlertRuleDefinition.newRule(
                 id = "error-alert",
-                name = "Error monitor",
+                name = "Test Alert Rule",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
                 notifications = emptyList(),
