@@ -80,5 +80,5 @@ class SlackWebhookSender(
 
 class SlackWebhookException(
     val response: HttpResponse,
-    body: String
+    val body: String
 ) : Exception("Slack webhook error ${response.status.value}: $body")
