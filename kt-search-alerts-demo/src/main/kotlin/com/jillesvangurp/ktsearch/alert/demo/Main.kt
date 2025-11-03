@@ -42,35 +42,30 @@ suspend fun main() {
 
     alerts.start {
         notifications {
-            add(
-                consoleNotification(
-                    id = "console-alerts",
-                    level = ConsoleLevel.INFO,
-                    message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
-                )
+            +consoleNotification(
+                id = "console-alerts",
+                level = ConsoleLevel.INFO,
+                message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
             )
             slackHook?.let { hook ->
-                add(
-                    slackNotification(
-                        id = "slack-alerts",
-                        sender = SlackWebhookSender(httpClient.value),
-                        webhookUrl = hook,
-                        message = "Alert {{ruleName}} found {{matchCount}} documents"
-                    )
+                +slackNotification(
+                    id = "slack-alerts",
+                    sender = SlackWebhookSender(httpClient.value),
+                    webhookUrl = hook,
+                    message = "Alert {{ruleName}} found {{matchCount}} documents"
                 )
             }
             sendgrid?.let { key ->
-                add(
-                    emailNotification(
-                        id = "email-alerts",
-                        sender = SendGridEmailSender(
-                            httpClient = httpClient.value,
-                            config = SendGridConfig(apiKey = key)
-                        ),
-                        from = "alerts@domain.com",
-                        to = listOf("dude@domain.com"),
-                        subject = "ALERT",
-                        body = """
+                +emailNotification(
+                    id = "email-alerts",
+                    sender = SendGridEmailSender(
+                        httpClient = httpClient.value,
+                        config = SendGridConfig(apiKey = key)
+                    ),
+                    from = "alerts@domain.com",
+                    to = listOf("dude@domain.com"),
+                    subject = "ALERT",
+                    body = """
                             |Yo Dude,
                             |
                             |{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
@@ -80,13 +75,12 @@ suspend fun main() {
                             |
                             |Alerter
                         """.trimMargin()
-                    )
                 )
             }
         }
 
-        rule(
-            AlertRuleDefinition.newRule(
+        rules {
+            +AlertRuleDefinition.newRule(
                 id = "error-alert",
                 name = "Error monitor",
                 cronExpression = "*/1 * * * *",
@@ -96,7 +90,7 @@ suspend fun main() {
             ) {
                 match("objectType", "ObjectMarker")
             }
-        )
+        }
     }
 
     println("Alert service running against $alertTarget on $elasticHost:$elasticPort. Press Ctrl+C to stop.")

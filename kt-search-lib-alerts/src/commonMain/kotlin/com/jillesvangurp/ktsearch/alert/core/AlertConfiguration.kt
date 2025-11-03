@@ -45,15 +45,19 @@ class AlertConfigurationBuilder internal constructor() {
     }
 
     fun rule(definition: AlertRuleDefinition) {
-        ruleDefinitions += definition
+        registerRule(definition)
     }
 
     fun rules(vararg definitions: AlertRuleDefinition) {
-        ruleDefinitions += definitions
+        definitions.forEach(::registerRule)
     }
 
     fun rules(definitions: Iterable<AlertRuleDefinition>) {
-        ruleDefinitions += definitions
+        definitions.forEach(::registerRule)
+    }
+
+    fun rules(block: RuleConfigurationScope.() -> Unit) {
+        RuleConfigurationScope(::registerRule).apply(block)
     }
 
     fun defaultNotifications(vararg notificationIds: String) {
@@ -95,6 +99,10 @@ class AlertConfigurationBuilder internal constructor() {
         require(notificationDefinitions[definition.id] == null) { "Notification '${definition.id}' already defined" }
         notificationDefinitions[definition.id] = definition
     }
+
+    private fun registerRule(definition: AlertRuleDefinition) {
+        ruleDefinitions += definition
+    }
 }
 
 @AlertConfigurationDslMarker
@@ -105,6 +113,20 @@ class NotificationConfigurationScope internal constructor(
         register(definition)
         return definition
     }
+
+    operator fun NotificationDefinition.unaryPlus(): NotificationDefinition = add(this)
+}
+
+@AlertConfigurationDslMarker
+class RuleConfigurationScope internal constructor(
+    private val register: (AlertRuleDefinition) -> Unit
+) {
+    fun add(definition: AlertRuleDefinition): AlertRuleDefinition {
+        register(definition)
+        return definition
+    }
+
+    operator fun AlertRuleDefinition.unaryPlus(): AlertRuleDefinition = add(this)
 }
 
 fun alertConfiguration(block: AlertConfigurationBuilder.() -> Unit): AlertConfiguration =
