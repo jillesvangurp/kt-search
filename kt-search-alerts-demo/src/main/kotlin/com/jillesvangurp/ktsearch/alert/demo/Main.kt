@@ -27,6 +27,9 @@ suspend fun main() {
     val debug = env("DEBUG", "false").toBoolean()
     val slackHook = env("SLACK_HOOK", "").takeIf { it.isNotBlank() }
     val sendgrid = env("SENDGRID", "").takeIf { it.isNotBlank() }
+    val emailFrom = env("EMAIL_FROM", "alerts@domain.com")
+    val notificationEmails = env("EMAIL_TO", "dude@domain.com")
+        .split(',').map { it.trim() }.filter { it.isNotBlank() }
 
     val client = SearchClient(
         KtorRestClient(
@@ -52,7 +55,7 @@ suspend fun main() {
                     id = "slack-alerts",
                     sender = SlackWebhookSender(httpClient.value),
                     webhookUrl = hook,
-                    message = "Alert {{ruleName}} found {{matchCount}} documents"
+                    message = "Alert {{ruleName}} found {{matchCount}} documents."
                 )
             }
             sendgrid?.let { key ->
@@ -62,8 +65,8 @@ suspend fun main() {
                         httpClient = httpClient.value,
                         config = SendGridConfig(apiKey = key)
                     ),
-                    from = "alerts@domain.com",
-                    to = listOf("dude@domain.com"),
+                    from = emailFrom,
+                    to = notificationEmails,
                     subject = "ALERT",
                     body = """
                             |Yo Dude,
