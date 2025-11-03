@@ -499,43 +499,52 @@ fun env(key: String) = System.getenv(key) ?: error("Missing $key")
 val httpClient = HttpClient()
 val service = AlertService(searchClient)
 service.start {
-    notifications(
-        consoleNotification(
-            id = "console-alerts",
-            level = ConsoleLevel.INFO,
-            message = "{{ruleName}} matched {{matchCount}} documents"
-        ),
-        slackNotification(
-            id = "slack-alerts",
-            sender = SlackWebhookSender(httpClient),
-            webhookUrl = env("SLACK_WEBHOOK_URL"),
-            message = "*{{ruleName}}* matched {{matchCount}} documents",
-            channelName = "#ops-alerts",
-            username = "Alertbot"
-        ),
-        emailNotification(
-            id = "ops-email",
-            sender = SendGridEmailSender(httpClient, SendGridConfig(apiKey = env("SENDGRID_API_KEY"))),
-            from = "alerts@example.com",
-            to = listOf("oncall@example.com"),
-            subject = "{{ruleName}} fired",
-            body = "Found {{matchCount}} matches at {{timestamp}}"
-        ),
-        smsNotification(
-            id = "oncall-sms",
-            sender = TwilioSmsSender(
-                httpClient,
-                TwilioConfig(
-                    accountSid = env("TWILIO_ACCOUNT_SID"),
-                    authToken = env("TWILIO_AUTH_TOKEN"),
-                    defaultSenderId = env("TWILIO_FROM")
-                )
-            ),
-            to = listOf(env("ONCALL_NUMBER")),
-            senderId = env("TWILIO_FROM"),
-            message = "{{ruleName}} matched {{matchCount}}"
+    notifications {
+        addNotification(
+            consoleNotification(
+                id = "console-alerts",
+                level = ConsoleLevel.INFO,
+                message = "{{ruleName}} matched {{matchCount}} documents"
+            )
         )
-    )
+        addNotification(
+            slackNotification(
+                id = "slack-alerts",
+                sender = SlackWebhookSender(httpClient),
+                webhookUrl = env("SLACK_WEBHOOK_URL"),
+                message = "*{{ruleName}}* matched {{matchCount}} documents",
+                channelName = "#ops-alerts",
+                username = "Alertbot"
+            )
+        )
+        addNotification(
+            emailNotification(
+                id = "ops-email",
+                sender = SendGridEmailSender(httpClient, SendGridConfig(apiKey = env("SENDGRID_API_KEY"))),
+                from = "alerts@example.com",
+                to = listOf("oncall@example.com"),
+                subject = "{{ruleName}} fired",
+                body = "Found {{matchCount}} matches at {{timestamp}}"
+            )
+        )
+        addNotification(
+            smsNotification(
+                id = "oncall-sms",
+                sender = TwilioSmsSender(
+                    httpClient,
+                    TwilioConfig(
+                        accountSid = env("TWILIO_ACCOUNT_SID"),
+                        authToken = env("TWILIO_AUTH_TOKEN"),
+                        defaultSenderId = env("TWILIO_FROM")
+                    )
+                ),
+                to = listOf(env("ONCALL_NUMBER")),
+                senderId = env("TWILIO_FROM"),
+                message = "{{ruleName}} matched {{matchCount}}"
+            )
+        )
+    }
+    // Optional: narrow the default set if every rule should not fan out to each notification
     defaultNotifications("console-alerts", "slack-alerts", "ops-email")
     rule(
         AlertRuleDefinition.newRule(
@@ -553,7 +562,7 @@ service.start {
 ```
 
 - Notifications are regular Kotlin functions; each definition carries the suspending block that delivers the alert, so there's no central dispatcher to configure.
-- Use `defaultNotifications` to establish the notification ids that every rule receives unless it overrides them.
+- By default every configured notification id becomes part of the default set; call `defaultNotifications` only if you want to override the set or its order.
 - Slack notifications post to an [incoming webhook URL](https://api.slack.com/messaging/webhooks) and can still override the channel/username per message.
 - The Twilio sender expects the account SID, auth token, and a default `From` number; each notification can override the sender ID or list multiple recipients.
 - Custom notification channels are one `notification(id) { … }` call away—provide a suspending block that delivers the alert, and reference its id from your rules.

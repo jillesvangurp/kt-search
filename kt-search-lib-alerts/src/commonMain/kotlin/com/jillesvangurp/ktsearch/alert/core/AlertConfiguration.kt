@@ -21,19 +21,27 @@ annotation class AlertConfigurationDslMarker
 class AlertConfigurationBuilder internal constructor() {
     private val notificationDefinitions = linkedMapOf<String, NotificationDefinition>()
     private val ruleDefinitions = mutableListOf<AlertRuleDefinition>()
-    private val defaultNotificationIds = mutableListOf<String>()
+    private val defaultNotificationIdsOverride = mutableListOf<String>()
     private var notificationDefaults = NotificationDefaults.DEFAULT
 
-    fun notification(definition: NotificationDefinition) {
-        addNotification(definition)
+    fun addNotification(definition: NotificationDefinition): NotificationDefinition {
+        registerNotification(definition)
+        return definition
     }
 
+    fun notification(definition: NotificationDefinition): NotificationDefinition =
+        addNotification(definition)
+
     fun notifications(vararg definitions: NotificationDefinition) {
-        definitions.forEach(::addNotification)
+        definitions.forEach(::registerNotification)
     }
 
     fun notifications(definitions: Iterable<NotificationDefinition>) {
-        definitions.forEach(::addNotification)
+        definitions.forEach(::registerNotification)
+    }
+
+    fun notifications(block: NotificationConfigurationScope.() -> Unit) {
+        NotificationConfigurationScope(::registerNotification).apply(block)
     }
 
     fun rule(definition: AlertRuleDefinition) {
@@ -55,7 +63,7 @@ class AlertConfigurationBuilder internal constructor() {
     fun defaultNotifications(notificationIds: Iterable<String>) {
         notificationIds.forEach { id ->
             require(id.isNotBlank()) { "Default notification id must not be blank" }
-            defaultNotificationIds += id
+            defaultNotificationIdsOverride += id
         }
     }
 
@@ -66,9 +74,13 @@ class AlertConfigurationBuilder internal constructor() {
     internal fun build(): AlertConfiguration {
         val definitions = notificationDefinitions.toMap()
         val defaults = LinkedHashSet<String>()
-        defaultNotificationIds.forEach { id ->
-            require(definitions.containsKey(id)) { "Default notification '$id' is not defined" }
-            defaults += id
+        if (defaultNotificationIdsOverride.isEmpty()) {
+            defaults += definitions.keys
+        } else {
+            defaultNotificationIdsOverride.forEach { id ->
+                require(definitions.containsKey(id)) { "Default notification '$id' is not defined" }
+                defaults += id
+            }
         }
         return AlertConfiguration(
             notifications = NotificationRegistry(definitions),
@@ -78,10 +90,20 @@ class AlertConfigurationBuilder internal constructor() {
         )
     }
 
-    private fun addNotification(definition: NotificationDefinition) {
+    private fun registerNotification(definition: NotificationDefinition) {
         require(definition.id.isNotBlank()) { "Notification id must not be blank" }
         require(notificationDefinitions[definition.id] == null) { "Notification '${definition.id}' already defined" }
         notificationDefinitions[definition.id] = definition
+    }
+}
+
+@AlertConfigurationDslMarker
+class NotificationConfigurationScope internal constructor(
+    private val register: (NotificationDefinition) -> Unit
+) {
+    fun addNotification(definition: NotificationDefinition): NotificationDefinition {
+        register(definition)
+        return definition
     }
 }
 

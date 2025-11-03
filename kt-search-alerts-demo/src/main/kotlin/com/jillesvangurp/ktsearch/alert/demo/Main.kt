@@ -39,62 +39,52 @@ suspend fun main() {
     )
 
     val httpClient = lazy { HttpClient() }
-    val notifications = buildList {
-        add(
-            consoleNotification(
-                id = "console-alerts",
-                level = ConsoleLevel.INFO,
-                message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
-            )
-        )
-        slackHook?.let { hook ->
-            add(
-                slackNotification(
-                    id = "slack-alerts",
-                    sender = SlackWebhookSender(httpClient.value),
-                    webhookUrl = hook,
-                    message = "Alert {{ruleName}} found {{matchCount}} documents"
-                )
-            )
-        }
-        sendgrid?.let { key ->
-            add(
-                emailNotification(
-                    id = "email-alerts",
-                    sender = SendGridEmailSender(
-                        httpClient = httpClient.value,
-                        config = SendGridConfig(apiKey = key)
-                    ),
-                    from = "alerts@domain.com",
-                    to = listOf("dude@domain.com"),
-                    subject = "ALERT",
-                    body = """
-                        |Yo Dude,
-                        |
-                        |{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
-                        |
-                        |
-                        |Kindly,
-                        |
-                        |Alerter
-                    """.trimMargin()
-                )
-            )
-        }
-    }
-
-    val defaultNotificationIds = buildList {
-        notifications.find { it.id == "console-alerts" }?.let { add(it.id) }
-        notifications.find { it.id == "slack-alerts" }?.let { add(it.id) }
-        notifications.find { it.id == "email-alerts" }?.let { add(it.id) }
-    }
 
     val alerts = AlertService(client)
 
     alerts.start {
-        notifications(notifications)
-        if (defaultNotificationIds.isNotEmpty()) {
-            defaultNotifications(defaultNotificationIds)
+        notifications {
+            addNotification(
+                consoleNotification(
+                    id = "console-alerts",
+                    level = ConsoleLevel.INFO,
+                    message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
+                )
+            )
+            slackHook?.let { hook ->
+                addNotification(
+                    slackNotification(
+                        id = "slack-alerts",
+                        sender = SlackWebhookSender(httpClient.value),
+                        webhookUrl = hook,
+                        message = "Alert {{ruleName}} found {{matchCount}} documents"
+                    )
+                )
+            }
+            sendgrid?.let { key ->
+                addNotification(
+                    emailNotification(
+                        id = "email-alerts",
+                        sender = SendGridEmailSender(
+                            httpClient = httpClient.value,
+                            config = SendGridConfig(apiKey = key)
+                        ),
+                        from = "alerts@domain.com",
+                        to = listOf("dude@domain.com"),
+                        subject = "ALERT",
+                        body = """
+                            |Yo Dude,
+                            |
+                            |{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                            |
+                            |
+                            |Kindly,
+                            |
+                            |Alerter
+                        """.trimMargin()
+                    )
+                )
+            }
         }
 
         rule(
