@@ -128,16 +128,17 @@ class SendGridEmailSender(
             initialDelay = config.retryDelay,
             shouldRetry = { throwable -> throwable is RetryableSendException }
         ) {
+            val payload = buildPayload(message)
             val response = httpClient.post(config.endpoint) {
                 header("Authorization", "Bearer ${config.apiKey}")
                 contentType(ContentType.Application.Json)
-                setBody(buildPayload(message))
+                setBody(payload)
             }
             handleResponse(response)
         }
     }
 
-    private fun buildPayload(alertNotification: EmailMessage) = buildJsonObject {
+    private fun buildPayload(alertNotification: EmailMessage): String = buildJsonObject {
         putJsonArray("personalizations") {
             add(buildJsonObject {
                 putJsonArray("to") {
@@ -171,7 +172,7 @@ class SendGridEmailSender(
                 put("value", alertNotification.body)
             })
         }
-    }
+    }.toString()
 
     private suspend fun handleResponse(response: HttpResponse) {
         if (response.status.isSuccess()) {

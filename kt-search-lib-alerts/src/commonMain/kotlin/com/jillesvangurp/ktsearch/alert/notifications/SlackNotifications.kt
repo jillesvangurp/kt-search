@@ -8,7 +8,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.buildJsonObject
@@ -85,7 +84,7 @@ class SlackWebhookSender(
         }.toString()
         val response = httpClient.post(config.webhookUrl) {
             contentType(ContentType.Application.Json)
-            setBody(TextContent(payload, ContentType.Application.Json))
+            setBody(payload)
         }
         if (!response.status.isSuccess()) {
             val body = runCatching { response.bodyAsText() }.getOrElse { "" }
