@@ -22,14 +22,15 @@ suspend fun main() {
     val elasticPort = env("ELASTIC_PORT", "9999").toInt()
     val alertTarget = env("ALERT_TARGET", "formation-objects")
     val environment = env("ENVIRONMENT", "prod")
+    val debug = env("DEBUG", "false").toBoolean()
     val slackHook = env("SLACK_HOOK", "").takeIf { it.isNotBlank() }
-    val sendgrid = env("SLACK_HOOK", "").takeIf { it.isNotBlank() }
+    val sendgrid = env("SENDGRID", "").takeIf { it.isNotBlank() }
 
     val client = SearchClient(
         KtorRestClient(
             host = elasticHost,
             port = elasticPort,
-            logging = false
+            logging = debug
         )
     )
 
