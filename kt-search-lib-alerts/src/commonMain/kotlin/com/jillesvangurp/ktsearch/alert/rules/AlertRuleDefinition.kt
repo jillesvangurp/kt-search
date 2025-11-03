@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch.alert.rules
 
 import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import kotlin.time.Duration
 
 data class AlertRuleDefinition(
     val id: String?,
@@ -12,6 +13,7 @@ data class AlertRuleDefinition(
     val queryJson: String,
     val notifications: List<RuleNotificationInvocation>,
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
+    val repeatNotificationIntervalMillis: Long?,
     val startImmediately: Boolean
 ) {
     companion object {
@@ -24,6 +26,7 @@ data class AlertRuleDefinition(
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
             startImmediately: Boolean = true,
+            repeatNotificationsEvery: Duration? = null,
             query: SearchDSL.() -> Unit
         ): AlertRuleDefinition = fromQueryJson(
             id = id,
@@ -34,6 +37,7 @@ data class AlertRuleDefinition(
             failureNotifications = failureNotifications,
             enabled = enabled,
             startImmediately = startImmediately,
+            repeatNotificationsEvery = repeatNotificationsEvery,
             queryJson = SearchDSL().apply(query).json()
         )
 
@@ -46,12 +50,17 @@ data class AlertRuleDefinition(
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
             startImmediately: Boolean = true,
+            repeatNotificationsEvery: Duration? = null,
             queryJson: String
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
             require(target.isNotBlank()) { "Target index or alias must be specified" }
             require(queryJson.isNotBlank()) { "Query must be provided for rule '$name'" }
+            val repeatMillis = repeatNotificationsEvery?.let {
+                require(it >= Duration.ZERO) { "Repeat notification interval must not be negative" }
+                it.inWholeMilliseconds
+            }
             return AlertRuleDefinition(
                 id = id,
                 name = name,
@@ -61,6 +70,7 @@ data class AlertRuleDefinition(
                 queryJson = queryJson,
                 notifications = notifications.normalizeInvocations(),
                 failureNotifications = failureNotifications.normalizeInvocations(),
+                repeatNotificationIntervalMillis = repeatMillis,
                 startImmediately = startImmediately
             )
         }

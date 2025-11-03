@@ -4,11 +4,14 @@ import com.jillesvangurp.ktsearch.alert.notifications.NotificationDefinition
 import com.jillesvangurp.ktsearch.alert.notifications.NotificationRegistry
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import kotlin.collections.LinkedHashSet
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 data class AlertConfiguration(
     val notifications: NotificationRegistry,
     val rules: List<AlertRuleDefinition>,
-    val defaultNotificationIds: List<String>
+    val defaultNotificationIds: List<String>,
+    val notificationDefaults: NotificationDefaults = NotificationDefaults.DEFAULT
 )
 
 @DslMarker
@@ -19,6 +22,7 @@ class AlertConfigurationBuilder internal constructor() {
     private val notificationDefinitions = linkedMapOf<String, NotificationDefinition>()
     private val ruleDefinitions = mutableListOf<AlertRuleDefinition>()
     private val defaultNotificationIds = mutableListOf<String>()
+    private var notificationDefaults = NotificationDefaults.DEFAULT
 
     fun notification(definition: NotificationDefinition) {
         addNotification(definition)
@@ -55,6 +59,10 @@ class AlertConfigurationBuilder internal constructor() {
         }
     }
 
+    fun notificationDefaults(block: NotificationDefaultsBuilder.() -> Unit) {
+        notificationDefaults = NotificationDefaultsBuilder(notificationDefaults).apply(block).build()
+    }
+
     internal fun build(): AlertConfiguration {
         val definitions = notificationDefinitions.toMap()
         val defaults = LinkedHashSet<String>()
@@ -65,7 +73,8 @@ class AlertConfigurationBuilder internal constructor() {
         return AlertConfiguration(
             notifications = NotificationRegistry(definitions),
             rules = ruleDefinitions.toList(),
-            defaultNotificationIds = defaults.toList()
+            defaultNotificationIds = defaults.toList(),
+            notificationDefaults = notificationDefaults
         )
     }
 
@@ -78,3 +87,25 @@ class AlertConfigurationBuilder internal constructor() {
 
 fun alertConfiguration(block: AlertConfigurationBuilder.() -> Unit): AlertConfiguration =
     AlertConfigurationBuilder().apply(block).build()
+
+data class NotificationDefaults(
+    val repeatNotificationsEvery: Duration,
+    val notifyOnFailures: Boolean
+) {
+    companion object {
+        val DEFAULT = NotificationDefaults(
+            repeatNotificationsEvery = 1.hours,
+            notifyOnFailures = true
+        )
+    }
+}
+
+class NotificationDefaultsBuilder internal constructor(initial: NotificationDefaults) {
+    var repeatNotificationsEvery: Duration = initial.repeatNotificationsEvery
+    var notifyOnFailures: Boolean = initial.notifyOnFailures
+
+    fun build(): NotificationDefaults = NotificationDefaults(
+        repeatNotificationsEvery = repeatNotificationsEvery,
+        notifyOnFailures = notifyOnFailures
+    )
+}

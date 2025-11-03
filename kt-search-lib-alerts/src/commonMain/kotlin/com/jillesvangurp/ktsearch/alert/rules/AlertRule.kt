@@ -18,7 +18,10 @@ data class AlertRule(
     val lastRun: Instant? = null,
     val nextRun: Instant? = null,
     val failureCount: Int = 0,
-    val lastFailureMessage: String? = null
+    val lastFailureMessage: String? = null,
+    val repeatNotificationIntervalMillis: Long?,
+    val alertStatus: RuleAlertStatus = RuleAlertStatus.UNKNOWN,
+    val lastNotificationAt: Instant? = null
 ) {
     fun executionHash(): Int {
         var result = cronExpression.hashCode()
@@ -27,6 +30,7 @@ data class AlertRule(
         result = 31 * result + enabled.hashCode()
         result = 31 * result + notifications.hashCode()
         result = 31 * result + failureNotifications.hashCode()
+        result = 31 * result + (repeatNotificationIntervalMillis?.hashCode() ?: 0)
         return result
     }
 }
@@ -58,4 +62,11 @@ data class RuleNotificationInvocation(
             return notificationIds.map { create(it, variables) }
         }
     }
+}
+
+@Serializable
+enum class RuleAlertStatus {
+    UNKNOWN,
+    ALERTING,
+    CLEAR
 }

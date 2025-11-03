@@ -10,11 +10,11 @@ import com.jillesvangurp.ktsearch.alert.notifications.putVariableIfNotNull
 import com.jillesvangurp.ktsearch.alert.rules.AlertRule
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.CronSchedule
+import com.jillesvangurp.ktsearch.alert.rules.RuleAlertStatus
 import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.ktsearch.search
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +29,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.JsonObject
 
 private val logger = KotlinLogging.logger {}
@@ -47,7 +49,12 @@ class AlertService(
     private val coroutineContext: CoroutineContext = dispatcherContext
     private var supervisorJob: Job = SupervisorJob()
     private var scope: CoroutineScope = CoroutineScope(coroutineContext + supervisorJob)
-    private var configuration: AlertConfiguration = AlertConfiguration(NotificationRegistry.empty(), emptyList(), emptyList())
+    private var configuration: AlertConfiguration = AlertConfiguration(
+        notifications = NotificationRegistry.empty(),
+        rules = emptyList(),
+        defaultNotificationIds = emptyList(),
+        notificationDefaults = NotificationDefaults.DEFAULT
+    )
     private var started = false
 
     suspend fun start(configuration: AlertConfiguration) {
@@ -229,6 +236,8 @@ class AlertService(
         failureNotifications: List<RuleNotificationInvocation>
     ): AlertRule {
         val cron = CronSchedule.parse(definition.cronExpression)
+        val repeatIntervalMillis = definition.repeatNotificationIntervalMillis
+            ?: configuration.notificationDefaults.repeatNotificationsEvery.inWholeMilliseconds
         val nextRun = when {
             !definition.enabled -> null
             definition.startImmediately -> now
@@ -249,7 +258,10 @@ class AlertService(
             lastRun = existing?.lastRun,
             nextRun = nextRun,
             failureCount = existing?.failureCount ?: 0,
-            lastFailureMessage = existing?.lastFailureMessage
+            lastFailureMessage = existing?.lastFailureMessage,
+            repeatNotificationIntervalMillis = repeatIntervalMillis,
+            alertStatus = existing?.alertStatus ?: RuleAlertStatus.UNKNOWN,
+            lastNotificationAt = existing?.lastNotificationAt
         )
     }
 
@@ -315,19 +327,39 @@ class AlertService(
             val triggeredAt = nowProvider()
             try {
                 val matches = performSearch(latestRule)
-                if (matches.isNotEmpty()) {
-                    triggerNotifications(latestRule, matches, triggeredAt)
-                }
                 val next = cron.nextAfter(triggeredAt)
                 nextRun = next
-                updateRuleState(id) { current ->
-                    current.copy(
-                        lastRun = triggeredAt,
-                        nextRun = next,
-                        failureCount = 0,
-                        lastFailureMessage = null,
-                        updatedAt = triggeredAt
-                    )
+                if (matches.isNotEmpty()) {
+                    val shouldNotify = shouldDispatch(latestRule, triggeredAt)
+                    if (shouldNotify) {
+                        triggerNotifications(latestRule, matches, triggeredAt)
+                    }
+                    updateRuleState(id) { current ->
+                        current.copy(
+                            lastRun = triggeredAt,
+                            nextRun = next,
+                            failureCount = 0,
+                            lastFailureMessage = null,
+                            updatedAt = triggeredAt,
+                            alertStatus = RuleAlertStatus.ALERTING,
+                            lastNotificationAt = when {
+                                shouldNotify -> triggeredAt
+                                else -> current.lastNotificationAt
+                            }
+                        )
+                    }
+                } else {
+                    updateRuleState(id) { current ->
+                        current.copy(
+                            lastRun = triggeredAt,
+                            nextRun = next,
+                            failureCount = 0,
+                            lastFailureMessage = null,
+                            updatedAt = triggeredAt,
+                            alertStatus = RuleAlertStatus.CLEAR,
+                            lastNotificationAt = null
+                        )
+                    }
                 }
             } catch (t: Throwable) {
                 if (t is CancellationException) throw t
@@ -358,6 +390,18 @@ class AlertService(
             }
         }
     }
+
+    private fun shouldDispatch(rule: AlertRule, triggeredAt: Instant): Boolean =
+        when (rule.alertStatus) {
+            RuleAlertStatus.UNKNOWN,
+            RuleAlertStatus.CLEAR -> true
+            RuleAlertStatus.ALERTING -> {
+                val intervalMillis = rule.repeatNotificationIntervalMillis ?: return false
+                val lastNotified = rule.lastNotificationAt ?: return true
+                val elapsed = triggeredAt - lastNotified
+                elapsed >= intervalMillis.milliseconds
+            }
+        }
 
     private suspend fun triggerNotifications(rule: AlertRule, matches: List<JsonObject>, triggeredAt: Instant) {
         val registry = configuration.notifications
@@ -430,6 +474,10 @@ class AlertService(
         phase: FailurePhase,
         failureCount: Int? = null
     ) {
+        if (!configuration.notificationDefaults.notifyOnFailures) {
+            logger.debug { "Failure notifications disabled; skipping failure notification for rule $ruleId" }
+            return
+        }
         val registry = configuration.notifications
         val invocations = if (notifications.isNotEmpty()) notifications else fallbackNotifications
         val context = NotificationContext(
