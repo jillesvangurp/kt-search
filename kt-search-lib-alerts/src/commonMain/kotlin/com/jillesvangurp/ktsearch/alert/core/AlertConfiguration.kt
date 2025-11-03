@@ -57,7 +57,11 @@ class AlertConfigurationBuilder internal constructor() {
     }
 
     fun rules(block: RuleConfigurationScope.() -> Unit) {
-        RuleConfigurationScope(::registerRule).apply(block)
+        RuleConfigurationScope(
+            register = ::registerRule,
+            setDefaultNotifications = { notificationIds -> defaultNotifications(notificationIds) },
+            configureNotificationDefaults = { builder -> notificationDefaults(builder) }
+        ).apply(block)
     }
 
     fun defaultNotifications(vararg notificationIds: String) {
@@ -119,7 +123,9 @@ class NotificationConfigurationScope internal constructor(
 
 @AlertConfigurationDslMarker
 class RuleConfigurationScope internal constructor(
-    private val register: (AlertRuleDefinition) -> Unit
+    private val register: (AlertRuleDefinition) -> Unit,
+    private val setDefaultNotifications: (Iterable<String>) -> Unit,
+    private val configureNotificationDefaults: (NotificationDefaultsBuilder.() -> Unit) -> Unit
 ) {
     fun add(definition: AlertRuleDefinition): AlertRuleDefinition {
         register(definition)
@@ -127,6 +133,26 @@ class RuleConfigurationScope internal constructor(
     }
 
     operator fun AlertRuleDefinition.unaryPlus(): AlertRuleDefinition = add(this)
+
+    fun defaultNotifications(vararg notificationIds: String) {
+        defaultNotifications(notificationIds.asIterable())
+    }
+
+    fun defaultNotifications(notificationIds: Iterable<String>) {
+        setDefaultNotifications(notificationIds)
+    }
+
+    fun defaultNotificationIds(vararg notificationIds: String) {
+        defaultNotifications(*notificationIds)
+    }
+
+    fun defaultNotificationIds(notificationIds: Iterable<String>) {
+        defaultNotifications(notificationIds)
+    }
+
+    fun notificationDefaults(block: NotificationDefaultsBuilder.() -> Unit) {
+        configureNotificationDefaults(block)
+    }
 }
 
 fun alertConfiguration(block: AlertConfigurationBuilder.() -> Unit): AlertConfiguration =
