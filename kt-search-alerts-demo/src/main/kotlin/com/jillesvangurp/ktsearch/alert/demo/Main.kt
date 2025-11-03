@@ -45,7 +45,9 @@ suspend fun main() {
             NotificationDefinition.console(
                 id = "console-alerts",
                 level = ConsoleLevel.INFO,
-                message = """
+                message = """{{ruleName}} matched {{matchCount}} documents in env:${environment} at {{timestamp}}.""".trimMargin()
+            ),
+            NotificationDefinition.email("email-alerts","alerts@domain.com",listOf("dude@domain.com"),"ALERT","""
                     |Yo Dude,
                     |
                     |{{ruleName}} matched {{matchCount}} documents in env:${environment} at {{timestamp}}.
@@ -54,8 +56,8 @@ suspend fun main() {
                     |Kindly,
                     |
                     |Alerter
-                    """.trimMargin()
-            )
+                    """),
+            NotificationDefinition.slack("slack-alerts", slackHook!!,"","","")
         )
 
         rule(
