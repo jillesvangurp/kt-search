@@ -101,7 +101,7 @@ class AlertConfigurationBuilder internal constructor() {
 class NotificationConfigurationScope internal constructor(
     private val register: (NotificationDefinition) -> Unit
 ) {
-    fun addNotification(definition: NotificationDefinition): NotificationDefinition {
+    fun add(definition: NotificationDefinition): NotificationDefinition {
         register(definition)
         return definition
     }

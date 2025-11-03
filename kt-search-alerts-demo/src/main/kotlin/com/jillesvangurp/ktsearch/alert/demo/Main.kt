@@ -11,12 +11,10 @@ import com.jillesvangurp.ktsearch.alert.notifications.emailNotification
 import com.jillesvangurp.ktsearch.alert.notifications.slackNotification
 import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
-import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.searchdsls.querydsl.match
 import io.ktor.client.HttpClient
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.runBlocking
 
 private fun env(key: String, default: String) = System.getenv(key) ?: default
 
@@ -44,7 +42,7 @@ suspend fun main() {
 
     alerts.start {
         notifications {
-            addNotification(
+            add(
                 consoleNotification(
                     id = "console-alerts",
                     level = ConsoleLevel.INFO,
@@ -52,7 +50,7 @@ suspend fun main() {
                 )
             )
             slackHook?.let { hook ->
-                addNotification(
+                add(
                     slackNotification(
                         id = "slack-alerts",
                         sender = SlackWebhookSender(httpClient.value),
@@ -62,7 +60,7 @@ suspend fun main() {
                 )
             }
             sendgrid?.let { key ->
-                addNotification(
+                add(
                     emailNotification(
                         id = "email-alerts",
                         sender = SendGridEmailSender(
