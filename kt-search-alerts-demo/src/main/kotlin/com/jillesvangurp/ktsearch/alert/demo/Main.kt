@@ -50,14 +50,18 @@ suspend fun main() {
             +consoleNotification(
                 id = "console-alerts",
                 level = ConsoleLevel.INFO,
-                message = """{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}."""
+                message = """
+                    |{{ruleMessage}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                    |Matches:
+                    |{{matchesJson}}
+                """.trimMargin()
             )
             slackHook?.let { hook ->
                 +slackNotification(
                     id = "slack-alerts",
                     sender = SlackWebhookSender(httpClient.value),
                     webhookUrl = hook,
-                    message = "Alert {{ruleName}} found {{matchCount}} documents."
+                    message = "*{{ruleMessage}}* matched {{matchCount}} documents.\n```{{matchesJson}}```"
                 )
             }
             sendgrid?.let { key ->
@@ -73,7 +77,10 @@ suspend fun main() {
                     body = """
                             |Yo Dude,
                             |
-                            |{{ruleName}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                            |{{ruleMessage}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                            |
+                            |Matches:
+                            |{{matchesJson}}
                             |
                             |
                             |Kindly,
@@ -94,9 +101,12 @@ suspend fun main() {
                 name = "Test Alert Rule",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
+                message = "ObjectMarker errors detected in env:$environment",
+                failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),
                 startImmediately = true
             ) {
+                resultSize = 2
                 match("objectType", "ObjectMarker")
             }
         }

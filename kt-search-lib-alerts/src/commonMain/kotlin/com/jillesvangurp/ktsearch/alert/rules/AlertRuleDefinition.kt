@@ -11,6 +11,8 @@ data class AlertRuleDefinition(
     val cronExpression: String,
     val target: String,
     val queryJson: String,
+    val message: String?,
+    val failureMessage: String?,
     val notifications: List<RuleNotificationInvocation>,
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val repeatNotificationIntervalMillis: Long?,
@@ -22,6 +24,8 @@ data class AlertRuleDefinition(
             name: String,
             cronExpression: String,
             target: String,
+            message: String? = null,
+            failureMessage: String? = null,
             notifications: List<RuleNotificationInvocation>,
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
@@ -33,6 +37,8 @@ data class AlertRuleDefinition(
             name = name,
             cronExpression = cronExpression,
             target = target,
+            message = message,
+            failureMessage = failureMessage,
             notifications = notifications,
             failureNotifications = failureNotifications,
             enabled = enabled,
@@ -46,6 +52,8 @@ data class AlertRuleDefinition(
             name: String,
             cronExpression: String,
             target: String,
+            message: String? = null,
+            failureMessage: String? = null,
             notifications: List<RuleNotificationInvocation>,
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
@@ -68,6 +76,8 @@ data class AlertRuleDefinition(
                 cronExpression = cronExpression,
                 target = target,
                 queryJson = queryJson,
+                message = normalizeMessage(message),
+                failureMessage = normalizeMessage(failureMessage),
                 notifications = notifications.normalizeInvocations(),
                 failureNotifications = failureNotifications.normalizeInvocations(),
                 repeatNotificationIntervalMillis = repeatMillis,
@@ -77,5 +87,8 @@ data class AlertRuleDefinition(
 
         private fun List<RuleNotificationInvocation>.normalizeInvocations(): List<RuleNotificationInvocation> =
             map { it.copy(variables = it.variables.toMap()) }
+
+        private fun normalizeMessage(message: String?): String? =
+            message?.trim()?.takeIf { it.isNotEmpty() }
     }
 }

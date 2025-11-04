@@ -13,6 +13,7 @@ import com.jillesvangurp.ktsearch.alert.rules.CronSchedule
 import com.jillesvangurp.ktsearch.alert.rules.RuleAlertStatus
 import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
 import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
@@ -31,6 +32,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonObject
 
 private val logger = KotlinLogging.logger {}
@@ -164,7 +166,9 @@ class AlertService(
                             fallbackNotifications = resolvedNotifications,
                             error = t,
                             triggeredAt = failureTime,
-                            phase = FailurePhase.CONFIGURATION
+                            phase = FailurePhase.CONFIGURATION,
+                            ruleMessage = definition.message,
+                            failureMessage = definition.failureMessage
                         )
                     }
                 }
@@ -251,6 +255,8 @@ class AlertService(
             cronExpression = definition.cronExpression,
             target = definition.target,
             queryJson = definition.queryJson,
+            message = definition.message,
+            failureMessage = definition.failureMessage,
             notifications = notifications,
             failureNotifications = failureNotifications,
             createdAt = existing?.createdAt ?: now,
@@ -385,7 +391,9 @@ class AlertService(
                     error = t,
                     triggeredAt = triggeredAt,
                     phase = FailurePhase.EXECUTION,
-                    failureCount = updated.failureCount
+                    failureCount = updated.failureCount,
+                    ruleMessage = updated.message,
+                    failureMessage = updated.failureMessage
                 )
             }
         }
@@ -405,6 +413,7 @@ class AlertService(
 
     private suspend fun triggerNotifications(rule: AlertRule, matches: List<JsonObject>, triggeredAt: Instant) {
         val registry = configuration.notifications
+        val matchesJson = serializeMatches(matches)
         val baseVariables = baseVariables(
             ruleId = rule.id,
             ruleName = rule.name,
@@ -414,7 +423,10 @@ class AlertService(
             status = RuleRunStatus.SUCCESS,
             failureCount = null,
             error = null,
-            phase = null
+            phase = null,
+            ruleMessage = rule.message,
+            failureMessage = rule.failureMessage,
+            matchesJson = matchesJson
         )
         val context = NotificationContext(
             ruleId = rule.id,
@@ -463,6 +475,9 @@ class AlertService(
         return response.hits?.hits?.mapNotNull { it.source } ?: emptyList()
     }
 
+    private fun serializeMatches(matches: List<JsonObject>): String =
+        DEFAULT_PRETTY_JSON.encodeToString(ListSerializer(JsonObject.serializer()), matches)
+
     private suspend fun notifyRuleFailure(
         ruleId: String,
         ruleName: String,
@@ -472,7 +487,9 @@ class AlertService(
         error: Throwable,
         triggeredAt: Instant,
         phase: FailurePhase,
-        failureCount: Int? = null
+        failureCount: Int? = null,
+        ruleMessage: String? = null,
+        failureMessage: String? = null
     ) {
         if (!configuration.notificationDefaults.notifyOnFailures) {
             logger.debug { "Failure notifications disabled; skipping failure notification for rule $ruleId" }
@@ -496,7 +513,10 @@ class AlertService(
             status = RuleRunStatus.FAILURE,
             failureCount = failureCount,
             error = error,
-            phase = phase
+            phase = phase,
+            ruleMessage = ruleMessage,
+            failureMessage = failureMessage ?: ruleMessage,
+            matchesJson = serializeMatches(emptyList())
         )
         var dispatched = false
         for (invocation in invocations) {
@@ -528,7 +548,10 @@ class AlertService(
         status: RuleRunStatus,
         failureCount: Int?,
         error: Throwable?,
-        phase: FailurePhase?
+        phase: FailurePhase?,
+        ruleMessage: String?,
+        failureMessage: String?,
+        matchesJson: String?
     ): MutableMap<String, String> = buildMap {
         putVariable(NotificationVariable.RULE_NAME, ruleName)
         putVariable(NotificationVariable.RULE_ID, ruleId)
@@ -537,6 +560,9 @@ class AlertService(
         putVariable(NotificationVariable.TARGET, target)
         putVariable(NotificationVariable.STATUS, status.name)
         putVariableIfNotNull(NotificationVariable.FAILURE_COUNT, failureCount?.toString())
+        putVariableIfNotNull(NotificationVariable.RULE_MESSAGE, ruleMessage)
+        putVariableIfNotNull(NotificationVariable.FAILURE_MESSAGE, failureMessage)
+        putVariableIfNotNull(NotificationVariable.MATCHES_JSON, matchesJson)
         error?.let {
             val simpleName = it::class.simpleName ?: it::class.toString()
             putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: simpleName)

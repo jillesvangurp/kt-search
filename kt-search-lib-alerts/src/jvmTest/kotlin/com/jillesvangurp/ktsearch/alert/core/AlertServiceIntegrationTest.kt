@@ -12,7 +12,7 @@ import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.defaultKtorHttpClient
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.match
-import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.math.absoluteValue
 import kotlin.random.Random
@@ -22,6 +22,10 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class AlertServiceIntegrationTest {
     private val client: SearchClient = createClient()
@@ -63,6 +67,7 @@ class AlertServiceIntegrationTest {
                     name = "Error monitor",
                     cronExpression = "* * * * *",
                     target = docsIndex,
+                    message = "Disk space issues detected",
                     notifications = emptyList()
                 ) {
                     query = match(LogEntry::level, "error")
@@ -76,8 +81,14 @@ class AlertServiceIntegrationTest {
 
             notification.ruleId shouldBe "test-alert"
             notification.matchCount shouldBe 1
-            notification.matches.shouldNotBeEmpty()
+            notification.matches.shouldHaveSize(1)
             variables[NotificationVariable.RULE_NAME.key] shouldBe "Error monitor"
+            variables[NotificationVariable.RULE_MESSAGE.key] shouldBe "Disk space issues detected"
+            val matchesJson = variables[NotificationVariable.MATCHES_JSON.key]
+            checkNotNull(matchesJson) { "matchesJson variable should be present" }
+            val parsedMatches = Json.parseToJsonElement(matchesJson).jsonArray
+            parsedMatches.shouldHaveSize(1)
+            parsedMatches.first().jsonObject["message"]?.jsonPrimitive?.content shouldBe "disk full"
         } finally {
             service.stop()
         }

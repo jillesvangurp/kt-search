@@ -11,6 +11,8 @@ data class AlertRule(
     val cronExpression: String,
     val target: String,
     val queryJson: String,
+    val message: String? = null,
+    val failureMessage: String? = null,
     val notifications: List<RuleNotificationInvocation>,
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val createdAt: Instant,
@@ -27,6 +29,8 @@ data class AlertRule(
         var result = cronExpression.hashCode()
         result = 31 * result + target.hashCode()
         result = 31 * result + queryJson.hashCode()
+        result = 31 * result + (message?.hashCode() ?: 0)
+        result = 31 * result + (failureMessage?.hashCode() ?: 0)
         result = 31 * result + enabled.hashCode()
         result = 31 * result + notifications.hashCode()
         result = 31 * result + failureNotifications.hashCode()

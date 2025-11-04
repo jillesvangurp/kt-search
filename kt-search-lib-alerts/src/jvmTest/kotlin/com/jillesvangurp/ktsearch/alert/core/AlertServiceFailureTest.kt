@@ -47,6 +47,8 @@ class AlertServiceFailureTest {
                     name = "Failing rule",
                     cronExpression = "* * * * *",
                     target = "logs",
+                    message = "Alerts firing",
+                    failureMessage = "Alerts failing",
                     notifications = listOf(RuleNotificationInvocation.create("success")),
                     failureNotifications = listOf(RuleNotificationInvocation.create("failure"))
                 ) {
@@ -65,6 +67,9 @@ class AlertServiceFailureTest {
         kotlin.test.assertEquals("RestException", event.variables[NotificationVariable.ERROR_TYPE.key])
         kotlin.test.assertEquals("EXECUTION", event.variables[NotificationVariable.FAILURE_PHASE.key])
         kotlin.test.assertEquals("1", event.variables[NotificationVariable.FAILURE_COUNT.key])
+        kotlin.test.assertEquals("Alerts firing", event.variables[NotificationVariable.RULE_MESSAGE.key])
+        kotlin.test.assertEquals("Alerts failing", event.variables[NotificationVariable.FAILURE_MESSAGE.key])
+        kotlin.test.assertEquals("[]", event.variables[NotificationVariable.MATCHES_JSON.key])
     }
 
     private class RecordingNotificationSink {
