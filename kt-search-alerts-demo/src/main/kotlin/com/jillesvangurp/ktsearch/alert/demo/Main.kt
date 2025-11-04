@@ -51,8 +51,8 @@ suspend fun main() {
                 id = "console-alerts",
                 level = ConsoleLevel.INFO,
                 message = """
-                    |{{ruleMessage}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
-                    |Matches:
+                    |{{ruleMessage}}. Matched {{matchCount}} documents in env:$environment at {{timestamp}}:
+                    |
                     |{{matchesJson}}
                 """.trimMargin()
             )
@@ -61,7 +61,7 @@ suspend fun main() {
                     id = "slack-alerts",
                     sender = SlackWebhookSender(httpClient.value),
                     webhookUrl = hook,
-                    message = "*{{ruleMessage}}* matched {{matchCount}} documents.\n```{{matchesJson}}```"
+                    message = "*{{ruleMessage}}* matched {{matchCount}} documents.\n\n```json\n{{matchesJson}}\n```"
                 )
             }
             sendgrid?.let { key ->
@@ -77,9 +77,10 @@ suspend fun main() {
                     body = """
                             |Yo Dude,
                             |
-                            |{{ruleMessage}} matched {{matchCount}} documents in env:$environment at {{timestamp}}.
+                            |{{ruleMessage}} 
                             |
-                            |Matches:
+                            |Matched {{matchCount}} documents in env:$environment at {{timestamp}}:
+                            |
                             |{{matchesJson}}
                             |
                             |
