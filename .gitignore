@@ -36,3 +36,4 @@ localRepo
 flake.nix
 flake.lock
 .envrc
+.env

@@ -64,8 +64,80 @@ This repository contains several kotlin modules that each may be used independen
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
 | `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
 | `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
+| `kt-search-lib-alerts` | Experimental alerting core library built on top of kt-search. Not production ready yet.                                                         |
+| `kt-search-alerts-demo` | JVM demo application that wires the alerting library into a runnable sample for local experimentation.                                            |
 
 The search client module is the main module of this library. I extracted the json-dsl module and `search-dsls` module with the intention of eventually moving these to separate libraries. Json-dsl is actually useful for pretty much any kind of json dialect and I have a few APIs in mind where I might like to use it. The choice to not impose kotlinx.serialization on json dsl also means that both that and the search dsl are very portable and only depend on the Kotlin standard library.
+
+### Configuring kt-search alerting
+
+The alerting module now runs entirely from code: rules are defined via factory functions and evaluated by a coroutine loop rather than being stored in Elasticsearch. Compose a configuration once at startup, wire the notifications you need, and hand everything to the `AlertService`.
+
+```kotlin
+fun env(key: String) = System.getenv(key) ?: error("Missing $key")
+
+val httpClient = HttpClient()
+val service = AlertService(searchClient)
+service.start {
+    notifications(
+        consoleNotification(
+            id = "console-alerts",
+            level = ConsoleLevel.INFO,
+            message = "{{ruleName}} matched {{matchCount}} documents"
+        ),
+        slackNotification(
+            id = "slack-alerts",
+            sender = SlackWebhookSender(httpClient),
+            webhookUrl = env("SLACK_WEBHOOK_URL"),
+            message = "*{{ruleName}}* matched {{matchCount}} documents",
+            channelName = "#ops-alerts",
+            username = "Alertbot"
+        ),
+        emailNotification(
+            id = "ops-email",
+            sender = SendGridEmailSender(httpClient, SendGridConfig(apiKey = env("SENDGRID_API_KEY"))),
+            from = "alerts@example.com",
+            to = listOf("oncall@example.com"),
+            subject = "{{ruleName}} fired",
+            body = "Found {{matchCount}} matches at {{timestamp}}"
+        ),
+        smsNotification(
+            id = "oncall-sms",
+            sender = TwilioSmsSender(
+                httpClient,
+                TwilioConfig(
+                    accountSid = env("TWILIO_ACCOUNT_SID"),
+                    authToken = env("TWILIO_AUTH_TOKEN"),
+                    defaultSenderId = env("TWILIO_FROM")
+                )
+            ),
+            to = listOf(env("ONCALL_NUMBER")),
+            senderId = env("TWILIO_FROM"),
+            message = "{{ruleName}} matched {{matchCount}}"
+        )
+    )
+    defaultNotifications("console-alerts", "slack-alerts", "ops-email")
+    rule(
+        AlertRuleDefinition.newRule(
+            id = "error-alert",
+            name = "Error monitor",
+            cronExpression = "*/2 * * * *",
+            target = "logs-*",
+            notifications = emptyList()
+        ) {
+            // search-dsl powered query
+            match("level", "error")
+        }
+    )
+}
+```
+
+- Notifications are regular Kotlin functions; each definition carries the suspending block that delivers the alert, so there's no central dispatcher to configure.
+- Slack notifications post to an [incoming webhook URL](https://api.slack.com/messaging/webhooks) and can override the channel/username per message.
+- The Twilio sender expects the account SID, auth token, and a default `From` number; each notification can override the sender ID or list multiple recipients.
+- Custom notification channels are one `notification(id) { … }` call away—just provide a suspending block that delivers the alert.
+
+With this approach, alerts are versioned alongside your application code, and secrets such as API keys or webhook URLs are supplied at runtime (typically via environment variables).
 
 ## Contributing
 
@@ -97,5 +169,3 @@ both the manual and this readme heavily depend on this and it makes maintaining 
 The way it works is that it provides a dsl for writing markdown that you use to write documentation. It allows you to include runnable code blocks and when it builds the documentation it figures out how to extract those from the kotlin source files and adds them as markdown code snippets. It can also intercept printed output and the return values of the blocks.
 
 If you have projects of your own that need documentation, you might get some value out of using this as well. 
-
-
