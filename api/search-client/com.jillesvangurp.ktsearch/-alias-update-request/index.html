@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>AliasUpdateRequest</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
-    <script>var pathToRoot = "../../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
@@ -25,20 +25,18 @@
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
 <script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
-<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-            <a class="library-name--link" href="../../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
                     search-client
             </a>
         <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
@@ -48,9 +46,9 @@
         <div class="library-version" id="library-version">
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active=""
-                        data-filter=":search-client:dokkaHtml/commonMain">common</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true"
+                        data-filter=":search-client/commonMain">common</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
                         data-role="dropdown-toggle"
@@ -59,16 +57,16 @@
                         aria-expanded="false"
                         aria-label="Toggle source sets"
                 ></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
                         <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
                             <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":search-client:dokkaHtml/commonMain"
-                                       data-filter=":search-client:dokkaHtml/commonMain"/>
+                                <input type="checkbox" class="checkbox--input" id=":search-client/commonMain"
+                                       data-filter=":search-client/commonMain"/>
                                 <span class="checkbox--icon"></span>
                                 common
                             </label>
@@ -76,7 +74,7 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
                     type="button">Switch theme
             </button>
@@ -84,48 +82,50 @@
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
-                        data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     search-client
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
-<div class="main-content" data-page-type="classlike" id="content" pageIds="search-client::com.jillesvangurp.ktsearch/AliasUpdateRequest///PointingToDeclaration//-814856848">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="search-client::com.jillesvangurp.ktsearch/AliasUpdateRequest///PointingToDeclaration//743551049">
   <div class="breadcrumbs"><a href="../../../index.html">search-client</a><span class="delimiter">/</span><a href="../index.html">com.jillesvangurp.ktsearch</a><span class="delimiter">/</span><span class="current">AliasUpdateRequest</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Alias</span><wbr></wbr><span>Update</span><wbr></wbr><span><span>Request</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">AliasUpdateRequest</a> : <span data-unresolved-link="com.jillesvangurp.jsondsl/JsonDsl///PointingToDeclaration/">JsonDsl</span></div><p class="paragraph">DSL for configuring the update aliases request. The request is a list of actions (add, remove, remove_index). Each action is configured with an <a href="../-alias-action/index.html">AliasAction</a> that specifies the affected indices, aliases, etc.</p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">AliasUpdateRequest</a> : <span data-unresolved-link="com.jillesvangurp.jsondsl/JsonDsl///PointingToDeclaration/">JsonDsl</span></div><p class="paragraph">DSL for configuring the update aliases request. The request is a list of actions (add, remove, remove_index). Each action is configured with an <a href="../-alias-action/index.html">AliasAction</a> that specifies the affected indices, aliases, etc.</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
       <div data-togglable="CONSTRUCTOR">
-        <h2 class="">Constructors</h2>
-        <div class="table"><a data-name="-82978925%2FConstructors%2F-814856848" anchor-label="AliasUpdateRequest" id="-82978925%2FConstructors%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="-82978925%2FConstructors%2F743551049" anchor-label="AliasUpdateRequest" id="-82978925%2FConstructors%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-alias-update-request.html"><span>Alias</span><wbr></wbr><span>Update</span><wbr></wbr><span><span>Request</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-82978925%2FConstructors%2F-814856848"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-82978925%2FConstructors%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -133,78 +133,78 @@
         </div>
       </div>
       <div data-togglable="PROPERTY">
-        <h2 class="">Properties</h2>
-        <div class="table"><a data-name="-187303312%2FProperties%2F-814856848" anchor-label="defaultNamingConvention" id="-187303312%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-187303312%2FProperties%2F743551049" anchor-label="defaultNamingConvention" id="-187303312%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-187303312%2FProperties%2F-814856848"><span>default</span><wbr></wbr><span>Naming</span><wbr></wbr><span><span>Convention</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-187303312%2FProperties%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-187303312%2FProperties%2F743551049"><span>default</span><wbr></wbr><span>Naming</span><wbr></wbr><span><span>Convention</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-187303312%2FProperties%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-187303312%2FProperties%2F-814856848">defaultNamingConvention</a><span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-187303312%2FProperties%2F743551049">defaultNamingConvention</a><span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="313986111%2FProperties%2F-814856848" anchor-label="entries" id="313986111%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-234317030%2FProperties%2F743551049" anchor-label="entries" id="-234317030%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#313986111%2FProperties%2F-814856848"><span><span>entries</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="313986111%2FProperties%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-234317030%2FProperties%2F743551049"><span><span>entries</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-234317030%2FProperties%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#313986111%2FProperties%2F-814856848">entries</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-set/index.html">MutableSet</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-map/-mutable-entry/index.html">MutableMap.MutableEntry</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-234317030%2FProperties%2F743551049">entries</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-set/index.html">MutableSet</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-map/-mutable-entry/index.html">MutableMap.MutableEntry</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1153773961%2FProperties%2F-814856848" anchor-label="keys" id="-1153773961%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-765975172%2FProperties%2F743551049" anchor-label="keys" id="-765975172%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-1153773961%2FProperties%2F-814856848"><span><span>keys</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1153773961%2FProperties%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-765975172%2FProperties%2F743551049"><span><span>keys</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-765975172%2FProperties%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-1153773961%2FProperties%2F-814856848">keys</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-set/index.html">MutableSet</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-765975172%2FProperties%2F743551049">keys</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-set/index.html">MutableSet</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-157521630%2FProperties%2F-814856848" anchor-label="size" id="-157521630%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-7738353%2FProperties%2F743551049" anchor-label="size" id="-7738353%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-157521630%2FProperties%2F-814856848"><span><span>size</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-157521630%2FProperties%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-7738353%2FProperties%2F743551049"><span><span>size</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-7738353%2FProperties%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-157521630%2FProperties%2F-814856848">size</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-7738353%2FProperties%2F743551049">size</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="211311497%2FProperties%2F-814856848" anchor-label="values" id="211311497%2FProperties%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-776207026%2FProperties%2F743551049" anchor-label="values" id="-776207026%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#211311497%2FProperties%2F-814856848"><span><span>values</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="211311497%2FProperties%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-776207026%2FProperties%2F743551049"><span><span>values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-776207026%2FProperties%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#211311497%2FProperties%2F-814856848">values</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-collection/index.html">MutableCollection</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-snapshot-repository/-settings/index.html#-776207026%2FProperties%2F743551049">values</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-collection/index.html">MutableCollection</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -212,228 +212,228 @@
         </div>
       </div>
       <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
-        <div class="table"><a data-name="-1586525719%2FFunctions%2F-814856848" anchor-label="add" id="-1586525719%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-1586525719%2FFunctions%2F743551049" anchor-label="add" id="-1586525719%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="add.html"><span><span>add</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1586525719%2FFunctions%2F-814856848"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1586525719%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="add.html"><span class="token function">add</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure an add action.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="add.html"><span class="token function">add</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure an add action.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1519355112%2FFunctions%2F-814856848" anchor-label="addAliasForIndex" id="-1519355112%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-1519355112%2FFunctions%2F743551049" anchor-label="addAliasForIndex" id="-1519355112%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="add-alias-for-index.html"><span>add</span><wbr></wbr><span>Alias</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Index</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1519355112%2FFunctions%2F-814856848"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1519355112%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="add-alias-for-index.html"><span class="token function">addAliasForIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Adds an alias for an index. Shorter alternative for configuring the add operation.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="add-alias-for-index.html"><span class="token function">addAliasForIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Adds an alias for an index. Shorter alternative for configuring the add operation.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1264776610%2FFunctions%2F-814856848" anchor-label="clear" id="1264776610%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="401637181%2FFunctions%2F743551049" anchor-label="clear" id="401637181%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#1264776610%2FFunctions%2F-814856848"><span><span>clear</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1264776610%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#401637181%2FFunctions%2F743551049"><span><span>clear</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="401637181%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#1264776610%2FFunctions%2F-814856848"><span class="token function">clear</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#401637181%2FFunctions%2F743551049"><span class="token function">clear</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="182506349%2FFunctions%2F-814856848" anchor-label="containsKey" id="182506349%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-1315660326%2FFunctions%2F743551049" anchor-label="containsKey" id="-1315660326%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#182506349%2FFunctions%2F-814856848"><span>contains</span><wbr></wbr><span><span>Key</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="182506349%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-1315660326%2FFunctions%2F743551049"><span>contains</span><wbr></wbr><span><span>Key</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1315660326%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#182506349%2FFunctions%2F-814856848"><span class="token function">containsKey</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-1315660326%2FFunctions%2F743551049"><span class="token function">containsKey</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="2000296189%2FFunctions%2F-814856848" anchor-label="containsValue" id="2000296189%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="502129514%2FFunctions%2F743551049" anchor-label="containsValue" id="502129514%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#2000296189%2FFunctions%2F-814856848"><span>contains</span><wbr></wbr><span><span>Value</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2000296189%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#502129514%2FFunctions%2F743551049"><span>contains</span><wbr></wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="502129514%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#2000296189%2FFunctions%2F-814856848"><span class="token function">containsValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#502129514%2FFunctions%2F743551049"><span class="token function">containsValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1426216759%2FFunctions%2F-814856848" anchor-label="get" id="1426216759%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-660933442%2FFunctions%2F743551049" anchor-label="get" id="-660933442%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F-814856848"><span><span>get</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1426216759%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-173398032%2FFunctions%2F743551049"><span><span>get</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-660933442%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F-814856848">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F-814856848"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F-814856848">T</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F-814856848">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F-814856848"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F-814856848">T</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-1885167485%2FFunctions%2F-814856848"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-173398032%2FFunctions%2F743551049"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F743551049">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F743551049"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#2001580847%2FFunctions%2F743551049">T</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F743551049">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F743551049"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#-1059363619%2FFunctions%2F743551049">T</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="822213891%2FFunctions%2F-814856848" anchor-label="getOrCreateMutableList" id="822213891%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="822213891%2FFunctions%2F743551049" anchor-label="getOrCreateMutableList" id="822213891%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#822213891%2FFunctions%2F-814856848"><span>get</span><wbr></wbr><span>Or</span><wbr></wbr><span>Create</span><wbr></wbr><span>Mutable</span><wbr></wbr><span><span>List</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="822213891%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#822213891%2FFunctions%2F743551049"><span>get</span><wbr></wbr><span>Or</span><wbr></wbr><span>Create</span><wbr></wbr><span>Mutable</span><wbr></wbr><span><span>List</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="822213891%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#822213891%2FFunctions%2F-814856848"><span class="token function">getOrCreateMutableList</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-list/index.html">MutableList</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#822213891%2FFunctions%2F743551049"><span class="token function">getOrCreateMutableList</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-list/index.html">MutableList</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1708477740%2FFunctions%2F-814856848" anchor-label="isEmpty" id="-1708477740%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-1985893177%2FFunctions%2F743551049" anchor-label="isEmpty" id="-1985893177%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-1708477740%2FFunctions%2F-814856848"><span>is</span><wbr></wbr><span><span>Empty</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1708477740%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-1985893177%2FFunctions%2F743551049"><span>is</span><wbr></wbr><span><span>Empty</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1985893177%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-1708477740%2FFunctions%2F-814856848"><span class="token function">isEmpty</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-1985893177%2FFunctions%2F743551049"><span class="token function">isEmpty</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1068806284%2FFunctions%2F-814856848" anchor-label="property" id="1068806284%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="1068806284%2FFunctions%2F743551049" anchor-label="property" id="1068806284%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F-814856848"><span><span>property</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1068806284%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F743551049"><span><span>property</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1068806284%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F-814856848">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F-814856848"><span class="token function">property</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.properties/-read-write-property/index.html">ReadWriteProperty</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F-814856848">T</a><span class="token operator">&gt;</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F-814856848">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F-814856848"><span class="token function">property</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">customPropertyName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F-814856848">T</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.properties/-read-write-property/index.html">ReadWriteProperty</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F-814856848">T</a><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F743551049">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F743551049"><span class="token function">property</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.properties/-read-write-property/index.html">ReadWriteProperty</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="../-snapshot-repository/-settings/index.html#-1521642693%2FFunctions%2F743551049">T</a><span class="token operator">&gt;</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F743551049">T</a><span class="token operator">&gt; </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F743551049"><span class="token function">property</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">customPropertyName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F743551049">T</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.properties/-read-write-property/index.html">ReadWriteProperty</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="../-snapshot-repository/-settings/index.html#1790686875%2FFunctions%2F743551049">T</a><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1357659723%2FFunctions%2F-814856848" anchor-label="put" id="1357659723%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="1279758490%2FFunctions%2F743551049" anchor-label="put" id="1279758490%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#455952915%2FFunctions%2F-814856848"><span><span>put</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1357659723%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#1400947596%2FFunctions%2F743551049"><span><span>put</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1279758490%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#455952915%2FFunctions%2F-814856848"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-546339199%2FFunctions%2F-814856848"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-2075726969%2FFunctions%2F-814856848"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#1400947596%2FFunctions%2F743551049"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#455952915%2FFunctions%2F743551049"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-546339199%2FFunctions%2F743551049"><span class="token function">put</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">namingConvention<span class="token operator">: </span><span data-unresolved-link="com.jillesvangurp.jsondsl/PropertyNamingConvention///PointingToDeclaration/">PropertyNamingConvention</span></span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-527035559%2FFunctions%2F-814856848" anchor-label="putAll" id="-527035559%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="1745510452%2FFunctions%2F743551049" anchor-label="putAll" id="1745510452%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-527035559%2FFunctions%2F-814856848"><span>put</span><wbr></wbr><span><span>All</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-527035559%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#1745510452%2FFunctions%2F743551049"><span>put</span><wbr></wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1745510452%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-527035559%2FFunctions%2F-814856848"><span class="token function">putAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">from<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#1745510452%2FFunctions%2F743551049"><span class="token function">putAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">from<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1366946961%2FFunctions%2F-814856848" anchor-label="remove" id="-1366946961%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="529091506%2FFunctions%2F743551049" anchor-label="remove" id="529091506%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="remove.html"><span><span>remove</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1366946961%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-1387570088%2FFunctions%2F743551049"><span><span>remove</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="529091506%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove.html"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure a remove action.</p></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-2016920067%2FFunctions%2F-814856848"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-1387570088%2FFunctions%2F743551049"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></div><br><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove.html"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure a remove action.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1487629111%2FFunctions%2F-814856848" anchor-label="removeAliasForIndex" id="1487629111%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="1487629111%2FFunctions%2F743551049" anchor-label="removeAliasForIndex" id="1487629111%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="remove-alias-for-index.html"><span>remove</span><wbr></wbr><span>Alias</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Index</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1487629111%2FFunctions%2F-814856848"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1487629111%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove-alias-for-index.html"><span class="token function">removeAliasForIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">deleteIndex<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Removes the index from an alias and optionally deletes the index. Shorter alternative for configuring the remove and removeIndex operations.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove-alias-for-index.html"><span class="token function">removeAliasForIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">deleteIndex<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Removes the index from an alias and optionally deletes the index. Shorter alternative for configuring the remove and removeIndex operations.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1974109444%2FFunctions%2F-814856848" anchor-label="removeIndex" id="-1974109444%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-1974109444%2FFunctions%2F743551049" anchor-label="removeIndex" id="-1974109444%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="remove-index.html"><span>remove</span><wbr></wbr><span><span>Index</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1974109444%2FFunctions%2F-814856848"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1974109444%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove-index.html"><span class="token function">removeIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure a remove_index action.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove-index.html"><span class="token function">removeIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="../-alias-action/index.html">AliasAction</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Configure a remove_index action.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-438327676%2FFunctions%2F-814856848" anchor-label="toString" id="-438327676%2FFunctions%2F-814856848" data-filterable-set=":search-client:dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":search-client:dokkaHtml/commonMain" data-filterable-set=":search-client:dokkaHtml/commonMain">
+<a data-name="-438327676%2FFunctions%2F743551049" anchor-label="toString" id="-438327676%2FFunctions%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../-snapshot-repository/-settings/index.html#-438327676%2FFunctions%2F-814856848"><span>to</span><wbr></wbr><span><span>String</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-438327676%2FFunctions%2F-814856848"></span>
+                  <div><a href="../-snapshot-repository/-settings/index.html#-438327676%2FFunctions%2F743551049"><span>to</span><wbr></wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-438327676%2FFunctions%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-438327676%2FFunctions%2F-814856848"><span class="token function">toString</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-snapshot-repository/-settings/index.html#-438327676%2FFunctions%2F743551049"><span class="token function">toString</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -444,17 +444,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
