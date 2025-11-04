@@ -23,7 +23,7 @@ jobs:
     - name: Compose up
       run: ./gradlew :search-client:composeUp
     - name: Gradle Build
-      run: ./gradlew check :search-client:dokkaHtml -x jsTest -x jsBrowserTest -x jsNodeTest -x wasmJsBrowserTest -x wasmJsNodeTest -x wasmJsD8Test
+      run: ./gradlew check :search-client:dokkaGeneratePublicationHtml -x jsTest -x jsBrowserTest -x jsNodeTest -x wasmJsBrowserTest -x wasmJsNodeTest -x wasmJsD8Test
     - name: Compose down
       run: ./gradlew :search-client:composeDown
     - name: Deploy Manual
@@ -64,5 +64,4 @@ jobs:
         run: ./gradlew :search-client:jvmTest -PsearchEngine=${{ matrix.version }}
       - name: Compose down
         run: ./gradlew :search-client:composeDown -PsearchEngine=${{ matrix.version }}
-
 

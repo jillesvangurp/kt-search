@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode.WARNING
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.gradle.jvm.tasks.Jar
+import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 
 plugins {
     kotlin("multiplatform") apply false
@@ -80,9 +80,11 @@ subprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     afterEvaluate {
+        val dokkaGeneratePublicationHtml = tasks.named<DokkaGeneratePublicationTask>("dokkaGeneratePublicationHtml")
+
         tasks.register<Jar>("dokkaJar") {
-            from(tasks["dokkaHtml"])
-            dependsOn(tasks["dokkaHtml"])
+            from(dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+            dependsOn(dokkaGeneratePublicationHtml)
             archiveClassifier.set("javadoc")
         }
 
@@ -128,5 +130,3 @@ subprojects {
         }
     }
 }
-
-
