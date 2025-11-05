@@ -22,7 +22,7 @@ data class AlertRule(
     val failureCount: Int = 0,
     val lastFailureMessage: String? = null,
     val repeatNotificationIntervalMillis: Long?,
-    val firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
+    val firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
     val check: RuleCheck = when (queryJson) {
         null -> RuleCheck.Search(target, "")
         else -> RuleCheck.Search(target, queryJson)

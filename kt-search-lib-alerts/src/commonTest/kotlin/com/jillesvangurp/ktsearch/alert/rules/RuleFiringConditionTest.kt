@@ -6,8 +6,8 @@ import kotlin.test.Test
 class RuleFiringConditionTest {
     @Test
     fun `default triggers when matches exist`() {
-        RuleFiringCondition.Default.shouldTrigger(0) shouldBe false
-        RuleFiringCondition.Default.shouldTrigger(1) shouldBe true
+        RuleFiringCondition.AtMost(0).shouldTrigger(0) shouldBe false
+        RuleFiringCondition.AtMost(0).shouldTrigger(1) shouldBe true
     }
 
     @Test
@@ -19,7 +19,7 @@ class RuleFiringConditionTest {
 
     @Test
     fun `max triggers when exceeding threshold`() {
-        val condition = RuleFiringCondition.Max(2)
+        val condition = RuleFiringCondition.AtMost(2)
         condition.shouldTrigger(2) shouldBe false
         condition.shouldTrigger(3) shouldBe true
     }

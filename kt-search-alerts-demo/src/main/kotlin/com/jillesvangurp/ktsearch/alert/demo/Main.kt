@@ -51,7 +51,7 @@ suspend fun main() {
 
             +consoleNotification(
                 id = "console-alerts",
-                level = ConsoleLevel.INFO,
+                level = ConsoleLevel.ERROR,
                 message = """
                     |{{ruleMessage}}. Matched {{matchCount}} documents in env:$environment at {{timestamp}}:
                     |
@@ -108,26 +108,26 @@ suspend fun main() {
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),
                 startImmediately = true,
-                firingCondition = RuleFiringCondition.Max(25)
+                firingCondition = RuleFiringCondition.AtMost(25)
             ) {
-                resultSize = 25
+                resultSize = 2
                 match("objectType", "ObjectMarker")
             }
 
-            +AlertRuleDefinition.newRule(
-                id = "missing-errors-alert",
-                name = "Error Pipeline Watchdog",
-                cronExpression = "*/2 * * * *",
-                target = alertTarget,
-                message = "Expected ObjectMarker errors missing in env:$environment",
-                failureMessage = "Failed to verify ObjectMarker errors in env:$environment",
-                notifications = emptyList(),
-                startImmediately = true,
-                firingCondition = RuleFiringCondition.AtLeast(1)
-            ) {
-                resultSize = 1
-                match("objectType", "ObjectMarker")
-            }
+//            +AlertRuleDefinition.newRule(
+//                id = "missing-errors-alert",
+//                name = "Error Pipeline Watchdog",
+//                cronExpression = "*/2 * * * *",
+//                target = alertTarget,
+//                message = "Expected ObjectMarker errors missing in env:$environment",
+//                failureMessage = "Failed to verify ObjectMarker errors in env:$environment",
+//                notifications = emptyList(),
+//                startImmediately = true,
+//                firingCondition = RuleFiringCondition.AtLeast(1)
+//            ) {
+//                resultSize = 2
+//                match("objectType", "ObjectMarker")
+//            }
 
             +AlertRuleDefinition.clusterStatusRule(
                 id = "cluster-health",

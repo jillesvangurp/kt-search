@@ -8,12 +8,6 @@ sealed class RuleFiringCondition {
     abstract fun shouldTrigger(matchCount: Int): Boolean
 
     @Serializable
-    @SerialName("Default")
-    data object Default : RuleFiringCondition() {
-        override fun shouldTrigger(matchCount: Int): Boolean = matchCount > 0
-    }
-
-    @Serializable
     @SerialName("AtLeast")
     data class AtLeast(val minimumMatches: Int) : RuleFiringCondition() {
         init {
@@ -24,16 +18,12 @@ sealed class RuleFiringCondition {
     }
 
     @Serializable
-    @SerialName("Max")
-    data class Max(val maximumMatches: Int) : RuleFiringCondition() {
+    @SerialName("AtMost")
+    data class AtMost(val maximumMatches: Int) : RuleFiringCondition() {
         init {
             require(maximumMatches >= 0) { "Maximum matches must be zero or positive" }
         }
 
         override fun shouldTrigger(matchCount: Int): Boolean = matchCount > maximumMatches
-    }
-
-    companion object {
-        val LEGACY_DEFAULT: RuleFiringCondition = Default
     }
 }

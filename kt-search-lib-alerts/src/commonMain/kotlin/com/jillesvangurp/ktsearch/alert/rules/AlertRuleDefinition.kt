@@ -18,7 +18,7 @@ data class AlertRuleDefinition(
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val repeatNotificationIntervalMillis: Long?,
     val startImmediately: Boolean,
-    val firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
+    val firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
     val check: RuleCheck = when (queryJson) {
         null -> RuleCheck.Search(target, "")
         else -> RuleCheck.Search(target, queryJson)
@@ -37,7 +37,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
+            firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
             query: SearchDSL.() -> Unit
         ): AlertRuleDefinition = fromQueryJson(
             id = id,
@@ -67,7 +67,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
+            firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
             queryJson: String
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
@@ -109,7 +109,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT
+            firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }

@@ -49,12 +49,12 @@ class AlertRulesDslTest {
             cronExpression = "* * * * *",
             target = "logs-*",
             notifications = emptyList(),
-            firingCondition = RuleFiringCondition.Max(5)
+            firingCondition = RuleFiringCondition.AtMost(5)
         ) {
             query = matchAll()
         }
 
-        definition.firingCondition shouldBe RuleFiringCondition.Max(5)
+        definition.firingCondition shouldBe RuleFiringCondition.AtMost(5)
     }
 
     @Test
@@ -68,7 +68,7 @@ class AlertRulesDslTest {
         )
 
         definition.target shouldBe "prod-cluster"
-        definition.firingCondition shouldBe RuleFiringCondition.Default
+        definition.firingCondition shouldBe RuleFiringCondition.AtMost(0)
         definition.check shouldBe RuleCheck.ClusterStatusCheck(
             expectedStatus = ClusterStatus.Green,
             description = "prod-cluster"
