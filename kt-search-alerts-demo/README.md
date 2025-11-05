@@ -10,6 +10,7 @@ Use this as a basis for defining your own bespoke dockerized alerts service that
 - Configuration controlled via environment variables
 - Uses shadow plugin to package things up
 - Docker ready
+- Demonstrates threshold-based firing conditions (`Max`, `AtLeast`) and the cluster health rule powered by `kt-search`
 
 ## Run It
 - Adjust the default connection settings in `kt-search-alerts-demo/.env` to point at the cluster you want to monitor (host, port, target index, optional Slack/SendGrid hooks).

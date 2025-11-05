@@ -10,7 +10,7 @@ data class AlertRule(
     val enabled: Boolean = true,
     val cronExpression: String,
     val target: String,
-    val queryJson: String,
+    val queryJson: String? = null,
     val message: String? = null,
     val failureMessage: String? = null,
     val notifications: List<RuleNotificationInvocation>,
@@ -22,19 +22,26 @@ data class AlertRule(
     val failureCount: Int = 0,
     val lastFailureMessage: String? = null,
     val repeatNotificationIntervalMillis: Long?,
+    val firingCondition: RuleFiringCondition? = null,
+    val check: RuleCheck = when (queryJson) {
+        null -> RuleCheck.Search(target, "")
+        else -> RuleCheck.Search(target, queryJson)
+    },
     val alertStatus: RuleAlertStatus = RuleAlertStatus.UNKNOWN,
     val lastNotificationAt: Instant? = null
 ) {
     fun executionHash(): Int {
         var result = cronExpression.hashCode()
         result = 31 * result + target.hashCode()
-        result = 31 * result + queryJson.hashCode()
+        result = 31 * result + (queryJson?.hashCode() ?: 0)
         result = 31 * result + (message?.hashCode() ?: 0)
         result = 31 * result + (failureMessage?.hashCode() ?: 0)
         result = 31 * result + enabled.hashCode()
         result = 31 * result + notifications.hashCode()
         result = 31 * result + failureNotifications.hashCode()
         result = 31 * result + (repeatNotificationIntervalMillis?.hashCode() ?: 0)
+        result = 31 * result + (firingCondition?.hashCode() ?: 0)
+        result = 31 * result + check.hashCode()
         return result
     }
 }

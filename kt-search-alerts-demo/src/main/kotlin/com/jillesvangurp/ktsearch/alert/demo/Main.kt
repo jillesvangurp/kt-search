@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch.alert.demo
 
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.alert.core.AlertService
 import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
 import com.jillesvangurp.ktsearch.alert.notifications.SendGridConfig
@@ -11,6 +12,7 @@ import com.jillesvangurp.ktsearch.alert.notifications.emailNotification
 import com.jillesvangurp.ktsearch.alert.notifications.slackNotification
 import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import com.jillesvangurp.ktsearch.alert.rules.RuleFiringCondition
 import com.jillesvangurp.searchdsls.querydsl.match
 import io.ktor.client.HttpClient
 import kotlin.time.Duration.Companion.minutes
@@ -49,9 +51,9 @@ suspend fun main() {
 
             +consoleNotification(
                 id = "console-alerts",
-                level = ConsoleLevel.INFO,
+                level = ConsoleLevel.ERROR,
                 message = """
-                    |{{ruleMessage}}. Matched {{matchCount}} documents in env:$environment at {{timestamp}}:
+                    |{{ruleMessage}} ({{resultDescription}}) in env:$environment at {{timestamp}}.
                     |
                     |{{matchesJson}}
                 """.trimMargin()
@@ -61,7 +63,7 @@ suspend fun main() {
                     id = "slack-alerts",
                     sender = SlackWebhookSender(httpClient.value),
                     webhookUrl = hook,
-                    message = "*{{ruleMessage}}* matched {{matchCount}} documents.\n\n```json\n{{matchesJson}}\n```"
+                    message = "*{{ruleMessage}}* ({{resultDescription}}).\n\n```json\n{{matchesJson}}\n```"
                 )
             }
             sendgrid?.let { key ->
@@ -79,7 +81,7 @@ suspend fun main() {
                             |
                             |{{ruleMessage}} 
                             |
-                            |Matched {{matchCount}} documents in env:$environment at {{timestamp}}:
+                            |{{resultDescription}} in env:$environment at {{timestamp}}:
                             |
                             |{{matchesJson}}
                             |
@@ -99,17 +101,45 @@ suspend fun main() {
 
             +AlertRuleDefinition.newRule(
                 id = "error-alert",
-                name = "Test Alert Rule",
+                name = "Error Rate Monitor",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
-                message = "ObjectMarker errors detected in env:$environment",
+                message = "Too many ObjectMarker errors in env:$environment",
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),
-                startImmediately = true
+                startImmediately = true,
+                firingCondition = RuleFiringCondition.AtMost(25)
             ) {
                 resultSize = 2
                 match("objectType", "ObjectMarker")
             }
+
+//            +AlertRuleDefinition.newRule(
+//                id = "missing-errors-alert",
+//                name = "Error Pipeline Watchdog",
+//                cronExpression = "*/2 * * * *",
+//                target = alertTarget,
+//                message = "Expected ObjectMarker errors missing in env:$environment",
+//                failureMessage = "Failed to verify ObjectMarker errors in env:$environment",
+//                notifications = emptyList(),
+//                startImmediately = true,
+//                firingCondition = RuleFiringCondition.AtLeast(1)
+//            ) {
+//                resultSize = 2
+//                match("objectType", "ObjectMarker")
+//            }
+
+            +AlertRuleDefinition.clusterStatusRule(
+                id = "cluster-health",
+                name = "Cluster Health",
+                cronExpression = "*/5 * * * *",
+                expectedStatus = ClusterStatus.Green,
+                description = "$environment-cluster",
+                message = "Cluster status degraded in env:$environment",
+                failureMessage = "Failed to verify cluster status in env:$environment",
+                notifications = emptyList(),
+                startImmediately = true
+            )
         }
     }
 

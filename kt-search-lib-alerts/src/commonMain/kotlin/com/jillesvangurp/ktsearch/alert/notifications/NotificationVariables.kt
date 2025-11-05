@@ -13,7 +13,8 @@ enum class NotificationVariable(val key: String) {
     ERROR_MESSAGE("errorMessage"),
     ERROR_TYPE("errorType"),
     FAILURE_PHASE("failurePhase"),
-    MATCHES_JSON("matchesJson")
+    MATCHES_JSON("matchesJson"),
+    RESULT_DESCRIPTION("resultDescription")
 }
 
 internal fun MutableMap<String, String>.putVariable(variable: NotificationVariable, value: String) {

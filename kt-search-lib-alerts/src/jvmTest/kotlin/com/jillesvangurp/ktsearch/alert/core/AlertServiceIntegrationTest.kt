@@ -82,8 +82,10 @@ class AlertServiceIntegrationTest {
             notification.ruleId shouldBe "test-alert"
             notification.matchCount shouldBe 1
             notification.matches.shouldHaveSize(1)
+            notification.resultDescription shouldBe "Search alert for '$docsIndex' triggered with 1 result"
             variables[NotificationVariable.RULE_NAME.key] shouldBe "Error monitor"
             variables[NotificationVariable.RULE_MESSAGE.key] shouldBe "Disk space issues detected"
+            variables[NotificationVariable.RESULT_DESCRIPTION.key] shouldBe "Search alert for '$docsIndex' triggered with 1 result"
             val matchesJson = variables[NotificationVariable.MATCHES_JSON.key]
             checkNotNull(matchesJson) { "matchesJson variable should be present" }
             val parsedMatches = Json.parseToJsonElement(matchesJson).jsonArray

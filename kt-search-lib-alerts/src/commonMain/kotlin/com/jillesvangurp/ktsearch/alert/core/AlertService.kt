@@ -11,7 +11,10 @@ import com.jillesvangurp.ktsearch.alert.rules.AlertRule
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.CronSchedule
 import com.jillesvangurp.ktsearch.alert.rules.RuleAlertStatus
+import com.jillesvangurp.ktsearch.alert.rules.RuleCheck
+import com.jillesvangurp.ktsearch.alert.rules.RuleFiringCondition
 import com.jillesvangurp.ktsearch.alert.rules.RuleNotificationInvocation
+import com.jillesvangurp.ktsearch.clusterHealth
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -34,6 +37,9 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 private val logger = KotlinLogging.logger {}
 
@@ -254,7 +260,10 @@ class AlertService(
             enabled = definition.enabled,
             cronExpression = definition.cronExpression,
             target = definition.target,
-            queryJson = definition.queryJson,
+            queryJson = when (val check = definition.check) {
+                is RuleCheck.Search -> check.queryJson
+                else -> null
+            },
             message = definition.message,
             failureMessage = definition.failureMessage,
             notifications = notifications,
@@ -266,6 +275,11 @@ class AlertService(
             failureCount = existing?.failureCount ?: 0,
             lastFailureMessage = existing?.lastFailureMessage,
             repeatNotificationIntervalMillis = repeatIntervalMillis,
+            firingCondition = when (definition) {
+                is AlertRuleDefinition.Search -> definition.firingCondition
+                is AlertRuleDefinition.ClusterStatusRule -> null
+            },
+            check = definition.check,
             alertStatus = existing?.alertStatus ?: RuleAlertStatus.UNKNOWN,
             lastNotificationAt = existing?.lastNotificationAt
         )
@@ -332,13 +346,13 @@ class AlertService(
             }
             val triggeredAt = nowProvider()
             try {
-                val matches = performSearch(latestRule)
+                val evaluation = evaluateRule(latestRule)
                 val next = cron.nextAfter(triggeredAt)
                 nextRun = next
-                if (matches.isNotEmpty()) {
+                if (evaluation.triggered) {
                     val shouldNotify = shouldDispatch(latestRule, triggeredAt)
                     if (shouldNotify) {
-                        triggerNotifications(latestRule, matches, triggeredAt)
+                        triggerNotifications(latestRule, evaluation, triggeredAt)
                     }
                     updateRuleState(id) { current ->
                         current.copy(
@@ -411,29 +425,33 @@ class AlertService(
             }
         }
 
-    private suspend fun triggerNotifications(rule: AlertRule, matches: List<JsonObject>, triggeredAt: Instant) {
+    private suspend fun triggerNotifications(rule: AlertRule, evaluation: RuleEvaluation, triggeredAt: Instant) {
         val registry = configuration.notifications
+        val matches = evaluation.matches
+        val matchCount = evaluation.matchCount
         val matchesJson = serializeMatches(matches)
         val baseVariables = baseVariables(
             ruleId = rule.id,
             ruleName = rule.name,
             target = rule.target,
             triggeredAt = triggeredAt,
-            matchCount = matches.size,
+            matchCount = matchCount,
             status = RuleRunStatus.SUCCESS,
             failureCount = null,
             error = null,
             phase = null,
             ruleMessage = rule.message,
             failureMessage = rule.failureMessage,
-            matchesJson = matchesJson
+            matchesJson = matchesJson,
+            resultDescription = evaluation.resultDescription
         )
         val context = NotificationContext(
             ruleId = rule.id,
             ruleName = rule.name,
             triggeredAt = triggeredAt,
-            matchCount = matches.size,
-            matches = matches
+            matchCount = matchCount,
+            matches = matches,
+            resultDescription = evaluation.resultDescription
         )
         val failures = mutableListOf<Throwable>()
         for (invocation in rule.notifications) {
@@ -465,15 +483,75 @@ class AlertService(
             putAll(invocation.variables)
         }
 
-    private suspend fun performSearch(rule: AlertRule): List<JsonObject> {
+    private suspend fun evaluateRule(rule: AlertRule): RuleEvaluation =
+        when (val check = rule.check) {
+            is RuleCheck.Search -> evaluateSearchRule(check, rule.firingCondition ?: RuleFiringCondition.AtMost(0))
+            is RuleCheck.ClusterStatusCheck -> evaluateClusterStatusRule(check)
+        }
+
+    private suspend fun evaluateSearchRule(
+        check: RuleCheck.Search,
+        firingCondition: RuleFiringCondition
+    ): RuleEvaluation {
         val response = client.search(
-            target = rule.target,
-            rawJson = rule.queryJson,
+            target = check.target,
+            rawJson = check.queryJson,
             retries = 3,
             retryDelay = 2.seconds
         )
-        return response.hits?.hits?.mapNotNull { it.source } ?: emptyList()
+        val matches = response.hits?.hits?.mapNotNull { it.source } ?: emptyList()
+        val triggered = firingCondition.shouldTrigger(matches.size)
+        val matchesForNotification = if (triggered) matches else emptyList()
+        val resultCount = matchesForNotification.size
+        val resultNoun = if (resultCount == 1) "result" else "results"
+        val resultDescription = if (triggered) {
+            "Search alert for '${check.target}' triggered with $resultCount $resultNoun"
+        } else {
+            val evaluatedNoun = if (matches.size == 1) "result" else "results"
+            "Search alert for '${check.target}' evaluated with ${matches.size} $evaluatedNoun"
+        }
+        return RuleEvaluation(
+            triggered = triggered,
+            matches = matchesForNotification,
+            matchCount = resultCount,
+            resultDescription = resultDescription
+        )
     }
+
+    private suspend fun evaluateClusterStatusRule(
+        check: RuleCheck.ClusterStatusCheck
+    ): RuleEvaluation {
+        val health = client.clusterHealth()
+        val triggered = health.status != check.expectedStatus
+        val payload = buildJsonObject {
+            put("expectedStatus", JsonPrimitive(check.expectedStatus.name.lowercase()))
+            put("actualStatus", JsonPrimitive(health.status.name.lowercase()))
+            put("clusterName", JsonPrimitive(health.clusterName))
+            put("timedOut", JsonPrimitive(health.timedOut))
+        }
+        val matchesForNotification = if (triggered) listOf(payload) else emptyList()
+        val clusterLabel = check.description.ifBlank { "cluster" }
+        val actualStatus = health.status.name.lowercase()
+        val expectedStatus = check.expectedStatus.name.lowercase()
+        val resultDescription = if (triggered) {
+            "$clusterLabel status is $actualStatus (expected $expectedStatus)"
+        } else {
+            "$clusterLabel status is $actualStatus"
+        }
+        return RuleEvaluation(
+            triggered = triggered,
+            matches = matchesForNotification,
+            matchCount = matchesForNotification.size,
+            resultDescription = resultDescription
+        )
+    }
+
+    private data class RuleEvaluation(
+        val triggered: Boolean,
+        val matches: List<JsonObject>,
+        val matchCount: Int,
+        val resultDescription: String?
+    )
 
     private fun serializeMatches(matches: List<JsonObject>): String =
         DEFAULT_PRETTY_JSON.encodeToString(ListSerializer(JsonObject.serializer()), matches)
@@ -516,7 +594,8 @@ class AlertService(
             phase = phase,
             ruleMessage = ruleMessage,
             failureMessage = failureMessage ?: ruleMessage,
-            matchesJson = serializeMatches(emptyList())
+            matchesJson = serializeMatches(emptyList()),
+            resultDescription = null
         )
         var dispatched = false
         for (invocation in invocations) {
@@ -551,7 +630,8 @@ class AlertService(
         phase: FailurePhase?,
         ruleMessage: String?,
         failureMessage: String?,
-        matchesJson: String?
+        matchesJson: String?,
+        resultDescription: String?
     ): MutableMap<String, String> = buildMap {
         putVariable(NotificationVariable.RULE_NAME, ruleName)
         putVariable(NotificationVariable.RULE_ID, ruleId)
@@ -563,6 +643,7 @@ class AlertService(
         putVariableIfNotNull(NotificationVariable.RULE_MESSAGE, ruleMessage)
         putVariableIfNotNull(NotificationVariable.FAILURE_MESSAGE, failureMessage)
         putVariableIfNotNull(NotificationVariable.MATCHES_JSON, matchesJson)
+        putVariableIfNotNull(NotificationVariable.RESULT_DESCRIPTION, resultDescription)
         error?.let {
             val simpleName = it::class.simpleName ?: it::class.toString()
             putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: simpleName)
