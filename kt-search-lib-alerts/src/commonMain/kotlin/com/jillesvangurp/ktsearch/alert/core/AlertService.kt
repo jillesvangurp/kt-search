@@ -477,7 +477,7 @@ class AlertService(
 
     private suspend fun evaluateRule(rule: AlertRule): RuleEvaluation =
         when (val check = rule.check) {
-            is RuleCheck.Search -> evaluateSearchRule(check, rule.firingCondition)
+            is RuleCheck.Search -> evaluateSearchRule(check, rule.firingCondition ?: RuleFiringCondition.AtMost(0))
             is RuleCheck.ClusterStatusCheck -> evaluateClusterStatusRule(check)
         }
 

@@ -22,7 +22,7 @@ data class AlertRule(
     val failureCount: Int = 0,
     val lastFailureMessage: String? = null,
     val repeatNotificationIntervalMillis: Long?,
-    val firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
+    val firingCondition: RuleFiringCondition? = null,
     val check: RuleCheck = when (queryJson) {
         null -> RuleCheck.Search(target, "")
         else -> RuleCheck.Search(target, queryJson)
@@ -40,7 +40,7 @@ data class AlertRule(
         result = 31 * result + notifications.hashCode()
         result = 31 * result + failureNotifications.hashCode()
         result = 31 * result + (repeatNotificationIntervalMillis?.hashCode() ?: 0)
-        result = 31 * result + firingCondition.hashCode()
+        result = 31 * result + (firingCondition?.hashCode() ?: 0)
         result = 31 * result + check.hashCode()
         return result
     }

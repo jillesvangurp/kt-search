@@ -14,11 +14,11 @@ data class AlertRuleDefinition(
     val queryJson: String? = null,
     val message: String?,
     val failureMessage: String?,
-    val notifications: List<RuleNotificationInvocation>,
+    val notifications: List<RuleNotificationInvocation> = emptyList(),
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val repeatNotificationIntervalMillis: Long?,
     val startImmediately: Boolean,
-    val firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
+    val firingCondition: RuleFiringCondition? = null,
     val check: RuleCheck = when (queryJson) {
         null -> RuleCheck.Search(target, "")
         else -> RuleCheck.Search(target, queryJson)
@@ -32,7 +32,7 @@ data class AlertRuleDefinition(
             target: String,
             message: String? = null,
             failureMessage: String? = null,
-            notifications: List<RuleNotificationInvocation>,
+            notifications: List<RuleNotificationInvocation> = emptyList(),
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
             startImmediately: Boolean = true,
@@ -62,7 +62,7 @@ data class AlertRuleDefinition(
             target: String,
             message: String? = null,
             failureMessage: String? = null,
-            notifications: List<RuleNotificationInvocation>,
+            notifications: List<RuleNotificationInvocation> = emptyList(),
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
             startImmediately: Boolean = true,
@@ -104,12 +104,12 @@ data class AlertRuleDefinition(
             description: String = "cluster",
             message: String? = null,
             failureMessage: String? = null,
-            notifications: List<RuleNotificationInvocation>,
+            notifications: List<RuleNotificationInvocation> = emptyList(),
             failureNotifications: List<RuleNotificationInvocation> = emptyList(),
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-            firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
+            firingCondition: RuleFiringCondition? = null,
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }

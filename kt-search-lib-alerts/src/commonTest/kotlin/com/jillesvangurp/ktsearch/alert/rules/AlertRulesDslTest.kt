@@ -68,7 +68,7 @@ class AlertRulesDslTest {
         )
 
         definition.target shouldBe "prod-cluster"
-        definition.firingCondition shouldBe RuleFiringCondition.AtMost(0)
+        definition.firingCondition shouldBe null
         definition.check shouldBe RuleCheck.ClusterStatusCheck(
             expectedStatus = ClusterStatus.Green,
             description = "prod-cluster"
