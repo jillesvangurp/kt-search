@@ -19,6 +19,11 @@ import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,16 +35,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.random.Random
-import kotlin.time.Clock
-import kotlin.time.Instant
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 private val logger = KotlinLogging.logger {}
 
@@ -121,7 +120,7 @@ class AlertService(
             val activeIds = mutableSetOf<String>()
             for (definition in definitions) {
                 logger.debug { "Refreshing ${definition.id}" }
-                val id = resolveRuleId(definition)
+                val id = definition.id
                 val resolvedNotifications = resolveNotifications(definition)
                 val resolvedFailureNotifications = definition.failureNotifications
                 try {
@@ -166,7 +165,7 @@ class AlertService(
                     failureActions += suspend {
                         notifyRuleFailure(
                             ruleId = id,
-                            ruleName = definition.name,
+                            ruleName = definition.name ?: definition.id,
                             target = definition.target,
                             notifications = resolvedFailureNotifications,
                             fallbackNotifications = resolvedNotifications,
@@ -200,7 +199,7 @@ class AlertService(
 
     private fun validateNotifications(
         registry: NotificationRegistry,
-        ruleName: String,
+        ruleName: String?,
         invocations: List<RuleNotificationInvocation>
     ) {
         invocations.forEach { invocation ->
@@ -220,11 +219,6 @@ class AlertService(
         scope = CoroutineScope(coroutineContext + supervisorJob)
     }
 
-    private fun resolveRuleId(definition: AlertRuleDefinition): String {
-        val explicit = definition.id
-        if (!explicit.isNullOrBlank()) return explicit
-        return generatedIdsByName.getOrPut(definition.name) { generateId() }
-    }
 
     private fun resolveNotifications(definition: AlertRuleDefinition): List<RuleNotificationInvocation> {
         if (definition.notifications.isNotEmpty()) {
@@ -256,7 +250,7 @@ class AlertService(
         }
         return AlertRule(
             id = id,
-            name = definition.name,
+            name = definition.name ?: definition.id,
             enabled = definition.enabled,
             cronExpression = definition.cronExpression,
             target = definition.target,

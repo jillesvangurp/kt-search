@@ -36,7 +36,7 @@ class AlertConfigurationDslTest {
             rules {
                 defaultNotificationIds("slack")
                 +AlertRuleDefinition.newRule(
-                    name = "Example",
+                    id = "example",
                     cronExpression = "* * * * *",
                     target = "logs-*",
                     notifications = emptyList()
@@ -61,7 +61,7 @@ class AlertConfigurationDslTest {
                     repeatNotificationsEvery = 5.minutes
                 }
                 +AlertRuleDefinition.newRule(
-                    name = "Defaults Example",
+                    id = "defaults-example",
                     cronExpression = "* * * * *",
                     target = "logs-*",
                     notifications = emptyList()

@@ -31,7 +31,7 @@ class AlertRulesDslTest {
         )
 
         rules.shouldHaveSize(1)
-        val definition = rules.first() as AlertRuleDefinition.Search
+        val definition = rules.first()
         definition.notifications.shouldHaveSize(3)
         definition.notifications.map { it.notificationId } shouldContainExactly listOf(
             "email-critical",
@@ -47,7 +47,7 @@ class AlertRulesDslTest {
     @Test
     fun `should capture firing condition`() {
         val definition = AlertRuleDefinition.newRule(
-            name = "Conditioned",
+            id = "Conditioned",
             cronExpression = "* * * * *",
             target = "logs-*",
             notifications = emptyList(),
@@ -62,6 +62,7 @@ class AlertRulesDslTest {
     @Test
     fun `should build cluster status rule`() {
         val definition = AlertRuleDefinition.clusterStatusRule(
+            id = "cluster-green",
             name = "Cluster Green",
             cronExpression = "*/5 * * * *",
             notifications = emptyList(),
@@ -70,7 +71,7 @@ class AlertRulesDslTest {
         )
 
         definition shouldBe AlertRuleDefinition.ClusterStatusRule(
-            id = null,
+            id = "cluster-green",
             name = "Cluster Green",
             enabled = true,
             cronExpression = "*/5 * * * *",
