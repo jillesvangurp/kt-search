@@ -109,7 +109,6 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-            firingCondition: RuleFiringCondition? = null,
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
@@ -131,7 +130,7 @@ data class AlertRuleDefinition(
                 failureNotifications = failureNotifications.normalizeInvocations(),
                 repeatNotificationIntervalMillis = repeatMillis,
                 startImmediately = startImmediately,
-                firingCondition = firingCondition,
+                firingCondition = null,
                 check = RuleCheck.ClusterStatusCheck(
                     expectedStatus = expectedStatus,
                     description = description
