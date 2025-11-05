@@ -5,25 +5,55 @@ import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlin.time.Duration
 
-data class AlertRuleDefinition(
-    val id: String?,
-    val name: String,
-    val enabled: Boolean,
-    val cronExpression: String,
-    val target: String,
-    val queryJson: String? = null,
-    val message: String?,
-    val failureMessage: String?,
-    val notifications: List<RuleNotificationInvocation> = emptyList(),
-    val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
-    val repeatNotificationIntervalMillis: Long?,
-    val startImmediately: Boolean,
-    val firingCondition: RuleFiringCondition? = null,
-    val check: RuleCheck = when (queryJson) {
-        null -> RuleCheck.Search(target, "")
-        else -> RuleCheck.Search(target, queryJson)
+sealed class AlertRuleDefinition {
+    abstract val id: String?
+    abstract val name: String
+    abstract val enabled: Boolean
+    abstract val cronExpression: String
+    abstract val target: String
+    abstract val message: String?
+    abstract val failureMessage: String?
+    abstract val notifications: List<RuleNotificationInvocation>
+    abstract val failureNotifications: List<RuleNotificationInvocation>
+    abstract val repeatNotificationIntervalMillis: Long?
+    abstract val startImmediately: Boolean
+    abstract val check: RuleCheck
+
+    data class Search(
+        override val id: String?,
+        override val name: String,
+        override val enabled: Boolean,
+        override val cronExpression: String,
+        override val target: String,
+        override val message: String?,
+        override val failureMessage: String?,
+        override val notifications: List<RuleNotificationInvocation>,
+        override val failureNotifications: List<RuleNotificationInvocation>,
+        override val repeatNotificationIntervalMillis: Long?,
+        override val startImmediately: Boolean,
+        val firingCondition: RuleFiringCondition,
+        val searchCheck: RuleCheck.Search
+    ) : AlertRuleDefinition() {
+        override val check: RuleCheck get() = searchCheck
     }
-) {
+
+    data class ClusterStatusRule(
+        override val id: String?,
+        override val name: String,
+        override val enabled: Boolean,
+        override val cronExpression: String,
+        override val target: String,
+        override val message: String?,
+        override val failureMessage: String?,
+        override val notifications: List<RuleNotificationInvocation>,
+        override val failureNotifications: List<RuleNotificationInvocation>,
+        override val repeatNotificationIntervalMillis: Long?,
+        override val startImmediately: Boolean,
+        val clusterCheck: RuleCheck.ClusterStatusCheck
+    ) : AlertRuleDefinition() {
+        override val check: RuleCheck get() = clusterCheck
+    }
+
     companion object {
         fun newRule(
             id: String? = null,
@@ -39,7 +69,7 @@ data class AlertRuleDefinition(
             repeatNotificationsEvery: Duration? = null,
             firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
             query: SearchDSL.() -> Unit
-        ): AlertRuleDefinition = fromQueryJson(
+        ): Search = fromQueryJson(
             id = id,
             name = name,
             cronExpression = cronExpression,
@@ -69,7 +99,7 @@ data class AlertRuleDefinition(
             repeatNotificationsEvery: Duration? = null,
             firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
             queryJson: String
-        ): AlertRuleDefinition {
+        ): Search {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
             require(target.isNotBlank()) { "Target index or alias must be specified" }
@@ -78,13 +108,12 @@ data class AlertRuleDefinition(
                 require(it >= Duration.ZERO) { "Repeat notification interval must not be negative" }
                 it.inWholeMilliseconds
             }
-            return AlertRuleDefinition(
+            return Search(
                 id = id,
                 name = name,
                 enabled = enabled,
                 cronExpression = cronExpression,
                 target = target,
-                queryJson = queryJson,
                 message = normalizeMessage(message),
                 failureMessage = normalizeMessage(failureMessage),
                 notifications = notifications.normalizeInvocations(),
@@ -92,7 +121,7 @@ data class AlertRuleDefinition(
                 repeatNotificationIntervalMillis = repeatMillis,
                 startImmediately = startImmediately,
                 firingCondition = firingCondition,
-                check = RuleCheck.Search(target, queryJson)
+                searchCheck = RuleCheck.Search(target, queryJson)
             )
         }
 
@@ -109,7 +138,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
-        ): AlertRuleDefinition {
+    ): ClusterStatusRule {
             require(name.isNotBlank()) { "Rule name must be specified" }
             require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
             require(description.isNotBlank()) { "Description must be specified for rule '$name'" }
@@ -117,21 +146,19 @@ data class AlertRuleDefinition(
                 require(it >= Duration.ZERO) { "Repeat notification interval must not be negative" }
                 it.inWholeMilliseconds
             }
-            return AlertRuleDefinition(
+            return ClusterStatusRule(
                 id = id,
                 name = name,
                 enabled = enabled,
                 cronExpression = cronExpression,
                 target = description,
-                queryJson = null,
                 message = normalizeMessage(message),
                 failureMessage = normalizeMessage(failureMessage),
                 notifications = notifications.normalizeInvocations(),
                 failureNotifications = failureNotifications.normalizeInvocations(),
                 repeatNotificationIntervalMillis = repeatMillis,
                 startImmediately = startImmediately,
-                firingCondition = null,
-                check = RuleCheck.ClusterStatusCheck(
+                clusterCheck = RuleCheck.ClusterStatusCheck(
                     expectedStatus = expectedStatus,
                     description = description
                 )

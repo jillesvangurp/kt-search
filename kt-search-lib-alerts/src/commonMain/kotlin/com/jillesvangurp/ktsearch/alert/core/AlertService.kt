@@ -260,7 +260,10 @@ class AlertService(
             enabled = definition.enabled,
             cronExpression = definition.cronExpression,
             target = definition.target,
-            queryJson = definition.queryJson,
+            queryJson = when (val check = definition.check) {
+                is RuleCheck.Search -> check.queryJson
+                else -> null
+            },
             message = definition.message,
             failureMessage = definition.failureMessage,
             notifications = notifications,
@@ -272,7 +275,10 @@ class AlertService(
             failureCount = existing?.failureCount ?: 0,
             lastFailureMessage = existing?.lastFailureMessage,
             repeatNotificationIntervalMillis = repeatIntervalMillis,
-            firingCondition = definition.firingCondition,
+            firingCondition = when (definition) {
+                is AlertRuleDefinition.Search -> definition.firingCondition
+                is AlertRuleDefinition.ClusterStatusRule -> null
+            },
             check = definition.check,
             alertStatus = existing?.alertStatus ?: RuleAlertStatus.UNKNOWN,
             lastNotificationAt = existing?.lastNotificationAt

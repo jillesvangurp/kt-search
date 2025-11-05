@@ -31,7 +31,7 @@ class AlertRulesDslTest {
         )
 
         rules.shouldHaveSize(1)
-        val definition = rules.first()
+        val definition = rules.first() as AlertRuleDefinition.Search
         definition.notifications.shouldHaveSize(3)
         definition.notifications.map { it.notificationId } shouldContainExactly listOf(
             "email-critical",
@@ -40,6 +40,8 @@ class AlertRulesDslTest {
         )
         definition.notifications.last().variables["level"] shouldBe "warn"
         definition.notifications.first().variables["threshold"] shouldBe "90"
+        definition.searchCheck.target shouldBe "logs-*"
+        definition.searchCheck.queryJson.contains("match_all") shouldBe true
     }
 
     @Test
@@ -67,9 +69,24 @@ class AlertRulesDslTest {
             description = "prod-cluster"
         )
 
-        definition.target shouldBe "prod-cluster"
-        definition.firingCondition shouldBe null
-        definition.check shouldBe RuleCheck.ClusterStatusCheck(
+        definition shouldBe AlertRuleDefinition.ClusterStatusRule(
+            id = null,
+            name = "Cluster Green",
+            enabled = true,
+            cronExpression = "*/5 * * * *",
+            target = "prod-cluster",
+            message = null,
+            failureMessage = null,
+            notifications = emptyList(),
+            failureNotifications = emptyList(),
+            repeatNotificationIntervalMillis = null,
+            startImmediately = true,
+            clusterCheck = RuleCheck.ClusterStatusCheck(
+                expectedStatus = ClusterStatus.Green,
+                description = "prod-cluster"
+            )
+        )
+        definition.clusterCheck shouldBe RuleCheck.ClusterStatusCheck(
             expectedStatus = ClusterStatus.Green,
             description = "prod-cluster"
         )
