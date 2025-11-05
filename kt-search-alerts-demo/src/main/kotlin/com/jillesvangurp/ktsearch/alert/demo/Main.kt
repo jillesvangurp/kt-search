@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch.alert.demo
 
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.alert.core.AlertService
 import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
 import com.jillesvangurp.ktsearch.alert.notifications.SendGridConfig
@@ -11,6 +12,7 @@ import com.jillesvangurp.ktsearch.alert.notifications.emailNotification
 import com.jillesvangurp.ktsearch.alert.notifications.slackNotification
 import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import com.jillesvangurp.ktsearch.alert.rules.RuleFiringCondition
 import com.jillesvangurp.searchdsls.querydsl.match
 import io.ktor.client.HttpClient
 import kotlin.time.Duration.Companion.minutes
@@ -99,17 +101,45 @@ suspend fun main() {
 
             +AlertRuleDefinition.newRule(
                 id = "error-alert",
-                name = "Test Alert Rule",
+                name = "Error Rate Monitor",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
-                message = "ObjectMarker errors detected in env:$environment",
+                message = "Too many ObjectMarker errors in env:$environment",
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),
-                startImmediately = true
+                startImmediately = true,
+                firingCondition = RuleFiringCondition.Max(25)
             ) {
-                resultSize = 2
+                resultSize = 25
                 match("objectType", "ObjectMarker")
             }
+
+            +AlertRuleDefinition.newRule(
+                id = "missing-errors-alert",
+                name = "Error Pipeline Watchdog",
+                cronExpression = "*/2 * * * *",
+                target = alertTarget,
+                message = "Expected ObjectMarker errors missing in env:$environment",
+                failureMessage = "Failed to verify ObjectMarker errors in env:$environment",
+                notifications = emptyList(),
+                startImmediately = true,
+                firingCondition = RuleFiringCondition.AtLeast(1)
+            ) {
+                resultSize = 1
+                match("objectType", "ObjectMarker")
+            }
+
+            +AlertRuleDefinition.clusterStatusRule(
+                id = "cluster-health",
+                name = "Cluster Health",
+                cronExpression = "*/5 * * * *",
+                expectedStatus = ClusterStatus.Green,
+                description = "$environment-cluster",
+                message = "Cluster status degraded in env:$environment",
+                failureMessage = "Failed to verify cluster status in env:$environment",
+                notifications = emptyList(),
+                startImmediately = true
+            )
         }
     }
 

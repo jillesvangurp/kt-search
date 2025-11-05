@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch.alert.rules
 
 import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import kotlin.time.Duration
 
@@ -10,13 +11,18 @@ data class AlertRuleDefinition(
     val enabled: Boolean,
     val cronExpression: String,
     val target: String,
-    val queryJson: String,
+    val queryJson: String? = null,
     val message: String?,
     val failureMessage: String?,
     val notifications: List<RuleNotificationInvocation>,
     val failureNotifications: List<RuleNotificationInvocation> = emptyList(),
     val repeatNotificationIntervalMillis: Long?,
-    val startImmediately: Boolean
+    val startImmediately: Boolean,
+    val firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
+    val check: RuleCheck = when (queryJson) {
+        null -> RuleCheck.Search(target, "")
+        else -> RuleCheck.Search(target, queryJson)
+    }
 ) {
     companion object {
         fun newRule(
@@ -31,6 +37,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
+            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
             query: SearchDSL.() -> Unit
         ): AlertRuleDefinition = fromQueryJson(
             id = id,
@@ -44,6 +51,7 @@ data class AlertRuleDefinition(
             enabled = enabled,
             startImmediately = startImmediately,
             repeatNotificationsEvery = repeatNotificationsEvery,
+            firingCondition = firingCondition,
             queryJson = SearchDSL().apply(query).json()
         )
 
@@ -59,6 +67,7 @@ data class AlertRuleDefinition(
             enabled: Boolean = true,
             startImmediately: Boolean = true,
             repeatNotificationsEvery: Duration? = null,
+            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT,
             queryJson: String
         ): AlertRuleDefinition {
             require(name.isNotBlank()) { "Rule name must be specified" }
@@ -81,7 +90,52 @@ data class AlertRuleDefinition(
                 notifications = notifications.normalizeInvocations(),
                 failureNotifications = failureNotifications.normalizeInvocations(),
                 repeatNotificationIntervalMillis = repeatMillis,
-                startImmediately = startImmediately
+                startImmediately = startImmediately,
+                firingCondition = firingCondition,
+                check = RuleCheck.Search(target, queryJson)
+            )
+        }
+
+        fun clusterStatusRule(
+            id: String? = null,
+            name: String,
+            cronExpression: String,
+            expectedStatus: ClusterStatus = ClusterStatus.Green,
+            description: String = "cluster",
+            message: String? = null,
+            failureMessage: String? = null,
+            notifications: List<RuleNotificationInvocation>,
+            failureNotifications: List<RuleNotificationInvocation> = emptyList(),
+            enabled: Boolean = true,
+            startImmediately: Boolean = true,
+            repeatNotificationsEvery: Duration? = null,
+            firingCondition: RuleFiringCondition = RuleFiringCondition.LEGACY_DEFAULT
+        ): AlertRuleDefinition {
+            require(name.isNotBlank()) { "Rule name must be specified" }
+            require(cronExpression.isNotBlank()) { "Cron expression must be specified" }
+            require(description.isNotBlank()) { "Description must be specified for rule '$name'" }
+            val repeatMillis = repeatNotificationsEvery?.let {
+                require(it >= Duration.ZERO) { "Repeat notification interval must not be negative" }
+                it.inWholeMilliseconds
+            }
+            return AlertRuleDefinition(
+                id = id,
+                name = name,
+                enabled = enabled,
+                cronExpression = cronExpression,
+                target = description,
+                queryJson = null,
+                message = normalizeMessage(message),
+                failureMessage = normalizeMessage(failureMessage),
+                notifications = notifications.normalizeInvocations(),
+                failureNotifications = failureNotifications.normalizeInvocations(),
+                repeatNotificationIntervalMillis = repeatMillis,
+                startImmediately = startImmediately,
+                firingCondition = firingCondition,
+                check = RuleCheck.ClusterStatusCheck(
+                    expectedStatus = expectedStatus,
+                    description = description
+                )
             )
         }
 

@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch.alert.rules
 
+import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -39,5 +40,38 @@ class AlertRulesDslTest {
         )
         definition.notifications.last().variables["level"] shouldBe "warn"
         definition.notifications.first().variables["threshold"] shouldBe "90"
+    }
+
+    @Test
+    fun `should capture firing condition`() {
+        val definition = AlertRuleDefinition.newRule(
+            name = "Conditioned",
+            cronExpression = "* * * * *",
+            target = "logs-*",
+            notifications = emptyList(),
+            firingCondition = RuleFiringCondition.Max(5)
+        ) {
+            query = matchAll()
+        }
+
+        definition.firingCondition shouldBe RuleFiringCondition.Max(5)
+    }
+
+    @Test
+    fun `should build cluster status rule`() {
+        val definition = AlertRuleDefinition.clusterStatusRule(
+            name = "Cluster Green",
+            cronExpression = "*/5 * * * *",
+            notifications = emptyList(),
+            expectedStatus = ClusterStatus.Green,
+            description = "prod-cluster"
+        )
+
+        definition.target shouldBe "prod-cluster"
+        definition.firingCondition shouldBe RuleFiringCondition.Default
+        definition.check shouldBe RuleCheck.ClusterStatusCheck(
+            expectedStatus = ClusterStatus.Green,
+            description = "prod-cluster"
+        )
     }
 }
