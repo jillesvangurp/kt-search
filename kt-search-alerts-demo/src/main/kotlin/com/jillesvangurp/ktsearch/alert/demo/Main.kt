@@ -1,18 +1,19 @@
 package com.jillesvangurp.ktsearch.alert.demo
 
+import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.alert.core.AlertService
 import com.jillesvangurp.ktsearch.alert.notifications.ConsoleLevel
 import com.jillesvangurp.ktsearch.alert.notifications.SendGridConfig
 import com.jillesvangurp.ktsearch.alert.notifications.SendGridEmailSender
+import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
 import com.jillesvangurp.ktsearch.alert.notifications.consoleNotification
 import com.jillesvangurp.ktsearch.alert.notifications.emailNotification
 import com.jillesvangurp.ktsearch.alert.notifications.slackNotification
-import com.jillesvangurp.ktsearch.alert.notifications.SlackWebhookSender
-import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
 import com.jillesvangurp.ktsearch.alert.rules.RuleFiringCondition
+import com.jillesvangurp.ktsearch.alert.rules.clusterStatusRule
+import com.jillesvangurp.ktsearch.alert.rules.newSearchRule
 import com.jillesvangurp.searchdsls.querydsl.match
 import io.ktor.client.HttpClient
 import kotlin.time.Duration.Companion.minutes
@@ -99,7 +100,7 @@ suspend fun main() {
         }
         rules {
 
-            +AlertRuleDefinition.newRule(
+            +newSearchRule(
                 id = "error-alert",
                 name = "Error Rate Monitor",
                 cronExpression = "*/1 * * * *",
@@ -129,7 +130,7 @@ suspend fun main() {
 //                match("objectType", "ObjectMarker")
 //            }
 
-            +AlertRuleDefinition.clusterStatusRule(
+            +clusterStatusRule(
                 id = "cluster-health",
                 name = "Cluster Health",
                 cronExpression = "*/5 * * * *",

@@ -2,9 +2,9 @@ package com.jillesvangurp.ktsearch.alert.core
 
 import com.jillesvangurp.ktsearch.alert.notifications.notification
 import com.jillesvangurp.ktsearch.alert.rules.AlertRuleDefinition
+import com.jillesvangurp.ktsearch.alert.rules.newSearchRule
 import com.jillesvangurp.searchdsls.querydsl.matchAll
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.minutes
@@ -35,7 +35,7 @@ class AlertConfigurationDslTest {
             }
             rules {
                 defaultNotificationIds("slack")
-                +AlertRuleDefinition.newRule(
+                +newSearchRule(
                     id = "example",
                     cronExpression = "* * * * *",
                     target = "logs-*",
@@ -60,7 +60,7 @@ class AlertConfigurationDslTest {
                     notifyOnFailures = false
                     repeatNotificationsEvery = 5.minutes
                 }
-                +AlertRuleDefinition.newRule(
+                +newSearchRule(
                     id = "defaults-example",
                     cronExpression = "* * * * *",
                     target = "logs-*",

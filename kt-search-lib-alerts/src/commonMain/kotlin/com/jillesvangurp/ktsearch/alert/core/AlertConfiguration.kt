@@ -29,31 +29,8 @@ class AlertConfigurationBuilder internal constructor() {
         return definition
     }
 
-    fun notification(definition: NotificationDefinition): NotificationDefinition =
-        addNotification(definition)
-
-    fun notifications(vararg definitions: NotificationDefinition) {
-        definitions.forEach(::registerNotification)
-    }
-
-    fun notifications(definitions: Iterable<NotificationDefinition>) {
-        definitions.forEach(::registerNotification)
-    }
-
     fun notifications(block: NotificationConfigurationScope.() -> Unit) {
         NotificationConfigurationScope(::registerNotification).apply(block)
-    }
-
-    fun rule(definition: AlertRuleDefinition) {
-        registerRule(definition)
-    }
-
-    fun rules(vararg definitions: AlertRuleDefinition) {
-        definitions.forEach(::registerRule)
-    }
-
-    fun rules(definitions: Iterable<AlertRuleDefinition>) {
-        definitions.forEach(::registerRule)
     }
 
     fun rules(block: RuleConfigurationScope.() -> Unit) {

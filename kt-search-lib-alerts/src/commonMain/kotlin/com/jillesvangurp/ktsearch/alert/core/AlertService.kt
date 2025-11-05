@@ -272,6 +272,7 @@ class AlertService(
             firingCondition = when (definition) {
                 is AlertRuleDefinition.Search -> definition.firingCondition
                 is AlertRuleDefinition.ClusterStatusRule -> null
+                else -> null
             },
             check = definition.check,
             alertStatus = existing?.alertStatus ?: RuleAlertStatus.UNKNOWN,

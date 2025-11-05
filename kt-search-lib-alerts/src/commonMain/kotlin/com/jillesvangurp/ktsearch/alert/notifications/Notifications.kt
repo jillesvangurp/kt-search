@@ -9,7 +9,7 @@ import kotlin.time.Instant
  * everything required to deliver the notification so the alert service does not
  * need a separate dispatcher or handler registry.
  */
-class NotificationDefinition internal constructor(
+class NotificationDefinition(
     val id: String,
     val defaultVariables: Map<String, String>,
     private val sender: suspend NotificationSendScope.() -> Unit
