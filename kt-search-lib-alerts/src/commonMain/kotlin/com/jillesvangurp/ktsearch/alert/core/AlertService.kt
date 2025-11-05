@@ -442,14 +442,16 @@ class AlertService(
             phase = null,
             ruleMessage = rule.message,
             failureMessage = rule.failureMessage,
-            matchesJson = matchesJson
+            matchesJson = matchesJson,
+            resultDescription = evaluation.resultDescription
         )
         val context = NotificationContext(
             ruleId = rule.id,
             ruleName = rule.name,
             triggeredAt = triggeredAt,
             matchCount = matchCount,
-            matches = matches
+            matches = matches,
+            resultDescription = evaluation.resultDescription
         )
         val failures = mutableListOf<Throwable>()
         for (invocation in rule.notifications) {
@@ -500,10 +502,19 @@ class AlertService(
         val matches = response.hits?.hits?.mapNotNull { it.source } ?: emptyList()
         val triggered = firingCondition.shouldTrigger(matches.size)
         val matchesForNotification = if (triggered) matches else emptyList()
+        val resultCount = matchesForNotification.size
+        val resultNoun = if (resultCount == 1) "result" else "results"
+        val resultDescription = if (triggered) {
+            "Search alert for '${check.target}' triggered with $resultCount $resultNoun"
+        } else {
+            val evaluatedNoun = if (matches.size == 1) "result" else "results"
+            "Search alert for '${check.target}' evaluated with ${matches.size} $evaluatedNoun"
+        }
         return RuleEvaluation(
             triggered = triggered,
             matches = matchesForNotification,
-            matchCount = matchesForNotification.size
+            matchCount = resultCount,
+            resultDescription = resultDescription
         )
     }
 
@@ -519,17 +530,27 @@ class AlertService(
             put("timedOut", JsonPrimitive(health.timedOut))
         }
         val matchesForNotification = if (triggered) listOf(payload) else emptyList()
+        val clusterLabel = check.description.ifBlank { "cluster" }
+        val actualStatus = health.status.name.lowercase()
+        val expectedStatus = check.expectedStatus.name.lowercase()
+        val resultDescription = if (triggered) {
+            "$clusterLabel status is $actualStatus (expected $expectedStatus)"
+        } else {
+            "$clusterLabel status is $actualStatus"
+        }
         return RuleEvaluation(
             triggered = triggered,
             matches = matchesForNotification,
-            matchCount = matchesForNotification.size
+            matchCount = matchesForNotification.size,
+            resultDescription = resultDescription
         )
     }
 
     private data class RuleEvaluation(
         val triggered: Boolean,
         val matches: List<JsonObject>,
-        val matchCount: Int
+        val matchCount: Int,
+        val resultDescription: String?
     )
 
     private fun serializeMatches(matches: List<JsonObject>): String =
@@ -573,7 +594,8 @@ class AlertService(
             phase = phase,
             ruleMessage = ruleMessage,
             failureMessage = failureMessage ?: ruleMessage,
-            matchesJson = serializeMatches(emptyList())
+            matchesJson = serializeMatches(emptyList()),
+            resultDescription = null
         )
         var dispatched = false
         for (invocation in invocations) {
@@ -608,7 +630,8 @@ class AlertService(
         phase: FailurePhase?,
         ruleMessage: String?,
         failureMessage: String?,
-        matchesJson: String?
+        matchesJson: String?,
+        resultDescription: String?
     ): MutableMap<String, String> = buildMap {
         putVariable(NotificationVariable.RULE_NAME, ruleName)
         putVariable(NotificationVariable.RULE_ID, ruleId)
@@ -620,6 +643,7 @@ class AlertService(
         putVariableIfNotNull(NotificationVariable.RULE_MESSAGE, ruleMessage)
         putVariableIfNotNull(NotificationVariable.FAILURE_MESSAGE, failureMessage)
         putVariableIfNotNull(NotificationVariable.MATCHES_JSON, matchesJson)
+        putVariableIfNotNull(NotificationVariable.RESULT_DESCRIPTION, resultDescription)
         error?.let {
             val simpleName = it::class.simpleName ?: it::class.toString()
             putVariable(NotificationVariable.ERROR_MESSAGE, it.message ?: simpleName)
