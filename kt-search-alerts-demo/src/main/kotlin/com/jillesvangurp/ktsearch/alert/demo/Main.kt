@@ -26,7 +26,6 @@ private fun env(key: String, default: String) = System.getenv(key) ?: default
 suspend fun main() {
     val elasticHost = env("ELASTIC_HOST", "localhost")
     val elasticPort = env("ELASTIC_PORT", "9999").toInt()
-    val alertTarget = env("ALERT_TARGET", "formation-objects")
     val environment = env("ENVIRONMENT", "prod")
     val debug = env("DEBUG", "false").toBoolean()
     val slackHook = env("SLACK_HOOK", "").takeIf { it.isNotBlank() }
@@ -102,7 +101,7 @@ suspend fun main() {
             +newSearchRule(
                 id = "error-alert",
                 cronExpression = "*/1 * * * *",
-                target = alertTarget,
+                target = "formation-objects",
                 name = "Error Rate Monitor",
                 message = "Too many ObjectMarker errors in env:$environment",
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
@@ -127,9 +126,7 @@ suspend fun main() {
             )
         }
     }
-
-    println("Alert service running against $alertTarget on $elasticHost:$elasticPort. Press Ctrl+C to stop.")
-
+    
     try {
         awaitCancellation()
     } finally {
