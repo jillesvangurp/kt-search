@@ -69,7 +69,9 @@ data class NotificationContext(
     val triggeredAt: Instant,
     val matchCount: Int,
     val matches: List<JsonObject>,
-    val resultDescription: String? = null
+    val resultDescription: String? = null,
+    val totalMatchCount: Long? = null,
+    val problemDetails: String? = null
 )
 
 enum class ConsoleLevel {

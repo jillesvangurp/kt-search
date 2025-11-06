@@ -28,7 +28,8 @@ data class AlertRule(
         else -> RuleCheck.Search(target, queryJson)
     },
     val alertStatus: RuleAlertStatus = RuleAlertStatus.UNKNOWN,
-    val lastNotificationAt: Instant? = null
+    val lastNotificationAt: Instant? = null,
+    val lastFailureNotificationAt: Instant? = null
 ) {
     fun executionHash(): Int {
         var result = cronExpression.hashCode()

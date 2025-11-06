@@ -14,6 +14,7 @@ enum class NotificationVariable(val key: String) {
     ERROR_TYPE("errorType"),
     FAILURE_PHASE("failurePhase"),
     MATCHES_JSON("matchesJson"),
+    PROBLEM_DETAILS("problemDetails"),
     RESULT_DESCRIPTION("resultDescription")
 }
 
