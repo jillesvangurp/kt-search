@@ -86,7 +86,6 @@ suspend fun main() {
                             |
                             |{{matchesJson}}
                             |
-                            |
                             |Kindly,
                             |
                             |Alerter
@@ -114,21 +113,6 @@ suspend fun main() {
                 resultSize = 2
                 match("objectType", "ObjectMarker")
             }
-
-//            +AlertRuleDefinition.newRule(
-//                id = "missing-errors-alert",
-//                name = "Error Pipeline Watchdog",
-//                cronExpression = "*/2 * * * *",
-//                target = alertTarget,
-//                message = "Expected ObjectMarker errors missing in env:$environment",
-//                failureMessage = "Failed to verify ObjectMarker errors in env:$environment",
-//                notifications = emptyList(),
-//                startImmediately = true,
-//                firingCondition = RuleFiringCondition.AtLeast(1)
-//            ) {
-//                resultSize = 2
-//                match("objectType", "ObjectMarker")
-//            }
 
             +clusterStatusRule(
                 id = "cluster-health",
