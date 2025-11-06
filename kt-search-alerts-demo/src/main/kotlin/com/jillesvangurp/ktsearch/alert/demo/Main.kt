@@ -102,9 +102,9 @@ suspend fun main() {
 
             +newSearchRule(
                 id = "error-alert",
-                name = "Error Rate Monitor",
                 cronExpression = "*/1 * * * *",
                 target = alertTarget,
+                name = "Error Rate Monitor",
                 message = "Too many ObjectMarker errors in env:$environment",
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),

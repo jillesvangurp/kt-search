@@ -60,9 +60,9 @@ interface AlertRuleDefinition {
 
 fun RuleConfigurationScope.newSearchRule(
     id: String,
-    name: String = id,
     cronExpression: String,
     target: String,
+    name: String = id,
     message: String? = null,
     failureMessage: String? = null,
     notifications: List<RuleNotificationInvocation> = emptyList(),
