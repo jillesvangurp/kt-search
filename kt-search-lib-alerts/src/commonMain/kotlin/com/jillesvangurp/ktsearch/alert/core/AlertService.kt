@@ -362,9 +362,28 @@ class AlertService(
                 val next = applyStartupDelay(cron.nextAfter(triggeredAt))
                 nextRun = next
                 if (evaluation.triggered) {
-                    val shouldNotify = shouldDispatch(latestRule, triggeredAt)
-                    if (shouldNotify) {
+                    val dispatchDecision = notificationDispatchDecision(latestRule, triggeredAt)
+                    val matchSummary = buildString {
+                        append("${evaluation.matchCount} matches")
+                        evaluation.totalMatchCount?.let { total ->
+                            if (total.toLong() != evaluation.matchCount.toLong()) {
+                                append(" ($total total)")
+                            }
+                        }
+                        evaluation.resultDescription?.takeIf { it.isNotBlank() }?.let { description ->
+                            append("; ")
+                            append(description)
+                        }
+                    }
+                    if (dispatchDecision.shouldNotify) {
+                        logger.info {
+                            "Rule ${latestRule.id} triggered at $triggeredAt with $matchSummary; dispatching notifications (${dispatchDecision.reason})"
+                        }
                         triggerNotifications(latestRule, evaluation, triggeredAt)
+                    } else {
+                        logger.info {
+                            "Rule ${latestRule.id} triggered at $triggeredAt with $matchSummary; skipping notifications (${dispatchDecision.reason})"
+                        }
                     }
                     updateRuleState(id) { current ->
                         current.copy(
@@ -375,7 +394,7 @@ class AlertService(
                             updatedAt = triggeredAt,
                             alertStatus = RuleAlertStatus.ALERTING,
                             lastNotificationAt = when {
-                                shouldNotify -> triggeredAt
+                                dispatchDecision.shouldNotify -> triggeredAt
                                 else -> current.lastNotificationAt
                             }
                         )
@@ -427,17 +446,56 @@ class AlertService(
         }
     }
 
-    private fun shouldDispatch(rule: AlertRule, triggeredAt: Instant): Boolean =
-        when (rule.alertStatus) {
-            RuleAlertStatus.UNKNOWN,
-            RuleAlertStatus.CLEAR -> true
+    private fun notificationDispatchDecision(rule: AlertRule, triggeredAt: Instant): NotificationDispatchDecision {
+        return when (rule.alertStatus) {
+            RuleAlertStatus.UNKNOWN -> NotificationDispatchDecision(
+                shouldNotify = true,
+                reason = "previous status unknown; notifying immediately"
+            )
+            RuleAlertStatus.CLEAR -> NotificationDispatchDecision(
+                shouldNotify = true,
+                reason = "rule recovered previously; sending fresh notification"
+            )
             RuleAlertStatus.ALERTING -> {
-                val intervalMillis = rule.repeatNotificationIntervalMillis ?: return false
-                val lastNotified = rule.lastNotificationAt ?: return true
-                val elapsed = triggeredAt - lastNotified
-                elapsed >= intervalMillis.milliseconds
+                val intervalMillis = rule.repeatNotificationIntervalMillis
+                if (intervalMillis == null) {
+                    NotificationDispatchDecision(
+                        shouldNotify = false,
+                        reason = "rule already alerting and repeat notifications disabled (repeatNotificationIntervalMillis not set)"
+                    )
+                } else {
+                    val lastNotified = rule.lastNotificationAt
+                    if (lastNotified == null) {
+                        NotificationDispatchDecision(
+                            shouldNotify = true,
+                            reason = "rule already alerting but no prior notification recorded; notifying now"
+                        )
+                    } else {
+                        val interval = intervalMillis.milliseconds
+                        val elapsed = triggeredAt - lastNotified
+                        if (elapsed >= interval) {
+                            NotificationDispatchDecision(
+                                shouldNotify = true,
+                                reason = "repeat interval ${interval.inWholeSeconds}s (${intervalMillis}ms) elapsed; last notified at $lastNotified"
+                            )
+                        } else {
+                            val nextEligibleAt = lastNotified + interval
+                            val remaining = nextEligibleAt - triggeredAt
+                            NotificationDispatchDecision(
+                                shouldNotify = false,
+                                reason = "rule already alerting; repeat interval ${interval.inWholeSeconds}s (${intervalMillis}ms) not elapsed (last notified at $lastNotified, next allowed at $nextEligibleAt, ${remaining.inWholeSeconds}s remaining)"
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private data class NotificationDispatchDecision(
+        val shouldNotify: Boolean,
+        val reason: String
+    )
 
     private suspend fun triggerNotifications(rule: AlertRule, evaluation: RuleEvaluation, triggeredAt: Instant) {
         val registry = configuration.notifications
