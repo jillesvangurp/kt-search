@@ -54,6 +54,7 @@ class AlertService(
     private val generatedIdsByName = mutableMapOf<String, String>()
     private val scheduledRules = mutableMapOf<String, ScheduledRule>()
     private val ruleStates = mutableMapOf<String, AlertRule>()
+    private val failureNotificationHistory = mutableMapOf<String, Instant>()
     private val coroutineContext: CoroutineContext = dispatcherContext
     private var supervisorJob: Job = SupervisorJob()
     private var scope: CoroutineScope = CoroutineScope(coroutineContext + supervisorJob)
@@ -169,7 +170,9 @@ class AlertService(
                         )
                     }
                     failureActions += suspend {
-                        notifyRuleFailure(
+                        val state = getRuleState(id)
+                        dispatchFailureNotifications(
+                            ruleState = state,
                             ruleId = id,
                             ruleName = definition.name ?: definition.id,
                             target = definition.target,
@@ -178,6 +181,7 @@ class AlertService(
                             error = t,
                             triggeredAt = failureTime,
                             phase = FailurePhase.CONFIGURATION,
+                            failureCount = state?.failureCount,
                             ruleMessage = definition.message,
                             failureMessage = definition.failureMessage
                         )
@@ -292,7 +296,8 @@ class AlertService(
             },
             check = definition.check,
             alertStatus = existing?.alertStatus ?: RuleAlertStatus.UNKNOWN,
-            lastNotificationAt = existing?.lastNotificationAt
+            lastNotificationAt = existing?.lastNotificationAt,
+            lastFailureNotificationAt = existing?.lastFailureNotificationAt
         )
     }
 
@@ -300,6 +305,12 @@ class AlertService(
         val adjusted = rule.nextRun?.let { rule.copy(nextRun = applyStartupDelay(it)) } ?: rule
         rulesMutex.withLock {
             ruleStates[rule.id] = adjusted
+            val lastFailureAt = adjusted.lastFailureNotificationAt
+            if (lastFailureAt != null) {
+                failureNotificationHistory[rule.id] = lastFailureAt
+            } else {
+                failureNotificationHistory.remove(rule.id)
+            }
         }
     }
 
@@ -309,13 +320,21 @@ class AlertService(
     private suspend fun updateRuleState(id: String, transform: (AlertRule) -> AlertRule) {
         rulesMutex.withLock {
             val current = ruleStates[id] ?: return
-            ruleStates[id] = transform(current)
+            val updated = transform(current)
+            ruleStates[id] = updated
+            val lastFailureAt = updated.lastFailureNotificationAt
+            if (lastFailureAt != null) {
+                failureNotificationHistory[id] = lastFailureAt
+            } else {
+                failureNotificationHistory.remove(id)
+            }
         }
     }
 
     private suspend fun removeRuleState(id: String) {
         rulesMutex.withLock {
             ruleStates.remove(id)
+            failureNotificationHistory.remove(id)
         }
     }
 
@@ -408,7 +427,8 @@ class AlertService(
                             lastFailureMessage = null,
                             updatedAt = triggeredAt,
                             alertStatus = RuleAlertStatus.CLEAR,
-                            lastNotificationAt = null
+                            lastNotificationAt = null,
+                            lastFailureNotificationAt = null
                         )
                     }
                 }
@@ -429,7 +449,8 @@ class AlertService(
                 }
                 val updated = getRuleState(id) ?: latestRule
                 logger.warn(t) { "Alert rule ${latestRule.id} execution failed" }
-                notifyRuleFailure(
+                dispatchFailureNotifications(
+                    ruleState = updated,
                     ruleId = updated.id,
                     ruleName = updated.name,
                     target = updated.target,
@@ -489,6 +510,93 @@ class AlertService(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun dispatchFailureNotifications(
+        ruleState: AlertRule?,
+        ruleId: String,
+        ruleName: String,
+        target: String,
+        notifications: List<RuleNotificationInvocation>,
+        fallbackNotifications: List<RuleNotificationInvocation>,
+        error: Throwable,
+        triggeredAt: Instant,
+        phase: FailurePhase,
+        failureCount: Int?,
+        ruleMessage: String?,
+        failureMessage: String?
+    ) {
+        val decision = failureNotificationDispatchDecision(ruleId, ruleState, triggeredAt)
+        if (!decision.shouldNotify) {
+            logger.info {
+                "Failure notifications for rule $ruleId skipped at $triggeredAt (${decision.reason})"
+            }
+            return
+        }
+        logger.info {
+            "Dispatching failure notifications for rule $ruleId at $triggeredAt (${decision.reason})"
+        }
+        notifyRuleFailure(
+            ruleId = ruleId,
+            ruleName = ruleName,
+            target = target,
+            notifications = notifications,
+            fallbackNotifications = fallbackNotifications,
+            error = error,
+            triggeredAt = triggeredAt,
+            phase = phase,
+            failureCount = failureCount,
+            ruleMessage = ruleMessage,
+            failureMessage = failureMessage
+        )
+        if (ruleState != null) {
+            updateRuleState(ruleId) { current ->
+                current.copy(lastFailureNotificationAt = triggeredAt)
+            }
+        } else {
+            rulesMutex.withLock {
+                failureNotificationHistory[ruleId] = triggeredAt
+            }
+        }
+    }
+
+    private suspend fun failureNotificationDispatchDecision(
+        ruleId: String,
+        ruleState: AlertRule?,
+        triggeredAt: Instant
+    ): NotificationDispatchDecision {
+        val lastFailureNotified = ruleState?.lastFailureNotificationAt
+            ?: rulesMutex.withLock { failureNotificationHistory[ruleId] }
+        val repeatsDisabled = ruleState != null && ruleState.repeatNotificationIntervalMillis == null
+        if (lastFailureNotified == null) {
+            return NotificationDispatchDecision(
+                shouldNotify = true,
+                reason = "no prior failure notification recorded; notifying now"
+            )
+        }
+        if (repeatsDisabled) {
+            return NotificationDispatchDecision(
+                shouldNotify = false,
+                reason = "repeat notifications disabled for failures (repeatNotificationIntervalMillis not set)"
+            )
+        }
+        val intervalMillis = ruleState?.repeatNotificationIntervalMillis
+            ?: configuration.notificationDefaults.repeatNotificationsEvery.inWholeMilliseconds
+        val interval = intervalMillis.milliseconds
+        val elapsed = triggeredAt - lastFailureNotified
+        return if (elapsed >= interval) {
+            NotificationDispatchDecision(
+                shouldNotify = true,
+                reason = "failure repeat interval ${interval.inWholeSeconds}s (${intervalMillis}ms) elapsed; last failure notification at $lastFailureNotified"
+            )
+        } else {
+            val remaining = interval - elapsed
+            val nextEligibleAt = lastFailureNotified + interval
+            NotificationDispatchDecision(
+                shouldNotify = false,
+                reason = "rule still failing; failure notifications throttled for another ${remaining.inWholeSeconds}s until $nextEligibleAt"
+            )
         }
     }
 
@@ -703,7 +811,7 @@ class AlertService(
             triggeredAt = triggeredAt,
             matchCount = 0,
             matches = emptyList(),
-            resultDescription = null,
+            resultDescription = failureDetails,
             totalMatchCount = 0L,
             problemDetails = failureDetails
         )
@@ -720,7 +828,7 @@ class AlertService(
             ruleMessage = ruleMessage,
             failureMessage = failureMessage ?: ruleMessage,
             matchesJson = serializeMatches(emptyList()),
-            resultDescription = null,
+            resultDescription = failureDetails,
             problemDetails = failureDetails
         )
         var dispatched = false
