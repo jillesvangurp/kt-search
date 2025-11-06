@@ -6,6 +6,8 @@ enum class NotificationVariable(val key: String) {
     RULE_MESSAGE("ruleMessage"),
     FAILURE_MESSAGE("failureMessage"),
     MATCH_COUNT("matchCount"),
+    SAMPLE_COUNT("sampleCount"),
+    TOTAL_MATCH_COUNT("totalMatchCount"),
     TIMESTAMP("timestamp"),
     TARGET("target"),
     STATUS("status"),

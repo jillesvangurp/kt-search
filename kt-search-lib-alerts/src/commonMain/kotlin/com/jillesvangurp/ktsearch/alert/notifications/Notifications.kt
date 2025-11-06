@@ -68,6 +68,7 @@ data class NotificationContext(
     val ruleName: String,
     val triggeredAt: Instant,
     val matchCount: Int,
+    val sampleCount: Int = matchCount,
     val matches: List<JsonObject>,
     val resultDescription: String? = null,
     val totalMatchCount: Long? = null,

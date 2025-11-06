@@ -95,7 +95,7 @@ fun emailNotification(
 fun consoleNotification(
     id: String,
     level: ConsoleLevel = ConsoleLevel.INFO,
-    message: String = "{{ruleName}} triggered: {{problemDetails}}",
+    message: String = "[{{status}}] {{ruleMessage}} :: {{problemDetails}} (sample={{sampleCount}}, total={{totalMatchCount}}) @ {{timestamp}}",
     defaultVariables: Map<String, String> = emptyMap()
 ): NotificationDefinition {
     return notification(

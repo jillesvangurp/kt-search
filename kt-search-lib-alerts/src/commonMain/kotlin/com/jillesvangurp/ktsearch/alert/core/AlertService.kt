@@ -617,6 +617,8 @@ class AlertService(
             target = rule.target,
             triggeredAt = triggeredAt,
             matchCount = totalMatchCount,
+            sampleCount = evaluation.matchCount,
+            totalMatchCount = evaluation.totalMatchCount ?: totalMatchCount,
             status = RuleRunStatus.SUCCESS,
             failureCount = null,
             error = null,
@@ -632,6 +634,7 @@ class AlertService(
             ruleName = rule.name,
             triggeredAt = triggeredAt,
             matchCount = contextMatchCount,
+            sampleCount = evaluation.matchCount,
             matches = matches,
             resultDescription = evaluation.resultDescription,
             totalMatchCount = evaluation.totalMatchCount ?: totalMatchCount,
@@ -810,6 +813,7 @@ class AlertService(
             ruleName = ruleName,
             triggeredAt = triggeredAt,
             matchCount = 0,
+            sampleCount = 0,
             matches = emptyList(),
             resultDescription = failureDetails,
             totalMatchCount = 0L,
@@ -821,6 +825,8 @@ class AlertService(
             target = target,
             triggeredAt = triggeredAt,
             matchCount = 0L,
+            sampleCount = 0,
+            totalMatchCount = 0L,
             status = RuleRunStatus.FAILURE,
             failureCount = failureCount,
             error = error,
@@ -858,6 +864,8 @@ class AlertService(
         target: String,
         triggeredAt: Instant,
         matchCount: Long,
+        sampleCount: Int? = null,
+        totalMatchCount: Long? = null,
         status: RuleRunStatus,
         failureCount: Int?,
         error: Throwable?,
@@ -870,13 +878,22 @@ class AlertService(
     ): MutableMap<String, String> = buildMap {
         putVariable(NotificationVariable.RULE_NAME, ruleName)
         putVariable(NotificationVariable.RULE_ID, ruleId)
-        putVariable(NotificationVariable.MATCH_COUNT, matchCount.toString())
+        val effectiveRuleMessage = ruleMessage?.takeIf { it.isNotBlank() } ?: ruleName
+        putVariable(NotificationVariable.RULE_MESSAGE, effectiveRuleMessage)
+        val effectiveTotal = totalMatchCount ?: matchCount
+        val effectiveSample = sampleCount?.coerceAtLeast(0) ?: run {
+            val safe = matchCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            safe
+        }
+        putVariable(NotificationVariable.MATCH_COUNT, effectiveTotal.toString())
+        putVariable(NotificationVariable.TOTAL_MATCH_COUNT, effectiveTotal.toString())
+        putVariable(NotificationVariable.SAMPLE_COUNT, effectiveSample.toString())
         putVariable(NotificationVariable.TIMESTAMP, triggeredAt.toString())
         putVariable(NotificationVariable.TARGET, target)
         putVariable(NotificationVariable.STATUS, status.name)
         putVariableIfNotNull(NotificationVariable.FAILURE_COUNT, failureCount?.toString())
-        putVariableIfNotNull(NotificationVariable.RULE_MESSAGE, ruleMessage)
-        putVariableIfNotNull(NotificationVariable.FAILURE_MESSAGE, failureMessage)
+        val effectiveFailureMessage = failureMessage?.takeIf { it.isNotBlank() } ?: effectiveRuleMessage
+        putVariable(NotificationVariable.FAILURE_MESSAGE, effectiveFailureMessage)
         putVariableIfNotNull(NotificationVariable.MATCHES_JSON, matchesJson)
         putVariableIfNotNull(NotificationVariable.RESULT_DESCRIPTION, resultDescription)
         putVariableIfNotNull(NotificationVariable.PROBLEM_DETAILS, problemDetails)

@@ -101,6 +101,22 @@ class NotificationHandlersTest {
             )
         )
     }
+
+    @Test
+    fun `should highlight missing template variables`() {
+        renderTemplate("value={{unknown}}", emptyMap()) shouldBe "value=[missing:unknown]"
+    }
+
+    @Test
+    fun `should expose sample and total counts`() {
+        renderTemplate(
+            "sample={{${NotificationVariable.SAMPLE_COUNT.key}}},total={{${NotificationVariable.TOTAL_MATCH_COUNT.key}}}",
+            mapOf(
+                NotificationVariable.SAMPLE_COUNT.key to "5",
+                NotificationVariable.TOTAL_MATCH_COUNT.key to "42"
+            )
+        ) shouldBe "sample=5,total=42"
+    }
 }
 
 private class RecordingSlackSender : SlackSender {
