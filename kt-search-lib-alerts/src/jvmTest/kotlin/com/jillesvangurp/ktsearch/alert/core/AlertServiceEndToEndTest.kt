@@ -95,6 +95,54 @@ class AlertServiceEndToEndTest {
     }
 
     @Test
+    fun `rules keep executing on their cron schedule`() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        var searchInvocations = 0
+        val restClient = FakeRestClient { request ->
+            when (request.normalizedPath) {
+                "_cluster/health" -> ok(clusterHealthResponseJson(ClusterStatus.Green))
+                "logs-app/_search" -> {
+                    searchInvocations += 1
+                    ok(searchResponseJson(matchCount = 0))
+                }
+                else -> error("Unexpected path ${'$'}{request.normalizedPath}")
+            }
+        }
+        val client = SearchClient(restClient = restClient)
+        val service = AlertService(
+            client = client,
+            nowProvider = { Instant.fromEpochMilliseconds(testScheduler.currentTime) },
+            dispatcherContext = dispatcher
+        )
+
+        service.start {
+            notifications { +notification("noop") { } }
+            rules {
+                defaultNotificationIds("noop")
+                +newSearchRule(
+                    id = "logs-schedule",
+                    cronExpression = "* * * * *",
+                    target = "logs-app",
+                    startImmediately = true
+                ) {
+                    query = matchAll()
+                }
+            }
+        }
+
+        repeat(5) {
+            testScheduler.advanceTimeBy(ONE_MINUTE_MS)
+            runCurrent()
+        }
+
+        searchInvocations shouldBe 5
+        val rule = service.currentRules().single { it.id == "logs-schedule" }
+        rule.lastRun shouldBe Instant.fromEpochMilliseconds(testScheduler.currentTime)
+
+        service.stop()
+    }
+
+    @Test
     fun cluster_status_rule_reports_health_mismatches() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         var clusterStatus = ClusterStatus.Red
