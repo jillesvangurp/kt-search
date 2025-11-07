@@ -354,7 +354,6 @@ class AlertService(
         var hash: Int,
         initialNext: Instant?
     ) {
-        @Volatile
         private var nextRun: Instant = initialNext ?: applyStartupDelay(cron.nextAfter(nowProvider()))
         private val logLabel = "$id ($ruleName)"
         private val job: Job = scope.launch {
