@@ -11,11 +11,18 @@ This repository contains the **KT Search** Kotlin multiplatform client. It offer
 - Root Gradle files (`build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, `versions.properties`) configure shared repositories, Dokka publication, and dependency versions.【F:build.gradle.kts†L1-L96】【F:settings.gradle.kts†L1-L18】
 - Additional tooling directories like `es_kibana/`, `jupyter-example/`, and `kotlin-js-store/` provide integration-test stacks, notebook samples, and JS artifacts respectively.【F:README.md†L55-L116】
 
+## Multiplatform
+
+This code base is mostly kotlin multiplatform:
+
+- do not depend on jvm only libraries or java imports (except in jvm specific source files)
+- keep code portable
+
 ## Building the Project
 
 The project uses the Gradle Wrapper. Typical workflows:
 
-1. **Yarn lock issies**. If there are issues with the yarn lock file, simply regenerate it with `./gradlew kotlinUpgradeYarnLock`
+1. **Yarn lock issues**. If there are issues with the yarn lock file, simply regenerate it with `./gradlew kotlinUpgradeYarnLock`
 1. **Start elasticsearch** before tests (required by docs and search-client tests). `./gradlew composeUp` 
 1. **Partial tests** `./gradlew jvmTest` Runs just the Java tests; rely on full CI build for multiplatform tests and matrix tests against different elasticsearch and opensearch versions.
 
