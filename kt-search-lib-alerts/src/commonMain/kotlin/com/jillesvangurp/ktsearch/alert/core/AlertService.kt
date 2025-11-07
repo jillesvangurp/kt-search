@@ -667,7 +667,7 @@ class AlertService(
             matchCount = totalMatchCount,
             sampleCount = evaluation.matchCount,
             totalMatchCount = evaluation.totalMatchCount ?: totalMatchCount,
-            status = RuleRunStatus.SUCCESS,
+            status = RuleRunStatus.ALERT,
             failureCount = null,
             error = null,
             phase = null,
@@ -720,7 +720,7 @@ class AlertService(
 
     private suspend fun evaluateRule(rule: AlertRule): RuleEvaluation =
         when (val check = rule.check) {
-            is RuleCheck.Search -> evaluateSearchRule(check, rule.firingCondition ?: RuleFiringCondition.AtMost(0))
+            is RuleCheck.Search -> evaluateSearchRule(check, rule.firingCondition ?: RuleFiringCondition.GreaterThan(0))
             is RuleCheck.ClusterStatusCheck -> evaluateClusterStatusRule(check)
         }
 
@@ -748,28 +748,17 @@ class AlertService(
             effectiveTotalMatches <= sampleCount.toLong() -> "showing all $sampleCount $sampleLabel"
             else -> "showing $sampleCount $sampleLabel"
         }
-        val problemDetails = when (firingCondition) {
-            is RuleFiringCondition.AtMost -> {
-                val limit = firingCondition.maximumMatches
-                if (triggered) {
-                    "Found $effectiveTotalMatches $totalLabel for '${check.target}', exceeding the limit of $limit; $sampleSummary."
-                } else {
-                    "Found $effectiveTotalMatches $totalLabel for '${check.target}', within the limit of $limit; $sampleSummary."
-                }
-            }
-            is RuleFiringCondition.AtLeast -> {
-                val minimum = firingCondition.minimumMatches
-                if (triggered) {
-                    "Only $effectiveTotalMatches $totalLabel found for '${check.target}', below the minimum of $minimum; $sampleSummary."
-                } else {
-                    "Found $effectiveTotalMatches $totalLabel for '${check.target}', meeting the minimum of $minimum; $sampleSummary."
-                }
-            }
-        }
-        val resultDescription = if (triggered) {
-            "Search alert for '${check.target}' triggered with $effectiveTotalMatches $totalLabel ($sampleSummary)"
+        val conditionExpression = firingCondition.describeCondition()
+        val conditionOutcome = if (triggered) {
+            "condition '$conditionExpression' satisfied"
         } else {
-            "Search alert for '${check.target}' evaluated with $effectiveTotalMatches $totalLabel"
+            "condition '$conditionExpression' not satisfied"
+        }
+        val problemDetails = "Found $effectiveTotalMatches $totalLabel for '${check.target}'; $conditionOutcome; $sampleSummary."
+        val resultDescription = if (triggered) {
+            "Search alert for '${check.target}' triggered: $conditionOutcome (count=$effectiveTotalMatches $totalLabel)"
+        } else {
+            "Search alert for '${check.target}' evaluated: $conditionOutcome (count=$effectiveTotalMatches $totalLabel)"
         }
         return RuleEvaluation(
             triggered = triggered,
@@ -959,7 +948,7 @@ class AlertService(
     }
 
     private enum class RuleRunStatus {
-        SUCCESS,
+        ALERT,
         FAILURE
     }
 

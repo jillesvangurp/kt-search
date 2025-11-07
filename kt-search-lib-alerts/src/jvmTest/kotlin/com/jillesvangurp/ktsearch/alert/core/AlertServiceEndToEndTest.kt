@@ -62,9 +62,13 @@ class AlertServiceEndToEndTest {
             }
         }
 
+        println("before advance: ${'$'}{testScheduler.currentTime}")
         service.start(configuration)
+        println("after start: ${'$'}{testScheduler.currentTime}")
         testScheduler.advanceTimeBy(ONE_MINUTE_MS)
+        println("after advance: ${'$'}{testScheduler.currentTime}")
         runCurrent()
+        println("after runCurrent: ${'$'}{testScheduler.currentTime}")
 
         recorder.contexts.shouldHaveSize(1)
         recorder.payloads.shouldHaveSize(1)
@@ -91,7 +95,9 @@ class AlertServiceEndToEndTest {
         currentRule.alertStatus shouldBe RuleAlertStatus.ALERTING
         currentRule.lastNotificationAt shouldBe Instant.fromEpochMilliseconds(testScheduler.currentTime)
 
+        println("before stop: ${'$'}{testScheduler.currentTime}")
         service.stop()
+        println("after stop: ${'$'}{testScheduler.currentTime}")
     }
 
     @Test

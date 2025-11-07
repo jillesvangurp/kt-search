@@ -107,7 +107,7 @@ suspend fun main() {
                 failureMessage = "Failed to check ObjectMarker errors in env:$environment",
                 notifications = emptyList(),
                 startImmediately = true,
-                firingCondition = RuleFiringCondition.AtMost(25)
+                firingCondition = RuleFiringCondition.GreaterThan(25)
             ) {
                 resultSize = 2
                 match("objectType", "ObjectMarker")

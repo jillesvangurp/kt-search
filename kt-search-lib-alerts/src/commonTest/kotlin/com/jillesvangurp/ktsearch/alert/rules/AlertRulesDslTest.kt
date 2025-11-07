@@ -60,12 +60,12 @@ class AlertRulesDslTest {
                 cronExpression = "* * * * *",
                 target = "logs-*",
                 notifications = emptyList(),
-                firingCondition = RuleFiringCondition.AtMost(5)
+                firingCondition = RuleFiringCondition.GreaterThan(5)
             ) {
                 query = matchAll()
             }
 
-            definition.firingCondition shouldBe RuleFiringCondition.AtMost(5)
+            definition.firingCondition shouldBe RuleFiringCondition.GreaterThan(5)
         }
     }
 

@@ -70,7 +70,7 @@ fun RuleConfigurationScope.newSearchRule(
     enabled: Boolean = true,
     startImmediately: Boolean = true,
     repeatNotificationsEvery: Duration? = null,
-    firingCondition: RuleFiringCondition = RuleFiringCondition.AtMost(0),
+    firingCondition: RuleFiringCondition = RuleFiringCondition.GreaterThan(0),
     query: SearchDSL.() -> Unit
 ): AlertRuleDefinition.Search {
     val queryJson = SearchDSL().apply(query).json()
@@ -144,4 +144,3 @@ private fun normalizeMessage(message: String?): String? =
 
 private fun List<RuleNotificationInvocation>.normalizeInvocations(): List<RuleNotificationInvocation> =
     map { it.copy(variables = it.variables.toMap()) }
-
