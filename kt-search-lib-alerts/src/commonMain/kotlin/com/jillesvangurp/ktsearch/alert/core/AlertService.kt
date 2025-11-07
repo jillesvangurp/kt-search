@@ -21,6 +21,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -221,7 +222,14 @@ class AlertService(
     private fun scheduleRule(rule: AlertRule): ScheduledRule {
         val cron = CronSchedule.parse(rule.cronExpression)
         val initialNext = rule.nextRun ?: nowProvider()
-        return ScheduledRule(rule.id, cron, rule.executionHash(), applyStartupDelay(initialNext))
+        return ScheduledRule(
+            id = rule.id,
+            ruleName = rule.name,
+            cronExpression = rule.cronExpression,
+            cron = cron,
+            hash = rule.executionHash(),
+            initialNext = applyStartupDelay(initialNext)
+        )
     }
 
     private fun resetScope() {
@@ -340,15 +348,22 @@ class AlertService(
 
     private inner class ScheduledRule(
         val id: String,
+        private val ruleName: String,
+        private val cronExpression: String,
         val cron: CronSchedule,
         var hash: Int,
         initialNext: Instant?
     ) {
-        private var nextRun: Instant = applyStartupDelay(initialNext ?: cron.nextAfter(nowProvider()))
+        @Volatile
+        private var nextRun: Instant = initialNext ?: applyStartupDelay(cron.nextAfter(nowProvider()))
+        private val logLabel = "$id ($ruleName)"
         private val job: Job = scope.launch {
             while (isActive) {
                 val now = nowProvider()
                 val delayDuration = nextRun - now
+                logger.debug {
+                    "Rule $logLabel checking schedule at $now; next run at $nextRun (${describeDelay(delayDuration)})"
+                }
                 if (delayDuration.isPositive()) {
                     delay(delayDuration)
                     continue
@@ -358,28 +373,53 @@ class AlertService(
             }
         }
 
+        init {
+            logger.info { "Scheduled rule $logLabel with cron '$cronExpression'; next run at $nextRun" }
+        }
+
         fun updateRule(rule: AlertRule) {
-            hash = rule.executionHash()
+            val newHash = rule.executionHash()
+            if (hash != newHash) {
+                logger.debug { "Rule $logLabel configuration hash updated (old=$hash, new=$newHash)" }
+            }
+            hash = newHash
             if (rule.nextRun != null && rule.nextRun != nextRun) {
                 nextRun = applyStartupDelay(rule.nextRun)
+                logger.info { "Rule $logLabel rescheduled; next run at $nextRun" }
+            } else {
+                logger.debug { "Rule $logLabel updated without schedule change; next run stays $nextRun" }
             }
         }
 
         suspend fun cancel() {
+            logger.info { "Cancelling scheduler for rule $logLabel" }
             job.cancelAndJoin()
         }
 
         private suspend fun executeRule() {
-            val latestRule = getRuleState(id) ?: return
+            val latestRule = getRuleState(id) ?: run {
+                logger.debug { "Rule $logLabel has no materialized state; skipping execution" }
+                nextRun = applyStartupDelay(nowProvider())
+                return
+            }
             if (!latestRule.enabled) {
+                logger.debug { "Rule ${latestRule.id} disabled; postponing execution" }
                 nextRun = applyStartupDelay(nowProvider())
                 return
             }
             val triggeredAt = nowProvider()
+            logger.debug {
+                "Executing rule ${latestRule.id} (${latestRule.name}) targeting ${latestRule.target} at $triggeredAt"
+            }
             try {
                 val evaluation = evaluateRule(latestRule)
                 val next = applyStartupDelay(cron.nextAfter(triggeredAt))
                 nextRun = next
+                logger.debug {
+                    val total = evaluation.totalMatchCount ?: evaluation.matchCount.toLong()
+                    val status = if (evaluation.triggered) "TRIGGERED" else "CLEAR"
+                    "Rule ${latestRule.id} completed execution with status $status; matches=${evaluation.matchCount}, total=$total; next run at $next"
+                }
                 if (evaluation.triggered) {
                     val dispatchDecision = notificationDispatchDecision(latestRule, triggeredAt)
                     val matchSummary = buildString {
@@ -463,6 +503,15 @@ class AlertService(
                     ruleMessage = updated.message,
                     failureMessage = updated.failureMessage
                 )
+            }
+        }
+
+        private fun describeDelay(delay: Duration): String {
+            val millis = delay.inWholeMilliseconds
+            return when {
+                millis > 0 -> "in ${millis}ms"
+                millis < 0 -> "overdue by ${-millis}ms"
+                else -> "now"
             }
         }
     }
