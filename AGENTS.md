@@ -15,6 +15,7 @@ This repository contains the **KT Search** Kotlin multiplatform client. It offer
 
 The project uses the Gradle Wrapper. Typical workflows:
 
+1. **Yarn lock issies**. If there are issues with the yarn lock file, simply regenerate it with `./gradlew kotlinUpgradeYarnLock`
 1. **Start elasticsearch** before tests (required by docs and search-client tests). `./gradlew composeUp` 
 1. **Partial tests** `./gradlew jvmTest` Runs just the Java tests; rely on full CI build for multiplatform tests and matrix tests against different elasticsearch and opensearch versions.
 
