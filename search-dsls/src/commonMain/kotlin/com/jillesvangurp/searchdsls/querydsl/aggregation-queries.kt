@@ -146,6 +146,13 @@ class CompositeAggConfig : JsonDsl() {
         }
     }
 
+    fun termsSource(
+        name: String,
+        field: KProperty<*>,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null
+    ) = termsSource(name, field.name, order, missingBucket)
+
     fun histogramSource(
         name: String,
         field: String,
@@ -162,6 +169,15 @@ class CompositeAggConfig : JsonDsl() {
             missingBucket?.let { this["missing_bucket"] = it }
         }
     }
+
+    fun histogramSource(
+        name: String,
+        field: KProperty<*>,
+        interval: Number,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        offset: Number? = null
+    ) = histogramSource(name, field.name, interval, order, missingBucket, offset)
 
     fun dateHistogramSource(
         name: String,
@@ -184,6 +200,17 @@ class CompositeAggConfig : JsonDsl() {
         }
     }
 
+    fun dateHistogramSource(
+        name: String,
+        field: KProperty<*>,
+        calendarInterval: String? = null,
+        fixedInterval: String? = null,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        timeZone: String? = null,
+        offset: String? = null
+    ) = dateHistogramSource(name, field.name, calendarInterval, fixedInterval, order, missingBucket, timeZone, offset)
+
     fun geoTileGridSource(
         name: String,
         field: String,
@@ -198,6 +225,14 @@ class CompositeAggConfig : JsonDsl() {
             missingBucket?.let { this["missing_bucket"] = it }
         }
     }
+
+    fun geoTileGridSource(
+        name: String,
+        field: KProperty<*>,
+        precision: Int,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+    ) = geoTileGridSource(name, field.name, precision, order, missingBucket)
 }
 
 class CompositeAgg(block: (CompositeAggConfig.() -> Unit)? = null) : AggQuery("composite") {

@@ -29,7 +29,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
@@ -284,27 +283,23 @@ class AggQueryTest : SearchTestBase() {
     fun compositeAggShouldPaginate() = coRun {
         before()
         val allBuckets = mutableListOf<CompositeBucket>()
-        var afterKey: JsonObject? = null
+        var afterKey: Map<String, Any?>? = null
 
         do {
             val response = repository.search {
                 resultSize = 0
                 agg("by_color", CompositeAgg {
                     aggSize = 1
-                    afterKey?.let { afterKey(it.toMap()) }
-                    termsSource("color", MockDoc::color.name)
+                    afterKey?.let { afterKey(it) }
+                    termsSource("color", MockDoc::color)
                 })
             }
             val composite = response.aggregations.compositeResult("by_color")
             val pageBuckets = composite.parsedBuckets.map { it.parsed }
             allBuckets.addAll(pageBuckets)
 
-            val currentAfterKey = composite.afterKey
-            afterKey = if (currentAfterKey == afterKey || currentAfterKey == null) {
-                null
-            } else {
-                currentAfterKey
-            }
+            afterKey = composite.afterKey
+                ?.mapValues { it.value.jsonPrimitive.content }
         } while (afterKey != null)
 
         allBuckets.map { it.key["color"]?.jsonPrimitive?.content }.toSet() shouldContainAll listOf(Colors.red, Colors.green)
