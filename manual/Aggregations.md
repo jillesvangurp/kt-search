@@ -99,7 +99,7 @@ This prints:
 
 ```text
 {
-  "took": 20,
+  "took": 24,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -356,7 +356,7 @@ This prints:
 
 ```text
 {
-  "took": 27,
+  "took": 22,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -426,6 +426,133 @@ This prints:
 13/4403/2692: Point(lat=52.36703671049327, lon=13.517282847315073) - 1 
 13/4401/2686: Point(lat=52.52082384657115, lon=13.409421667456627) - 1 
 13/4398/2685: Point(lat=52.55955611821264, lon=13.292043171823025) - 1 
+```
+
+## Composite aggregations
+
+Composite aggregations let you page through bucket combinations, which is ideal for
+building scrollable analytics without blowing up response size. They take multiple
+`sources`, each defining how a key is built, and return an `after_key` you can feed
+into the next request.
+
+```kotlin
+val colors = mutableSetOf<String>()
+var sawMissing = false
+var afterKey: Map<String, Any?>? = null
+
+while (true) {
+  val response = client.search(compositeIndex) {
+    resultSize = 0
+    agg("by_color", CompositeAgg {
+      aggSize = 2
+      afterKey?.let { afterKey(it) }
+      termsSource(
+        name = "color",
+        field = CompositeDoc::color,
+        missingBucket = true,
+        order = SortOrder.ASC
+      )
+    })
+  }
+  val composite = response.aggregations.compositeResult("by_color")
+  composite.parsedBuckets.forEach { b ->
+    val key = b.parsed.key["color"]
+    val asString = key?.jsonPrimitive?.content ?: "(missing)"
+    colors += asString
+    println("$asString => ${b.parsed.docCount}")
+    if (key == null || key is JsonNull) {
+      sawMissing = true
+    }
+  }
+  val next = composite.afterKey?.let { after ->
+    mapOf("color" to after["color"]?.jsonPrimitive?.contentOrNull)
+  }
+  if (next == null || next == afterKey) break
+  afterKey = next
+}
+
+println("Colors seen: $colors (missing bucket: $sawMissing)")
+```
+
+This prints:
+
+```text
+null => 1
+green => 1
+red => 2
+Colors seen: [null, green, red] (missing bucket: true)
+```
+
+You can combine multiple sources to group on several dimensions at once. Below we
+combine a `terms` source with a numeric `histogram` source.
+
+```kotlin
+val response = client.search(compositeIndex) {
+  resultSize = 0
+  agg("color_value", CompositeAgg {
+    aggSize = 10
+    termsSource("color", CompositeDoc::color)
+    histogramSource("value_bucket", CompositeDoc::value, interval = 10)
+  })
+}
+
+response.aggregations
+  .compositeResult("color_value")
+  .parsedBuckets
+  .forEach { bucket ->
+    val color = bucket.parsed.key["color"]
+      ?.jsonPrimitive
+      ?.content ?: "(missing)"
+    val valueBucket = bucket.parsed.key["value_bucket"]
+      ?.jsonPrimitive
+      ?.doubleOrNull
+    println(
+      "color=$color valueBucket=$valueBucket " +
+        "count=${bucket.parsed.docCount}"
+    )
+  }
+```
+
+This prints:
+
+```text
+color=green valueBucket=10.0 count=1
+color=red valueBucket=0.0 count=1
+color=red valueBucket=20.0 count=1
+```
+
+Date-based composites work the same way. Use `date_histogram` with `calendar_interval`
+or `fixed_interval` to scroll over time buckets:
+
+```kotlin
+val response = client.search(compositeIndex) {
+  resultSize = 0
+  agg("by_day", CompositeAgg {
+    aggSize = 10
+    dateHistogramSource(
+      name = "day",
+      field = CompositeDoc::timestamp,
+      calendarInterval = "1d",
+      order = SortOrder.DESC
+    )
+  })
+}
+response.aggregations
+  .compositeResult("by_day")
+  .parsedBuckets
+  .forEach { bucket ->
+    val day = bucket.parsed.key["day"]?.jsonPrimitive?.content
+    println("$day => ${bucket.parsed.docCount}")
+  }
+```
+
+This prints:
+
+```text
+1765238400000 => 1
+1765152000000 => 1
+1765065600000 => 1
+1764979200000 => 1
 ```
 
 ## Other aggregations
