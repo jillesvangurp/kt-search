@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>BucketAggregationResult</title>
+    <title>CompositeBucket</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
         <script>var pathToRoot = "../../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
@@ -104,28 +104,62 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="classlike" id="content" pageIds="search-client::com.jillesvangurp.ktsearch/BucketAggregationResult///PointingToDeclaration//743551049">
-  <div class="breadcrumbs"><a href="../../../index.html">search-client</a><span class="delimiter">/</span><a href="../index.html">com.jillesvangurp.ktsearch</a><span class="delimiter">/</span><span class="current">BucketAggregationResult</span></div>
+<div class="main-content" data-page-type="classlike" id="content" pageIds="search-client::com.jillesvangurp.ktsearch/CompositeBucket///PointingToDeclaration//743551049">
+  <div class="breadcrumbs"><a href="../../../index.html">search-client</a><span class="delimiter">/</span><a href="../index.html">com.jillesvangurp.ktsearch</a><span class="delimiter">/</span><span class="current">CompositeBucket</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>Bucket</span><wbr></wbr><span>Aggregation</span><wbr></wbr><span><span>Result</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">BucketAggregationResult</a><span class="token operator">&lt;</span><a href="index.html">T</a><span class="token operator">&gt;</span></div><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-terms-aggregation-result/index.html">TermsAggregationResult</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-ranges-aggregation-result/index.html">RangesAggregationResult</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-date-ranges-aggregation-result/index.html">DateRangesAggregationResult</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-date-histogram-aggregation-result/index.html">DateHistogramAggregationResult</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-geo-tile-grid-result/index.html">GeoTileGridResult</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-composite-aggregation-result/index.html">CompositeAggregationResult</a></div></span></div><div></div></div></div></div></div></div>
+    <h1 class="cover"><span>Composite</span><wbr></wbr><span><span>Bucket</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">CompositeBucket</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>key<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.json/JsonObject///PointingToDeclaration/">JsonObject</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>docCount<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></span></span><span class="token punctuation">)</span></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
-      <div data-togglable="PROPERTY">
-        <h2 class="tableheader">Properties</h2>
-        <div class="table"><a data-name="1028113811%2FProperties%2F743551049" anchor-label="buckets" id="1028113811%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
-          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="198804341%2FConstructors%2F743551049" anchor-label="CompositeBucket" id="198804341%2FConstructors%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="buckets.html"><span><span>buckets</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1028113811%2FProperties%2F743551049"></span>
+                  <div><a href="-composite-bucket.html"><span>Composite</span><wbr></wbr><span><span>Bucket</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="198804341%2FConstructors%2F743551049"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="buckets.html">buckets</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span data-unresolved-link="kotlinx.serialization.json/JsonObject///PointingToDeclaration/">JsonObject</span><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.json/JsonObject///PointingToDeclaration/">JsonObject</span><span class="token punctuation">, </span></span><span class="parameter ">docCount<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="1289638339%2FProperties%2F743551049" anchor-label="docCount" id="1289638339%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="doc-count.html"><span>doc</span><wbr></wbr><span><span>Count</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1289638339%2FProperties%2F743551049"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/SerialName///PointingToDeclaration/"><span class="token annotation builtin">SerialName</span></span><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;doc_count&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">val </span><a href="doc-count.html">docCount</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="313124673%2FProperties%2F743551049" anchor-label="key" id="313124673%2FProperties%2F743551049" data-filterable-set=":search-client/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":search-client/commonMain" data-filterable-set=":search-client/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="key.html"><span><span>key</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="313124673%2FProperties%2F743551049"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":search-client/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="key.html">key</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.json/JsonObject///PointingToDeclaration/">JsonObject</span></div></div></div>
                 </div>
               </div>
             </div>
