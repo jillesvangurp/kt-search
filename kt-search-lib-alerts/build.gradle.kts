@@ -158,7 +158,9 @@ configure<ComposeExtension> {
     val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
     dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
     useComposeFiles.set(listOf(composeFile))
-    val dockerExecutablePath = listOf("/usr/bin/docker", "/usr/local/bin/docker").firstOrNull { File(it).exists() }
+    val dockerExecutablePath =
+        listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
+
     if (dockerExecutablePath != null) {
         dockerExecutable.set(dockerExecutablePath)
     }

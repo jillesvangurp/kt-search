@@ -268,7 +268,7 @@ configure<ComposeExtension> {
     dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
     useComposeFiles.set(listOf(composeFile))
 
-    listOf("/usr/bin/docker", "/usr/local/bin/docker").firstOrNull {
+    listOf("/usr/bin/docker", "/usr/local/bin/docker","/opt/homebrew/bin/docker").firstOrNull {
         File(it).exists()
     }?.let { docker ->
         // works around an issue where the docker
