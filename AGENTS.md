@@ -26,6 +26,12 @@ The project uses the Gradle Wrapper. Typical workflows:
 1. **Start elasticsearch** before tests (required by docs and search-client tests). `./gradlew composeUp` 
 1. **Partial tests** `./gradlew jvmTest` Runs just the Java tests; rely on full CI build for multiplatform tests and matrix tests against different elasticsearch and opensearch versions.
 
+## DSL Coding style
+
+- no builders, the whole point of this library is Kotlin DSLs based on json-dsl. Where needed, prefer functions, constructors, companion object functions, or extension functions. 
+- use default arguments rather than chaining functions.
+- look at the other DSLs for what to copy
+
 ## Documentation Generation
 
 Documentation lives under the `docs` module and is produced by running the module’s tests:
