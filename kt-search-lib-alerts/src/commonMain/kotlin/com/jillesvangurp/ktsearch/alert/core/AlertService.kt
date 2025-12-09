@@ -52,7 +52,6 @@ class AlertService(
     private val startMutex = Mutex()
     private val scheduleMutex = Mutex()
     private val rulesMutex = Mutex()
-    private val generatedIdsByName = mutableMapOf<String, String>()
     private val scheduledRules = mutableMapOf<String, ScheduledRule>()
     private val ruleStates = mutableMapOf<String, AlertRule>()
     private val failureNotificationHistory = mutableMapOf<String, Instant>()
@@ -92,10 +91,6 @@ class AlertService(
 
     suspend fun start(block: AlertConfigurationBuilder.() -> Unit) {
         start(alertConfiguration(block))
-    }
-
-    suspend fun reload(block: AlertConfigurationBuilder.() -> Unit) {
-        reload(alertConfiguration(block))
     }
 
     suspend fun stop() {
@@ -202,11 +197,6 @@ class AlertService(
             }
         }
     }
-
-    fun currentRules(): List<AlertRule> =
-        ruleStates.values.toList()
-
-    fun currentConfiguration(): AlertConfiguration = configuration
 
     private fun validateNotifications(
         registry: NotificationRegistry,
@@ -958,15 +948,6 @@ class AlertService(
     ) : Exception("One or more notifications failed for rule $ruleId") {
         init {
             causes.forEach { addSuppressed(it) }
-        }
-    }
-
-    companion object {
-        private fun generateId(): String {
-            val bytes = Random.nextBytes(16)
-            return bytes.joinToString(separator = "") { byte ->
-                ((byte.toInt() and 0xff) + 0x100).toString(16).substring(1)
-            }
         }
     }
 }
