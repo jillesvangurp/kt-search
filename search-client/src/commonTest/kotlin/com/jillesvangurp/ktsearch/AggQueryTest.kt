@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
+import com.jillesvangurp.ktsearch.CompositeBucket
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.*
 import io.kotest.matchers.collections.shouldContainAll
@@ -15,6 +16,9 @@ import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.content
 
 @Serializable
 data class MockDoc(
@@ -262,6 +266,36 @@ class AggQueryTest : SearchTestBase() {
         response.aggregations.termsResult("by_color").buckets.forEach { b ->
             b.topHitResult("top").hits.hits.size shouldBeGreaterThan 0
         }
+    }
+
+    @Test
+    fun compositeAggShouldPaginate() = coRun {
+        before()
+        val allBuckets = mutableListOf<CompositeBucket>()
+        var afterKey: JsonObject? = null
+
+        do {
+            val response = repository.search {
+                resultSize = 0
+                agg("by_color", CompositeAgg {
+                    aggSize = 1
+                    afterKey?.let { afterKey(it.toMap()) }
+                    termsSource("color", MockDoc::color)
+                })
+            }
+            val composite = response.aggregations.compositeResult("by_color")
+            val pageBuckets = composite.parsedBuckets.map { it.parsed }
+            allBuckets.addAll(pageBuckets)
+
+            val currentAfterKey = composite.afterKey
+            afterKey = if (currentAfterKey == afterKey || currentAfterKey == null) {
+                null
+            } else {
+                currentAfterKey
+            }
+        } while (afterKey != null)
+
+        allBuckets.map { it.key["color"]?.jsonPrimitive?.content }.toSet() shouldContainAll listOf(Colors.red, Colors.green)
     }
 
     @Test
