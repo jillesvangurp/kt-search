@@ -19,6 +19,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.time.Duration.Companion.days
 
 // begin MyAggNamesDef
@@ -270,6 +274,172 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }.printStdOut(this)
 
+    }
+
+    section("Composite aggregations") {
+        @Serializable
+        data class CompositeDoc(
+            val name: String,
+            val color: String? = null,
+            val value: Long? = null,
+            val timestamp: Instant? = null,
+        )
+
+        val compositeIndex = "docs-composite-demo"
+        val compositeRepo = client.repository(compositeIndex, CompositeDoc.serializer())
+        runBlocking {
+            try {
+                client.deleteIndex(target = compositeIndex, ignoreUnavailable = true)
+            } catch (_: Exception) {
+            }
+            client.createIndex(compositeIndex) {
+                mappings {
+                    keyword(CompositeDoc::name)
+                    keyword(CompositeDoc::color)
+                    number<Long>(CompositeDoc::value)
+                    date(CompositeDoc::timestamp)
+                }
+            }
+            val now = Clock.System.now()
+            compositeRepo.bulk {
+                index(
+                    CompositeDoc(
+                        name = "a",
+                        color = "red",
+                        value = 5,
+                        timestamp = now
+                    )
+                )
+                index(
+                    CompositeDoc(
+                        name = "b",
+                        color = "green",
+                        value = 15,
+                        timestamp = now - 1.days
+                    )
+                )
+                index(
+                    CompositeDoc(
+                        name = "c",
+                        color = "red",
+                        value = 25,
+                        timestamp = now - 2.days
+                    )
+                )
+                // missing color/value to exercise missing_bucket
+                index(
+                    CompositeDoc(
+                        name = "d",
+                        timestamp = now - 3.days
+                    )
+                )
+            }
+        }
+
+        +"""
+            Composite aggregations let you page through bucket combinations, which is ideal for
+            building scrollable analytics without blowing up response size. They take multiple
+            `sources`, each defining how a key is built, and return an `after_key` you can feed
+            into the next request.
+        """.trimIndent()
+
+        example {
+            val colors = mutableSetOf<String>()
+            var sawMissing = false
+            var afterKey: Map<String, Any?>? = null
+
+            while (true) {
+                val response = client.search(compositeIndex) {
+                    resultSize = 0
+                    agg("by_color", CompositeAgg {
+                        aggSize = 2
+                        afterKey?.let { afterKey(it) }
+                        termsSource(
+                            name = "color",
+                            field = CompositeDoc::color,
+                            missingBucket = true,
+                            order = SortOrder.ASC
+                        )
+                    })
+                }
+                val composite = response.aggregations.compositeResult("by_color")
+                composite.parsedBuckets.forEach { b ->
+                    val key = b.parsed.key["color"]
+                    val asString = key?.jsonPrimitive?.content ?: "(missing)"
+                    colors += asString
+                    println("$asString => ${b.parsed.docCount}")
+                    if (key == null || key is JsonNull) {
+                        sawMissing = true
+                    }
+                }
+                val next = composite.afterKey?.let { after ->
+                    mapOf("color" to after["color"]?.jsonPrimitive?.contentOrNull)
+                }
+                if (next == null || next == afterKey) break
+                afterKey = next
+            }
+
+            println("Colors seen: $colors (missing bucket: $sawMissing)")
+        }.printStdOut(this)
+
+        +"""
+            You can combine multiple sources to group on several dimensions at once. Below we
+            combine a `terms` source with a numeric `histogram` source.
+        """.trimIndent()
+
+        example {
+            val response = client.search(compositeIndex) {
+                resultSize = 0
+                agg("color_value", CompositeAgg {
+                    aggSize = 10
+                    termsSource("color", CompositeDoc::color)
+                    histogramSource("value_bucket", CompositeDoc::value, interval = 10)
+                })
+            }
+
+            response.aggregations
+                .compositeResult("color_value")
+                .parsedBuckets
+                .forEach { bucket ->
+                    val color = bucket.parsed.key["color"]
+                        ?.jsonPrimitive
+                        ?.content ?: "(missing)"
+                    val valueBucket = bucket.parsed.key["value_bucket"]
+                        ?.jsonPrimitive
+                        ?.doubleOrNull
+                    println(
+                        "color=$color valueBucket=$valueBucket " +
+                            "count=${bucket.parsed.docCount}"
+                    )
+                }
+        }.printStdOut(this)
+
+        +"""
+            Date-based composites work the same way. Use `date_histogram` with `calendar_interval`
+            or `fixed_interval` to scroll over time buckets:
+        """.trimIndent()
+
+        example {
+            val response = client.search(compositeIndex) {
+                resultSize = 0
+                agg("by_day", CompositeAgg {
+                    aggSize = 10
+                    dateHistogramSource(
+                        name = "day",
+                        field = CompositeDoc::timestamp,
+                        calendarInterval = "1d",
+                        order = SortOrder.DESC
+                    )
+                })
+            }
+            response.aggregations
+                .compositeResult("by_day")
+                .parsedBuckets
+                .forEach { bucket ->
+                    val day = bucket.parsed.key["day"]?.jsonPrimitive?.content
+                    println("$day => ${bucket.parsed.docCount}")
+                }
+        }.printStdOut(this)
     }
 
     section("Other aggregations") {

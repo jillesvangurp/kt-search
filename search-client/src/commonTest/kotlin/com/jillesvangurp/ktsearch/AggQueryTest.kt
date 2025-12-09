@@ -2,7 +2,21 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.searchdsls.querydsl.AggDateRange
+import com.jillesvangurp.searchdsls.querydsl.AggRange
+import com.jillesvangurp.searchdsls.querydsl.BucketScriptAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketsPath
+import com.jillesvangurp.searchdsls.querydsl.CompositeAgg
+import com.jillesvangurp.searchdsls.querydsl.DateHistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.DateRangesAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
+import com.jillesvangurp.searchdsls.querydsl.MaxAgg
+import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.RangesAgg
+import com.jillesvangurp.searchdsls.querydsl.SumAgg
+import com.jillesvangurp.searchdsls.querydsl.TermsAgg
+import com.jillesvangurp.searchdsls.querydsl.TopHitsAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.doubles.shouldBeGreaterThan
@@ -10,11 +24,12 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlin.test.Test
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-import kotlin.test.Test
-import kotlin.time.Duration.Companion.days
+import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 data class MockDoc(
@@ -262,6 +277,32 @@ class AggQueryTest : SearchTestBase() {
         response.aggregations.termsResult("by_color").buckets.forEach { b ->
             b.topHitResult("top").hits.hits.size shouldBeGreaterThan 0
         }
+    }
+
+    @Test
+    fun compositeAggShouldPaginate() = coRun {
+        before()
+        val allBuckets = mutableListOf<CompositeBucket>()
+        var afterKey: Map<String, Any?>? = null
+
+        do {
+            val response = repository.search {
+                resultSize = 0
+                agg("by_color", CompositeAgg {
+                    aggSize = 1
+                    afterKey?.let { afterKey(it) }
+                    termsSource("color", MockDoc::color)
+                })
+            }
+            val composite = response.aggregations.compositeResult("by_color")
+            val pageBuckets = composite.parsedBuckets.map { it.parsed }
+            allBuckets.addAll(pageBuckets)
+
+            afterKey = composite.afterKey
+                ?.mapValues { it.value.jsonPrimitive.content }
+        } while (afterKey != null)
+
+        allBuckets.map { it.key["color"]?.jsonPrimitive?.content }.toSet() shouldContainAll listOf(Colors.red, Colors.green)
     }
 
     @Test

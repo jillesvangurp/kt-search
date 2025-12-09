@@ -109,6 +109,140 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : 
     }
 }
 
+class CompositeAggConfig : JsonDsl() {
+    var aggSize by property<Int>("size")
+
+    fun afterKey(afterKey: Map<String, *>) {
+        this["after"] = afterKey
+    }
+
+    fun afterKey(vararg keyValues: Pair<String, Any?>) = afterKey(mapOf(*keyValues))
+
+    fun afterKey(afterKey: JsonDsl) {
+        this["after"] = afterKey
+    }
+
+    private fun addSource(name: String, block: JsonDsl.() -> Unit) {
+        val source = withJsonDsl {
+            this[name] = withJsonDsl {
+                block.invoke(this)
+            }
+        }
+        getOrCreateMutableList("sources").add(source)
+    }
+
+    fun source(name: String, block: JsonDsl.() -> Unit) = addSource(name, block)
+
+    fun termsSource(
+        name: String,
+        field: String,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null
+    ) = addSource(name) {
+        this["terms"] = withJsonDsl {
+            this["field"] = field
+            order?.let { this["order"] = it.name.lowercase() }
+            missingBucket?.let { this["missing_bucket"] = it }
+        }
+    }
+
+    fun termsSource(
+        name: String,
+        field: KProperty<*>,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null
+    ) = termsSource(name, field.name, order, missingBucket)
+
+    fun histogramSource(
+        name: String,
+        field: String,
+        interval: Number,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        offset: Number? = null
+    ) = addSource(name) {
+        this["histogram"] = withJsonDsl {
+            this["field"] = field
+            this["interval"] = interval
+            offset?.let { this["offset"] = it }
+            order?.let { this["order"] = it.name.lowercase() }
+            missingBucket?.let { this["missing_bucket"] = it }
+        }
+    }
+
+    fun histogramSource(
+        name: String,
+        field: KProperty<*>,
+        interval: Number,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        offset: Number? = null
+    ) = histogramSource(name, field.name, interval, order, missingBucket, offset)
+
+    fun dateHistogramSource(
+        name: String,
+        field: String,
+        calendarInterval: String? = null,
+        fixedInterval: String? = null,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        timeZone: String? = null,
+        offset: String? = null
+    ) = addSource(name) {
+        this["date_histogram"] = withJsonDsl {
+            this["field"] = field
+            calendarInterval?.let { this["calendar_interval"] = it }
+            fixedInterval?.let { this["fixed_interval"] = it }
+            order?.let { this["order"] = it.name.lowercase() }
+            missingBucket?.let { this["missing_bucket"] = it }
+            timeZone?.let { this["time_zone"] = it }
+            offset?.let { this["offset"] = it }
+        }
+    }
+
+    fun dateHistogramSource(
+        name: String,
+        field: KProperty<*>,
+        calendarInterval: String? = null,
+        fixedInterval: String? = null,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+        timeZone: String? = null,
+        offset: String? = null
+    ) = dateHistogramSource(name, field.name, calendarInterval, fixedInterval, order, missingBucket, timeZone, offset)
+
+    fun geoTileGridSource(
+        name: String,
+        field: String,
+        precision: Int,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+    ) = addSource(name) {
+        this["geotile_grid"] = withJsonDsl {
+            this["field"] = field
+            this["precision"] = precision
+            order?.let { this["order"] = it.name.lowercase() }
+            missingBucket?.let { this["missing_bucket"] = it }
+        }
+    }
+
+    fun geoTileGridSource(
+        name: String,
+        field: KProperty<*>,
+        precision: Int,
+        order: SortOrder? = null,
+        missingBucket: Boolean? = null,
+    ) = geoTileGridSource(name, field.name, precision, order, missingBucket)
+}
+
+class CompositeAgg(block: (CompositeAggConfig.() -> Unit)? = null) : AggQuery("composite") {
+    init {
+        val config = CompositeAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class AggRange : JsonDsl() {
     var key by property<String>()
 
@@ -474,4 +608,3 @@ class GeoCentroidAgg(field: String): AggQuery("geo_centroid") {
         })
     }
 }
-

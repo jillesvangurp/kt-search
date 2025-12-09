@@ -488,6 +488,28 @@ fun Aggregations?.geoTileGridResult(name: String, json: Json = DEFAULT_JSON): Ge
 fun Aggregations?.geoTileGridResult(name: Enum<*>, json: Json = DEFAULT_JSON): GeoTileGridResult =
     getAggResult(name, json)
 
+@Serializable
+data class CompositeBucket(
+    val key: JsonObject,
+    @SerialName("doc_count")
+    val docCount: Long
+)
+
+@Serializable
+data class CompositeAggregationResult(
+    @SerialName("after_key")
+    val afterKey: JsonObject? = null,
+    override val buckets: List<JsonObject>
+) : BucketAggregationResult<CompositeBucket>
+
+val CompositeAggregationResult.parsedBuckets get() = buckets.map { Bucket(it, CompositeBucket.serializer()) }
+
+fun Aggregations?.compositeResult(name: String, json: Json = DEFAULT_JSON): CompositeAggregationResult =
+    getAggResult(name, json)
+
+fun Aggregations?.compositeResult(name: Enum<*>, json: Json = DEFAULT_JSON): CompositeAggregationResult =
+    getAggResult(name, json)
+
 
 @Serializable
 data class GeoCentroidResult(
