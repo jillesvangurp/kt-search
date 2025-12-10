@@ -105,7 +105,7 @@ This prints:
 
 ```text
 {
-  "took": 20,
+  "took": 17,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -362,7 +362,7 @@ This prints:
 
 ```text
 {
-  "took": 19,
+  "took": 20,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -591,7 +591,7 @@ This prints:
 
 ```text
 {
-  "took": 14,
+  "took": 20,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -705,10 +705,66 @@ Avg time span: 0.0
 Tag cardinality: 0
 ```
 
+## Metric aggregations
+
+We also provide typed helpers for the metric aggregations that operate on a single field. They
+support specifying a `missing` value as well as using scripts instead of raw fields when you
+want to pre-process values.
+
+```kotlin
+val metricsDsl = SearchDSL().apply {
+  agg("average_duration", AvgAgg(field = "duration"))
+  agg("duration_count", ValueCountAgg(field = "duration", missing = 0))
+  agg("duration_stats", StatsAgg(field = "duration"))
+  agg(
+    "duration_extended_stats",
+    ExtendedStatsAgg(
+      script = Script.create { source = "doc['duration'].value" },
+      missing = 0
+    )
+  )
+}
+
+println(metricsDsl.json(true))
+```
+
+This prints:
+
+```text
+{
+  "aggs": {
+    "average_duration": {
+      "avg": {
+        "field": "duration"
+      }
+    },
+    "duration_count": {
+      "value_count": {
+        "field": "duration",
+        "missing": 0
+      }
+    },
+    "duration_stats": {
+      "stats": {
+        "field": "duration"
+      }
+    },
+    "duration_extended_stats": {
+      "extended_stats": {
+        "missing": 0,
+        "script": {
+          "source": "doc['duration'].value"
+        }
+      }
+    }
+  }
+}
+```
+
 ## Filter aggregations
 
-You can use the filter aggregation to narrow down the results and do sub 
-aggregations on the filtered results. 
+You can use the filter aggregation to narrow down the results and do sub
+aggregations on the filtered results.
 
 ```kotlin
 repo.search {
