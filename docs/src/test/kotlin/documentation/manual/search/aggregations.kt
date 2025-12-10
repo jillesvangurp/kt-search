@@ -3,6 +3,7 @@
 package documentation.manual.search
 
 import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.*
 import com.jillesvangurp.serializationext.DEFAULT_JSON
