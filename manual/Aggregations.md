@@ -99,7 +99,7 @@ This prints:
 
 ```text
 {
-  "took": 24,
+  "took": 21,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -356,7 +356,7 @@ This prints:
 
 ```text
 {
-  "took": 22,
+  "took": 21,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -549,10 +549,10 @@ response.aggregations
 This prints:
 
 ```text
+1765324800000 => 1
 1765238400000 => 1
 1765152000000 => 1
 1765065600000 => 1
-1764979200000 => 1
 ```
 
 ## Other aggregations
