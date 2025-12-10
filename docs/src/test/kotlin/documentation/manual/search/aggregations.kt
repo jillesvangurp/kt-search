@@ -517,10 +517,34 @@ val aggregationsMd = sourceGitRepository.md {
 
         }.printStdOut(this)
     }
+    section("Metric aggregations") {
+        +"""
+            We also provide typed helpers for the metric aggregations that operate on a single field. They
+            support specifying a `missing` value as well as using scripts instead of raw fields when you
+            want to pre-process values.
+        """.trimIndent()
+
+        example {
+            val metricsDsl = SearchDSL().apply {
+                agg("average_duration", AvgAgg(field = "duration"))
+                agg("duration_count", ValueCountAgg(field = "duration", missing = 0))
+                agg("duration_stats", StatsAgg(field = "duration"))
+                agg(
+                    "duration_extended_stats",
+                    ExtendedStatsAgg(
+                        script = Script.create { source = "doc['duration'].value" },
+                        missing = 0
+                    )
+                )
+            }
+
+            println(metricsDsl.json(true))
+        }.printStdOut(this)
+    }
     section("Filter aggregations") {
         +"""
-            You can use the filter aggregation to narrow down the results and do sub 
-            aggregations on the filtered results. 
+            You can use the filter aggregation to narrow down the results and do sub
+            aggregations on the filtered results.
         """.trimIndent()
         example {
             repo.search {

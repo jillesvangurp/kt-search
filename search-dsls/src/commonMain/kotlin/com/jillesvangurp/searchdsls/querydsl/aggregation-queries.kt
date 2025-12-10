@@ -440,6 +440,112 @@ class CardinalityAgg(
     }
 }
 
+open class FieldMetricAggConfig : JsonDsl() {
+    var field by property<String>()
+    var missing by property<Any?>()
+    var script by property<Script>()
+}
+
+class AvgAggConfig : FieldMetricAggConfig()
+
+class AvgAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (AvgAggConfig.() -> Unit)? = null
+) : AggQuery("avg") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (AvgAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = AvgAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class ValueCountAggConfig : FieldMetricAggConfig()
+
+class ValueCountAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (ValueCountAggConfig.() -> Unit)? = null
+) : AggQuery("value_count") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (ValueCountAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = ValueCountAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class StatsAggConfig : FieldMetricAggConfig()
+
+class StatsAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (StatsAggConfig.() -> Unit)? = null
+) : AggQuery("stats") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (StatsAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = StatsAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class ExtendedStatsAggConfig : FieldMetricAggConfig()
+
+class ExtendedStatsAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (ExtendedStatsAggConfig.() -> Unit)? = null
+) : AggQuery("extended_stats") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (ExtendedStatsAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = ExtendedStatsAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class MaxAggConfig : JsonDsl() {
     var field by property<String>()
 }
