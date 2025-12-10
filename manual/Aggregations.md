@@ -23,7 +23,8 @@ data class MockDoc(
   val name: String,
   val tags: List<String>? = null,
   val color: String? = null,
-  val timestamp: Instant? = null
+  val timestamp: Instant? = null,
+  val value: Double? = null,
 )
 
 val indexName = "docs-aggs-demo"
@@ -33,6 +34,7 @@ client.createIndex(indexName) {
     keyword(MockDoc::color)
     keyword(MockDoc::tags)
     date(MockDoc::timestamp)
+    number<Double>(MockDoc::value)
   }
 }
 
@@ -44,7 +46,8 @@ repo.bulk {
       name = "1",
       tags = listOf("bar"),
       color = "green",
-      timestamp = now
+      timestamp = now,
+      value = 3.0,
     )
   )
   index(
@@ -52,7 +55,8 @@ repo.bulk {
       name = "2",
       tags = listOf("foo"),
       color = "red",
-      timestamp = now - 1.days
+      timestamp = now - 1.days,
+      value = 12.5,
     )
   )
   index(
@@ -60,7 +64,8 @@ repo.bulk {
       name = "3",
       tags = listOf("foo", "bar"),
       color = "red",
-      timestamp = now - 5.days
+      timestamp = now - 5.days,
+      value = 21.0,
     )
   )
   index(
@@ -68,7 +73,8 @@ repo.bulk {
       name = "4",
       tags = listOf("foobar"),
       color = "green",
-      timestamp = now - 10.days
+      timestamp = now - 10.days,
+      value = null,
     )
   )
 }
@@ -99,7 +105,7 @@ This prints:
 
 ```text
 {
-  "took": 21,
+  "took": 20,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -356,7 +362,7 @@ This prints:
 
 ```text
 {
-  "took": 21,
+  "took": 19,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -561,6 +567,69 @@ Here is a more complicated example where we use various other aggregations.
 
 Note, we do not support all aggregations currently but it's easy to add
 support for more as needed. Pull requests for this are welcome.
+
+Numeric histograms bucket numeric fields into fixed ranges. Use `offset` to shift the
+bucket boundaries, `missing` to control how null values are counted, and `extended_bounds`
+or `hard_bounds` to force buckets at the edges of the range.
+
+```kotlin
+val response = repo.search {
+  resultSize = 0 // we only care about the aggs
+  agg("by_value", HistogramAgg(MockDoc::value, interval = 10) {
+    offset = 2
+    minDocCount = 0
+    missing = 0
+    extendedBounds(min = 0, max = 30)
+    hardBounds(min = 0, max = 30)
+  })
+}
+
+println(DEFAULT_PRETTY_JSON.encodeToString(response))
+```
+
+This prints:
+
+```text
+{
+  "took": 14,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "timed_out": false,
+  "hits": {
+    "total": {
+      "value": 5,
+      "relation": "eq"
+    },
+    "hits": []
+  },
+  "aggregations": {
+    "by_value": {
+      "buckets": [
+        {
+          "key": -8.0,
+          "doc_count": 0
+        },
+        {
+          "key": 2.0,
+          "doc_count": 0
+        },
+        {
+          "key": 12.0,
+          "doc_count": 0
+        },
+        {
+          "key": 22.0,
+          "doc_count": 0
+        }
+      ]
+    }
+  }
+}
+```
 
 ```kotlin
 val response = repo.search {
