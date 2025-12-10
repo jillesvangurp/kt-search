@@ -112,6 +112,10 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : 
 class CompositeAggConfig : JsonDsl() {
     var aggSize by property<Int>("size")
 
+    enum class MissingOrder {
+        FIRST, LAST
+    }
+
     fun afterKey(afterKey: Map<String, *>) {
         this["after"] = afterKey
     }
@@ -137,12 +141,16 @@ class CompositeAggConfig : JsonDsl() {
         name: String,
         field: String,
         order: SortOrder? = null,
-        missingBucket: Boolean? = null
+        missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["terms"] = withJsonDsl {
             this["field"] = field
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -150,8 +158,10 @@ class CompositeAggConfig : JsonDsl() {
         name: String,
         field: KProperty<*>,
         order: SortOrder? = null,
-        missingBucket: Boolean? = null
-    ) = termsSource(name, field.name, order, missingBucket)
+        missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = termsSource(name, field.name, order, missingBucket, missingOrder, script)
 
     fun histogramSource(
         name: String,
@@ -159,7 +169,9 @@ class CompositeAggConfig : JsonDsl() {
         interval: Number,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-        offset: Number? = null
+        offset: Number? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["histogram"] = withJsonDsl {
             this["field"] = field
@@ -167,6 +179,8 @@ class CompositeAggConfig : JsonDsl() {
             offset?.let { this["offset"] = it }
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -176,8 +190,10 @@ class CompositeAggConfig : JsonDsl() {
         interval: Number,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-        offset: Number? = null
-    ) = histogramSource(name, field.name, interval, order, missingBucket, offset)
+        offset: Number? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = histogramSource(name, field.name, interval, order, missingBucket, offset, missingOrder, script)
 
     fun dateHistogramSource(
         name: String,
@@ -187,7 +203,10 @@ class CompositeAggConfig : JsonDsl() {
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
         timeZone: String? = null,
-        offset: String? = null
+        offset: String? = null,
+        format: String? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["date_histogram"] = withJsonDsl {
             this["field"] = field
@@ -197,6 +216,9 @@ class CompositeAggConfig : JsonDsl() {
             missingBucket?.let { this["missing_bucket"] = it }
             timeZone?.let { this["time_zone"] = it }
             offset?.let { this["offset"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            format?.let { this["format"] = it }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -208,8 +230,23 @@ class CompositeAggConfig : JsonDsl() {
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
         timeZone: String? = null,
-        offset: String? = null
-    ) = dateHistogramSource(name, field.name, calendarInterval, fixedInterval, order, missingBucket, timeZone, offset)
+        offset: String? = null,
+        format: String? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = dateHistogramSource(
+        name,
+        field.name,
+        calendarInterval,
+        fixedInterval,
+        order,
+        missingBucket,
+        timeZone,
+        offset,
+        format,
+        missingOrder,
+        script
+    )
 
     fun geoTileGridSource(
         name: String,
@@ -217,12 +254,14 @@ class CompositeAggConfig : JsonDsl() {
         precision: Int,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
     ) = addSource(name) {
         this["geotile_grid"] = withJsonDsl {
             this["field"] = field
             this["precision"] = precision
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
         }
     }
 
@@ -232,7 +271,8 @@ class CompositeAggConfig : JsonDsl() {
         precision: Int,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-    ) = geoTileGridSource(name, field.name, precision, order, missingBucket)
+        missingOrder: MissingOrder? = null,
+    ) = geoTileGridSource(name, field.name, precision, order, missingBucket, missingOrder)
 }
 
 class CompositeAgg(block: (CompositeAggConfig.() -> Unit)? = null) : AggQuery("composite") {
