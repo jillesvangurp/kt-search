@@ -365,6 +365,49 @@ class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> U
     }
 }
 
+class HistogramAggConfig : JsonDsl() {
+    var field by property<String>()
+    var interval by property<Number>()
+    var offset by property<Number>()
+    var minDocCount by property<Long>("min_doc_count")
+    var missing by property<Number>()
+
+    fun extendedBounds(min: Number? = null, max: Number? = null) {
+        if (min != null || max != null) {
+            this["extended_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
+
+    fun hardBounds(min: Number? = null, max: Number? = null) {
+        if (min != null || max != null) {
+            this["hard_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
+}
+
+class HistogramAgg(
+    val field: String,
+    val interval: Number,
+    block: (HistogramAggConfig.() -> Unit)? = null,
+) : AggQuery("histogram") {
+    constructor(field: KProperty<*>, interval: Number, block: (HistogramAggConfig.() -> Unit)? = null) :
+        this(field.name, interval, block)
+
+    init {
+        val config = HistogramAggConfig()
+        config.field = field
+        config.interval = interval
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class ExtendedStatsBucketAggConfig : JsonDsl() {
     var bucketsPath by property<String>("buckets_path")
     var gapPolicy by property<String>("gap_policy")
