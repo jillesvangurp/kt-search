@@ -519,8 +519,8 @@ val aggregationsMd = sourceGitRepository.md {
     }
     section("Filter aggregations") {
         +"""
-            You can use the filter aggregation to narrow down the results and do sub 
-            aggregations on the filtered results. 
+            You can use the filter aggregation to narrow down the results and do sub
+            aggregations on the filtered results.
         """.trimIndent()
         example {
             repo.search {
@@ -565,11 +565,42 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }
     }
+    section("Pipeline aggregations") {
+        +"""
+            Pipeline aggregations allow you to reuse metrics from other aggregations and perform additional calculations.
+            You can chain multiple pipelines together, mixing them with bucket aggregations to keep queries compact.
+        """.trimIndent()
+        example {
+            val pipelineAggQuery = SearchDSL().apply {
+                agg("events_per_day", DateHistogramAgg(MockDoc::timestamp) { calendarInterval = "1d" }) {
+                    agg("per_color", TermsAgg(MockDoc::color))
+                    agg("first_event", MinAgg(MockDoc::timestamp))
+                    agg("per_day_change", DerivativeAgg {
+                        bucketsPath = "first_event"
+                        gapPolicy = "skip"
+                    })
+                    agg("rolling_events", CumulativeSumAgg {
+                        bucketsPath = "first_event"
+                    })
+                    agg("recent_activity", BucketSelectorAgg {
+                        bucketsPath = BucketsPath {
+                            this["first"] = "first_event"
+                            this["count"] = "_count"
+                        }
+                        script = "params.count > 0 && params.first != null"
+                        gapPolicy = "insert_zeros"
+                    })
+                }
+            }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(pipelineAggQuery))
+        }.printStdOut(this)
+    }
     section("Extending the Aggregation support") {
         +"""
             Like with the Search DSL, we do not provide exhaustive coverage of all the features and instead provide
-            implementations for commonly used aggregations and make it really easy to extend this. 
-            
+            implementations for commonly used aggregations and make it really easy to extend this.
+
             So, if you get stuck without support for something you need, you should be able to fix it easily yourself.
             
             You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing

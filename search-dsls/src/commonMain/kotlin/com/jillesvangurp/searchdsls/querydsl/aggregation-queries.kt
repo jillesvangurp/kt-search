@@ -401,6 +401,51 @@ class BucketScriptAgg(
     }
 }
 
+class BucketSelectorAggConfig : JsonDsl() {
+    var bucketsPath by property<BucketsPath>("buckets_path")
+    var script by property<String>()
+    var gapPolicy by property<String>("gap_policy")
+}
+
+class BucketSelectorAgg(
+    block: (BucketSelectorAggConfig.() -> Unit)? = null
+) : AggQuery("bucket_selector") {
+    init {
+        val config = BucketSelectorAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class DerivativeAggConfig : JsonDsl() {
+    var bucketsPath by property<String>("buckets_path")
+    var gapPolicy by property<String>("gap_policy")
+}
+
+class DerivativeAgg(
+    block: (DerivativeAggConfig.() -> Unit)? = null
+) : AggQuery("derivative") {
+    init {
+        val config = DerivativeAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class CumulativeSumAggConfig : JsonDsl() {
+    var bucketsPath by property<String>("buckets_path")
+}
+
+class CumulativeSumAgg(
+    block: (CumulativeSumAggConfig.() -> Unit)? = null
+) : AggQuery("cumulative_sum") {
+    init {
+        val config = CumulativeSumAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class BucketSortAggConfig : JsonDsl() {
     var aggSize by property<Long>("size")
     var sort by property<List<SortField>>()
