@@ -2,29 +2,77 @@
 
 package documentation.manual.search
 
-import com.jillesvangurp.ktsearch.*
 import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.ktsearch.Aggregations
+import com.jillesvangurp.ktsearch.BucketAggregationResult
+import com.jillesvangurp.ktsearch.TermsAggregationResult
+import com.jillesvangurp.ktsearch.TermsBucket
+import com.jillesvangurp.ktsearch.bucketScriptResult
+import com.jillesvangurp.ktsearch.cardinalityResult
+import com.jillesvangurp.ktsearch.compositeResult
+import com.jillesvangurp.ktsearch.createIndex
+import com.jillesvangurp.ktsearch.dateHistogramResult
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.extendedStatsBucketResult
+import com.jillesvangurp.ktsearch.filterResult
+import com.jillesvangurp.ktsearch.filtersResult
+import com.jillesvangurp.ktsearch.geoCentroid
+import com.jillesvangurp.ktsearch.geoTileGridResult
+import com.jillesvangurp.ktsearch.getAggResult
+import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.maxResult
+import com.jillesvangurp.ktsearch.minResult
+import com.jillesvangurp.ktsearch.namedBuckets
+import com.jillesvangurp.ktsearch.parse
+import com.jillesvangurp.ktsearch.parsedBuckets
 import com.jillesvangurp.ktsearch.repository.repository
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.termsResult
+import com.jillesvangurp.ktsearch.topHitResult
+import com.jillesvangurp.searchdsls.querydsl.AvgAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketScriptAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketSelectorAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketsPath
+import com.jillesvangurp.searchdsls.querydsl.CardinalityAgg
+import com.jillesvangurp.searchdsls.querydsl.CompositeAgg
+import com.jillesvangurp.searchdsls.querydsl.CumulativeSumAgg
+import com.jillesvangurp.searchdsls.querydsl.DateHistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.DerivativeAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
+import com.jillesvangurp.searchdsls.querydsl.FilterAgg
+import com.jillesvangurp.searchdsls.querydsl.FiltersAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoCentroidAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
+import com.jillesvangurp.searchdsls.querydsl.HistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.MaxAgg
+import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import com.jillesvangurp.searchdsls.querydsl.SortOrder
+import com.jillesvangurp.searchdsls.querydsl.StatsAgg
+import com.jillesvangurp.searchdsls.querydsl.TermsAgg
+import com.jillesvangurp.searchdsls.querydsl.TopHitsAgg
+import com.jillesvangurp.searchdsls.querydsl.ValueCountAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
+import com.jillesvangurp.searchdsls.querydsl.term
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import documentation.manual.ManualPages
-import documentation.manual.manualPages
 import documentation.printStdOut
 import documentation.sourceGitRepository
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.time.Duration.Companion.days
 
 // begin MyAggNamesDef
 enum class MyAggNames {
@@ -265,7 +313,7 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             val response = client.search(indexName) {
                 resultSize = 0
-                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name, 13)) {
                     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
                 }
             }
@@ -417,7 +465,7 @@ val aggregationsMd = sourceGitRepository.md {
                         ?.doubleOrNull
                     println(
                         "color=$color valueBucket=$valueBucket " +
-                            "count=${bucket.parsed.docCount}"
+                                "count=${bucket.parsed.docCount}"
                     )
                 }
         }.printStdOut(this)
@@ -610,10 +658,11 @@ val aggregationsMd = sourceGitRepository.md {
                     .filtersResult("filtered")
                     .namedBuckets.forEach { fb ->
                         println("${fb.name}: ${fb.docCount}")
-                        println(fb.bucket.termsResult("colors")
-                            .parsedBuckets.joinToString(", ") { b ->
-                                b.parsed.key + ": " + b.parsed.docCount
-                            })
+                        println(
+                            fb.bucket.termsResult("colors")
+                                .parsedBuckets.joinToString(", ") { b ->
+                                    b.parsed.key + ": " + b.parsed.docCount
+                                })
                     }
             }
         }
@@ -625,7 +674,13 @@ val aggregationsMd = sourceGitRepository.md {
         """.trimIndent()
         example {
             val pipelineAggQuery = SearchDSL().apply {
-                agg("events_per_day", DateHistogramAgg(MockDoc::timestamp) { calendarInterval = "1d" }) {
+                agg(
+                    "events_per_day",
+                    DateHistogramAgg(
+                        field = MockDoc::timestamp
+                    ) {
+                        calendarInterval = "1d"
+                    }) {
                     agg("per_color", TermsAgg(MockDoc::color))
                     agg("first_event", MinAgg(MockDoc::timestamp))
                     agg("per_day_change", DerivativeAgg {
