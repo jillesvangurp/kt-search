@@ -24,6 +24,7 @@ data class MockDoc(
   val tags: List<String>? = null,
   val color: String? = null,
   val timestamp: Instant? = null,
+  val durationMs: Double? = null,
   val value: Double? = null,
 )
 
@@ -34,6 +35,7 @@ client.createIndex(indexName) {
     keyword(MockDoc::color)
     keyword(MockDoc::tags)
     date(MockDoc::timestamp)
+    number<Double>(MockDoc::durationMs)
     number<Double>(MockDoc::value)
   }
 }
@@ -47,6 +49,7 @@ repo.bulk {
       tags = listOf("bar"),
       color = "green",
       timestamp = now,
+      durationMs = 125.0,
       value = 3.0,
     )
   )
@@ -56,6 +59,7 @@ repo.bulk {
       tags = listOf("foo"),
       color = "red",
       timestamp = now - 1.days,
+      durationMs = 85.0,
       value = 12.5,
     )
   )
@@ -65,6 +69,7 @@ repo.bulk {
       tags = listOf("foo", "bar"),
       color = "red",
       timestamp = now - 5.days,
+      durationMs = 240.0,
       value = 21.0,
     )
   )
@@ -74,6 +79,7 @@ repo.bulk {
       tags = listOf("foobar"),
       color = "green",
       timestamp = now - 10.days,
+      durationMs = 60.0,
       value = null,
     )
   )
@@ -105,7 +111,7 @@ This prints:
 
 ```text
 {
-  "took": 22,
+  "took": 21,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -362,7 +368,7 @@ This prints:
 
 ```text
 {
-  "took": 20,
+  "took": 23,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -591,7 +597,7 @@ This prints:
 
 ```text
 {
-  "took": 11,
+  "took": 14,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -703,6 +709,64 @@ This prints:
 ```text
 Avg time span: 0.0
 Tag cardinality: 0
+```
+
+## Percentiles and percentile ranks
+
+Percentiles are useful to spot the shape of your numeric distributions, for example when you
+are tracking request latency or other performance metrics. The DSL exposes the `keyed`
+option by default and allows switching between HDR histograms and TDigest implementations.
+
+```kotlin
+val response = repo.search {
+  resultSize = 0
+  agg("load_time_percentiles", PercentilesAgg(MockDoc::durationMs) {
+    percentileValues=listOf(50.0, 90.0, 99.0)
+  })
+}
+
+val percentiles = response.aggregations
+  ?.get("load_time_percentiles")?.jsonObject
+  ?.get("values")?.jsonObject
+
+percentiles?.forEach { (percentile, value) ->
+  println("$percentile => ${value.jsonPrimitive.doubleOrNull}")
+}
+```
+
+This prints:
+
+```text
+
+```
+
+Percentile ranks work the other way around by showing the percentile for explicit target values.
+You can also tweak the TDigest compression to balance accuracy and memory use.
+
+```kotlin
+val response = repo.search {
+  resultSize = 0
+  agg("load_time_ranks", PercentileRanksAgg(MockDoc::durationMs) {
+    rankValues=listOf(50.0, 100.0, 250.0)
+    tdigest(compression = 110.0)
+  })
+}
+
+val percentileRanks = response.aggregations
+  ?.get("load_time_ranks")?.jsonObject
+  ?.get("values")?.jsonObject
+
+percentileRanks?.forEach { (value, percentile) ->
+  println("$value => ${percentile.jsonPrimitive.doubleOrNull}")
+}
+```
+
+This prints:
+
+```text
+50.0 => null
+100.0 => null
+250.0 => null
 ```
 
 ## Metric aggregations
