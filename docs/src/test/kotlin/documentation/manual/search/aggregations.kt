@@ -2,28 +2,80 @@
 
 package documentation.manual.search
 
-import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.jsondsl.json
+import com.jillesvangurp.ktsearch.Aggregations
+import com.jillesvangurp.ktsearch.BucketAggregationResult
+import com.jillesvangurp.ktsearch.TermsAggregationResult
+import com.jillesvangurp.ktsearch.TermsBucket
+import com.jillesvangurp.ktsearch.bucketScriptResult
+import com.jillesvangurp.ktsearch.cardinalityResult
+import com.jillesvangurp.ktsearch.compositeResult
+import com.jillesvangurp.ktsearch.createIndex
+import com.jillesvangurp.ktsearch.dateHistogramResult
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.extendedStatsBucketResult
+import com.jillesvangurp.ktsearch.filterResult
+import com.jillesvangurp.ktsearch.filtersResult
+import com.jillesvangurp.ktsearch.geoCentroid
+import com.jillesvangurp.ktsearch.geoTileGridResult
+import com.jillesvangurp.ktsearch.getAggResult
+import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.maxResult
+import com.jillesvangurp.ktsearch.minResult
+import com.jillesvangurp.ktsearch.namedBuckets
+import com.jillesvangurp.ktsearch.parse
+import com.jillesvangurp.ktsearch.parsedBuckets
 import com.jillesvangurp.ktsearch.repository.repository
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.termsResult
+import com.jillesvangurp.ktsearch.topHitResult
+import com.jillesvangurp.searchdsls.querydsl.AvgAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketScriptAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketSelectorAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketsPath
+import com.jillesvangurp.searchdsls.querydsl.CardinalityAgg
+import com.jillesvangurp.searchdsls.querydsl.CompositeAgg
+import com.jillesvangurp.searchdsls.querydsl.CumulativeSumAgg
+import com.jillesvangurp.searchdsls.querydsl.DateHistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.DerivativeAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
+import com.jillesvangurp.searchdsls.querydsl.FilterAgg
+import com.jillesvangurp.searchdsls.querydsl.FiltersAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoCentroidAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
+import com.jillesvangurp.searchdsls.querydsl.HistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.MaxAgg
+import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentileRanksAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentilesAgg
+import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import com.jillesvangurp.searchdsls.querydsl.SortOrder
+import com.jillesvangurp.searchdsls.querydsl.StatsAgg
+import com.jillesvangurp.searchdsls.querydsl.TermsAgg
+import com.jillesvangurp.searchdsls.querydsl.TopHitsAgg
+import com.jillesvangurp.searchdsls.querydsl.ValueCountAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
+import com.jillesvangurp.searchdsls.querydsl.term
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import documentation.manual.ManualPages
-import documentation.manual.manualPages
 import documentation.printStdOut
 import documentation.sourceGitRepository
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.time.Duration.Companion.days
 
 // begin MyAggNamesDef
 enum class MyAggNames {
@@ -48,7 +100,8 @@ val aggregationsMd = sourceGitRepository.md {
         val tags: List<String>? = null,
         val color: String? = null,
         val timestamp: Instant? = null,
-        val durationMs: Double? = null
+        val durationMs: Double? = null,
+        val value: Double? = null,
     )
 
     val repo = client.repository(indexName, MockDoc.serializer())
@@ -80,7 +133,8 @@ val aggregationsMd = sourceGitRepository.md {
             val tags: List<String>? = null,
             val color: String? = null,
             val timestamp: Instant? = null,
-            val durationMs: Double? = null
+            val durationMs: Double? = null,
+            val value: Double? = null,
         )
 
         val indexName = "docs-aggs-demo"
@@ -91,6 +145,7 @@ val aggregationsMd = sourceGitRepository.md {
                 keyword(MockDoc::tags)
                 date(MockDoc::timestamp)
                 number<Double>(MockDoc::durationMs)
+                number<Double>(MockDoc::value)
             }
         }
 
@@ -103,7 +158,8 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("bar"),
                     color = "green",
                     timestamp = now,
-                    durationMs = 125.0
+                    durationMs = 125.0,
+                    value = 3.0,
                 )
             )
             index(
@@ -112,7 +168,8 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foo"),
                     color = "red",
                     timestamp = now - 1.days,
-                    durationMs = 85.0
+                    durationMs = 85.0,
+                    value = 12.5,
                 )
             )
             index(
@@ -121,7 +178,8 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foo", "bar"),
                     color = "red",
                     timestamp = now - 5.days,
-                    durationMs = 240.0
+                    durationMs = 240.0,
+                    value = 21.0,
                 )
             )
             index(
@@ -130,7 +188,8 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foobar"),
                     color = "green",
                     timestamp = now - 10.days,
-                    durationMs = 60.0
+                    durationMs = 60.0,
+                    value = null,
                 )
             )
         }
@@ -264,7 +323,7 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             val response = client.search(indexName) {
                 resultSize = 0
-                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name, 13)) {
                     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
                 }
             }
@@ -416,7 +475,7 @@ val aggregationsMd = sourceGitRepository.md {
                         ?.doubleOrNull
                     println(
                         "color=$color valueBucket=$valueBucket " +
-                            "count=${bucket.parsed.docCount}"
+                                "count=${bucket.parsed.docCount}"
                     )
                 }
         }.printStdOut(this)
@@ -452,10 +511,31 @@ val aggregationsMd = sourceGitRepository.md {
     section("Other aggregations") {
         +"""
             Here is a more complicated example where we use various other aggregations.
-            
+
             Note, we do not support all aggregations currently but it's easy to add
             support for more as needed. Pull requests for this are welcome.
         """.trimIndent()
+
+        +"""
+            Numeric histograms bucket numeric fields into fixed ranges. Use `offset` to shift the
+            bucket boundaries, `missing` to control how null values are counted, and `extended_bounds`
+            or `hard_bounds` to force buckets at the edges of the range.
+        """.trimIndent()
+
+        example {
+            val response = repo.search {
+                resultSize = 0 // we only care about the aggs
+                agg("by_value", HistogramAgg(MockDoc::value, interval = 10) {
+                    offset = 2
+                    minDocCount = 0
+                    missing = 0
+                    extendedBounds(min = 0, max = 30)
+                    hardBounds(min = 0, max = 30)
+                })
+            }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(response))
+        }.printStdOut(this)
 
         example {
             val response = repo.search {
@@ -535,7 +615,7 @@ val aggregationsMd = sourceGitRepository.md {
             val response = repo.search {
                 resultSize = 0
                 agg("load_time_percentiles", PercentilesAgg(MockDoc::durationMs) {
-                    values(50, 90, 99)
+                    percentileValues=listOf(50.0, 90.0, 99.0)
                 })
             }
 
@@ -557,7 +637,7 @@ val aggregationsMd = sourceGitRepository.md {
             val response = repo.search {
                 resultSize = 0
                 agg("load_time_ranks", PercentileRanksAgg(MockDoc::durationMs) {
-                    values(50, 100, 250)
+                    rankValues=listOf(50.0, 100.0, 250.0)
                     tdigest(compression = 110.0)
                 })
             }
@@ -571,59 +651,124 @@ val aggregationsMd = sourceGitRepository.md {
             }
         }.printStdOut(this)
     }
-    section("Filter aggregations") {
+
+
+    section("Metric aggregations") {
         +"""
-            You can use the filter aggregation to narrow down the results and do sub 
-            aggregations on the filtered results. 
+            We also provide typed helpers for the metric aggregations that operate on a single field. They
+            support specifying a `missing` value as well as using scripts instead of raw fields when you
+            want to pre-process values.
         """.trimIndent()
+
         example {
-            repo.search {
-                resultSize = 0
-                agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
-                    agg("colors", TermsAgg(MockDoc::color))
+            val metricsDsl = SearchDSL().apply {
+                agg("average_duration", AvgAgg(field = "duration"))
+                agg("duration_count", ValueCountAgg(field = "duration", missing = 0))
+                agg("duration_stats", StatsAgg(field = "duration"))
+                agg(
+                    "duration_extended_stats",
+                    ExtendedStatsAgg(
+                        script = Script.create { source = "doc['duration'].value" },
+                        missing = 0
+                    )
+                )
+            }
+
+            println(metricsDsl.json(true))
+        }.printStdOut(this)
+
+        section("Filter aggregations") {
+            +"""
+            You can use the filter aggregation to narrow down the results and do sub
+            aggregations on the filtered results.
+        """.trimIndent()
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+                        agg("colors", TermsAgg(MockDoc::color))
+                    }
+                }.let {
+                    it.aggregations.filterResult("filtered")?.let { fb ->
+                        println("filtered: ${fb.docCount}")
+                        fb.bucket.termsResult("colors")
+                            .parsedBuckets
+                            .forEach { b ->
+                                println("${b.parsed.key}: ${b.parsed.docCount}")
+                            }
+                    }
                 }
-            }.let {
-                it.aggregations.filterResult("filtered")?.let { fb ->
-                    println("filtered: ${fb.docCount}")
-                    fb.bucket.termsResult("colors")
-                        .parsedBuckets
-                        .forEach { b ->
-                            println("${b.parsed.key}: ${b.parsed.docCount}")
+            }.printStdOut(this)
+
+            +"""
+            You can also use the filters aggregation to use multiple named filter aggregations at the same time
+        """.trimIndent()
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FiltersAgg {
+                        namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
+                        namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                    }) {
+                        agg("colors", TermsAgg(MockDoc::color))
+                    }
+                }.let {
+                    it.aggregations
+                        .filtersResult("filtered")
+                        .namedBuckets.forEach { fb ->
+                            println("${fb.name}: ${fb.docCount}")
+                            println(
+                                fb.bucket.termsResult("colors")
+                                    .parsedBuckets.joinToString(", ") { b ->
+                                        b.parsed.key + ": " + b.parsed.docCount
+                                    })
                         }
                 }
             }
-        }.printStdOut(this)
-
+        }
+    }
+    section("Pipeline aggregations") {
         +"""
-            You can also use the filters aggregation to use multiple named filter aggregations at the same time
+            Pipeline aggregations allow you to reuse metrics from other aggregations and perform additional calculations.
+            You can chain multiple pipelines together, mixing them with bucket aggregations to keep queries compact.
         """.trimIndent()
         example {
-            repo.search {
-                resultSize = 0
-                agg("filtered", FiltersAgg {
-                    namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
-                    namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
-                }) {
-                    agg("colors", TermsAgg(MockDoc::color))
+            val pipelineAggQuery = SearchDSL().apply {
+                agg(
+                    "events_per_day",
+                    DateHistogramAgg(
+                        field = MockDoc::timestamp
+                    ) {
+                        calendarInterval = "1d"
+                    }) {
+                    agg("per_color", TermsAgg(MockDoc::color))
+                    agg("first_event", MinAgg(MockDoc::timestamp))
+                    agg("per_day_change", DerivativeAgg {
+                        bucketsPath = "first_event"
+                        gapPolicy = "skip"
+                    })
+                    agg("rolling_events", CumulativeSumAgg {
+                        bucketsPath = "first_event"
+                    })
+                    agg("recent_activity", BucketSelectorAgg {
+                        bucketsPath = BucketsPath {
+                            this["first"] = "first_event"
+                            this["count"] = "_count"
+                        }
+                        script = "params.count > 0 && params.first != null"
+                        gapPolicy = "insert_zeros"
+                    })
                 }
-            }.let {
-                it.aggregations
-                    .filtersResult("filtered")
-                    .namedBuckets.forEach { fb ->
-                        println("${fb.name}: ${fb.docCount}")
-                        println(fb.bucket.termsResult("colors")
-                            .parsedBuckets.joinToString(", ") { b ->
-                                b.parsed.key + ": " + b.parsed.docCount
-                            })
-                    }
             }
-        }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(pipelineAggQuery))
+        }.printStdOut(this)
     }
     section("Extending the Aggregation support") {
         +"""
             Like with the Search DSL, we do not provide exhaustive coverage of all the features and instead provide
-            implementations for commonly used aggregations and make it really easy to extend this. 
-            
+            implementations for commonly used aggregations and make it really easy to extend this.
+
             So, if you get stuck without support for something you need, you should be able to fix it easily yourself.
             
             You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing

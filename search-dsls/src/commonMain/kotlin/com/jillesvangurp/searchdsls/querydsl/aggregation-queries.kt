@@ -112,6 +112,10 @@ class TermsAgg(val field: String, block: (TermsAggConfig.() -> Unit)? = null) : 
 class CompositeAggConfig : JsonDsl() {
     var aggSize by property<Int>("size")
 
+    enum class MissingOrder {
+        FIRST, LAST
+    }
+
     fun afterKey(afterKey: Map<String, *>) {
         this["after"] = afterKey
     }
@@ -137,12 +141,16 @@ class CompositeAggConfig : JsonDsl() {
         name: String,
         field: String,
         order: SortOrder? = null,
-        missingBucket: Boolean? = null
+        missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["terms"] = withJsonDsl {
             this["field"] = field
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -150,8 +158,10 @@ class CompositeAggConfig : JsonDsl() {
         name: String,
         field: KProperty<*>,
         order: SortOrder? = null,
-        missingBucket: Boolean? = null
-    ) = termsSource(name, field.name, order, missingBucket)
+        missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = termsSource(name, field.name, order, missingBucket, missingOrder, script)
 
     fun histogramSource(
         name: String,
@@ -159,7 +169,9 @@ class CompositeAggConfig : JsonDsl() {
         interval: Number,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-        offset: Number? = null
+        offset: Number? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["histogram"] = withJsonDsl {
             this["field"] = field
@@ -167,6 +179,8 @@ class CompositeAggConfig : JsonDsl() {
             offset?.let { this["offset"] = it }
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -176,8 +190,10 @@ class CompositeAggConfig : JsonDsl() {
         interval: Number,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-        offset: Number? = null
-    ) = histogramSource(name, field.name, interval, order, missingBucket, offset)
+        offset: Number? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = histogramSource(name, field.name, interval, order, missingBucket, offset, missingOrder, script)
 
     fun dateHistogramSource(
         name: String,
@@ -187,7 +203,10 @@ class CompositeAggConfig : JsonDsl() {
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
         timeZone: String? = null,
-        offset: String? = null
+        offset: String? = null,
+        format: String? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
     ) = addSource(name) {
         this["date_histogram"] = withJsonDsl {
             this["field"] = field
@@ -197,6 +216,9 @@ class CompositeAggConfig : JsonDsl() {
             missingBucket?.let { this["missing_bucket"] = it }
             timeZone?.let { this["time_zone"] = it }
             offset?.let { this["offset"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
+            format?.let { this["format"] = it }
+            script?.let { this["script"] = it }
         }
     }
 
@@ -208,8 +230,23 @@ class CompositeAggConfig : JsonDsl() {
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
         timeZone: String? = null,
-        offset: String? = null
-    ) = dateHistogramSource(name, field.name, calendarInterval, fixedInterval, order, missingBucket, timeZone, offset)
+        offset: String? = null,
+        format: String? = null,
+        missingOrder: MissingOrder? = null,
+        script: Script? = null,
+    ) = dateHistogramSource(
+        name,
+        field.name,
+        calendarInterval,
+        fixedInterval,
+        order,
+        missingBucket,
+        timeZone,
+        offset,
+        format,
+        missingOrder,
+        script
+    )
 
     fun geoTileGridSource(
         name: String,
@@ -217,12 +254,14 @@ class CompositeAggConfig : JsonDsl() {
         precision: Int,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
+        missingOrder: MissingOrder? = null,
     ) = addSource(name) {
         this["geotile_grid"] = withJsonDsl {
             this["field"] = field
             this["precision"] = precision
             order?.let { this["order"] = it.name.lowercase() }
             missingBucket?.let { this["missing_bucket"] = it }
+            missingOrder?.let { this["missing_order"] = it.name.lowercase() }
         }
     }
 
@@ -232,7 +271,8 @@ class CompositeAggConfig : JsonDsl() {
         precision: Int,
         order: SortOrder? = null,
         missingBucket: Boolean? = null,
-    ) = geoTileGridSource(name, field.name, precision, order, missingBucket)
+        missingOrder: MissingOrder? = null,
+    ) = geoTileGridSource(name, field.name, precision, order, missingBucket, missingOrder)
 }
 
 class CompositeAgg(block: (CompositeAggConfig.() -> Unit)? = null) : AggQuery("composite") {
@@ -365,6 +405,49 @@ class DateHistogramAgg(val field: String, block: (DateHistogramAggConfig.() -> U
     }
 }
 
+class HistogramAggConfig : JsonDsl() {
+    var field by property<String>()
+    var interval by property<Number>()
+    var offset by property<Number>()
+    var minDocCount by property<Long>("min_doc_count")
+    var missing by property<Number>()
+
+    fun extendedBounds(min: Number? = null, max: Number? = null) {
+        if (min != null || max != null) {
+            this["extended_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
+
+    fun hardBounds(min: Number? = null, max: Number? = null) {
+        if (min != null || max != null) {
+            this["hard_bounds"] = withJsonDsl {
+                this["min"] = min
+                this["max"] = max
+            }
+        }
+    }
+}
+
+class HistogramAgg(
+    val field: String,
+    val interval: Number,
+    block: (HistogramAggConfig.() -> Unit)? = null,
+) : AggQuery("histogram") {
+    constructor(field: KProperty<*>, interval: Number, block: (HistogramAggConfig.() -> Unit)? = null) :
+        this(field.name, interval, block)
+
+    init {
+        val config = HistogramAggConfig()
+        config.field = field
+        config.interval = interval
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class ExtendedStatsBucketAggConfig : JsonDsl() {
     var bucketsPath by property<String>("buckets_path")
     var gapPolicy by property<String>("gap_policy")
@@ -396,6 +479,51 @@ class BucketScriptAgg(
 ) : AggQuery("bucket_script") {
     init {
         val config = BucketScriptAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class BucketSelectorAggConfig : JsonDsl() {
+    var bucketsPath by property<BucketsPath>("buckets_path")
+    var script by property<String>()
+    var gapPolicy by property<String>("gap_policy")
+}
+
+class BucketSelectorAgg(
+    block: (BucketSelectorAggConfig.() -> Unit)? = null
+) : AggQuery("bucket_selector") {
+    init {
+        val config = BucketSelectorAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class DerivativeAggConfig : JsonDsl() {
+    var bucketsPath by property<String>("buckets_path")
+    var gapPolicy by property<String>("gap_policy")
+}
+
+class DerivativeAgg(
+    block: (DerivativeAggConfig.() -> Unit)? = null
+) : AggQuery("derivative") {
+    init {
+        val config = DerivativeAggConfig()
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class CumulativeSumAggConfig : JsonDsl() {
+    var bucketsPath by property<String>("buckets_path")
+}
+
+class CumulativeSumAgg(
+    block: (CumulativeSumAggConfig.() -> Unit)? = null
+) : AggQuery("cumulative_sum") {
+    init {
+        val config = CumulativeSumAggConfig()
         block?.invoke(config)
         put(name, config)
     }
@@ -435,6 +563,112 @@ class CardinalityAgg(
     init {
         val config = CardinalityAggConfig()
         config.field = field
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+open class FieldMetricAggConfig : JsonDsl() {
+    var field by property<String>()
+    var missing by property<Any?>()
+    var script by property<Script>()
+}
+
+class AvgAggConfig : FieldMetricAggConfig()
+
+class AvgAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (AvgAggConfig.() -> Unit)? = null
+) : AggQuery("avg") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (AvgAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = AvgAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class ValueCountAggConfig : FieldMetricAggConfig()
+
+class ValueCountAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (ValueCountAggConfig.() -> Unit)? = null
+) : AggQuery("value_count") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (ValueCountAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = ValueCountAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class StatsAggConfig : FieldMetricAggConfig()
+
+class StatsAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (StatsAggConfig.() -> Unit)? = null
+) : AggQuery("stats") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (StatsAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = StatsAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class ExtendedStatsAggConfig : FieldMetricAggConfig()
+
+class ExtendedStatsAgg(
+    val field: String? = null,
+    val missing: Any? = null,
+    val script: Script? = null,
+    block: (ExtendedStatsAggConfig.() -> Unit)? = null
+) : AggQuery("extended_stats") {
+    constructor(
+        field: KProperty<*>,
+        missing: Any? = null,
+        script: Script? = null,
+        block: (ExtendedStatsAggConfig.() -> Unit)? = null
+    ) : this(field.name, missing, script, block)
+
+    init {
+        val config = ExtendedStatsAggConfig()
+        field?.let { config.field = it }
+        missing?.let { config.missing = it }
+        script?.let { config.script = it }
         block?.invoke(config)
         put(name, config)
     }
