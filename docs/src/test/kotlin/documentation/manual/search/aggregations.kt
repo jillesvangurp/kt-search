@@ -3,6 +3,7 @@
 package documentation.manual.search
 
 import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.querydsl.*
 import com.jillesvangurp.serializationext.DEFAULT_JSON
@@ -47,7 +48,8 @@ val aggregationsMd = sourceGitRepository.md {
         val name: String,
         val tags: List<String>? = null,
         val color: String? = null,
-        val timestamp: Instant? = null
+        val timestamp: Instant? = null,
+        val value: Double? = null,
     )
 
     val repo = client.repository(indexName, MockDoc.serializer())
@@ -78,7 +80,8 @@ val aggregationsMd = sourceGitRepository.md {
             val name: String,
             val tags: List<String>? = null,
             val color: String? = null,
-            val timestamp: Instant? = null
+            val timestamp: Instant? = null,
+            val value: Double? = null,
         )
 
         val indexName = "docs-aggs-demo"
@@ -88,6 +91,7 @@ val aggregationsMd = sourceGitRepository.md {
                 keyword(MockDoc::color)
                 keyword(MockDoc::tags)
                 date(MockDoc::timestamp)
+                number<Double>(MockDoc::value)
             }
         }
 
@@ -99,7 +103,8 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "1",
                     tags = listOf("bar"),
                     color = "green",
-                    timestamp = now
+                    timestamp = now,
+                    value = 3.0,
                 )
             )
             index(
@@ -107,7 +112,8 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "2",
                     tags = listOf("foo"),
                     color = "red",
-                    timestamp = now - 1.days
+                    timestamp = now - 1.days,
+                    value = 12.5,
                 )
             )
             index(
@@ -115,7 +121,8 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "3",
                     tags = listOf("foo", "bar"),
                     color = "red",
-                    timestamp = now - 5.days
+                    timestamp = now - 5.days,
+                    value = 21.0,
                 )
             )
             index(
@@ -123,7 +130,8 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "4",
                     tags = listOf("foobar"),
                     color = "green",
-                    timestamp = now - 10.days
+                    timestamp = now - 10.days,
+                    value = null,
                 )
             )
         }
@@ -445,10 +453,31 @@ val aggregationsMd = sourceGitRepository.md {
     section("Other aggregations") {
         +"""
             Here is a more complicated example where we use various other aggregations.
-            
+
             Note, we do not support all aggregations currently but it's easy to add
             support for more as needed. Pull requests for this are welcome.
         """.trimIndent()
+
+        +"""
+            Numeric histograms bucket numeric fields into fixed ranges. Use `offset` to shift the
+            bucket boundaries, `missing` to control how null values are counted, and `extended_bounds`
+            or `hard_bounds` to force buckets at the edges of the range.
+        """.trimIndent()
+
+        example {
+            val response = repo.search {
+                resultSize = 0 // we only care about the aggs
+                agg("by_value", HistogramAgg(MockDoc::value, interval = 10) {
+                    offset = 2
+                    minDocCount = 0
+                    missing = 0
+                    extendedBounds(min = 0, max = 30)
+                    hardBounds(min = 0, max = 30)
+                })
+            }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(response))
+        }.printStdOut(this)
 
         example {
             val response = repo.search {
@@ -515,6 +544,30 @@ val aggregationsMd = sourceGitRepository.md {
                 }"
             )
 
+        }.printStdOut(this)
+    }
+    section("Metric aggregations") {
+        +"""
+            We also provide typed helpers for the metric aggregations that operate on a single field. They
+            support specifying a `missing` value as well as using scripts instead of raw fields when you
+            want to pre-process values.
+        """.trimIndent()
+
+        example {
+            val metricsDsl = SearchDSL().apply {
+                agg("average_duration", AvgAgg(field = "duration"))
+                agg("duration_count", ValueCountAgg(field = "duration", missing = 0))
+                agg("duration_stats", StatsAgg(field = "duration"))
+                agg(
+                    "duration_extended_stats",
+                    ExtendedStatsAgg(
+                        script = Script.create { source = "doc['duration'].value" },
+                        missing = 0
+                    )
+                )
+            }
+
+            println(metricsDsl.json(true))
         }.printStdOut(this)
     }
     section("Filter aggregations") {
