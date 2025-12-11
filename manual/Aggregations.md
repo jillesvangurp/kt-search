@@ -105,7 +105,7 @@ This prints:
 
 ```text
 {
-  "took": 17,
+  "took": 22,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -341,7 +341,7 @@ The main bucket aggregation for geo spatial information is the `geotile_grid` ag
 ```kotlin
 val response = client.search(indexName) {
   resultSize = 0
-  agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+  agg("grid", GeoTileGridAgg(TestGeoDoc::point.name, 13)) {
     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
   }
 }
@@ -514,7 +514,7 @@ response.aggregations
       ?.doubleOrNull
     println(
       "color=$color valueBucket=$valueBucket " +
-        "count=${bucket.parsed.docCount}"
+          "count=${bucket.parsed.docCount}"
     )
   }
 ```
@@ -555,10 +555,10 @@ response.aggregations
 This prints:
 
 ```text
+1765411200000 => 1
 1765324800000 => 1
 1765238400000 => 1
 1765152000000 => 1
-1765065600000 => 1
 ```
 
 ## Other aggregations
@@ -591,7 +591,7 @@ This prints:
 
 ```text
 {
-  "took": 20,
+  "took": 11,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -806,18 +806,62 @@ repo.search {
     .filtersResult("filtered")
     .namedBuckets.forEach { fb ->
       println("${fb.name}: ${fb.docCount}")
-      println(fb.bucket.termsResult("colors")
-        .parsedBuckets.joinToString(", ") { b ->
-          b.parsed.key + ": " + b.parsed.docCount
-        })
+      println(
+        fb.bucket.termsResult("colors")
+          .parsedBuckets.joinToString(", ") { b ->
+            b.parsed.key + ": " + b.parsed.docCount
+          })
     }
 }
+```
+
+## Pipeline aggregations
+
+Pipeline aggregations allow you to reuse metrics from other aggregations and perform additional calculations.
+You can chain multiple pipelines together, mixing them with bucket aggregations to keep queries compact.
+
+```kotlin
+val pipelineAggQuery = SearchDSL().apply {
+  agg(
+    "events_per_day",
+    DateHistogramAgg(
+      field = MockDoc::timestamp
+    ) {
+      calendarInterval = "1d"
+    }) {
+    agg("per_color", TermsAgg(MockDoc::color))
+    agg("first_event", MinAgg(MockDoc::timestamp))
+    agg("per_day_change", DerivativeAgg {
+      bucketsPath = "first_event"
+      gapPolicy = "skip"
+    })
+    agg("rolling_events", CumulativeSumAgg {
+      bucketsPath = "first_event"
+    })
+    agg("recent_activity", BucketSelectorAgg {
+      bucketsPath = BucketsPath {
+        this["first"] = "first_event"
+        this["count"] = "_count"
+      }
+      script = "params.count > 0 && params.first != null"
+      gapPolicy = "insert_zeros"
+    })
+  }
+}
+
+println(DEFAULT_PRETTY_JSON.encodeToString(pipelineAggQuery))
+```
+
+This prints:
+
+```text
+
 ```
 
 ## Extending the Aggregation support
 
 Like with the Search DSL, we do not provide exhaustive coverage of all the features and instead provide
-implementations for commonly used aggregations and make it really easy to extend this. 
+implementations for commonly used aggregations and make it really easy to extend this.
 
 So, if you get stuck without support for something you need, you should be able to fix it easily yourself.
 
