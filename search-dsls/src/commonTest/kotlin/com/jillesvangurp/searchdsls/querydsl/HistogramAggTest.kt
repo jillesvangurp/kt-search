@@ -1,6 +1,7 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.withJsonDsl
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,7 +23,7 @@ class HistogramAggTest {
             }
         }
 
-        assertEquals(expected.toString(), searchDsl.toString())
+        expected.toString() shouldBe searchDsl.toString()
     }
 
     @Test
@@ -59,6 +60,6 @@ class HistogramAggTest {
             }
         }
 
-        assertEquals(expected.toString(), searchDsl.toString())
+        expected.toString() shouldBe searchDsl.toString()
     }
 }

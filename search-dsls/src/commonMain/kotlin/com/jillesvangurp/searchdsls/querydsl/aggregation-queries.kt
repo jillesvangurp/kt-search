@@ -810,6 +810,76 @@ class SumAgg(val field: String, block: (SumAggConfig.() -> Unit)? = null) : AggQ
     }
 }
 
+class PercentilesAggConfig : JsonDsl() {
+    var field by property<String>()
+    var percentileValues by property<List<Double>>("values")
+    var keyed by property<Boolean>()
+
+    fun hdr(numberOfSignificantValueDigits: Int? = null, block: (JsonDsl.() -> Unit)? = null) {
+        this["hdr"] = withJsonDsl {
+            numberOfSignificantValueDigits?.let { this["number_of_significant_value_digits"] = it }
+            block?.invoke(this)
+        }
+    }
+
+    fun tdigest(compression: Number? = null, block: (JsonDsl.() -> Unit)? = null) {
+        this["tdigest"] = withJsonDsl {
+            compression?.let { this["compression"] = it }
+            block?.invoke(this)
+        }
+    }
+}
+
+class PercentilesAgg(
+    val field: String,
+    block: (PercentilesAggConfig.() -> Unit)? = null
+) : AggQuery("percentiles") {
+    constructor(field: KProperty<*>, block: (PercentilesAggConfig.() -> Unit)? = null) : this(field.name, block)
+
+    init {
+        val config = PercentilesAggConfig()
+        config.field = field
+        config.keyed = true
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
+class PercentileRanksAggConfig : JsonDsl() {
+    var field by property<String>()
+    var rankValues by property<List<Double>>("values")
+    var keyed by property<Boolean>()
+
+    fun hdr(numberOfSignificantValueDigits: Int? = null, block: (JsonDsl.() -> Unit)? = null) {
+        this["hdr"] = withJsonDsl {
+            numberOfSignificantValueDigits?.let { this["number_of_significant_value_digits"] = it }
+            block?.invoke(this)
+        }
+    }
+
+    fun tdigest(compression: Number? = null, block: (JsonDsl.() -> Unit)? = null) {
+        this["tdigest"] = withJsonDsl {
+            compression?.let { this["compression"] = it }
+            block?.invoke(this)
+        }
+    }
+}
+
+class PercentileRanksAgg(
+    val field: String,
+    block: (PercentileRanksAggConfig.() -> Unit)? = null
+) : AggQuery("percentile_ranks") {
+    constructor(field: KProperty<*>, block: (PercentileRanksAggConfig.() -> Unit)? = null) : this(field.name, block)
+
+    init {
+        val config = PercentileRanksAggConfig()
+        config.field = field
+        config.keyed = true
+        block?.invoke(config)
+        put(name, config)
+    }
+}
+
 class GeoTileGridAggConfig: JsonDsl() {
     var field by property<String>()
     /**

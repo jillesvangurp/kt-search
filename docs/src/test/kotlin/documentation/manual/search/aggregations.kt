@@ -47,6 +47,8 @@ import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
 import com.jillesvangurp.searchdsls.querydsl.HistogramAgg
 import com.jillesvangurp.searchdsls.querydsl.MaxAgg
 import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentileRanksAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentilesAgg
 import com.jillesvangurp.searchdsls.querydsl.Script
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SortOrder
@@ -72,6 +74,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 // begin MyAggNamesDef
@@ -97,6 +100,7 @@ val aggregationsMd = sourceGitRepository.md {
         val tags: List<String>? = null,
         val color: String? = null,
         val timestamp: Instant? = null,
+        val durationMs: Double? = null,
         val value: Double? = null,
     )
 
@@ -129,6 +133,7 @@ val aggregationsMd = sourceGitRepository.md {
             val tags: List<String>? = null,
             val color: String? = null,
             val timestamp: Instant? = null,
+            val durationMs: Double? = null,
             val value: Double? = null,
         )
 
@@ -139,6 +144,7 @@ val aggregationsMd = sourceGitRepository.md {
                 keyword(MockDoc::color)
                 keyword(MockDoc::tags)
                 date(MockDoc::timestamp)
+                number<Double>(MockDoc::durationMs)
                 number<Double>(MockDoc::value)
             }
         }
@@ -152,6 +158,7 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("bar"),
                     color = "green",
                     timestamp = now,
+                    durationMs = 125.0,
                     value = 3.0,
                 )
             )
@@ -161,6 +168,7 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foo"),
                     color = "red",
                     timestamp = now - 1.days,
+                    durationMs = 85.0,
                     value = 12.5,
                 )
             )
@@ -170,6 +178,7 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foo", "bar"),
                     color = "red",
                     timestamp = now - 5.days,
+                    durationMs = 240.0,
                     value = 21.0,
                 )
             )
@@ -179,6 +188,7 @@ val aggregationsMd = sourceGitRepository.md {
                     tags = listOf("foobar"),
                     color = "green",
                     timestamp = now - 10.days,
+                    durationMs = 60.0,
                     value = null,
                 )
             )
@@ -594,6 +604,55 @@ val aggregationsMd = sourceGitRepository.md {
 
         }.printStdOut(this)
     }
+    section("Percentiles and percentile ranks") {
+        +"""
+            Percentiles are useful to spot the shape of your numeric distributions, for example when you
+            are tracking request latency or other performance metrics. The DSL exposes the `keyed`
+            option by default and allows switching between HDR histograms and TDigest implementations.
+        """.trimIndent()
+
+        example {
+            val response = repo.search {
+                resultSize = 0
+                agg("load_time_percentiles", PercentilesAgg(MockDoc::durationMs) {
+                    percentileValues=listOf(50.0, 90.0, 99.0)
+                })
+            }
+
+            val percentiles = response.aggregations
+                ?.get("load_time_percentiles")?.jsonObject
+                ?.get("values")?.jsonObject
+
+            percentiles?.forEach { (percentile, value) ->
+                println("$percentile => ${value.jsonPrimitive.doubleOrNull}")
+            }
+        }.printStdOut(this)
+
+        +"""
+            Percentile ranks work the other way around by showing the percentile for explicit target values.
+            You can also tweak the TDigest compression to balance accuracy and memory use.
+        """.trimIndent()
+
+        example {
+            val response = repo.search {
+                resultSize = 0
+                agg("load_time_ranks", PercentileRanksAgg(MockDoc::durationMs) {
+                    rankValues=listOf(50.0, 100.0, 250.0)
+                    tdigest(compression = 110.0)
+                })
+            }
+
+            val percentileRanks = response.aggregations
+                ?.get("load_time_ranks")?.jsonObject
+                ?.get("values")?.jsonObject
+
+            percentileRanks?.forEach { (value, percentile) ->
+                println("$value => ${percentile.jsonPrimitive.doubleOrNull}")
+            }
+        }.printStdOut(this)
+    }
+
+
     section("Metric aggregations") {
         +"""
             We also provide typed helpers for the metric aggregations that operate on a single field. They
@@ -617,53 +676,54 @@ val aggregationsMd = sourceGitRepository.md {
 
             println(metricsDsl.json(true))
         }.printStdOut(this)
-    }
-    section("Filter aggregations") {
-        +"""
+
+        section("Filter aggregations") {
+            +"""
             You can use the filter aggregation to narrow down the results and do sub
             aggregations on the filtered results.
         """.trimIndent()
-        example {
-            repo.search {
-                resultSize = 0
-                agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
-                    agg("colors", TermsAgg(MockDoc::color))
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+                        agg("colors", TermsAgg(MockDoc::color))
+                    }
+                }.let {
+                    it.aggregations.filterResult("filtered")?.let { fb ->
+                        println("filtered: ${fb.docCount}")
+                        fb.bucket.termsResult("colors")
+                            .parsedBuckets
+                            .forEach { b ->
+                                println("${b.parsed.key}: ${b.parsed.docCount}")
+                            }
+                    }
                 }
-            }.let {
-                it.aggregations.filterResult("filtered")?.let { fb ->
-                    println("filtered: ${fb.docCount}")
-                    fb.bucket.termsResult("colors")
-                        .parsedBuckets
-                        .forEach { b ->
-                            println("${b.parsed.key}: ${b.parsed.docCount}")
-                        }
-                }
-            }
-        }.printStdOut(this)
+            }.printStdOut(this)
 
-        +"""
+            +"""
             You can also use the filters aggregation to use multiple named filter aggregations at the same time
         """.trimIndent()
-        example {
-            repo.search {
-                resultSize = 0
-                agg("filtered", FiltersAgg {
-                    namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
-                    namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
-                }) {
-                    agg("colors", TermsAgg(MockDoc::color))
-                }
-            }.let {
-                it.aggregations
-                    .filtersResult("filtered")
-                    .namedBuckets.forEach { fb ->
-                        println("${fb.name}: ${fb.docCount}")
-                        println(
-                            fb.bucket.termsResult("colors")
-                                .parsedBuckets.joinToString(", ") { b ->
-                                    b.parsed.key + ": " + b.parsed.docCount
-                                })
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FiltersAgg {
+                        namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
+                        namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                    }) {
+                        agg("colors", TermsAgg(MockDoc::color))
                     }
+                }.let {
+                    it.aggregations
+                        .filtersResult("filtered")
+                        .namedBuckets.forEach { fb ->
+                            println("${fb.name}: ${fb.docCount}")
+                            println(
+                                fb.bucket.termsResult("colors")
+                                    .parsedBuckets.joinToString(", ") { b ->
+                                        b.parsed.key + ": " + b.parsed.docCount
+                                    })
+                        }
+                }
             }
         }
     }
