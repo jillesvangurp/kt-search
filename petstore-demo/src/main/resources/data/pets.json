@@ -84,30 +84,6 @@
     "imageUrl": "https://cdn2.thecatapi.com/images/GAmy2bg8G.jpg"
   },
   {
-    "id": "p-008",
-    "name": "Mango",
-    "animal": "bird",
-    "breed": "Cockatiel",
-    "sex": "f",
-    "age": 1,
-    "price": 250.0,
-    "description": "Hand-raised cockatiel that whistles the lo-fi beat playlist.",
-    "traits": ["whistler", "social", "bright crest"],
-    "imageUrl": "https://loremflickr.com/cache/resized/65535_48637919213_9bba3f93b2_h_800_600_nofilter.jpg"
-  },
-  {
-    "id": "p-009",
-    "name": "Echo",
-    "animal": "bird",
-    "breed": "Cockatiel",
-    "sex": "m",
-    "age": 2,
-    "price": 230.0,
-    "description": "Curious explorer who loves shoulder rides and millet treats.",
-    "traits": ["explorer", "trainable", "friendly"],
-    "imageUrl": "https://loremflickr.com/cache/resized/4585_26471931159_f0c3d614cf_c_800_600_nofilter.jpg"
-  },
-  {
     "id": "p-010",
     "name": "Glimmer",
     "animal": "fish",
@@ -130,54 +106,6 @@
     "description": "Oranda goldfish with a bright red cap and mellow vibe.",
     "traits": ["easy", "community", "ornamental"],
     "imageUrl": "https://loremflickr.com/cache/resized/65535_54521817124_2c95cbff8d_b_800_600_nofilter.jpg"
-  },
-  {
-    "id": "p-012",
-    "name": "Willow",
-    "animal": "rabbit",
-    "breed": "Lionhead",
-    "sex": "f",
-    "age": 2,
-    "price": 180.0,
-    "description": "House-trained bun that enjoys tunnels, hay naps, and salads.",
-    "traits": ["bonding", "gentle", "indoor"],
-    "imageUrl": "https://loremflickr.com/cache/resized/65535_54369154128_1eb1cbf4c9_h_800_600_nofilter.jpg"
-  },
-  {
-    "id": "p-013",
-    "name": "Thistle",
-    "animal": "rabbit",
-    "breed": "Dutch",
-    "sex": "m",
-    "age": 1,
-    "price": 160.0,
-    "description": "High-hopping Dutch rabbit with a perfect white blaze.",
-    "traits": ["hopper", "quiet", "cute"],
-    "imageUrl": "https://loremflickr.com/cache/resized/7351_10124655576_177063d2c2_h_800_600_nofilter.jpg"
-  },
-  {
-    "id": "p-014",
-    "name": "Pepper",
-    "animal": "hamster",
-    "breed": "Syrian Hamster",
-    "sex": "f",
-    "age": 1,
-    "price": 35.0,
-    "description": "Nighttime runner who hoards snacks in the tiniest pockets.",
-    "traits": ["solo", "wheel lover", "tiny"],
-    "imageUrl": "https://loremflickr.com/cache/resized/2096_2172355061_8c81dda1d7_800_600_nofilter.jpg"
-  },
-  {
-    "id": "p-015",
-    "name": "Mocha",
-    "animal": "hamster",
-    "breed": "Dwarf Hamster",
-    "sex": "m",
-    "age": 1,
-    "price": 30.0,
-    "description": "Fast burrower with a taste for sunflower seeds and cardboard tubes.",
-    "traits": ["burrower", "tiny", "adorable"],
-    "imageUrl": "https://loremflickr.com/cache/resized/175_420170630_266da4946b_c_800_600_nofilter.jpg"
   },
   {
     "id": "p-016",
@@ -240,18 +168,6 @@
     "imageUrl": "https://images.dog.ceo/breeds/corgi-cardigan/n02113186_11559.jpg"
   },
   {
-    "id": "p-021",
-    "name": "Jet",
-    "animal": "bird",
-    "breed": "Budgerigar",
-    "sex": "m",
-    "age": 2,
-    "price": 120.0,
-    "description": "Blue budgie that mimics notification sounds perfectly.",
-    "traits": ["mimic", "tiny parrot", "chatty"],
-    "imageUrl": "https://loremflickr.com/cache/resized/65535_52099087492_a6fbb007f7_b_800_600_nofilter.jpg"
-  },
-  {
     "id": "p-022",
     "name": "Ivy",
     "animal": "cat",
@@ -286,5 +202,161 @@
     "description": "Experienced lap supervisor with tufted ears and a loud purr.",
     "traits": ["regal", "fluffy", "lap queen"],
     "imageUrl": "https://cdn2.thecatapi.com/images/jyjEWK7xp.jpg"
+  },
+  {
+    "id": "p-025",
+    "name": "Wanda",
+    "animal": "fish",
+    "breed": "A Fish Called Wanda",
+    "sex": "f",
+    "age": 3,
+    "price": 500.0,
+    "description": "Clever showstopper with dramatic fins and a taste for trouble.",
+    "traits": ["schemer", "flashy", "aquatic"],
+    "imageUrl": "https://images.unsplash.com/photo-1502720705749-3c9255857623?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-026",
+    "name": "Chomper",
+    "animal": "shark",
+    "breed": "Great White Shark",
+    "sex": "m",
+    "age": 6,
+    "price": 9000.0,
+    "description": "Fierce guardian with cinematic presence and a toothy grin.",
+    "traits": ["apex", "patrols", "fearless"],
+    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-027",
+    "name": "Taz",
+    "animal": "tasmanian devil",
+    "breed": "Tasmanian Devil",
+    "sex": "m",
+    "age": 4,
+    "price": 4200.0,
+    "description": "Whirling marsupial with a growly soundtrack and boundless energy.",
+    "traits": ["whirlwind", "gritty", "night owl"],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg"
+  },
+  {
+    "id": "p-028",
+    "name": "Nemo",
+    "animal": "fish",
+    "breed": "Clownfish",
+    "sex": "m",
+    "age": 1,
+    "price": 150.0,
+    "description": "Bright reef clownfish with a sense of adventure and sidekick vibes.",
+    "traits": ["curious", "color-block", "reef ready"],
+    "imageUrl": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-029",
+    "name": "Ripley",
+    "animal": "dog",
+    "breed": "Dalmatian",
+    "sex": "f",
+    "age": 5,
+    "price": 1250.0,
+    "description": "Spots for days and a heroic streak that loves adventures.",
+    "traits": ["brave", "speeder", "loyal"],
+    "imageUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-030",
+    "name": "Zelda",
+    "animal": "cat",
+    "breed": "Siamese",
+    "sex": "f",
+    "age": 2,
+    "price": 700.0,
+    "description": "Dungeon-crawling sidekick who solves puzzles for treats.",
+    "traits": ["vocal", "curious", "acrobat"],
+    "imageUrl": "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-031",
+    "name": "Bubbles",
+    "animal": "fish",
+    "breed": "Goldfish",
+    "sex": "m",
+    "age": 1,
+    "price": 35.0,
+    "description": "Tiny philosopher that contemplates castles and snails.",
+    "traits": ["zen", "glitter", "chill"],
+    "imageUrl": "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-032",
+    "name": "Jacques",
+    "animal": "fish",
+    "breed": "Clownfish",
+    "sex": "m",
+    "age": 2,
+    "price": 160.0,
+    "description": "Meticulous reef cleaner with Parisian flair and one-liners.",
+    "traits": ["tidy", "color-block", "social"],
+    "imageUrl": "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-033",
+    "name": "Bruce",
+    "animal": "shark",
+    "breed": "Great White Shark",
+    "sex": "m",
+    "age": 7,
+    "price": 11000.0,
+    "description": "Reformed biter who leads a support group for fellow predators.",
+    "traits": ["majestic", "mentor", "cinematic"],
+    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-034",
+    "name": "Lil Whirl",
+    "animal": "tasmanian devil",
+    "breed": "Tasmanian Devil",
+    "sex": "f",
+    "age": 3,
+    "price": 4300.0,
+    "description": "Spins up chaos, then naps like nothing happened.",
+    "traits": ["whirl", "raspy", "surprising"],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg"
+  },
+  {
+    "id": "p-035",
+    "name": "Chewie",
+    "animal": "dog",
+    "breed": "Samoyed",
+    "sex": "m",
+    "age": 3,
+    "price": 2300.0,
+    "description": "Walking snowdrift with a Wookiee growl and gentle heart.",
+    "traits": ["fluffy", "talkative", "guardian"],
+    "imageUrl": "https://images.unsplash.com/photo-1537151625747-768eb6cf92b6?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-036",
+    "name": "Morpheus",
+    "animal": "cat",
+    "breed": "Maine Coon",
+    "sex": "m",
+    "age": 4,
+    "price": 1250.0,
+    "description": "Matrix-jumping lap giant who believes in plenty of naps.",
+    "traits": ["philosopher", "giant", "purr machine"],
+    "imageUrl": "https://images.unsplash.com/photo-1511300636408-a63a89df3482?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "p-037",
+    "name": "Cujo",
+    "animal": "dog",
+    "breed": "Saint Bernard",
+    "sex": "m",
+    "age": 4,
+    "price": 1600.0,
+    "description": "Literary legend turned gentle giant—brings drama without the horror.",
+    "traits": ["loyal", "massive", "watchful"],
+    "imageUrl": "https://images.unsplash.com/photo-1546443046-ed1ce6ffd1ab?auto=format&fit=crop&w=800&q=80"
   }
 ]
