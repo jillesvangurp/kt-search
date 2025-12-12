@@ -56,15 +56,16 @@ configure<ComposeExtension> {
     stopContainers.set(true)
     removeContainers.set(true)
     forceRecreate.set(true)
-    val parentDir = project.parent?.projectDir ?: error("parent should exist")
+    val parentDir = project.parent?.projectDir?.path ?: error("parent should exist")
     val searchEngine = project.findProperty("searchEngine")?.toString() ?: "es-9"
-    val composeFile = parentDir.resolve("docker-compose-$searchEngine.yml").absolutePath
-    dockerComposeWorkingDirectory.set(parentDir)
+    val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
+    dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
     useComposeFiles.set(listOf(composeFile))
-    startedServices.set(listOf(searchEngine.replace("-", "")))
+    val dockerExecutablePath =
+        listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
 
-    dockerExecutablePath?.let { docker ->
-        dockerExecutable.set(docker)
+    if (dockerExecutablePath != null) {
+        dockerExecutable.set(dockerExecutablePath)
     }
 }
 
