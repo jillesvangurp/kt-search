@@ -283,6 +283,13 @@ class PetStoreService(
                     filter(filters)
                 }
             }
+            highlight {
+                preTags = "<mark>"
+                postTags = "</mark>"
+                add(PetSearchDocument::name)
+                add(PetSearchDocument::description)
+                add("traits")
+            }
             agg("animals", TermsAgg("animal") { aggSize = 10 })
             agg("breeds", TermsAgg("breed") { aggSize = 20 })
             agg("sexes", TermsAgg("sex") { aggSize = 5 })
@@ -308,7 +315,14 @@ class PetStoreService(
             )
         }
 
-        val pets = response.hits.hits.mapNotNull { it.source }
+        val results = response.hits.hits.mapNotNull { hit ->
+            hit.source?.let { doc ->
+                PetSearchResult(
+                    pet = doc,
+                    highlights = hit.highlight ?: emptyMap()
+                )
+            }
+        }
 
         val facets = SearchFacets(
             animals = response.aggregations?.termsResult("animals")?.parsedBuckets
@@ -323,7 +337,12 @@ class PetStoreService(
                 ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap()
         )
 
-        return PetSearchResponse(total = response.hits.total.value, pets = pets, facets = facets)
+        return PetSearchResponse(
+            total = response.hits.total.value,
+            tookMs = response.took,
+            results = results,
+            facets = facets
+        )
     }
 
     private fun QueryClauses.collectFilters(
@@ -409,13 +428,15 @@ class PetStoreService(
     @Serializable
     private data class RawHit<T>(
         @SerialName("_id") val id: String,
-        @SerialName("_source") val source: T? = null
+        @SerialName("_source") val source: T? = null,
+        val highlight: Map<String, List<String>>? = null
     )
 
     @Serializable
     private data class RawSearchResponse<T>(
         val hits: RawHits<T> = RawHits(),
-        val aggregations: Aggregations? = null
+        val aggregations: Aggregations? = null,
+        val took: Long = 0
     )
 
     private suspend inline fun <reified T> rawSearch(

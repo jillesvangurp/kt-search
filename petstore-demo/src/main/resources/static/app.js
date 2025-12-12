@@ -7,6 +7,9 @@ const state = {
   priceRange: null
 };
 
+let typingTimeout = null;
+const DEBOUNCE_MS = 200;
+
 async function fetchPets() {
   const params = new URLSearchParams();
   if (state.query) params.set('q', state.query);
@@ -22,27 +25,44 @@ async function fetchPets() {
   renderFacets(data.facets);
 }
 
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text ?? '';
+  return div.innerHTML;
+}
+
+function highlighted(field, highlights, fallback) {
+  const list = highlights?.[field];
+  if (list && list.length > 0) {
+    return list[0];
+  }
+  return escapeHtml(fallback);
+}
+
 function renderPets(result) {
   const cards = document.getElementById('cards');
   const hitCount = document.getElementById('hit-count');
-  hitCount.textContent = `${result.total} pets found`;
+  hitCount.textContent = `${result.total} pets in ${result.tookMs} ms`;
   cards.innerHTML = '';
 
-  result.pets.forEach((pet) => {
+  result.results.forEach(({ pet, highlights }) => {
     const card = document.createElement('article');
     card.className = 'card';
     const imageUrl = pet.imageUrl || pet.image_url || '/placeholder.svg';
+    const nameHtml = highlighted('name', highlights, pet.name);
+    const descriptionHtml = highlighted('description', highlights, pet.description);
+
     card.innerHTML = `
       <div class="card-media" style="background-image: url('${imageUrl}')"></div>
       <div class="card-body">
         <div class="card-title">
-          <h3>${pet.name}</h3>
+          <h3>${nameHtml}</h3>
           <span class="price">$${pet.price.toFixed(2)}</span>
         </div>
-        <p class="muted">${pet.breed} • ${pet.sex.toUpperCase()} • ${pet.age} yrs</p>
-        <p>${pet.description}</p>
+        <p class="muted">${escapeHtml(pet.breed)} • ${escapeHtml(pet.sex.toUpperCase())} • ${escapeHtml(String(pet.age))} yrs</p>
+        <p>${descriptionHtml}</p>
         <div class="tags">
-          ${pet.traits.map((t) => `<span class="tag">${t}</span>`).join('')}
+          ${pet.traits.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
         </div>
         <div class="links">
           ${pet.wikipediaUrl ? `<a href="${pet.wikipediaUrl}" target="_blank">Wikipedia</a>` : ''}
@@ -122,6 +142,14 @@ function wireUi() {
     e.preventDefault();
     state.query = document.getElementById('query').value;
     fetchPets();
+  });
+
+  document.getElementById('query').addEventListener('input', (e) => {
+    state.query = e.target.value;
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    typingTimeout = setTimeout(fetchPets, DEBOUNCE_MS);
   });
 
   document.getElementById('pet-form').addEventListener('submit', (e) => {

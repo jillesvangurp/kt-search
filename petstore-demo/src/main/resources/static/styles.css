@@ -167,6 +167,13 @@ main {
 
 .links a { color: var(--accent-2); text-decoration: none; font-weight: 700; }
 
+mark {
+  background: rgba(124, 58, 237, 0.25);
+  color: var(--text);
+  padding: 0 2px;
+  border-radius: 4px;
+}
+
 @media (max-width: 1000px) {
   main { grid-template-columns: 1fr; }
 }

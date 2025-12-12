@@ -53,8 +53,15 @@ data class SearchFacets(
 )
 
 @Serializable
+data class PetSearchResult(
+    val pet: PetSearchDocument,
+    val highlights: Map<String, List<String>> = emptyMap()
+)
+
+@Serializable
 data class PetSearchResponse(
     val total: Long,
-    val pets: List<PetSearchDocument>,
+    val tookMs: Long,
+    val results: List<PetSearchResult>,
     val facets: SearchFacets
 )
