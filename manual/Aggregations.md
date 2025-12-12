@@ -83,6 +83,13 @@ repo.bulk {
       value = null,
     )
   )
+  index(
+    MockDoc(
+      name = "5",
+      tags = listOf("missing"),
+      timestamp = now - 10.days
+    )
+  )
 }
 ```
 
@@ -95,9 +102,9 @@ val response = client.search(indexName) {
   // we don't care about the results here
   resultSize = 0
 
-  agg(MyAggNames.BY_TAG, TermsAgg(MockDoc::tags)) {
+  agg(BY_TAG, TermsAgg(MockDoc::tags)) {
     // aggregations can be nested
-    agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
+    agg(BY_COLOR, TermsAgg(MockDoc::color) {
       minDocCount = 1
       aggSize = 3
     })
@@ -111,7 +118,7 @@ This prints:
 
 ```text
 {
-  "took": 21,
+  "took": 20,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -121,7 +128,7 @@ This prints:
   "timed_out": false,
   "hits": {
     "total": {
-      "value": 4,
+      "value": 5,
       "relation": "eq"
     },
     "hits": []
@@ -176,6 +183,15 @@ This prints:
               }
             ]
           }
+        },
+        {
+          "key": "missing",
+          "doc_count": 1,
+          "BY_COLOR": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+          }
         }
       ]
     }
@@ -213,7 +229,7 @@ ability to deserialize those into custom model classes. In this case we have `Te
 ```kotlin
 // response.aggregations is a JsonObject?
 // termsResult(name) extracts a TermsAggregationResult from there
-val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
+val tags = response.aggregations.termsResult(BY_TAG)
 
 println("Number of buckets: " + tags.buckets.size)
 // since buckets can contain sub aggregations, those too are JsonObjects
@@ -224,7 +240,7 @@ tags.buckets.forEach { jsonObject ->
   val tb = jsonObject.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
   // and we can get to the named sub aggregations from jsonObject
-  val colors = jsonObject.termsResult(MyAggNames.BY_COLOR)
+  val colors = jsonObject.termsResult(BY_COLOR)
   // you can also use parsedBuckets to the type safe TermsBucket
   colors.buckets.forEach { colorBucketObject ->
     val tb = colorBucketObject.parse<TermsBucket>()
@@ -236,7 +252,7 @@ tags.buckets.forEach { jsonObject ->
 This prints:
 
 ```text
-Number of buckets: 3
+Number of buckets: 4
 bar: 2
   green: 1
   red: 1
@@ -244,18 +260,19 @@ foo: 2
   red: 2
 foobar: 1
   green: 1
+missing: 1
 ```
 
 With some more extension function magic we can make this a bit nicer.
 
 ```kotlin
-val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
+val tags = response.aggregations.termsResult(BY_TAG)
 // use parsedBucket to get a Bucket<TermsBucket>
 // this allows us to get to the TermsBucket and the aggregations
 tags.parsedBuckets.forEach { tagBucket ->
   println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
   tagBucket.aggregations
-    .termsResult(MyAggNames.BY_COLOR)
+    .termsResult(BY_COLOR)
     .parsedBuckets.forEach { colorBucket ->
       println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
     }
@@ -272,6 +289,7 @@ foo: 2
   red: 2
 foobar: 1
   green: 1
+missing: 1
 ```
 
 ## Geo Aggregations
@@ -368,7 +386,7 @@ This prints:
 
 ```text
 {
-  "took": 23,
+  "took": 24,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -561,10 +579,10 @@ response.aggregations
 This prints:
 
 ```text
+1765497600000 => 1
 1765411200000 => 1
 1765324800000 => 1
 1765238400000 => 1
-1765152000000 => 1
 ```
 
 ## Other aggregations
@@ -573,6 +591,10 @@ Here is a more complicated example where we use various other aggregations.
 
 Note, we do not support all aggregations currently but it's easy to add
 support for more as needed. Pull requests for this are welcome.
+
+The DSL surfaces the same options you would use in Elasticsearch or OpenSearch, including
+explicit ordering, `missing` bucket handling, and `hard_bounds`/`extended_bounds` for
+date histograms.
 
 Numeric histograms bucket numeric fields into fixed ranges. Use `offset` to shift the
 bucket boundaries, `missing` to control how null values are counted, and `extended_bounds`
@@ -597,7 +619,7 @@ This prints:
 
 ```text
 {
-  "took": 14,
+  "took": 11,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -640,49 +662,70 @@ This prints:
 ```kotlin
 val response = repo.search {
   resultSize = 0 // we only care about the aggs
-  agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
+  agg(BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
     calendarInterval = "1d"
+    orderByKey(SortOrder.ASC)
+    // Missing timestamps will be treated as if they were at the epoch.
+    missing = 0
+    // hard_bounds keeps buckets within the min/max range
+    // while extended_bounds ensures the boundary buckets
+    // are always included even when empty.
+    extendedBounds(
+      min = "now-30d",
+      max = "now+7d",
+    )
+    hardBounds(
+      min = "now-30d",
+      max = "now+7d",
+    )
   })
-  agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color)) {
-    agg(MyAggNames.MIN_TIME, MinAgg(MockDoc::timestamp))
-    agg(MyAggNames.MAX_TIME, MaxAgg(MockDoc::timestamp))
+  agg(BY_COLOR, TermsAgg(MockDoc::color) {
+    // Explicit ordering and missing bucket
+    // handling mirror Elasticsearch's terms options.
+    missing = "(missing)"
+    orderByField("_count", SortOrder.DESC)
+    executionHint = "map"
+    collectMode = "breadth_first"
+  }) {
+    agg(name = MIN_TIME, aggQuery = MinAgg(MockDoc::timestamp))
+    agg(MAX_TIME, MaxAgg(MockDoc::timestamp))
     // this is a cool way to calculate duration
-    agg(MyAggNames.TIME_SPAN, BucketScriptAgg {
+    agg(TIME_SPAN, BucketScriptAgg {
       script = "params.max - params.min"
       bucketsPath = BucketsPath {
-        this["min"] = MyAggNames.MIN_TIME
-        this["max"] = MyAggNames.MAX_TIME
+        this["min"] = MIN_TIME
+        this["max"] = MAX_TIME
       }
     })
     // throw in a top_hits aggregation as well
-    agg(MyAggNames.TOP_RESULTS, TopHitsAgg())
+    agg(TOP_RESULTS, TopHitsAgg())
 
   }
   // we can do some stats on the calculated duration!
-  agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
-    bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
+  agg(SPAN_STATS, ExtendedStatsBucketAgg {
+    bucketsPath = "${BY_COLOR}>${TIME_SPAN}"
   })
-  agg(MyAggNames.TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
+  agg(TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
 }
 
 // date_histogram works very similar to the terms aggregation
-response.aggregations.dateHistogramResult(MyAggNames.BY_DATE)
+response.aggregations.dateHistogramResult(BY_DATE)
   .parsedBuckets.map { it.parsed }.forEach { db ->
     println("${db.keyAsString}: ${db.docCount}")
   }
 
 // We have extension functions for picking apart
 // each of the aggregation results.
-response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
+response.aggregations.termsResult(BY_COLOR).buckets.forEach { b ->
   val tb = b.parse<TermsBucket>()
   println("${tb.key}: ${tb.docCount}")
-  println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
-  println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
-  println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
+  println("  Min: ${b.minResult(MIN_TIME).value}")
+  println("  Max: ${b.maxResult(MAX_TIME).value}")
+  println("  Time span: ${b.bucketScriptResult(TIME_SPAN).value}")
   // top_hits returns the hits part of a normal search response
   println(
     "  Top: [${
-      b.topHitResult(MyAggNames.TOP_RESULTS)
+      b.topHitResult(TOP_RESULTS)
         .hits.hits.map {
           it.source?.parse<MockDoc>()?.name
         }.joinToString(",")
@@ -693,12 +736,12 @@ response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
 println(
   "Avg time span: ${
     response.aggregations
-      .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
+      .extendedStatsBucketResult(SPAN_STATS).avg
   }"
 )
 println(
   "Tag cardinality: ${
-    response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
+    response.aggregations.cardinalityResult(TAG_CARDINALITY).value
   }"
 )
 
@@ -707,8 +750,45 @@ println(
 This prints:
 
 ```text
-Avg time span: 0.0
-Tag cardinality: 0
+2025-11-12T00:00:00.000Z: 0
+2025-11-13T00:00:00.000Z: 0
+2025-11-14T00:00:00.000Z: 0
+2025-11-15T00:00:00.000Z: 0
+2025-11-16T00:00:00.000Z: 0
+2025-11-17T00:00:00.000Z: 0
+2025-11-18T00:00:00.000Z: 0
+2025-11-19T00:00:00.000Z: 0
+2025-11-20T00:00:00.000Z: 0
+2025-11-21T00:00:00.000Z: 0
+2025-11-22T00:00:00.000Z: 0
+2025-11-23T00:00:00.000Z: 0
+2025-11-24T00:00:00.000Z: 0
+2025-11-25T00:00:00.000Z: 0
+2025-11-26T00:00:00.000Z: 0
+2025-11-27T00:00:00.000Z: 0
+2025-11-28T00:00:00.000Z: 0
+2025-11-29T00:00:00.000Z: 0
+2025-11-30T00:00:00.000Z: 0
+2025-12-01T00:00:00.000Z: 0
+2025-12-02T00:00:00.000Z: 0
+2025-12-03T00:00:00.000Z: 0
+2025-12-04T00:00:00.000Z: 0
+2025-12-05T00:00:00.000Z: 0
+2025-12-06T00:00:00.000Z: 0
+2025-12-07T00:00:00.000Z: 0
+2025-12-08T00:00:00.000Z: 0
+2025-12-09T00:00:00.000Z: 0
+2025-12-10T00:00:00.000Z: 0
+2025-12-11T00:00:00.000Z: 0
+2025-12-12T00:00:00.000Z: 0
+2025-12-13T00:00:00.000Z: 0
+2025-12-14T00:00:00.000Z: 0
+2025-12-15T00:00:00.000Z: 0
+2025-12-16T00:00:00.000Z: 0
+2025-12-17T00:00:00.000Z: 0
+2025-12-18T00:00:00.000Z: 0
+2025-12-19T00:00:00.000Z: 0
+(missing): 5
 ```
 
 ## Percentiles and percentile ranks
@@ -721,7 +801,7 @@ option by default and allows switching between HDR histograms and TDigest implem
 val response = repo.search {
   resultSize = 0
   agg("load_time_percentiles", PercentilesAgg(MockDoc::durationMs) {
-    percentileValues=listOf(50.0, 90.0, 99.0)
+    percentileValues = listOf(50.0, 90.0, 99.0)
   })
 }
 
@@ -747,7 +827,7 @@ You can also tweak the TDigest compression to balance accuracy and memory use.
 val response = repo.search {
   resultSize = 0
   agg("load_time_ranks", PercentileRanksAgg(MockDoc::durationMs) {
-    rankValues=listOf(50.0, 100.0, 250.0)
+    rankValues = listOf(50.0, 100.0, 250.0)
     tdigest(compression = 110.0)
   })
 }
@@ -938,11 +1018,11 @@ val response = client.search(indexName) {
   // we don't care about the results here
   resultSize = 0
 
-  agg(MyAggNames.BY_TAG, TermsAgg("tags"))
+  agg(BY_TAG, TermsAgg("tags"))
 }
 // the termsResult function we used before is short for this:
 val tags = response.aggregations
-  .getAggResult<TermsAggregationResult>(MyAggNames.BY_TAG)
+  .getAggResult<TermsAggregationResult>(BY_TAG)
 ```
 
 We need two classes for picking apart terms aggregation results:
