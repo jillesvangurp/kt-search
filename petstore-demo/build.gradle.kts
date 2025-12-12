@@ -1,5 +1,6 @@
 import com.avast.gradle.dockercompose.ComposeExtension
 import java.io.File
+import java.net.URI
 
 plugins {
     id("org.springframework.boot") version "4.0.0"
@@ -46,13 +47,23 @@ configure<ComposeExtension> {
     removeContainers.set(true)
     forceRecreate.set(true)
     val parentDir = project.parent?.projectDir ?: error("parent should exist")
-    val composeFile = parentDir.resolve("docker-compose-es-9.yml").absolutePath
+    val searchEngine = project.findProperty("searchEngine")?.toString() ?: "es-9"
+    val composeFile = parentDir.resolve("docker-compose-$searchEngine.yml").absolutePath
     dockerComposeWorkingDirectory.set(parentDir)
     useComposeFiles.set(listOf(composeFile))
-    startedServices.set(listOf("es9"))
+    startedServices.set(listOf(searchEngine.replace("-", "")))
+
+    listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
+        ?.let { docker ->
+            dockerExecutable.set(docker)
+        }
 }
 
 val composeUp by tasks.named("composeUp")
+
+fun isSearchUp() = kotlin.runCatching {
+    URI("http://localhost:9999").toURL().openConnection().connect()
+}.isSuccess
 
 if (!listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").any { File(it).exists() }) {
     tasks.matching { it.name.startsWith("compose") }.configureEach {
@@ -61,6 +72,8 @@ if (!listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docke
 }
 
 tasks.withType<Test> {
-    dependsOn(composeUp)
+    if (!isSearchUp()) {
+        dependsOn(composeUp)
+    }
     useJUnitPlatform()
 }
