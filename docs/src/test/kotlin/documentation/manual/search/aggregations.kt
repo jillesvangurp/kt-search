@@ -126,6 +126,13 @@ val aggregationsMd = sourceGitRepository.md {
                     timestamp = now - 10.days
                 )
             )
+            index(
+                MockDoc(
+                    name = "5",
+                    tags = listOf("missing"),
+                    timestamp = now - 10.days
+                )
+            )
         }
     }
 
@@ -445,9 +452,13 @@ val aggregationsMd = sourceGitRepository.md {
     section("Other aggregations") {
         +"""
             Here is a more complicated example where we use various other aggregations.
-            
+
             Note, we do not support all aggregations currently but it's easy to add
             support for more as needed. Pull requests for this are welcome.
+
+            The DSL surfaces the same options you would use in Elasticsearch or OpenSearch, including
+            explicit ordering, `missing` bucket handling, and `hard_bounds`/`extended_bounds` for
+            date histograms.
         """.trimIndent()
 
         example {
@@ -455,8 +466,27 @@ val aggregationsMd = sourceGitRepository.md {
                 resultSize = 0 // we only care about the aggs
                 agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
                     calendarInterval = "1d"
+                    orderByKey(SortOrder.ASC)
+                    // Missing timestamps will be treated as if they were at the epoch.
+                    missing = 0
+                    // hard_bounds keeps buckets within the min/max range while extended_bounds ensures the
+                    // boundary buckets are always included even when empty.
+                    extendedBounds(
+                        min = "now-30d",
+                        max = "now+7d",
+                    )
+                    hardBounds(
+                        min = "now-30d",
+                        max = "now+7d",
+                    )
                 })
-                agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color)) {
+                agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
+                    // Explicit ordering and missing bucket handling mirror Elasticsearch's terms options.
+                    missing = "(missing)"
+                    orderByField("_count", SortOrder.DESC)
+                    executionHint = "map"
+                    collectMode = "breadth_first"
+                }) {
                     agg(MyAggNames.MIN_TIME, MinAgg(MockDoc::timestamp))
                     agg(MyAggNames.MAX_TIME, MaxAgg(MockDoc::timestamp))
                     // this is a cool way to calculate duration
