@@ -24,6 +24,11 @@ java {
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io") {
+        content {
+            includeGroup("com.github.jillesvangurp")
+        }
+    }
 }
 
 dependencies {
@@ -39,6 +44,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("com.github.jillesvangurp:kotlin4example:_")
 }
 
 val dockerExecutablePath = listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker")

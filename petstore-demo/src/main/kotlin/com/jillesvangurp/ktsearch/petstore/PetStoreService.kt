@@ -93,6 +93,10 @@ class PetStoreService(
     )
 
     suspend fun ensureIndices() {
+        // begin ENSURE_INDICES
+        // We maintain separate storage and search projections. Each gets its
+        // own read/write aliases so rolling over to a new version becomes a
+        // metadata-only operation instead of a reindex.
         ensureIndexExists(
             indexName = properties.indices.petsIndex,
             readAlias = properties.indices.petsRead,
@@ -108,6 +112,7 @@ class PetStoreService(
             repository = petSearchRepository,
             mappingBuilder = this::petSearchMapping
         )
+        // end ENSURE_INDICES
     }
 
     private suspend fun ensureIndexExists(
@@ -117,6 +122,8 @@ class PetStoreService(
         repository: IndexRepository<*>,
         mappingBuilder: () -> IndexSettingsAndMappingsDSL
     ) {
+        // Ask Elasticsearch which indices the read alias points to. If nothing
+        // is returned we know we must create both the index and its aliases.
         val aliasExists = searchClient.getIndexesForAlias(readAlias).isNotEmpty()
         if (!aliasExists) {
             logger.info { "Creating index $indexName with aliases $readAlias / $writeAlias" }
@@ -129,6 +136,7 @@ class PetStoreService(
     }
 
     private fun petsMapping(): IndexSettingsAndMappingsDSL = IndexSettingsAndMappingsDSL().apply {
+        // begin PETS_MAPPING
         settings {
             shards = 1
             replicas = 0
@@ -145,9 +153,11 @@ class PetStoreService(
             keyword(Pet::traits) { index = false; store = true }
             keyword("imageUrl") { index = false; store = true }
         }
+        // end PETS_MAPPING
     }
 
     private fun petSearchMapping(): IndexSettingsAndMappingsDSL = IndexSettingsAndMappingsDSL().apply {
+        // begin SEARCH_MAPPING
         settings {
             shards = 1
             replicas = 0
@@ -160,8 +170,8 @@ class PetStoreService(
             field("age", "integer")
             field("price", "double")
             keyword(PetSearchDocument::priceBucket)
-            // Store traits as full text for matching, while keeping a keyword subfield available
-            // for potential aggregations or exact matching.
+            // Store traits as text for matching and keep a keyword subfield for
+            // aggregations or exact matching.
             text(PetSearchDocument::traits) {
                 fields { keyword("keyword") }
             }
@@ -170,10 +180,12 @@ class PetStoreService(
             keyword("wikipediaUrl")
             keyword("image_url")
         }
+        // end SEARCH_MAPPING
     }
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun loadSamplePetsIfEmpty(sampleStream: InputStream) {
+        // Cheap guard so we don't re-import the bundle with every restart.
         val current = rawSearch<PetSearchDocument>(
             target = properties.indices.petSearchRead
         ) { resultSize = 0 }
@@ -206,6 +218,8 @@ class PetStoreService(
 
     suspend fun indexPets(pets: List<Pet>) {
         if (pets.isEmpty()) return
+        // Bulk the raw documents first; the search projection is derived from
+        // the stored docs so it can safely be rebuilt later.
         petsRepository.bulk {
             pets.forEach { pet ->
                 index(petsRepository.serializer.serialize(pet), id = pet.id)
@@ -225,6 +239,8 @@ class PetStoreService(
             from = 0
             resultSize = 500
         }
+        // Convert the raw hits to the search projection and blow away the old
+        // search index so the aliases keep pointing at fresh data.
         val pets = hits.hits.hits.mapNotNull { it.source }
         petSearchRepository.deleteByQuery {
             // Explicit match_all is required by ES when using _delete_by_query
@@ -236,6 +252,8 @@ class PetStoreService(
 
     suspend fun createPet(pet: Pet): PetSearchDocument {
         val petWithId = if (pet.id.isBlank()) pet.copy(id = UUID.randomUUID().toString()) else pet
+        // Fan-out to both indices so search stays in sync with the source of
+        // truth immediately.
         indexPetRaw(petWithId)
         val searchDoc = petWithId.toSearchDocument()
         indexPetSearchRaw(searchDoc)
@@ -244,6 +262,7 @@ class PetStoreService(
 
     suspend fun updatePet(id: String, pet: Pet): PetSearchDocument {
         val updated = pet.copy(id = id)
+        // Re-index the raw doc and its enriched projection.
         indexPetRaw(updated)
         val searchDoc = updated.toSearchDocument()
         indexPetSearchRaw(searchDoc)
@@ -251,6 +270,7 @@ class PetStoreService(
     }
 
     suspend fun deletePet(id: String) {
+        // Remove from both indices; aliases keep write/read targets aligned.
         petsRepository.delete(id = id)
         petSearchRepository.delete(id = id)
     }
@@ -265,6 +285,11 @@ class PetStoreService(
         ageRange: String?,
         priceRange: String?
     ): PetSearchResponse {
+        // begin SEARCH_PETS
+        // The UI sends optional filters plus a free-form search string. We
+        // translate that into a bool query with filters and a dis_max clause
+        // that mixes best_fields and phrase_prefix matches to keep results
+        // relevant even with typos.
         val response = rawSearch<PetSearchDocument>(
             target = properties.indices.petSearchRead
         ) {
@@ -298,8 +323,8 @@ class PetStoreService(
                                     query = q
                                 ) {
                                     type = MultiMatchType.phrase_prefix
-                                    // Some older deployments stored traits as keywords; lenient avoids
-                                    // type errors while allowing phrase prefix matches on the new text field.
+                                    // Older clusters stored traits as keywords.
+                                    // Lenient avoids type errors on those docs.
                                     lenient = true
                                     slop = 2
                                     maxExpansions = 30
@@ -362,6 +387,7 @@ class PetStoreService(
                 }
             )
         }
+        // end SEARCH_PETS
 
         val results = response.hits.hits.mapNotNull { hit ->
             hit.source?.let { doc ->
@@ -401,6 +427,8 @@ class PetStoreService(
         priceRange: String?
     ): List<ESQuery> {
         val filters = mutableListOf<ESQuery>()
+        // Each query param maps directly to a term or range filter; the helper
+        // keeps the search DSL block compact.
         animal?.takeIf { it.isNotBlank() }?.let { filters += term("animal", it) }
         breed?.takeIf { it.isNotBlank() }?.let { filters += term("breed", it) }
         sex?.takeIf { it.isNotBlank() }?.let { filters += term("sex", it) }
@@ -417,14 +445,18 @@ class PetStoreService(
         return filters
     }
 
+    // begin ENRICH_PET
     private fun Pet.toSearchDocument(): PetSearchDocument {
         val normalizedAnimal = animal.lowercase()
         val normalizedBreed = breed.lowercase()
         val animalBreedKey = "$normalizedAnimal|$normalizedBreed"
-        val wiki = wikiLookup[animalBreedKey] ?: wikiLookup["$normalizedAnimal|$normalizedAnimal"]
+        val wiki = wikiLookup[animalBreedKey]
+            ?: wikiLookup["$normalizedAnimal|$normalizedAnimal"]
         val image = imageUrl
             ?: stockImages[animalBreedKey]
             ?: stockImages["$normalizedAnimal|$normalizedAnimal"]
+        // Use a coarse price bucket that lines up with the UI facets and the
+        // aggregation configuration.
         val priceBucket = when {
             price < 500 -> "budget"
             price < 1500 -> "mid"
@@ -445,6 +477,7 @@ class PetStoreService(
             imageUrl = image
         )
     }
+    // end ENRICH_PET
 
     private suspend fun indexPetRaw(pet: Pet) {
         val payload = json.encodeToString(Pet.serializer(), pet)
@@ -492,6 +525,8 @@ class PetStoreService(
         crossinline block: SearchDSL.() -> Unit = {}
     ): RawSearchResponse<T> {
         val dsl = SearchDSL().apply(block)
+        // This bypasses the repository helper so we can access highlights and
+        // raw aggregation buckets exactly as returned by Elasticsearch.
         val response = searchClient.restClient.post {
             path(target, "_search")
             json(dsl)

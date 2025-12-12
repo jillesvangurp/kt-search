@@ -13,6 +13,8 @@ class SearchConfiguration {
 
     @Bean
     fun demoJson(): Json = Json {
+        // Keep the JSON configuration predictable so the DSL produces stable
+        // payloads and responses in tests and the README examples.
         prettyPrint = false
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -20,6 +22,9 @@ class SearchConfiguration {
 
     @Bean
     fun searchClient(properties: DemoProperties, json: Json): SearchClient {
+        // begin SEARCH_CLIENT_BEAN
+        // The Ktor-based REST client powers both the DSL-based repository
+        // helpers and the lower-level raw requests we occasionally need.
         val elastic = properties.elastic
         return SearchClient(
             KtorRestClient(
@@ -32,10 +37,12 @@ class SearchConfiguration {
             ),
             json = json
         )
+        // end SEARCH_CLIENT_BEAN
     }
 
     @Bean
     fun petsRepository(properties: DemoProperties, client: SearchClient, json: Json): IndexRepository<Pet> =
+        // Lightweight helper that wraps the DSL with strongly typed serialization.
         IndexRepository(
             indexNameOrWriteAlias = properties.indices.petsWrite,
             indexReadAlias = properties.indices.petsRead,
@@ -45,6 +52,7 @@ class SearchConfiguration {
 
     @Bean
     fun petSearchRepository(properties: DemoProperties, client: SearchClient, json: Json): IndexRepository<PetSearchDocument> =
+        // Same repository pattern for the search projection index.
         IndexRepository(
             indexNameOrWriteAlias = properties.indices.petSearchWrite,
             indexReadAlias = properties.indices.petSearchRead,

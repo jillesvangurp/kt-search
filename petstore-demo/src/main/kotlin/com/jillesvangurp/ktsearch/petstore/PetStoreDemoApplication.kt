@@ -9,5 +9,7 @@ import org.springframework.boot.runApplication
 class PetStoreDemoApplication
 
 fun main(args: Array<String>) {
+    // Bootstraps Spring and the coroutine-based search infrastructure defined in this
+    // module; nothing fancy happens here beyond wiring beans and starting the web server.
     runApplication<PetStoreDemoApplication>(*args)
 }
