@@ -1,0 +1,16 @@
+<svg width="400" height="260" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pet placeholder">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f4ff"/>
+      <stop offset="100%" stop-color="#e6f7ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="260" fill="url(#grad)" rx="16" />
+  <g fill="#8aa0c7" stroke="#5f6f92" stroke-width="4" stroke-linecap="round">
+    <circle cx="140" cy="120" r="44" />
+    <circle cx="260" cy="120" r="44" />
+    <path d="M120 190 Q200 230 280 190" fill="none"/>
+    <path d="M110 90 Q140 40 170 90" fill="none"/>
+    <path d="M230 90 Q260 40 290 90" fill="none"/>
+  </g>
+</svg>

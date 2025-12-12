@@ -1,0 +1,25 @@
+demo:
+  elastic:
+    host: ${ELASTIC_HOST:localhost}
+    port: ${ELASTIC_PORT:9200}
+    https: ${ELASTIC_HTTPS:false}
+    username: ${ELASTIC_USER:}
+    password: ${ELASTIC_PASSWORD:}
+  indices:
+    pets-index: pets-v1
+    pets-read: pets-read
+    pets-write: pets-write
+    pet-search-index: pet-search-v1
+    pet-search-read: pet-search-read
+    pet-search-write: pet-search-write
+  sample-data: classpath:data/pets.json
+server:
+  port: ${PORT:8080}
+spring:
+  main:
+    web-application-type: reactive
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Search Pet Store Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <div class="hero">
+        <div>
+            <p class="eyebrow">KT Search Demo</p>
+            <h1>Adopt your next favorite coworker</h1>
+            <p class="lede">Search over a curated list of pets and learn how KT Search and Spring Boot work together.</p>
+        </div>
+        <div class="cta">
+            <button id="reload" title="Reload demo data">Reindex search</button>
+        </div>
+    </div>
+    <form id="search-form" class="search-bar">
+        <input type="text" id="query" name="query" placeholder="Search by name, breed, or vibe" aria-label="Search">
+        <button type="submit">Search</button>
+    </form>
+</header>
+<main>
+    <aside class="filters">
+        <div class="filter-group">
+            <h3>Animal</h3>
+            <div id="animal-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Breed</h3>
+            <div id="breed-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Sex</h3>
+            <div id="sex-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Age</h3>
+            <div id="age-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Price</h3>
+            <div id="price-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Add a pet</h3>
+            <form id="pet-form" class="pet-form">
+                <input name="name" placeholder="Name" required>
+                <input name="animal" placeholder="Animal" required>
+                <input name="breed" placeholder="Breed" required>
+                <input name="sex" placeholder="Sex" required>
+                <input name="age" type="number" placeholder="Age" required>
+                <input name="price" type="number" step="0.01" placeholder="Price" required>
+                <textarea name="description" placeholder="Description" required></textarea>
+                <input name="traits" placeholder="Traits (comma separated)">
+                <input name="imageUrl" placeholder="Image URL">
+                <button type="submit">Create</button>
+            </form>
+        </div>
+    </aside>
+    <section class="results">
+        <div class="meta">
+            <p id="hit-count">Loading pets…</p>
+        </div>
+        <div id="cards" class="cards"></div>
+    </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
