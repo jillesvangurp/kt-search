@@ -269,15 +269,40 @@ class PetStoreService(
             val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
             query = bool {
                 searchText?.takeIf { it.isNotBlank() }?.let { q ->
-                    should(
-                        match(PetSearchDocument::name, q) { fuzziness = "AUTO" },
-                        matchPhrasePrefix(PetSearchDocument::description, q),
-                        multiMatch(
-                            fields = listOf("name", "description", "traits"),
-                            query = q
-                        )
+                    must(
+                        disMax {
+                            tieBreaker = 0.2
+                            queries(
+                                multiMatch(
+                                    fields = listOf(
+                                        "name^5",
+                                        "breed^4",
+                                        "traits^3",
+                                        "animal^2",
+                                        "description"
+                                    ),
+                                    query = q
+                                ) {
+                                    type = MultiMatchType.best_fields
+                                    fuzziness = "AUTO"
+                                    operator = MatchOperator.AND
+                                    minimumShouldMatch = "70%"
+                                },
+                                multiMatch(
+                                    fields = listOf("name^5", "breed^4", "traits^2"),
+                                    query = q
+                                ) {
+                                    type = MultiMatchType.phrase_prefix
+                                    slop = 2
+                                    maxExpansions = 30
+                                },
+                                matchPhrasePrefix(PetSearchDocument::description, q) {
+                                    slop = 3
+                                    maxExpansions = 50
+                                }
+                            )
+                        }
                     )
-                    minimumShouldMatch(1)
                 }
                 if (filters.isNotEmpty()) {
                     filter(filters)
@@ -286,9 +311,24 @@ class PetStoreService(
             highlight {
                 preTags = "<mark>"
                 postTags = "</mark>"
-                add(PetSearchDocument::name)
-                add(PetSearchDocument::description)
-                add("traits")
+                requireFieldMatch = false
+                order = Order.score
+                add(PetSearchDocument::name) {
+                    numberOfFragments = 0
+                }
+                add(PetSearchDocument::breed) {
+                    numberOfFragments = 0
+                }
+                add(PetSearchDocument::animal) {
+                    numberOfFragments = 0
+                }
+                add(PetSearchDocument::description) {
+                    fragmentSize = 120
+                    numberOfFragments = 2
+                }
+                add("traits") {
+                    numberOfFragments = 0
+                }
             }
             agg("animals", TermsAgg("animal") { aggSize = 10 })
             agg("breeds", TermsAgg("breed") { aggSize = 20 })

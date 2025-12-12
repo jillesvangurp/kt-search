@@ -174,6 +174,12 @@ mark {
   border-radius: 4px;
 }
 
+.highlight-snippet {
+  margin: 4px 0 4px;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
 @media (max-width: 1000px) {
   main { grid-template-columns: 1fr; }
 }

@@ -31,12 +31,16 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function highlighted(field, highlights, fallback) {
-  const list = highlights?.[field];
-  if (list && list.length > 0) {
-    return list[0];
+function firstHighlight(highlights) {
+  if (!highlights) return null;
+  const preferredOrder = ['name', 'breed', 'animal', 'description', 'traits'];
+  for (const field of preferredOrder) {
+    const fragments = highlights[field];
+    if (fragments && fragments.length > 0) {
+      return fragments[0];
+    }
   }
-  return escapeHtml(fallback);
+  return null;
 }
 
 function renderPets(result) {
@@ -49,8 +53,9 @@ function renderPets(result) {
     const card = document.createElement('article');
     card.className = 'card';
     const imageUrl = pet.imageUrl || pet.image_url || '/placeholder.svg';
-    const nameHtml = highlighted('name', highlights, pet.name);
-    const descriptionHtml = highlighted('description', highlights, pet.description);
+    const nameHtml = escapeHtml(pet.name);
+    const snippetHtml = firstHighlight(highlights);
+    const descriptionHtml = escapeHtml(pet.description);
 
     card.innerHTML = `
       <div class="card-media" style="background-image: url('${imageUrl}')"></div>
@@ -59,6 +64,7 @@ function renderPets(result) {
           <h3>${nameHtml}</h3>
           <span class="price">$${pet.price.toFixed(2)}</span>
         </div>
+        ${snippetHtml ? `<p class="highlight-snippet">${snippetHtml}</p>` : ''}
         <p class="muted">${escapeHtml(pet.breed)} • ${escapeHtml(pet.sex.toUpperCase())} • ${escapeHtml(String(pet.age))} yrs</p>
         <p>${descriptionHtml}</p>
         <div class="tags">
