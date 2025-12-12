@@ -2,6 +2,7 @@
 
 package documentation.manual.search
 
+import com.jillesvangurp.jsondsl.json
 import com.jillesvangurp.ktsearch.Aggregations
 import com.jillesvangurp.ktsearch.BucketAggregationResult
 import com.jillesvangurp.ktsearch.TermsAggregationResult
@@ -28,21 +29,33 @@ import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.ktsearch.termsResult
 import com.jillesvangurp.ktsearch.topHitResult
+import com.jillesvangurp.searchdsls.querydsl.AvgAgg
 import com.jillesvangurp.searchdsls.querydsl.BucketScriptAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketSelectorAgg
 import com.jillesvangurp.searchdsls.querydsl.BucketsPath
 import com.jillesvangurp.searchdsls.querydsl.CardinalityAgg
 import com.jillesvangurp.searchdsls.querydsl.CompositeAgg
+import com.jillesvangurp.searchdsls.querydsl.CumulativeSumAgg
 import com.jillesvangurp.searchdsls.querydsl.DateHistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.DerivativeAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsAgg
 import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
 import com.jillesvangurp.searchdsls.querydsl.FilterAgg
 import com.jillesvangurp.searchdsls.querydsl.FiltersAgg
 import com.jillesvangurp.searchdsls.querydsl.GeoCentroidAgg
 import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
+import com.jillesvangurp.searchdsls.querydsl.HistogramAgg
 import com.jillesvangurp.searchdsls.querydsl.MaxAgg
 import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentileRanksAgg
+import com.jillesvangurp.searchdsls.querydsl.PercentilesAgg
+import com.jillesvangurp.searchdsls.querydsl.Script
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
 import com.jillesvangurp.searchdsls.querydsl.SortOrder
+import com.jillesvangurp.searchdsls.querydsl.StatsAgg
 import com.jillesvangurp.searchdsls.querydsl.TermsAgg
 import com.jillesvangurp.searchdsls.querydsl.TopHitsAgg
+import com.jillesvangurp.searchdsls.querydsl.ValueCountAgg
 import com.jillesvangurp.searchdsls.querydsl.agg
 import com.jillesvangurp.searchdsls.querydsl.term
 import com.jillesvangurp.serializationext.DEFAULT_JSON
@@ -70,6 +83,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 // begin MyAggNamesDef
@@ -94,7 +108,9 @@ val aggregationsMd = sourceGitRepository.md {
         val name: String,
         val tags: List<String>? = null,
         val color: String? = null,
-        val timestamp: Instant? = null
+        val timestamp: Instant? = null,
+        val durationMs: Double? = null,
+        val value: Double? = null,
     )
 
     val repo = client.repository(indexName, MockDoc.serializer())
@@ -125,7 +141,9 @@ val aggregationsMd = sourceGitRepository.md {
             val name: String,
             val tags: List<String>? = null,
             val color: String? = null,
-            val timestamp: Instant? = null
+            val timestamp: Instant? = null,
+            val durationMs: Double? = null,
+            val value: Double? = null,
         )
 
         val indexName = "docs-aggs-demo"
@@ -135,6 +153,8 @@ val aggregationsMd = sourceGitRepository.md {
                 keyword(MockDoc::color)
                 keyword(MockDoc::tags)
                 date(MockDoc::timestamp)
+                number<Double>(MockDoc::durationMs)
+                number<Double>(MockDoc::value)
             }
         }
 
@@ -146,7 +166,9 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "1",
                     tags = listOf("bar"),
                     color = "green",
-                    timestamp = now
+                    timestamp = now,
+                    durationMs = 125.0,
+                    value = 3.0,
                 )
             )
             index(
@@ -154,7 +176,9 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "2",
                     tags = listOf("foo"),
                     color = "red",
-                    timestamp = now - 1.days
+                    timestamp = now - 1.days,
+                    durationMs = 85.0,
+                    value = 12.5,
                 )
             )
             index(
@@ -162,7 +186,9 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "3",
                     tags = listOf("foo", "bar"),
                     color = "red",
-                    timestamp = now - 5.days
+                    timestamp = now - 5.days,
+                    durationMs = 240.0,
+                    value = 21.0,
                 )
             )
             index(
@@ -170,7 +196,9 @@ val aggregationsMd = sourceGitRepository.md {
                     name = "4",
                     tags = listOf("foobar"),
                     color = "green",
-                    timestamp = now - 10.days
+                    timestamp = now - 10.days,
+                    durationMs = 60.0,
+                    value = null,
                 )
             )
             index(
@@ -311,7 +339,7 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             val response = client.search(indexName) {
                 resultSize = 0
-                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name,13)) {
+                agg("grid", GeoTileGridAgg(TestGeoDoc::point.name, 13)) {
                     agg("centroid", GeoCentroidAgg(TestGeoDoc::point.name))
                 }
             }
@@ -463,7 +491,7 @@ val aggregationsMd = sourceGitRepository.md {
                         ?.doubleOrNull
                     println(
                         "color=$color valueBucket=$valueBucket " +
-                            "count=${bucket.parsed.docCount}"
+                                "count=${bucket.parsed.docCount}"
                     )
                 }
         }.printStdOut(this)
@@ -507,6 +535,27 @@ val aggregationsMd = sourceGitRepository.md {
             explicit ordering, `missing` bucket handling, and `hard_bounds`/`extended_bounds` for
             date histograms.
         """.trimIndent()
+
+        +"""
+            Numeric histograms bucket numeric fields into fixed ranges. Use `offset` to shift the
+            bucket boundaries, `missing` to control how null values are counted, and `extended_bounds`
+            or `hard_bounds` to force buckets at the edges of the range.
+        """.trimIndent()
+
+        example {
+            val response = repo.search {
+                resultSize = 0 // we only care about the aggs
+                agg("by_value", HistogramAgg(MockDoc::value, interval = 10) {
+                    offset = 2
+                    minDocCount = 0
+                    missing = 0
+                    extendedBounds(min = 0, max = 30)
+                    hardBounds(min = 0, max = 30)
+                })
+            }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(response))
+        }.printStdOut(this)
 
         example {
             val response = repo.search {
@@ -596,69 +645,171 @@ val aggregationsMd = sourceGitRepository.md {
 
         }.printStdOut(this)
     }
-    section("Filter aggregations") {
+    section("Percentiles and percentile ranks") {
         +"""
-            You can use the filter aggregation to narrow down the results and do sub 
-            aggregations on the filtered results. 
+            Percentiles are useful to spot the shape of your numeric distributions, for example when you
+            are tracking request latency or other performance metrics. The DSL exposes the `keyed`
+            option by default and allows switching between HDR histograms and TDigest implementations.
         """.trimIndent()
+
         example {
-            repo.search {
+            val response = repo.search {
                 resultSize = 0
-                agg(
-                    name = "filtered",
-                    aggQuery = FilterAgg(this@search.term(MockDoc::tags, "foo"))
-                ) {
-                    agg("colors", TermsAgg(MockDoc::color))
-                }
-            }.let {
-                it.aggregations.filterResult("filtered")?.let { fb ->
-                    println("filtered: ${fb.docCount}")
-                    fb.bucket.termsResult("colors")
-                        .parsedBuckets
-                        .forEach { b ->
-                            println("${b.parsed.key}: ${b.parsed.docCount}")
-                        }
-                }
+                agg("load_time_percentiles", PercentilesAgg(MockDoc::durationMs) {
+                    percentileValues = listOf(50.0, 90.0, 99.0)
+                })
+            }
+
+            val percentiles = response.aggregations
+                ?.get("load_time_percentiles")?.jsonObject
+                ?.get("values")?.jsonObject
+
+            percentiles?.forEach { (percentile, value) ->
+                println("$percentile => ${value.jsonPrimitive.doubleOrNull}")
             }
         }.printStdOut(this)
 
         +"""
-            You can also use the filters aggregation to use multiple
-             named filter aggregations at the same time
+            Percentile ranks work the other way around by showing the percentile for explicit target values.
+            You can also tweak the TDigest compression to balance accuracy and memory use.
         """.trimIndent()
+
         example {
-            repo.search {
+            val response = repo.search {
                 resultSize = 0
-                agg("filtered", FiltersAgg {
-                    namedFilter(
-                        name = "foo",
-                        query = this@search.term(MockDoc::tags, "foo")
+                agg("load_time_ranks", PercentileRanksAgg(MockDoc::durationMs) {
+                    rankValues = listOf(50.0, 100.0, 250.0)
+                    tdigest(compression = 110.0)
+                })
+            }
+
+            val percentileRanks = response.aggregations
+                ?.get("load_time_ranks")?.jsonObject
+                ?.get("values")?.jsonObject
+
+            percentileRanks?.forEach { (value, percentile) ->
+                println("$value => ${percentile.jsonPrimitive.doubleOrNull}")
+            }
+        }.printStdOut(this)
+    }
+
+
+    section("Metric aggregations") {
+        +"""
+            We also provide typed helpers for the metric aggregations that operate on a single field. They
+            support specifying a `missing` value as well as using scripts instead of raw fields when you
+            want to pre-process values.
+        """.trimIndent()
+
+        example {
+            val metricsDsl = SearchDSL().apply {
+                agg("average_duration", AvgAgg(field = "duration"))
+                agg("duration_count", ValueCountAgg(field = "duration", missing = 0))
+                agg("duration_stats", StatsAgg(field = "duration"))
+                agg(
+                    "duration_extended_stats",
+                    ExtendedStatsAgg(
+                        script = Script.create { source = "doc['duration'].value" },
+                        missing = 0
                     )
-                    namedFilter(
-                        name = "bat",
-                        query = this@search.term(MockDoc::tags, "bar")
-                    )
-                }) {
-                    agg("colors", TermsAgg(MockDoc::color))
-                }
-            }.let {
-                it.aggregations
-                    .filtersResult("filtered")
-                    .namedBuckets.forEach { fb ->
-                        println("${fb.name}: ${fb.docCount}")
-                        println(fb.bucket.termsResult("colors")
-                            .parsedBuckets.joinToString(", ") { b ->
-                                b.parsed.key + ": " + b.parsed.docCount
-                            })
+                )
+            }
+
+            println(metricsDsl.json(true))
+        }.printStdOut(this)
+
+        section("Filter aggregations") {
+            +"""
+            You can use the filter aggregation to narrow down the results and do sub
+            aggregations on the filtered results.
+        """.trimIndent()
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+                        agg("colors", TermsAgg(MockDoc::color))
                     }
+                }.let {
+                    it.aggregations.filterResult("filtered")?.let { fb ->
+                        println("filtered: ${fb.docCount}")
+                        fb.bucket.termsResult("colors")
+                            .parsedBuckets
+                            .forEach { b ->
+                                println("${b.parsed.key}: ${b.parsed.docCount}")
+                            }
+                    }
+                }
+            }.printStdOut(this)
+
+            +"""
+            You can also use the filters aggregation to use multiple named filter aggregations at the same time
+        """.trimIndent()
+            example {
+                repo.search {
+                    resultSize = 0
+                    agg("filtered", FiltersAgg {
+                        namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
+                        namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                    }) {
+                        agg("colors", TermsAgg(MockDoc::color))
+                    }
+                }.let {
+                    it.aggregations
+                        .filtersResult("filtered")
+                        .namedBuckets.forEach { fb ->
+                            println("${fb.name}: ${fb.docCount}")
+                            println(
+                                fb.bucket.termsResult("colors")
+                                    .parsedBuckets.joinToString(", ") { b ->
+                                        b.parsed.key + ": " + b.parsed.docCount
+                                    })
+                        }
+                }
             }
         }
+    }
+    section("Pipeline aggregations") {
+        +"""
+            Pipeline aggregations allow you to reuse metrics from other aggregations and perform additional calculations.
+            You can chain multiple pipelines together, mixing them with bucket aggregations to keep queries compact.
+        """.trimIndent()
+        example {
+            val pipelineAggQuery = SearchDSL().apply {
+                agg(
+                    "events_per_day",
+                    DateHistogramAgg(
+                        field = MockDoc::timestamp
+                    ) {
+                        calendarInterval = "1d"
+                    }) {
+                    agg("per_color", TermsAgg(MockDoc::color))
+                    agg("first_event", MinAgg(MockDoc::timestamp))
+                    agg("per_day_change", DerivativeAgg {
+                        bucketsPath = "first_event"
+                        gapPolicy = "skip"
+                    })
+                    agg("rolling_events", CumulativeSumAgg {
+                        bucketsPath = "first_event"
+                    })
+                    agg("recent_activity", BucketSelectorAgg {
+                        bucketsPath = BucketsPath {
+                            this["first"] = "first_event"
+                            this["count"] = "_count"
+                        }
+                        script = "params.count > 0 && params.first != null"
+                        gapPolicy = "insert_zeros"
+                    })
+                }
+            }
+
+            println(DEFAULT_PRETTY_JSON.encodeToString(pipelineAggQuery))
+        }.printStdOut(this)
     }
     section("Extending the Aggregation support") {
         +"""
             Like with the Search DSL, we do not provide exhaustive coverage of all the features and instead provide
-            implementations for commonly used aggregations and make it really easy to extend this. 
-            
+            implementations for commonly used aggregations and make it really easy to extend this.
+
             So, if you get stuck without support for something you need, you should be able to fix it easily yourself.
             
             You can add your own classes and extension functions to deal with aggregation results. We'll illustrate that by showing
