@@ -4,39 +4,21 @@ import com.jillesvangurp.ktsearch.repository.IndexRepository
 import com.jillesvangurp.ktsearch.total
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import java.net.URI
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.elasticsearch.ElasticsearchContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@SpringBootTest
-@Testcontainers(disabledWithoutDocker = true)
+@SpringBootTest(
+    properties = [
+        "demo.elastic.host=127.0.0.1",
+        "demo.elastic.port=9999",
+        "demo.elastic.https=false"
+    ]
+)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PetStoreServiceTest {
-
-    companion object {
-        @Container
-        val elastic = ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.14.1")
-            .apply {
-                addEnv("xpack.security.enabled", "false")
-            }
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun elasticProps(registry: DynamicPropertyRegistry) {
-            val uri = URI(elastic.httpHostAddress)
-            registry.add("demo.elastic.host") { uri.host }
-            registry.add("demo.elastic.port") { uri.port }
-            registry.add("demo.elastic.https") { false }
-        }
-    }
 
     @Autowired
     private lateinit var petStoreService: PetStoreService

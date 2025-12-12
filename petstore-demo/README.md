@@ -11,7 +11,7 @@ This module ships a tiny Spring Boot 4.0 application that shows how to use the `
    docker compose up elasticsearch -d
    ```
 
-   The compose file exposes Elasticsearch on `localhost:9200` without security.
+   The compose file exposes Elasticsearch 9.1.3 on `localhost:9200` without security.
 
 2. **Run the application locally**
 
@@ -39,11 +39,14 @@ This module ships a tiny Spring Boot 4.0 application that shows how to use the `
 
 ## Useful commands
 
-- Run the module tests (uses Testcontainers for Elasticsearch):
+- Run the module tests (spins up Elasticsearch 9 via the shared Gradle Compose plugin):
 
   ```bash
   ./gradlew :petstore-demo:test
   ```
+
+  The tests depend on the root `docker-compose-es-9.yml` file and expect the node on
+  `127.0.0.1:9999`.
 
 - Build the runnable JAR:
 
