@@ -8,8 +8,12 @@
     "age": 2,
     "price": 1200.0,
     "description": "Energetic dalmatian who loves road trips and long runs.",
-    "traits": ["athletic", "spotty", "loyal"],
-    "imageUrl": "https://images.dog.ceo/breeds/dalmatian/cooper1.jpg"
+    "traits": [
+      "athletic",
+      "spotty",
+      "loyal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/2016-06_Dalmatiner%2C_P1030461.jpg"
   },
   {
     "id": "p-002",
@@ -20,8 +24,12 @@
     "age": 3,
     "price": 950.0,
     "description": "Charming pug with a goofy personality and endless curiosity.",
-    "traits": ["cuddly", "playful", "indoor"],
-    "imageUrl": "https://images.dog.ceo/breeds/pug/n02110958_13051.jpg"
+    "traits": [
+      "cuddly",
+      "playful",
+      "indoor"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Mops_oct09_cropped2.jpg"
   },
   {
     "id": "p-003",
@@ -32,8 +40,12 @@
     "age": 4,
     "price": 800.0,
     "description": "Agile herder that already knows basic agility routines.",
-    "traits": ["smart", "runner", "family"],
-    "imageUrl": "https://images.dog.ceo/breeds/collie-border/n02106166_1426.jpg"
+    "traits": [
+      "smart",
+      "runner",
+      "family"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Border_Collie_liver_portrait.jpg"
   },
   {
     "id": "p-004",
@@ -44,8 +56,12 @@
     "age": 1,
     "price": 1400.0,
     "description": "Chocolate lab who adores swimming and fetch games.",
-    "traits": ["friendly", "water lover", "kid safe"],
-    "imageUrl": "https://images.dog.ceo/breeds/labrador/n02099712_5263.jpg"
+    "traits": [
+      "friendly",
+      "water lover",
+      "kid safe"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/YellowLabradorLooking_new.jpg"
   },
   {
     "id": "p-005",
@@ -56,8 +72,12 @@
     "age": 2,
     "price": 1300.0,
     "description": "Giant fluffy friend with a surprisingly gentle temperament.",
-    "traits": ["gentle", "giant", "purr machine"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/Wq_eTQalE.jpg"
+    "traits": [
+      "gentle",
+      "giant",
+      "purr machine"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Maine_Coon_female.jpg"
   },
   {
     "id": "p-006",
@@ -68,8 +88,12 @@
     "age": 5,
     "price": 600.0,
     "description": "Vocal lap cat who insists on supervising every meeting.",
-    "traits": ["chatty", "lap cat", "curious"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/O4yjcTJOh.jpg"
+    "traits": [
+      "chatty",
+      "lap cat",
+      "curious"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Seal_point_siamese_cat_cut.jpg"
   },
   {
     "id": "p-007",
@@ -80,8 +104,12 @@
     "age": 3,
     "price": 1800.0,
     "description": "Athletic climber with a marbled coat and endless zoomies.",
-    "traits": ["marbled", "climber", "vocal"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/GAmy2bg8G.jpg"
+    "traits": [
+      "marbled",
+      "climber",
+      "vocal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Bengal_Cat_from_Gatil_Bengal_Floresta_-_Salvador-BA_Brazil_-_3.jpg"
   },
   {
     "id": "p-010",
@@ -92,8 +120,12 @@
     "age": 1,
     "price": 40.0,
     "description": "Long-tailed goldfish with shimmering scales and calm energy.",
-    "traits": ["hardy", "peaceful", "colorful"],
-    "imageUrl": "https://loremflickr.com/cache/resized/65535_53860838435_470c991f3b_b_800_600_nofilter.jpg"
+    "traits": [
+      "hardy",
+      "peaceful",
+      "colorful"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/70/Goldfish3.jpg"
   },
   {
     "id": "p-011",
@@ -104,8 +136,12 @@
     "age": 2,
     "price": 55.0,
     "description": "Oranda goldfish with a bright red cap and mellow vibe.",
-    "traits": ["easy", "community", "ornamental"],
-    "imageUrl": "https://loremflickr.com/cache/resized/65535_54521817124_2c95cbff8d_b_800_600_nofilter.jpg"
+    "traits": [
+      "easy",
+      "community",
+      "ornamental"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/70/Goldfish3.jpg"
   },
   {
     "id": "p-016",
@@ -116,8 +152,12 @@
     "age": 2,
     "price": 2200.0,
     "description": "Snow-white cloud that loves cold walks and smiling at strangers.",
-    "traits": ["fluffy", "talkative", "majestic"],
-    "imageUrl": "https://images.dog.ceo/breeds/samoyed/n02111889_5075.jpg"
+    "traits": [
+      "fluffy",
+      "talkative",
+      "majestic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Samojed00.jpg"
   },
   {
     "id": "p-017",
@@ -128,8 +168,12 @@
     "age": 3,
     "price": 1700.0,
     "description": "Working line Malinois that thrives on puzzles and parkour.",
-    "traits": ["working", "focused", "agile"],
-    "imageUrl": "https://images.dog.ceo/breeds/malinois/n02105162_2158.jpg"
+    "traits": [
+      "working",
+      "focused",
+      "agile"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/Belgian_Malinois_in_upright_position.jpg"
   },
   {
     "id": "p-018",
@@ -140,8 +184,12 @@
     "age": 4,
     "price": 1100.0,
     "description": "Ragdoll that melts in your arms and follows you room to room.",
-    "traits": ["lap", "soft", "relaxed"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/qBqs3R_w4.jpg"
+    "traits": [
+      "lap",
+      "soft",
+      "relaxed"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/Ragdoll_from_Gatil_Ragbelas.jpg"
   },
   {
     "id": "p-019",
@@ -152,8 +200,12 @@
     "age": 1,
     "price": 900.0,
     "description": "Round-faced kitten with folded ears and an endless purr.",
-    "traits": ["kitten", "playful", "sweet"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/werXZVLvS.jpg"
+    "traits": [
+      "kitten",
+      "playful",
+      "sweet"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/58/Brown_Spotted_Tabby_Scottish_Fold.jpg"
   },
   {
     "id": "p-020",
@@ -164,8 +216,12 @@
     "age": 2,
     "price": 1500.0,
     "description": "Queen-approved herder with endless zoomies and short legs.",
-    "traits": ["stumpy", "friendly", "herder"],
-    "imageUrl": "https://images.dog.ceo/breeds/corgi-cardigan/n02113186_11559.jpg"
+    "traits": [
+      "stumpy",
+      "friendly",
+      "herder"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/WelshCorgiCardiganChat.jpg"
   },
   {
     "id": "p-022",
@@ -176,8 +232,12 @@
     "age": 3,
     "price": 2000.0,
     "description": "Cozy sphynx cat that loves sweaters and sunny spots.",
-    "traits": ["hairless", "cuddly", "bold"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/Br8qCwbS9.jpg"
+    "traits": [
+      "hairless",
+      "cuddly",
+      "bold"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/68/Sphinx2_July_2006.jpg"
   },
   {
     "id": "p-023",
@@ -188,8 +248,12 @@
     "age": 2,
     "price": 1300.0,
     "description": "Merle-coated herder who excels at frisbee and scent games.",
-    "traits": ["herder", "smart", "active"],
-    "imageUrl": "https://images.dog.ceo/breeds/australian-shepherd/leroy.jpg"
+    "traits": [
+      "herder",
+      "smart",
+      "active"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Australian_Shepherd_pose.jpg"
   },
   {
     "id": "p-024",
@@ -200,8 +264,12 @@
     "age": 6,
     "price": 950.0,
     "description": "Experienced lap supervisor with tufted ears and a loud purr.",
-    "traits": ["regal", "fluffy", "lap queen"],
-    "imageUrl": "https://cdn2.thecatapi.com/images/jyjEWK7xp.jpg"
+    "traits": [
+      "regal",
+      "fluffy",
+      "lap queen"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Maine_Coon_female.jpg"
   },
   {
     "id": "p-025",
@@ -212,8 +280,12 @@
     "age": 3,
     "price": 500.0,
     "description": "Clever showstopper with dramatic fins and a taste for trouble.",
-    "traits": ["schemer", "flashy", "aquatic"],
-    "imageUrl": "https://images.unsplash.com/photo-1502720705749-3c9255857623?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "schemer",
+      "flashy",
+      "aquatic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/9/94/A_Fish_Called_Wanda_poster.jpg"
   },
   {
     "id": "p-026",
@@ -224,8 +296,12 @@
     "age": 6,
     "price": 9000.0,
     "description": "Fierce guardian with cinematic presence and a toothy grin.",
-    "traits": ["apex", "patrols", "fearless"],
-    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "apex",
+      "patrols",
+      "fearless"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/White_shark.jpg"
   },
   {
     "id": "p-027",
@@ -236,7 +312,11 @@
     "age": 4,
     "price": 4200.0,
     "description": "Whirling marsupial with a growly soundtrack and boundless energy.",
-    "traits": ["whirlwind", "gritty", "night owl"],
+    "traits": [
+      "whirlwind",
+      "gritty",
+      "night owl"
+    ],
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg"
   },
   {
@@ -248,8 +328,12 @@
     "age": 1,
     "price": 150.0,
     "description": "Bright reef clownfish with a sense of adventure and sidekick vibes.",
-    "traits": ["curious", "color-block", "reef ready"],
-    "imageUrl": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "curious",
+      "color-block",
+      "reef ready"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Amphiprion_ocellaris_%28Clown_anemonefish%29.jpg"
   },
   {
     "id": "p-029",
@@ -260,8 +344,12 @@
     "age": 5,
     "price": 1250.0,
     "description": "Spots for days and a heroic streak that loves adventures.",
-    "traits": ["brave", "speeder", "loyal"],
-    "imageUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "brave",
+      "speeder",
+      "loyal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/2016-06_Dalmatiner%2C_P1030461.jpg"
   },
   {
     "id": "p-030",
@@ -272,8 +360,12 @@
     "age": 2,
     "price": 700.0,
     "description": "Dungeon-crawling sidekick who solves puzzles for treats.",
-    "traits": ["vocal", "curious", "acrobat"],
-    "imageUrl": "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "vocal",
+      "curious",
+      "acrobat"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Seal_point_siamese_cat_cut.jpg"
   },
   {
     "id": "p-031",
@@ -284,8 +376,12 @@
     "age": 1,
     "price": 35.0,
     "description": "Tiny philosopher that contemplates castles and snails.",
-    "traits": ["zen", "glitter", "chill"],
-    "imageUrl": "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "zen",
+      "glitter",
+      "chill"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/70/Goldfish3.jpg"
   },
   {
     "id": "p-032",
@@ -296,8 +392,12 @@
     "age": 2,
     "price": 160.0,
     "description": "Meticulous reef cleaner with Parisian flair and one-liners.",
-    "traits": ["tidy", "color-block", "social"],
-    "imageUrl": "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "tidy",
+      "color-block",
+      "social"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Amphiprion_ocellaris_%28Clown_anemonefish%29.jpg"
   },
   {
     "id": "p-033",
@@ -308,8 +408,12 @@
     "age": 7,
     "price": 11000.0,
     "description": "Reformed biter who leads a support group for fellow predators.",
-    "traits": ["majestic", "mentor", "cinematic"],
-    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "majestic",
+      "mentor",
+      "cinematic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/White_shark.jpg"
   },
   {
     "id": "p-034",
@@ -320,7 +424,11 @@
     "age": 3,
     "price": 4300.0,
     "description": "Spins up chaos, then naps like nothing happened.",
-    "traits": ["whirl", "raspy", "surprising"],
+    "traits": [
+      "whirl",
+      "raspy",
+      "surprising"
+    ],
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg"
   },
   {
@@ -332,8 +440,12 @@
     "age": 3,
     "price": 2300.0,
     "description": "Walking snowdrift with a Wookiee growl and gentle heart.",
-    "traits": ["fluffy", "talkative", "guardian"],
-    "imageUrl": "https://images.unsplash.com/photo-1537151625747-768eb6cf92b6?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "fluffy",
+      "talkative",
+      "guardian"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Samojed00.jpg"
   },
   {
     "id": "p-036",
@@ -344,8 +456,12 @@
     "age": 4,
     "price": 1250.0,
     "description": "Matrix-jumping lap giant who believes in plenty of naps.",
-    "traits": ["philosopher", "giant", "purr machine"],
-    "imageUrl": "https://images.unsplash.com/photo-1511300636408-a63a89df3482?auto=format&fit=crop&w=800&q=80"
+    "traits": [
+      "philosopher",
+      "giant",
+      "purr machine"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Maine_Coon_female.jpg"
   },
   {
     "id": "p-037",
@@ -355,8 +471,12 @@
     "sex": "m",
     "age": 4,
     "price": 1600.0,
-    "description": "Literary legend turned gentle giant—brings drama without the horror.",
-    "traits": ["loyal", "massive", "watchful"],
-    "imageUrl": "https://images.unsplash.com/photo-1546443046-ed1ce6ffd1ab?auto=format&fit=crop&w=800&q=80"
+    "description": "Literary legend turned gentle giant\u2014brings drama without the horror.",
+    "traits": [
+      "loyal",
+      "massive",
+      "watchful"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/71/Stbernardinsnow.jpg"
   }
 ]

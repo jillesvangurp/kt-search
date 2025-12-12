@@ -41,36 +41,55 @@ class PetStoreService(
     private val json: Json
 ) {
     private val wikiLookup = mapOf(
-        "dalmatian" to "https://en.wikipedia.org/wiki/Dalmatian_dog",
-        "pug" to "https://en.wikipedia.org/wiki/Pug",
-        "maine coon" to "https://en.wikipedia.org/wiki/Maine_Coon",
-        "siamese" to "https://en.wikipedia.org/wiki/Siamese_cat",
-        "a fish called wanda" to "https://en.wikipedia.org/wiki/A_Fish_Called_Wanda",
-        "great white shark" to "https://en.wikipedia.org/wiki/Jaws_(film)",
-        "shark" to "https://en.wikipedia.org/wiki/Jaws_(film)",
-        "clownfish" to "https://en.wikipedia.org/wiki/Finding_Nemo",
-        "tasmanian devil" to "https://en.wikipedia.org/wiki/Tasmanian_devil",
-        "saint bernard" to "https://en.wikipedia.org/wiki/Cujo",
-        "cockatiel" to "https://en.wikipedia.org/wiki/Cockatiel",
-        "goldfish" to "https://en.wikipedia.org/wiki/Goldfish",
-        "rabbit" to "https://en.wikipedia.org/wiki/Rabbit",
-        "hamster" to "https://en.wikipedia.org/wiki/Hamster"
+        "dog|dalmatian" to "https://en.wikipedia.org/wiki/Dalmatian_dog",
+        "dog|pug" to "https://en.wikipedia.org/wiki/Pug",
+        "dog|border collie" to "https://en.wikipedia.org/wiki/Border_Collie",
+        "dog|labrador" to "https://en.wikipedia.org/wiki/Labrador_Retriever",
+        "dog|samoyed" to "https://en.wikipedia.org/wiki/Samoyed_dog",
+        "dog|belgian malinois" to "https://en.wikipedia.org/wiki/Belgian_Shepherd",
+        "dog|saint bernard" to "https://en.wikipedia.org/wiki/Saint_Bernard_(dog)",
+        "dog|corgi" to "https://en.wikipedia.org/wiki/Welsh_Corgi",
+        "dog|australian shepherd" to "https://en.wikipedia.org/wiki/Australian_Shepherd",
+        "cat|maine coon" to "https://en.wikipedia.org/wiki/Maine_Coon",
+        "cat|siamese" to "https://en.wikipedia.org/wiki/Siamese_cat",
+        "cat|bengal" to "https://en.wikipedia.org/wiki/Bengal_cat",
+        "cat|ragdoll" to "https://en.wikipedia.org/wiki/Ragdoll",
+        "cat|scottish fold" to "https://en.wikipedia.org/wiki/Scottish_Fold",
+        "cat|sphynx" to "https://en.wikipedia.org/wiki/Sphynx_cat",
+        "fish|goldfish" to "https://en.wikipedia.org/wiki/Goldfish",
+        "fish|a fish called wanda" to "https://en.wikipedia.org/wiki/A_Fish_Called_Wanda",
+        "fish|clownfish" to "https://en.wikipedia.org/wiki/Finding_Nemo",
+        "shark|great white shark" to "https://en.wikipedia.org/wiki/Jaws_(film)",
+        "tasmanian devil|tasmanian devil" to "https://en.wikipedia.org/wiki/Tasmanian_devil",
+        "bird|cockatiel" to "https://en.wikipedia.org/wiki/Cockatiel",
+        "rabbit|rabbit" to "https://en.wikipedia.org/wiki/Rabbit",
+        "hamster|hamster" to "https://en.wikipedia.org/wiki/Hamster"
     )
 
     private val stockImages = mapOf(
-        "dalmatian" to "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80",
-        "pug" to "https://images.unsplash.com/photo-1505628346881-b72b27e84530?auto=format&fit=crop&w=800&q=80",
-        "maine coon" to "https://images.unsplash.com/photo-1618826411640-4b532771ab7d?auto=format&fit=crop&w=800&q=80",
-        "siamese" to "https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=800&q=80",
-        "a fish called wanda" to "https://images.unsplash.com/photo-1502720705749-3c9255857623?auto=format&fit=crop&w=800&q=80",
-        "great white shark" to "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
-        "clownfish" to "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
-        "tasmanian devil" to "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg",
-        "saint bernard" to "https://images.unsplash.com/photo-1619983851958-92c7ad3f49c7?auto=format&fit=crop&w=800&q=80",
-        "cockatiel" to "https://images.unsplash.com/photo-1601758124385-e9b4e5c0dd4b?auto=format&fit=crop&w=800&q=80",
-        "goldfish" to "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80",
-        "rabbit" to "https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?auto=format&fit=crop&w=800&q=80",
-        "hamster" to "https://images.unsplash.com/photo-1545243424-0ce743321e11?auto=format&fit=crop&w=800&q=80"
+        "dog|dalmatian" to "https://upload.wikimedia.org/wikipedia/commons/7/7f/2016-06_Dalmatiner%2C_P1030461.jpg",
+        "dog|pug" to "https://upload.wikimedia.org/wikipedia/commons/f/f0/Mops_oct09_cropped2.jpg",
+        "dog|border collie" to "https://upload.wikimedia.org/wikipedia/commons/9/9a/Border_Collie_liver_portrait.jpg",
+        "dog|labrador" to "https://upload.wikimedia.org/wikipedia/commons/6/6e/YellowLabradorLooking_new.jpg",
+        "dog|samoyed" to "https://upload.wikimedia.org/wikipedia/commons/b/b6/Samojed00.jpg",
+        "dog|belgian malinois" to "https://upload.wikimedia.org/wikipedia/commons/8/82/Belgian_Malinois_in_upright_position.jpg",
+        "dog|saint bernard" to "https://upload.wikimedia.org/wikipedia/commons/7/71/Stbernardinsnow.jpg",
+        "dog|corgi" to "https://upload.wikimedia.org/wikipedia/commons/7/7b/WelshCorgiCardiganChat.jpg",
+        "dog|australian shepherd" to "https://upload.wikimedia.org/wikipedia/commons/6/6e/Australian_Shepherd_pose.jpg",
+        "cat|maine coon" to "https://upload.wikimedia.org/wikipedia/commons/3/3a/Maine_Coon_female.jpg",
+        "cat|siamese" to "https://upload.wikimedia.org/wikipedia/commons/b/b1/Seal_point_siamese_cat_cut.jpg",
+        "cat|bengal" to "https://upload.wikimedia.org/wikipedia/commons/a/ae/Bengal_Cat_from_Gatil_Bengal_Floresta_-_Salvador-BA_Brazil_-_3.jpg",
+        "cat|ragdoll" to "https://upload.wikimedia.org/wikipedia/commons/1/11/Ragdoll_from_Gatil_Ragbelas.jpg",
+        "cat|scottish fold" to "https://upload.wikimedia.org/wikipedia/commons/5/58/Brown_Spotted_Tabby_Scottish_Fold.jpg",
+        "cat|sphynx" to "https://upload.wikimedia.org/wikipedia/commons/6/68/Sphinx2_July_2006.jpg",
+        "fish|goldfish" to "https://upload.wikimedia.org/wikipedia/commons/7/70/Goldfish3.jpg",
+        "fish|a fish called wanda" to "https://upload.wikimedia.org/wikipedia/en/9/94/A_Fish_Called_Wanda_poster.jpg",
+        "fish|clownfish" to "https://upload.wikimedia.org/wikipedia/commons/5/5e/Amphiprion_ocellaris_%28Clown_anemonefish%29.jpg",
+        "shark|great white shark" to "https://upload.wikimedia.org/wikipedia/commons/5/56/White_shark.jpg",
+        "tasmanian devil|tasmanian devil" to "https://upload.wikimedia.org/wikipedia/commons/5/59/Tasmanian_Devil_02.jpg",
+        "bird|cockatiel" to "https://upload.wikimedia.org/wikipedia/commons/8/8a/Cockatiel_%28Nymphicus_hollandicus%29.jpg",
+        "rabbit|rabbit" to "https://upload.wikimedia.org/wikipedia/commons/0/0c/Oryctolagus_cuniculus_Rcdo.jpg",
+        "hamster|hamster" to "https://upload.wikimedia.org/wikipedia/commons/9/9e/Hamster_zolty.jpg"
     )
 
     suspend fun ensureIndices() {
@@ -332,9 +351,13 @@ class PetStoreService(
     }
 
     private fun Pet.toSearchDocument(): PetSearchDocument {
+        val normalizedAnimal = animal.lowercase()
         val normalizedBreed = breed.lowercase()
-        val wiki = wikiLookup[normalizedBreed] ?: wikiLookup[animal.lowercase()]
-        val image = imageUrl ?: stockImages[normalizedBreed]
+        val animalBreedKey = "$normalizedAnimal|$normalizedBreed"
+        val wiki = wikiLookup[animalBreedKey] ?: wikiLookup["$normalizedAnimal|$normalizedAnimal"]
+        val image = imageUrl
+            ?: stockImages[animalBreedKey]
+            ?: stockImages["$normalizedAnimal|$normalizedAnimal"]
         val priceBucket = when {
             price < 500 -> "budget"
             price < 1500 -> "mid"
