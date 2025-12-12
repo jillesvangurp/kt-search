@@ -9,7 +9,7 @@
     "price": 1200.0,
     "description": "Energetic dalmatian who loves road trips and long runs.",
     "traits": ["athletic", "spotty", "loyal"],
-    "imageUrl": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://images.dog.ceo/breeds/dalmatian/cooper1.jpg"
   },
   {
     "id": "p-002",
@@ -20,7 +20,8 @@
     "age": 3,
     "price": 950.0,
     "description": "Charming pug with a goofy personality and endless curiosity.",
-    "traits": ["cuddly", "playful", "indoor"]
+    "traits": ["cuddly", "playful", "indoor"],
+    "imageUrl": "https://images.dog.ceo/breeds/pug/n02110958_13051.jpg"
   },
   {
     "id": "p-003",
@@ -31,7 +32,8 @@
     "age": 4,
     "price": 800.0,
     "description": "Agile herder that already knows basic agility routines.",
-    "traits": ["smart", "runner", "family"]
+    "traits": ["smart", "runner", "family"],
+    "imageUrl": "https://images.dog.ceo/breeds/collie-border/n02106166_1426.jpg"
   },
   {
     "id": "p-004",
@@ -42,7 +44,8 @@
     "age": 1,
     "price": 1400.0,
     "description": "Chocolate lab who adores swimming and fetch games.",
-    "traits": ["friendly", "water lover", "kid safe"]
+    "traits": ["friendly", "water lover", "kid safe"],
+    "imageUrl": "https://images.dog.ceo/breeds/labrador/n02099712_5263.jpg"
   },
   {
     "id": "p-005",
@@ -54,7 +57,7 @@
     "price": 1300.0,
     "description": "Giant fluffy friend with a surprisingly gentle temperament.",
     "traits": ["gentle", "giant", "purr machine"],
-    "imageUrl": "https://images.unsplash.com/photo-1618826411640-4b532771ab7d?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://cdn2.thecatapi.com/images/Wq_eTQalE.jpg"
   },
   {
     "id": "p-006",
@@ -66,7 +69,7 @@
     "price": 600.0,
     "description": "Vocal lap cat who insists on supervising every meeting.",
     "traits": ["chatty", "lap cat", "curious"],
-    "imageUrl": "https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://cdn2.thecatapi.com/images/O4yjcTJOh.jpg"
   },
   {
     "id": "p-007",
@@ -77,7 +80,8 @@
     "age": 3,
     "price": 1800.0,
     "description": "Athletic climber with a marbled coat and endless zoomies.",
-    "traits": ["marbled", "climber", "vocal"]
+    "traits": ["marbled", "climber", "vocal"],
+    "imageUrl": "https://cdn2.thecatapi.com/images/GAmy2bg8G.jpg"
   },
   {
     "id": "p-008",
@@ -88,7 +92,8 @@
     "age": 1,
     "price": 250.0,
     "description": "Hand-raised cockatiel that whistles the lo-fi beat playlist.",
-    "traits": ["whistler", "social", "bright crest"]
+    "traits": ["whistler", "social", "bright crest"],
+    "imageUrl": "https://loremflickr.com/cache/resized/65535_48637919213_9bba3f93b2_h_800_600_nofilter.jpg"
   },
   {
     "id": "p-009",
@@ -99,7 +104,8 @@
     "age": 2,
     "price": 230.0,
     "description": "Curious explorer who loves shoulder rides and millet treats.",
-    "traits": ["explorer", "trainable", "friendly"]
+    "traits": ["explorer", "trainable", "friendly"],
+    "imageUrl": "https://loremflickr.com/cache/resized/4585_26471931159_f0c3d614cf_c_800_600_nofilter.jpg"
   },
   {
     "id": "p-010",
@@ -110,7 +116,8 @@
     "age": 1,
     "price": 40.0,
     "description": "Long-tailed goldfish with shimmering scales and calm energy.",
-    "traits": ["hardy", "peaceful", "colorful"]
+    "traits": ["hardy", "peaceful", "colorful"],
+    "imageUrl": "https://loremflickr.com/cache/resized/65535_53860838435_470c991f3b_b_800_600_nofilter.jpg"
   },
   {
     "id": "p-011",
@@ -121,7 +128,8 @@
     "age": 2,
     "price": 55.0,
     "description": "Oranda goldfish with a bright red cap and mellow vibe.",
-    "traits": ["easy", "community", "ornamental"]
+    "traits": ["easy", "community", "ornamental"],
+    "imageUrl": "https://loremflickr.com/cache/resized/65535_54521817124_2c95cbff8d_b_800_600_nofilter.jpg"
   },
   {
     "id": "p-012",
@@ -132,7 +140,8 @@
     "age": 2,
     "price": 180.0,
     "description": "House-trained bun that enjoys tunnels, hay naps, and salads.",
-    "traits": ["bonding", "gentle", "indoor"]
+    "traits": ["bonding", "gentle", "indoor"],
+    "imageUrl": "https://loremflickr.com/cache/resized/65535_54369154128_1eb1cbf4c9_h_800_600_nofilter.jpg"
   },
   {
     "id": "p-013",
@@ -143,7 +152,8 @@
     "age": 1,
     "price": 160.0,
     "description": "High-hopping Dutch rabbit with a perfect white blaze.",
-    "traits": ["hopper", "quiet", "cute"]
+    "traits": ["hopper", "quiet", "cute"],
+    "imageUrl": "https://loremflickr.com/cache/resized/7351_10124655576_177063d2c2_h_800_600_nofilter.jpg"
   },
   {
     "id": "p-014",
@@ -154,7 +164,8 @@
     "age": 1,
     "price": 35.0,
     "description": "Nighttime runner who hoards snacks in the tiniest pockets.",
-    "traits": ["solo", "wheel lover", "tiny"]
+    "traits": ["solo", "wheel lover", "tiny"],
+    "imageUrl": "https://loremflickr.com/cache/resized/2096_2172355061_8c81dda1d7_800_600_nofilter.jpg"
   },
   {
     "id": "p-015",
@@ -165,7 +176,8 @@
     "age": 1,
     "price": 30.0,
     "description": "Fast burrower with a taste for sunflower seeds and cardboard tubes.",
-    "traits": ["burrower", "tiny", "adorable"]
+    "traits": ["burrower", "tiny", "adorable"],
+    "imageUrl": "https://loremflickr.com/cache/resized/175_420170630_266da4946b_c_800_600_nofilter.jpg"
   },
   {
     "id": "p-016",
@@ -176,7 +188,8 @@
     "age": 2,
     "price": 2200.0,
     "description": "Snow-white cloud that loves cold walks and smiling at strangers.",
-    "traits": ["fluffy", "talkative", "majestic"]
+    "traits": ["fluffy", "talkative", "majestic"],
+    "imageUrl": "https://images.dog.ceo/breeds/samoyed/n02111889_5075.jpg"
   },
   {
     "id": "p-017",
@@ -187,7 +200,8 @@
     "age": 3,
     "price": 1700.0,
     "description": "Working line Malinois that thrives on puzzles and parkour.",
-    "traits": ["working", "focused", "agile"]
+    "traits": ["working", "focused", "agile"],
+    "imageUrl": "https://images.dog.ceo/breeds/malinois/n02105162_2158.jpg"
   },
   {
     "id": "p-018",
@@ -198,7 +212,8 @@
     "age": 4,
     "price": 1100.0,
     "description": "Ragdoll that melts in your arms and follows you room to room.",
-    "traits": ["lap", "soft", "relaxed"]
+    "traits": ["lap", "soft", "relaxed"],
+    "imageUrl": "https://cdn2.thecatapi.com/images/qBqs3R_w4.jpg"
   },
   {
     "id": "p-019",
@@ -209,7 +224,8 @@
     "age": 1,
     "price": 900.0,
     "description": "Round-faced kitten with folded ears and an endless purr.",
-    "traits": ["kitten", "playful", "sweet"]
+    "traits": ["kitten", "playful", "sweet"],
+    "imageUrl": "https://cdn2.thecatapi.com/images/werXZVLvS.jpg"
   },
   {
     "id": "p-020",
@@ -220,7 +236,8 @@
     "age": 2,
     "price": 1500.0,
     "description": "Queen-approved herder with endless zoomies and short legs.",
-    "traits": ["stumpy", "friendly", "herder"]
+    "traits": ["stumpy", "friendly", "herder"],
+    "imageUrl": "https://images.dog.ceo/breeds/corgi-cardigan/n02113186_11559.jpg"
   },
   {
     "id": "p-021",
@@ -231,7 +248,8 @@
     "age": 2,
     "price": 120.0,
     "description": "Blue budgie that mimics notification sounds perfectly.",
-    "traits": ["mimic", "tiny parrot", "chatty"]
+    "traits": ["mimic", "tiny parrot", "chatty"],
+    "imageUrl": "https://loremflickr.com/cache/resized/65535_52099087492_a6fbb007f7_b_800_600_nofilter.jpg"
   },
   {
     "id": "p-022",
@@ -242,7 +260,8 @@
     "age": 3,
     "price": 2000.0,
     "description": "Cozy sphynx cat that loves sweaters and sunny spots.",
-    "traits": ["hairless", "cuddly", "bold"]
+    "traits": ["hairless", "cuddly", "bold"],
+    "imageUrl": "https://cdn2.thecatapi.com/images/Br8qCwbS9.jpg"
   },
   {
     "id": "p-023",
@@ -253,7 +272,8 @@
     "age": 2,
     "price": 1300.0,
     "description": "Merle-coated herder who excels at frisbee and scent games.",
-    "traits": ["herder", "smart", "active"]
+    "traits": ["herder", "smart", "active"],
+    "imageUrl": "https://images.dog.ceo/breeds/australian-shepherd/leroy.jpg"
   },
   {
     "id": "p-024",
@@ -264,6 +284,7 @@
     "age": 6,
     "price": 950.0,
     "description": "Experienced lap supervisor with tufted ears and a loud purr.",
-    "traits": ["regal", "fluffy", "lap queen"]
+    "traits": ["regal", "fluffy", "lap queen"],
+    "imageUrl": "https://cdn2.thecatapi.com/images/jyjEWK7xp.jpg"
   }
 ]
