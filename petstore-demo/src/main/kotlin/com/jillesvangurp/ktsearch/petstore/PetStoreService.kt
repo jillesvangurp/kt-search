@@ -160,7 +160,11 @@ class PetStoreService(
             field("age", "integer")
             field("price", "double")
             keyword(PetSearchDocument::priceBucket)
-            keyword(PetSearchDocument::traits) { index = true }
+            // Store traits as full text for matching, while keeping a keyword subfield available
+            // for potential aggregations or exact matching.
+            text(PetSearchDocument::traits) {
+                fields { keyword("keyword") }
+            }
             text(PetSearchDocument::name)
             text(PetSearchDocument::description)
             keyword("wikipediaUrl")
@@ -284,6 +288,7 @@ class PetStoreService(
                                     query = q
                                 ) {
                                     type = MultiMatchType.best_fields
+                                    lenient = true
                                     fuzziness = "AUTO"
                                     operator = MatchOperator.AND
                                     minimumShouldMatch = "70%"
@@ -293,6 +298,9 @@ class PetStoreService(
                                     query = q
                                 ) {
                                     type = MultiMatchType.phrase_prefix
+                                    // Some older deployments stored traits as keywords; lenient avoids
+                                    // type errors while allowing phrase prefix matches on the new text field.
+                                    lenient = true
                                     slop = 2
                                     maxExpansions = 30
                                 },
