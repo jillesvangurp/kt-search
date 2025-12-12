@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.1.3
@@ -18,17 +17,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
-
-  demo-app:
-    build:
-      context: ..
-      dockerfile: petstore-demo/Dockerfile
-    environment:
-      ELASTIC_HOST: elasticsearch
-      ELASTIC_PORT: 9200
-      SPRING_PROFILES_ACTIVE: default
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
