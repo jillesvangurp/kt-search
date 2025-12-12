@@ -41,6 +41,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
 }
 
+val dockerExecutablePath = listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker")
+    .firstOrNull { File(it).exists() }
+val dockerAvailable = dockerExecutablePath != null
+
 configure<ComposeExtension> {
     buildAdditionalArgs.set(listOf("--force-rm"))
     stopContainers.set(true)
@@ -53,10 +57,9 @@ configure<ComposeExtension> {
     useComposeFiles.set(listOf(composeFile))
     startedServices.set(listOf(searchEngine.replace("-", "")))
 
-    listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
-        ?.let { docker ->
-            dockerExecutable.set(docker)
-        }
+    dockerExecutablePath?.let { docker ->
+        dockerExecutable.set(docker)
+    }
 }
 
 val composeUp by tasks.named("composeUp")
@@ -65,15 +68,20 @@ fun isSearchUp() = kotlin.runCatching {
     URI("http://localhost:9999").toURL().openConnection().connect()
 }.isSuccess
 
-if (!listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").any { File(it).exists() }) {
+if (!dockerAvailable) {
     tasks.matching { it.name.startsWith("compose") }.configureEach {
         enabled = false
     }
 }
 
 tasks.withType<Test> {
-    if (!isSearchUp()) {
-        dependsOn(composeUp)
-    }
     useJUnitPlatform()
+    when {
+        isSearchUp() -> logger.lifecycle("Using already running search cluster on port 9999")
+        dockerAvailable -> dependsOn(composeUp)
+        else -> {
+            logger.lifecycle("Skipping tests because Elasticsearch is not running and Docker is unavailable.")
+            enabled = false
+        }
+    }
 }

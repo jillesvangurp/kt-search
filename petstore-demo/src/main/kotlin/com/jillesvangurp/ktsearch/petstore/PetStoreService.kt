@@ -128,7 +128,7 @@ class PetStoreService(
             field("price", "double")
             keyword(PetSearchDocument::priceBucket)
             keyword(PetSearchDocument::traits) { index = true }
-            text(PetSearchDocument::name) { boost = 2.0 }
+            text(PetSearchDocument::name)
             text(PetSearchDocument::description)
             keyword("wikipediaUrl")
             keyword("image_url")

@@ -18,21 +18,21 @@ typealias MatchedQueries = JsonElement
 @Suppress("unused")
 @Serializable
 data class SearchResponse(
-    val took: Long?, // sometimes missing; apparently
+    val took: Long? = null, // sometimes missing; apparently
     @SerialName("_shards")
-    val shards: Shards?,
+    val shards: Shards? = null,
     @SerialName("timed_out")
-    val timedOut: Boolean?,
-    val hits: Hits?,
+    val timedOut: Boolean? = null,
+    val hits: Hits? = null,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
-    val aggregations: Aggregations?,
+    val aggregations: Aggregations? = null,
     @SerialName("_scroll_id")
-    val scrollId: String?,
+    val scrollId: String? = null,
     @SerialName("pit_id")
-    val pitId: String?,
+    val pitId: String? = null,
     @SerialName("point_in_time_id")
-    val pointInTimeId: String?,
-    val suggest: Map<String, List<Suggest>>?
+    val pointInTimeId: String? = null,
+    val suggest: Map<String, List<Suggest>>? = null
 ) {
     @Serializable
     data class Suggest(
