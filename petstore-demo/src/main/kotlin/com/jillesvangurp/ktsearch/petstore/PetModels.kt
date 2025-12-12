@@ -71,3 +71,26 @@ data class PetSearchResponse(
     /** Aggregation buckets that back the facet dropdowns. */
     val facets: SearchFacets
 )
+
+@Serializable
+/**
+ * Generic chart bucket for the dashboard endpoints.
+ */
+data class ChartBucket(
+    val label: String,
+    val value: Double
+)
+
+@Serializable
+/**
+ * Aggregated overview used by the ECharts dashboard.
+ */
+data class DashboardResponse(
+    val animals: List<ChartBucket>,
+    val sexes: List<ChartBucket>,
+    val breeds: List<ChartBucket>,
+    val priceHistogram: List<ChartBucket>,
+    val ageHistogram: List<ChartBucket>,
+    val avgPriceByAnimal: List<ChartBucket>,
+    val traits: List<ChartBucket>
+)

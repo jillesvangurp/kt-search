@@ -10,6 +10,8 @@ import com.jillesvangurp.ktsearch.parsedBuckets
 import com.jillesvangurp.ktsearch.rangesResult
 import com.jillesvangurp.ktsearch.repository.IndexRepository
 import com.jillesvangurp.ktsearch.snakeCase
+import com.jillesvangurp.ktsearch.TermsAggregationResult
+import com.jillesvangurp.ktsearch.TermsBucket
 import com.jillesvangurp.ktsearch.termsResult
 import com.jillesvangurp.ktsearch.updateAliases
 import com.jillesvangurp.ktsearch.post
@@ -28,6 +30,8 @@ import java.util.UUID
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger { }
+private const val PRICE_INTERVAL = 500.0
+private const val AGE_INTERVAL = 2.0
 
 /**
  * Central service for managing indices, ETL logic, and API level search helpers.
@@ -286,6 +290,7 @@ class PetStoreService(
         priceRange: String?
     ): PetSearchResponse {
         // begin SEARCH_PETS
+        val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
         // The UI sends optional filters plus a free-form search string. We
         // translate that into a bool query with filters and a dis_max clause
         // that mixes best_fields and phrase_prefix matches to keep results
@@ -295,52 +300,7 @@ class PetStoreService(
         ) {
             from = 0
             resultSize = 100
-            val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
-            query = bool {
-                searchText?.takeIf { it.isNotBlank() }?.let { q ->
-                    must(
-                        disMax {
-                            tieBreaker = 0.2
-                            queries(
-                                multiMatch(
-                                    fields = listOf(
-                                        "name^5",
-                                        "breed^4",
-                                        "traits^3",
-                                        "animal^2",
-                                        "description"
-                                    ),
-                                    query = q
-                                ) {
-                                    type = MultiMatchType.best_fields
-                                    lenient = true
-                                    fuzziness = "AUTO"
-                                    operator = MatchOperator.AND
-                                    minimumShouldMatch = "70%"
-                                },
-                                multiMatch(
-                                    fields = listOf("name^5", "breed^4", "traits^2"),
-                                    query = q
-                                ) {
-                                    type = MultiMatchType.phrase_prefix
-                                    // Older clusters stored traits as keywords.
-                                    // Lenient avoids type errors on those docs.
-                                    lenient = true
-                                    slop = 2
-                                    maxExpansions = 30
-                                },
-                                matchPhrasePrefix(PetSearchDocument::description, q) {
-                                    slop = 3
-                                    maxExpansions = 50
-                                }
-                            )
-                        }
-                    )
-                }
-                if (filters.isNotEmpty()) {
-                    filter(filters)
-                }
-            }
+            applySearchQuery(searchText, filters)
             highlight {
                 preTags = "<mark>"
                 postTags = "</mark>"
@@ -419,31 +379,164 @@ class PetStoreService(
         )
     }
 
-    private fun QueryClauses.collectFilters(
+    /**
+     * Aggregation-only endpoint that feeds the ECharts dashboard.
+     */
+    suspend fun dashboard(
+        searchText: String?,
+        animal: String?,
+        breed: String?,
+        sex: String?,
+        ageRange: String?,
+        priceRange: String?
+    ): DashboardResponse {
+        val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
+        val response = rawSearch<PetSearchDocument>(
+            target = properties.indices.petSearchRead
+        ) {
+            from = 0
+            resultSize = 0
+            applySearchQuery(searchText, filters)
+            agg("animals", TermsAgg("animal") { aggSize = 10 })
+            agg("sexes", TermsAgg("sex") { aggSize = 5 })
+            agg("breeds", TermsAgg("breed") { aggSize = 12 })
+            agg("price_hist", HistogramAgg("price", interval = PRICE_INTERVAL) {
+                minDocCount = 0
+            })
+            agg("age_hist", HistogramAgg("age", interval = AGE_INTERVAL) {
+                minDocCount = 0
+            })
+            agg("avg_price_by_animal", TermsAgg("animal") { aggSize = 10 }) {
+                agg("avg_price", AvgAgg("price"))
+            }
+            agg("traits", TermsAgg("traits.keyword") { aggSize = 12 })
+        }
+        val aggs = response.aggregations
+        return DashboardResponse(
+            animals = aggs?.termsResult("animals")?.parsedBuckets
+                ?.map { it.parsed }?.toChartBuckets() ?: emptyList(),
+            sexes = aggs?.termsResult("sexes")?.parsedBuckets
+                ?.map { it.parsed }?.toChartBuckets() ?: emptyList(),
+            breeds = aggs?.termsResult("breeds")?.parsedBuckets
+                ?.map { it.parsed }?.toChartBuckets() ?: emptyList(),
+            priceHistogram = aggs.histogramBuckets("price_hist")
+                .toRangeBuckets(PRICE_INTERVAL, prefix = "$"),
+            ageHistogram = aggs.histogramBuckets("age_hist")
+                .toRangeBuckets(AGE_INTERVAL, suffix = " yrs"),
+            avgPriceByAnimal = aggs?.termsResult("avg_price_by_animal")
+                .avgPriceBuckets(),
+            traits = aggs?.termsResult("traits")?.parsedBuckets
+                ?.map { it.parsed }?.toChartBuckets() ?: emptyList()
+        )
+    }
+
+    private fun collectFilters(
         animal: String?,
         breed: String?,
         sex: String?,
         ageRange: String?,
         priceRange: String?
     ): List<ESQuery> {
-        val filters = mutableListOf<ESQuery>()
-        // Each query param maps directly to a term or range filter; the helper
-        // keeps the search DSL block compact.
-        animal?.takeIf { it.isNotBlank() }?.let { filters += term("animal", it) }
-        breed?.takeIf { it.isNotBlank() }?.let { filters += term("breed", it) }
-        sex?.takeIf { it.isNotBlank() }?.let { filters += term("sex", it) }
-        when (ageRange) {
-            "0-2" -> filters += range("age") { lte = 2.0 }
-            "2-8" -> filters += range("age") { gte = 2.0; lte = 8.0 }
-            "8+" -> filters += range("age") { gte = 8.0 }
+        val clauses = object : QueryClauses {}
+        return with(clauses) {
+            val filters = mutableListOf<ESQuery>()
+            // Each query param maps directly to a term or range filter; the
+            // helper keeps the search DSL block compact.
+            animal?.takeIf { it.isNotBlank() }?.let { filters += term("animal", it) }
+            breed?.takeIf { it.isNotBlank() }?.let { filters += term("breed", it) }
+            sex?.takeIf { it.isNotBlank() }?.let { filters += term("sex", it) }
+            when (ageRange) {
+                "0-2" -> filters += range("age") { lte = 2.0 }
+                "2-8" -> filters += range("age") { gte = 2.0; lte = 8.0 }
+                "8+" -> filters += range("age") { gte = 8.0 }
+            }
+            when (priceRange) {
+                "budget" -> filters += range("price") { lte = 500.0 }
+                "mid" -> filters += range("price") { gte = 500.0; lte = 1500.0 }
+                "premium" -> filters += range("price") { gte = 1500.0 }
+            }
+            filters
         }
-        when (priceRange) {
-            "budget" -> filters += range("price") { lte = 500.0 }
-            "mid" -> filters += range("price") { gte = 500.0; lte = 1500.0 }
-            "premium" -> filters += range("price") { gte = 1500.0 }
-        }
-        return filters
     }
+
+    private fun SearchDSL.applySearchQuery(
+        searchText: String?,
+        filters: List<ESQuery>
+    ) {
+        query = bool {
+            searchText?.takeIf { it.isNotBlank() }?.let { q ->
+                must(
+                    disMax {
+                        tieBreaker = 0.2
+                        queries(
+                            multiMatch(
+                                fields = listOf(
+                                    "name^5",
+                                    "breed^4",
+                                    "traits^3",
+                                    "animal^2",
+                                    "description"
+                                ),
+                                query = q
+                            ) {
+                                type = MultiMatchType.best_fields
+                                lenient = true
+                                fuzziness = "AUTO"
+                                operator = MatchOperator.AND
+                                minimumShouldMatch = "70%"
+                            },
+                            multiMatch(
+                                fields = listOf("name^5", "breed^4", "traits^2"),
+                                query = q
+                            ) {
+                                type = MultiMatchType.phrase_prefix
+                                // Older clusters stored traits as keywords.
+                                // Lenient avoids type errors on those docs.
+                                lenient = true
+                                slop = 2
+                                maxExpansions = 30
+                            },
+                            matchPhrasePrefix(PetSearchDocument::description, q) {
+                                slop = 3
+                                maxExpansions = 50
+                            }
+                        )
+                    }
+                )
+            }
+            if (filters.isNotEmpty()) {
+                filter(filters)
+            }
+        }
+    }
+
+    private fun List<TermsBucket>.toChartBuckets(): List<ChartBucket> =
+        map { bucket -> ChartBucket(label = bucket.key, value = bucket.docCount.toDouble()) }
+
+    private fun List<HistogramBucket>.toRangeBuckets(
+        interval: Double,
+        prefix: String = "",
+        suffix: String = ""
+    ): List<ChartBucket> =
+        sortedBy { it.key }.map { bucket ->
+            val start = bucket.key.toInt()
+            val end = (bucket.key + interval).toInt()
+            val label = "$prefix$start-$prefix$end$suffix"
+            ChartBucket(label = label, value = bucket.docCount.toDouble())
+        }
+
+    private fun Aggregations?.histogramBuckets(name: String): List<HistogramBucket> =
+        this?.get(name)?.let {
+            json.decodeFromJsonElement(HistogramAggResult.serializer(), it).buckets
+        } ?: emptyList()
+
+    private fun TermsAggregationResult?.avgPriceBuckets(): List<ChartBucket> =
+        this?.parsedBuckets?.map { bucket ->
+            val avg = bucket.aggregations["avg_price"]?.let {
+                json.decodeFromJsonElement(DoubleValueResult.serializer(), it).value
+            } ?: 0.0
+            ChartBucket(label = bucket.parsed.key, value = avg)
+        } ?: emptyList()
 
     // begin ENRICH_PET
     private fun Pet.toSearchDocument(): PetSearchDocument {
@@ -537,6 +630,21 @@ class PetStoreService(
     @OptIn(ExperimentalSerializationApi::class)
     private fun decodeSamplePets(sampleStream: InputStream): List<Pet> =
         json.decodeFromStream(ListSerializer(Pet.serializer()), sampleStream)
+
+    @Serializable
+    private data class DoubleValueResult(val value: Double = 0.0)
+
+    @Serializable
+    private data class HistogramBucket(
+        val key: Double,
+        @SerialName("doc_count")
+        val docCount: Long
+    )
+
+    @Serializable
+    private data class HistogramAggResult(
+        val buckets: List<HistogramBucket> = emptyList()
+    )
 
     /** Summary counters for a reset operation. */
     data class ResetStats(

@@ -39,6 +39,25 @@ class PetController(
             priceRange = priceRange
         )
 
+    @GetMapping("/dashboard", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun dashboard(
+        @RequestParam(required = false) q: String?,
+        @RequestParam(required = false) animal: String?,
+        @RequestParam(required = false) breed: String?,
+        @RequestParam(required = false) sex: String?,
+        @RequestParam(required = false) ageRange: String?,
+        @RequestParam(required = false) priceRange: String?
+    ): DashboardResponse =
+        // Aggregation-only endpoint that powers the ECharts dashboard.
+        petStoreService.dashboard(
+            searchText = q,
+            animal = animal,
+            breed = breed,
+            sex = sex,
+            ageRange = ageRange,
+            priceRange = priceRange
+        )
+
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun get(@PathVariable id: String): Pet? =
         // Simple passthrough to fetch the raw pet document.

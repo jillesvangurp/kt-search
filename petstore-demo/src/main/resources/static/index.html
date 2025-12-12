@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KT Search Pet Store Demo</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
 </head>
 <body>
 <header>
@@ -63,6 +64,53 @@
         </div>
     </aside>
     <section class="results">
+        <section class="dashboard">
+            <div class="dash-header">
+                <div>
+                    <p class="eyebrow">Live Dashboard</p>
+                    <h2>Store insights</h2>
+                    <p class="muted">Charts update with your search and filters.</p>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Animals</h4><span class="chip">Pie</span>
+                    </div>
+                    <div id="chart-animals" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Price spread</h4><span class="chip">Line</span>
+                    </div>
+                    <div id="chart-price" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Age buckets</h4><span class="chip">Histogram</span>
+                    </div>
+                    <div id="chart-age" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Breeds</h4><span class="chip">Bar</span>
+                    </div>
+                    <div id="chart-breeds" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Avg price by animal</h4><span class="chip">Columns</span>
+                    </div>
+                    <div id="chart-avg-price" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Traits</h4><span class="chip">Rose</span>
+                    </div>
+                    <div id="chart-traits" class="chart"></div>
+                </div>
+            </div>
+        </section>
         <div class="meta">
             <p id="hit-count">Loading pets…</p>
         </div>
