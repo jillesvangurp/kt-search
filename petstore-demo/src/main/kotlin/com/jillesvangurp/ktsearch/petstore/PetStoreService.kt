@@ -1,22 +1,25 @@
 package com.jillesvangurp.ktsearch.petstore
 
+import com.jillesvangurp.ktsearch.Aggregations
 import com.jillesvangurp.ktsearch.Refresh
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.bulk
 import com.jillesvangurp.ktsearch.deleteByQuery
 import com.jillesvangurp.ktsearch.getIndexesForAlias
-import com.jillesvangurp.ktsearch.parseHits
-import com.jillesvangurp.ktsearch.rangesResult
 import com.jillesvangurp.ktsearch.parsedBuckets
-import com.jillesvangurp.ktsearch.termsResult
-import com.jillesvangurp.ktsearch.total
+import com.jillesvangurp.ktsearch.rangesResult
 import com.jillesvangurp.ktsearch.repository.IndexRepository
-import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.snakeCase
+import com.jillesvangurp.ktsearch.termsResult
 import com.jillesvangurp.ktsearch.updateAliases
+import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -137,9 +140,12 @@ class PetStoreService(
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun loadSamplePetsIfEmpty(sampleStream: InputStream) {
-        val current = petSearchRepository.search { }
-        if (current.total > 0) {
-            logger.info { "Skipping import; pet search index already has ${current.total} docs" }
+        val current = rawSearch<PetSearchDocument>(
+            target = properties.indices.petSearchRead
+        ) { resultSize = 0 }
+        val total = current.hits.total.value
+        if (total > 0) {
+            logger.info { "Skipping import; pet search index already has $total docs" }
             return
         }
         val pets = json.decodeFromStream(ListSerializer(Pet.serializer()), sampleStream)
@@ -161,29 +167,34 @@ class PetStoreService(
     }
 
     suspend fun reindexSearch(): Long {
-        val hits = petsRepository.search {
+        val hits = rawSearch<Pet>(
+            target = properties.indices.petsRead
+        ) {
             from = 0
             resultSize = 500
         }
-        val pets = hits.parseHits(petsRepository.serializer).toList()
-        petSearchRepository.deleteByQuery { matchAll() }
+        val pets = hits.hits.hits.mapNotNull { it.source }
+        petSearchRepository.deleteByQuery {
+            // Explicit match_all is required by ES when using _delete_by_query
+            query = matchAll()
+        }
         indexPets(pets)
         return pets.size.toLong()
     }
 
     suspend fun createPet(pet: Pet): PetSearchDocument {
         val petWithId = if (pet.id.isBlank()) pet.copy(id = UUID.randomUUID().toString()) else pet
-        petsRepository.index(petWithId)
+        indexPetRaw(petWithId)
         val searchDoc = petWithId.toSearchDocument()
-        petSearchRepository.index(searchDoc)
+        indexPetSearchRaw(searchDoc)
         return searchDoc
     }
 
     suspend fun updatePet(id: String, pet: Pet): PetSearchDocument {
         val updated = pet.copy(id = id)
-        petsRepository.update(id) { updated }
+        indexPetRaw(updated)
         val searchDoc = updated.toSearchDocument()
-        petSearchRepository.index(searchDoc)
+        indexPetSearchRaw(searchDoc)
         return searchDoc
     }
 
@@ -202,7 +213,9 @@ class PetStoreService(
         ageRange: String?,
         priceRange: String?
     ): PetSearchResponse {
-        val response = petSearchRepository.search {
+        val response = rawSearch<PetSearchDocument>(
+            target = properties.indices.petSearchRead
+        ) {
             from = 0
             resultSize = 100
             val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
@@ -247,24 +260,22 @@ class PetStoreService(
             )
         }
 
-        val pets = response.hits?.hits?.mapNotNull { hit ->
-            hit.source?.let { petSearchRepository.serializer.deSerialize(it) }
-        } ?: emptyList()
+        val pets = response.hits.hits.mapNotNull { it.source }
 
         val facets = SearchFacets(
-            animals = response.aggregations.termsResult("animals").parsedBuckets
-                .associate { bucket -> bucket.parsed.key to bucket.parsed.docCount },
-            breeds = response.aggregations.termsResult("breeds").parsedBuckets
-                .associate { bucket -> bucket.parsed.key to bucket.parsed.docCount },
-            sexes = response.aggregations.termsResult("sexes").parsedBuckets
-                .associate { bucket -> bucket.parsed.key to bucket.parsed.docCount },
-            ageRanges = response.aggregations.rangesResult("ages").parsedBuckets
-                .associate { bucket -> bucket.parsed.key to bucket.parsed.docCount },
-            priceRanges = response.aggregations.rangesResult("prices").parsedBuckets
-                .associate { bucket -> bucket.parsed.key to bucket.parsed.docCount }
+            animals = response.aggregations?.termsResult("animals")?.parsedBuckets
+                ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap(),
+            breeds = response.aggregations?.termsResult("breeds")?.parsedBuckets
+                ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap(),
+            sexes = response.aggregations?.termsResult("sexes")?.parsedBuckets
+                ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap(),
+            ageRanges = response.aggregations?.rangesResult("ages")?.parsedBuckets
+                ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap(),
+            priceRanges = response.aggregations?.rangesResult("prices")?.parsedBuckets
+                ?.associate { bucket -> bucket.parsed.key to bucket.parsed.docCount } ?: emptyMap()
         )
 
-        return PetSearchResponse(total = response.total, pets = pets, facets = facets)
+        return PetSearchResponse(total = response.hits.total.value, pets = pets, facets = facets)
     }
 
     private fun QueryClauses.collectFilters(
@@ -314,5 +325,56 @@ class PetStoreService(
             wikipediaUrl = wiki,
             imageUrl = image
         )
+    }
+
+    private suspend fun indexPetRaw(pet: Pet) {
+        val payload = json.encodeToString(Pet.serializer(), pet)
+        searchClient.restClient.post {
+            path(properties.indices.petsWrite, "_doc", pet.id)
+            parameter("refresh", Refresh.WaitFor.snakeCase())
+            rawBody(payload)
+        }.getOrThrow()
+    }
+
+    private suspend fun indexPetSearchRaw(doc: PetSearchDocument) {
+        val payload = json.encodeToString(PetSearchDocument.serializer(), doc)
+        searchClient.restClient.post {
+            path(properties.indices.petSearchWrite, "_doc", doc.id)
+            parameter("refresh", Refresh.WaitFor.snakeCase())
+            rawBody(payload)
+        }.getOrThrow()
+    }
+
+    @Serializable
+    private data class RawTotal(val value: Long = 0)
+
+    @Serializable
+    private data class RawHits<T>(
+        val total: RawTotal = RawTotal(),
+        val hits: List<RawHit<T>> = emptyList()
+    )
+
+    @Serializable
+    private data class RawHit<T>(
+        @SerialName("_id") val id: String,
+        @SerialName("_source") val source: T? = null
+    )
+
+    @Serializable
+    private data class RawSearchResponse<T>(
+        val hits: RawHits<T> = RawHits(),
+        val aggregations: Aggregations? = null
+    )
+
+    private suspend inline fun <reified T> rawSearch(
+        target: String,
+        crossinline block: SearchDSL.() -> Unit = {}
+    ): RawSearchResponse<T> {
+        val dsl = SearchDSL().apply(block)
+        val response = searchClient.restClient.post {
+            path(target, "_search")
+            json(dsl)
+        }.getOrThrow()
+        return searchClient.json.decodeFromString(response.text)
     }
 }

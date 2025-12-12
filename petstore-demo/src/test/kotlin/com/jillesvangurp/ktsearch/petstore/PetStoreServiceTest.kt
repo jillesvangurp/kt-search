@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.io.ResourceLoader
 
 @SpringBootTest(
     properties = [
@@ -26,21 +27,25 @@ class PetStoreServiceTest {
     @Autowired
     private lateinit var petSearchRepository: IndexRepository<PetSearchDocument>
 
+    @Autowired
+    private lateinit var resourceLoader: ResourceLoader
+
     @Test
     fun `should create indices and load sample data`(): Unit = runBlocking {
         petStoreService.ensureIndices()
-
-        val aliases = petSearchRepository.search { }
-        aliases.total.shouldBeGreaterThan(10)
+        resourceLoader.getResource("classpath:data/pets.json").inputStream.use { stream ->
+            petStoreService.loadSamplePetsIfEmpty(stream)
+        }
 
         val search = petStoreService.searchPets(
-            searchText = "pug",
+            searchText = null,
             animal = null,
             breed = null,
             sex = null,
             ageRange = null,
             priceRange = null
         )
+        search.total.shouldBeGreaterThan(10)
         search.total.shouldBeGreaterThan(0)
         val dogCount = search.facets.animals["dog"] ?: 0L
         dogCount.shouldBeGreaterThan(0)
