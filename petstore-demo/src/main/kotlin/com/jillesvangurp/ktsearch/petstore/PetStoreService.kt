@@ -159,8 +159,26 @@ class PetStoreService(
             logger.info { "Skipping import; pet search index already has $total docs" }
             return
         }
-        val pets = json.decodeFromStream(ListSerializer(Pet.serializer()), sampleStream)
+        val pets = decodeSamplePets(sampleStream)
         indexPets(pets)
+    }
+
+    /** Wipes both indices and reloads the bundled sample data set. */
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun resetSampleData(sampleStream: InputStream): ResetStats {
+        ensureIndices()
+
+        val petsDeleted = petsRepository.deleteByQuery { query = matchAll() }.deleted
+        val searchDocsDeleted = petSearchRepository.deleteByQuery { query = matchAll() }.deleted
+
+        val pets = decodeSamplePets(sampleStream)
+        indexPets(pets)
+
+        return ResetStats(
+            deletedPets = petsDeleted,
+            deletedSearchDocs = searchDocsDeleted,
+            reloaded = pets.size.toLong()
+        )
     }
 
     suspend fun indexPets(pets: List<Pet>) {
@@ -388,4 +406,18 @@ class PetStoreService(
         }.getOrThrow()
         return searchClient.json.decodeFromString(response.text)
     }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun decodeSamplePets(sampleStream: InputStream): List<Pet> =
+        json.decodeFromStream(ListSerializer(Pet.serializer()), sampleStream)
+
+    /** Summary counters for a reset operation. */
+    data class ResetStats(
+        /** Documents removed from the pets store. */
+        val deletedPets: Long,
+        /** Documents removed from the pet-search store. */
+        val deletedSearchDocs: Long,
+        /** Sample pets ingested after the reset. */
+        val reloaded: Long
+    )
 }

@@ -1,5 +1,6 @@
 package com.jillesvangurp.ktsearch.petstore
 
+import org.springframework.core.io.ResourceLoader
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +14,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/pets")
-class PetController(private val petStoreService: PetStoreService) {
+class PetController(
+    private val petStoreService: PetStoreService,
+    private val properties: DemoProperties,
+    private val resourceLoader: ResourceLoader
+) {
 
     @GetMapping("/search", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun search(
@@ -49,4 +54,10 @@ class PetController(private val petStoreService: PetStoreService) {
 
     @PostMapping("/reindex")
     suspend fun reindex(): Map<String, Long> = mapOf("reindexed" to petStoreService.reindexSearch())
+
+    @PostMapping("/reset")
+    suspend fun reset(): PetStoreService.ResetStats {
+        val resource = resourceLoader.getResource(properties.sampleData)
+        return resource.inputStream.use { petStoreService.resetSampleData(it) }
+    }
 }

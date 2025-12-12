@@ -104,6 +104,19 @@ async function reindex() {
   fetchPets();
 }
 
+async function resetStore() {
+  const button = document.getElementById('reset');
+  button.disabled = true;
+  const original = button.textContent;
+  button.textContent = 'Resetting…';
+  await fetch('/api/pets/reset', { method: 'POST' });
+  button.textContent = original;
+  button.disabled = false;
+  state.query = '';
+  document.getElementById('query').value = '';
+  fetchPets();
+}
+
 function wireUi() {
   document.getElementById('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -117,6 +130,7 @@ function wireUi() {
   });
 
   document.getElementById('reload').addEventListener('click', () => reindex());
+  document.getElementById('reset').addEventListener('click', () => resetStore());
 }
 
 wireUi();
