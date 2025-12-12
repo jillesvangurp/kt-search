@@ -47,6 +47,11 @@ class TermsAggConfig : JsonDsl() {
     var minDocCount by property<Long>("min_doc_count")
     var shardSize by property<Long>("shard_size")
     var showTermDocCountError by property<Long>("show_term_doc_count_error")
+    var missing by property<Any?>()
+    var executionHint by property<String>("execution_hint")
+    var collectMode by property<String>("collect_mode")
+    var shardMinDocCount by property<Long>("shard_min_doc_count")
+    var valueType by property<String>("value_type")
 
     /** include values by regex or exact valye; use the includePartition function for partitions. */
     var include by property<List<String>>()
@@ -379,12 +384,29 @@ class DateHistogramAggConfig : JsonDsl() {
     var format by property<String>()
     var timeZone by property<String>("time_zone")
     var offset by property<String>()
-    var missing by property<String>()
+    var missing by property<Any?>()
     var keyed by property<Boolean>()
+    var order by property<JsonDsl>()
 
-    fun extendedBounds(min: String?=null, max: String?=null) {
-        if(!min.isNullOrBlank() || !max.isNullOrBlank() ) {
-            this["extended_bounds"] = withJsonDsl {
+    fun orderByKey(direction: SortOrder) {
+        order = withJsonDsl { this["_key"] = direction.name.lowercase() }
+    }
+
+    fun orderByCount(direction: SortOrder) {
+        order = withJsonDsl { this["_count"] = direction.name.lowercase() }
+    }
+
+    fun extendedBounds(min: String? = null, max: String? = null) {
+        bounds("extended_bounds", min, max)
+    }
+
+    fun hardBounds(min: String? = null, max: String? = null) {
+        bounds("hard_bounds", min, max)
+    }
+
+    private fun bounds(key: String, min: String?, max: String?) {
+        if (!min.isNullOrBlank() || !max.isNullOrBlank()) {
+            this[key] = withJsonDsl {
                 this["min"] = min
                 this["max"] = max
             }
