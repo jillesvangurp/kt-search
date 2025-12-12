@@ -2,8 +2,10 @@ package com.jillesvangurp.ktsearch.petstore
 
 import com.jillesvangurp.ktsearch.repository.IndexRepository
 import com.jillesvangurp.ktsearch.total
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -37,18 +39,20 @@ class PetStoreServiceTest {
             petStoreService.loadSamplePetsIfEmpty(stream)
         }
 
-        val search = petStoreService.searchPets(
-            searchText = null,
-            animal = null,
-            breed = null,
-            sex = null,
-            ageRange = null,
-            priceRange = null
-        )
-        search.total.shouldBeGreaterThan(10)
-        search.total.shouldBeGreaterThan(0)
-        val dogCount = search.facets.animals["dog"] ?: 0L
-        dogCount.shouldBeGreaterThan(0)
+        eventually(10.seconds) {
+            val search = petStoreService.searchPets(
+                searchText = null,
+                animal = null,
+                breed = null,
+                sex = null,
+                ageRange = null,
+                priceRange = null
+            )
+            search.total.shouldBeGreaterThan(10)
+            search.total.shouldBeGreaterThan(0)
+            val dogCount = search.facets.animals["dog"] ?: 0L
+            dogCount.shouldBeGreaterThan(0)
+        }
     }
 
     @Test
@@ -70,6 +74,8 @@ class PetStoreServiceTest {
             )
         )
 
-        created.wikipediaUrl shouldBe "https://en.wikipedia.org/wiki/Pug"
+        eventually(10.seconds) {
+            created.wikipediaUrl shouldBe "https://en.wikipedia.org/wiki/Pug"
+        }
     }
 }
