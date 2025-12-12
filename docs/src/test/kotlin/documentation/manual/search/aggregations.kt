@@ -2,28 +2,75 @@
 
 package documentation.manual.search
 
-import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.ktsearch.Aggregations
+import com.jillesvangurp.ktsearch.BucketAggregationResult
+import com.jillesvangurp.ktsearch.TermsAggregationResult
+import com.jillesvangurp.ktsearch.TermsBucket
+import com.jillesvangurp.ktsearch.bucketScriptResult
+import com.jillesvangurp.ktsearch.cardinalityResult
+import com.jillesvangurp.ktsearch.compositeResult
+import com.jillesvangurp.ktsearch.createIndex
+import com.jillesvangurp.ktsearch.dateHistogramResult
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.extendedStatsBucketResult
+import com.jillesvangurp.ktsearch.filterResult
+import com.jillesvangurp.ktsearch.filtersResult
+import com.jillesvangurp.ktsearch.geoCentroid
+import com.jillesvangurp.ktsearch.geoTileGridResult
+import com.jillesvangurp.ktsearch.getAggResult
+import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.maxResult
+import com.jillesvangurp.ktsearch.minResult
+import com.jillesvangurp.ktsearch.namedBuckets
+import com.jillesvangurp.ktsearch.parse
+import com.jillesvangurp.ktsearch.parsedBuckets
 import com.jillesvangurp.ktsearch.repository.repository
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.termsResult
+import com.jillesvangurp.ktsearch.topHitResult
+import com.jillesvangurp.searchdsls.querydsl.BucketScriptAgg
+import com.jillesvangurp.searchdsls.querydsl.BucketsPath
+import com.jillesvangurp.searchdsls.querydsl.CardinalityAgg
+import com.jillesvangurp.searchdsls.querydsl.CompositeAgg
+import com.jillesvangurp.searchdsls.querydsl.DateHistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
+import com.jillesvangurp.searchdsls.querydsl.FilterAgg
+import com.jillesvangurp.searchdsls.querydsl.FiltersAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoCentroidAgg
+import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
+import com.jillesvangurp.searchdsls.querydsl.MaxAgg
+import com.jillesvangurp.searchdsls.querydsl.MinAgg
+import com.jillesvangurp.searchdsls.querydsl.SortOrder
+import com.jillesvangurp.searchdsls.querydsl.TermsAgg
+import com.jillesvangurp.searchdsls.querydsl.TopHitsAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
+import com.jillesvangurp.searchdsls.querydsl.term
 import com.jillesvangurp.serializationext.DEFAULT_JSON
 import com.jillesvangurp.serializationext.DEFAULT_PRETTY_JSON
 import documentation.manual.ManualPages
-import documentation.manual.manualPages
+import documentation.manual.search.MyAggNames.BY_COLOR
+import documentation.manual.search.MyAggNames.BY_DATE
+import documentation.manual.search.MyAggNames.BY_TAG
+import documentation.manual.search.MyAggNames.MAX_TIME
+import documentation.manual.search.MyAggNames.MIN_TIME
+import documentation.manual.search.MyAggNames.SPAN_STATS
+import documentation.manual.search.MyAggNames.TAG_CARDINALITY
+import documentation.manual.search.MyAggNames.TIME_SPAN
+import documentation.manual.search.MyAggNames.TOP_RESULTS
 import documentation.printStdOut
 import documentation.sourceGitRepository
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.time.Duration.Companion.days
 
 // begin MyAggNamesDef
 enum class MyAggNames {
@@ -145,9 +192,9 @@ val aggregationsMd = sourceGitRepository.md {
                 // we don't care about the results here
                 resultSize = 0
 
-                agg(MyAggNames.BY_TAG, TermsAgg(MockDoc::tags)) {
+                agg(BY_TAG, TermsAgg(MockDoc::tags)) {
                     // aggregations can be nested
-                    agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
+                    agg(BY_COLOR, TermsAgg(MockDoc::color) {
                         minDocCount = 1
                         aggSize = 3
                     })
@@ -182,10 +229,10 @@ val aggregationsMd = sourceGitRepository.md {
                 // we don't care about the results here
                 resultSize = 0
 
-                agg(MyAggNames.BY_TAG, TermsAgg(MockDoc::tags)) {
+                agg(BY_TAG, TermsAgg(MockDoc::tags)) {
                     // this optinoal block is where we can specify additional
                     // sub aggregations
-                    agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
+                    agg(BY_COLOR, TermsAgg(MockDoc::color) {
                         minDocCount = 1
                         aggSize = 3
                     })
@@ -196,7 +243,7 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             // response.aggregations is a JsonObject?
             // termsResult(name) extracts a TermsAggregationResult from there
-            val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
+            val tags = response.aggregations.termsResult(BY_TAG)
 
             println("Number of buckets: " + tags.buckets.size)
             // since buckets can contain sub aggregations, those too are JsonObjects
@@ -207,7 +254,7 @@ val aggregationsMd = sourceGitRepository.md {
                 val tb = jsonObject.parse<TermsBucket>()
                 println("${tb.key}: ${tb.docCount}")
                 // and we can get to the named sub aggregations from jsonObject
-                val colors = jsonObject.termsResult(MyAggNames.BY_COLOR)
+                val colors = jsonObject.termsResult(BY_COLOR)
                 // you can also use parsedBuckets to the type safe TermsBucket
                 colors.buckets.forEach { colorBucketObject ->
                     val tb = colorBucketObject.parse<TermsBucket>()
@@ -220,13 +267,13 @@ val aggregationsMd = sourceGitRepository.md {
             With some more extension function magic we can make this a bit nicer.
         """.trimIndent()
         example {
-            val tags = response.aggregations.termsResult(MyAggNames.BY_TAG)
+            val tags = response.aggregations.termsResult(BY_TAG)
             // use parsedBucket to get a Bucket<TermsBucket>
             // this allows us to get to the TermsBucket and the aggregations
             tags.parsedBuckets.forEach { tagBucket ->
                 println("${tagBucket.parsed.key}: ${tagBucket.parsed.docCount}")
                 tagBucket.aggregations
-                    .termsResult(MyAggNames.BY_COLOR)
+                    .termsResult(BY_COLOR)
                     .parsedBuckets.forEach { colorBucket ->
                         println("  ${colorBucket.parsed.key}: ${colorBucket.parsed.docCount}")
                     }
@@ -464,13 +511,14 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             val response = repo.search {
                 resultSize = 0 // we only care about the aggs
-                agg(MyAggNames.BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
+                agg(BY_DATE, DateHistogramAgg(MockDoc::timestamp) {
                     calendarInterval = "1d"
                     orderByKey(SortOrder.ASC)
                     // Missing timestamps will be treated as if they were at the epoch.
                     missing = 0
-                    // hard_bounds keeps buckets within the min/max range while extended_bounds ensures the
-                    // boundary buckets are always included even when empty.
+                    // hard_bounds keeps buckets within the min/max range
+                    // while extended_bounds ensures the boundary buckets
+                    // are always included even when empty.
                     extendedBounds(
                         min = "now-30d",
                         max = "now+7d",
@@ -480,52 +528,53 @@ val aggregationsMd = sourceGitRepository.md {
                         max = "now+7d",
                     )
                 })
-                agg(MyAggNames.BY_COLOR, TermsAgg(MockDoc::color) {
-                    // Explicit ordering and missing bucket handling mirror Elasticsearch's terms options.
+                agg(BY_COLOR, TermsAgg(MockDoc::color) {
+                    // Explicit ordering and missing bucket
+                    // handling mirror Elasticsearch's terms options.
                     missing = "(missing)"
                     orderByField("_count", SortOrder.DESC)
                     executionHint = "map"
                     collectMode = "breadth_first"
                 }) {
-                    agg(MyAggNames.MIN_TIME, MinAgg(MockDoc::timestamp))
-                    agg(MyAggNames.MAX_TIME, MaxAgg(MockDoc::timestamp))
+                    agg(name = MIN_TIME, aggQuery = MinAgg(MockDoc::timestamp))
+                    agg(MAX_TIME, MaxAgg(MockDoc::timestamp))
                     // this is a cool way to calculate duration
-                    agg(MyAggNames.TIME_SPAN, BucketScriptAgg {
+                    agg(TIME_SPAN, BucketScriptAgg {
                         script = "params.max - params.min"
                         bucketsPath = BucketsPath {
-                            this["min"] = MyAggNames.MIN_TIME
-                            this["max"] = MyAggNames.MAX_TIME
+                            this["min"] = MIN_TIME
+                            this["max"] = MAX_TIME
                         }
                     })
                     // throw in a top_hits aggregation as well
-                    agg(MyAggNames.TOP_RESULTS, TopHitsAgg())
+                    agg(TOP_RESULTS, TopHitsAgg())
 
                 }
                 // we can do some stats on the calculated duration!
-                agg(MyAggNames.SPAN_STATS, ExtendedStatsBucketAgg {
-                    bucketsPath = "${MyAggNames.BY_COLOR}>${MyAggNames.TIME_SPAN}"
+                agg(SPAN_STATS, ExtendedStatsBucketAgg {
+                    bucketsPath = "${BY_COLOR}>${TIME_SPAN}"
                 })
-                agg(MyAggNames.TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
+                agg(TAG_CARDINALITY, CardinalityAgg(MockDoc::tags))
             }
 
             // date_histogram works very similar to the terms aggregation
-            response.aggregations.dateHistogramResult(MyAggNames.BY_DATE)
+            response.aggregations.dateHistogramResult(BY_DATE)
                 .parsedBuckets.map { it.parsed }.forEach { db ->
                     println("${db.keyAsString}: ${db.docCount}")
                 }
 
             // We have extension functions for picking apart
             // each of the aggregation results.
-            response.aggregations.termsResult(MyAggNames.BY_COLOR).buckets.forEach { b ->
+            response.aggregations.termsResult(BY_COLOR).buckets.forEach { b ->
                 val tb = b.parse<TermsBucket>()
                 println("${tb.key}: ${tb.docCount}")
-                println("  Min: ${b.minResult(MyAggNames.MIN_TIME).value}")
-                println("  Max: ${b.maxResult(MyAggNames.MAX_TIME).value}")
-                println("  Time span: ${b.bucketScriptResult(MyAggNames.TIME_SPAN).value}")
+                println("  Min: ${b.minResult(MIN_TIME).value}")
+                println("  Max: ${b.maxResult(MAX_TIME).value}")
+                println("  Time span: ${b.bucketScriptResult(TIME_SPAN).value}")
                 // top_hits returns the hits part of a normal search response
                 println(
                     "  Top: [${
-                        b.topHitResult(MyAggNames.TOP_RESULTS)
+                        b.topHitResult(TOP_RESULTS)
                             .hits.hits.map {
                                 it.source?.parse<MockDoc>()?.name
                             }.joinToString(",")
@@ -536,12 +585,12 @@ val aggregationsMd = sourceGitRepository.md {
             println(
                 "Avg time span: ${
                     response.aggregations
-                        .extendedStatsBucketResult(MyAggNames.SPAN_STATS).avg
+                        .extendedStatsBucketResult(SPAN_STATS).avg
                 }"
             )
             println(
                 "Tag cardinality: ${
-                    response.aggregations.cardinalityResult(MyAggNames.TAG_CARDINALITY).value
+                    response.aggregations.cardinalityResult(TAG_CARDINALITY).value
                 }"
             )
 
@@ -555,7 +604,10 @@ val aggregationsMd = sourceGitRepository.md {
         example {
             repo.search {
                 resultSize = 0
-                agg("filtered", FilterAgg(this@search.term(MockDoc::tags, "foo"))) {
+                agg(
+                    name = "filtered",
+                    aggQuery = FilterAgg(this@search.term(MockDoc::tags, "foo"))
+                ) {
                     agg("colors", TermsAgg(MockDoc::color))
                 }
             }.let {
@@ -571,14 +623,21 @@ val aggregationsMd = sourceGitRepository.md {
         }.printStdOut(this)
 
         +"""
-            You can also use the filters aggregation to use multiple named filter aggregations at the same time
+            You can also use the filters aggregation to use multiple
+             named filter aggregations at the same time
         """.trimIndent()
         example {
             repo.search {
                 resultSize = 0
                 agg("filtered", FiltersAgg {
-                    namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
-                    namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                    namedFilter(
+                        name = "foo",
+                        query = this@search.term(MockDoc::tags, "foo")
+                    )
+                    namedFilter(
+                        name = "bat",
+                        query = this@search.term(MockDoc::tags, "bar")
+                    )
                 }) {
                     agg("colors", TermsAgg(MockDoc::color))
                 }
@@ -611,11 +670,11 @@ val aggregationsMd = sourceGitRepository.md {
                 // we don't care about the results here
                 resultSize = 0
 
-                agg(MyAggNames.BY_TAG, TermsAgg("tags"))
+                agg(BY_TAG, TermsAgg("tags"))
             }
             // the termsResult function we used before is short for this:
             val tags = response.aggregations
-                .getAggResult<TermsAggregationResult>(MyAggNames.BY_TAG)
+                .getAggResult<TermsAggregationResult>(BY_TAG)
         }
 
         +"""
