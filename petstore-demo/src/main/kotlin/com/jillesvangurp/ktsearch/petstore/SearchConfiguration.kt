@@ -4,6 +4,7 @@ import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.repository.IndexRepository
 import com.jillesvangurp.ktsearch.repository.KotlinxSerializationModelSerializationStrategy
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.serialization.json.Json
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,13 +13,7 @@ import org.springframework.context.annotation.Configuration
 class SearchConfiguration {
 
     @Bean
-    fun demoJson(): Json = Json {
-        // Keep the JSON configuration predictable so the DSL produces stable
-        // payloads and responses in tests and the README examples.
-        prettyPrint = false
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+    fun demoJson(): Json = DEFAULT_JSON
 
     @Bean
     fun searchClient(properties: DemoProperties, json: Json): SearchClient {
