@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 class SearchConfiguration {
 
     @Bean
-    fun demoJson(): Json = DEFAULT_JSON
+    fun demoJson(): Json = DEFAULT_JSON // uses sane defaults
 
     @Bean
     fun searchClient(properties: DemoProperties, json: Json): SearchClient {
