@@ -6,7 +6,7 @@ Kt-search has you covered for all of those. The official Elastic or Opensearch c
 
 Kt-search solves a few important problems here:
 
- - It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use coroutines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
+- It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use coroutines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
 - It's a multiplatform library. We use it on the jvm and in the browser (javascript). Targets for native, IOS, WASM, etc. are also there. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
 - It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
 - It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
@@ -18,6 +18,7 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
 ## Learn more
 
 - **[Manual](https://jillesvangurp.github.io/kt-search/manual)** - this is generated from the `docs` module. Just like this README.md file. The manual covers most of the extensive feature set of this library. Please provide feedback via the issue tracker if something is not clear to you. Or create a pull request to improve the manual.
+- [Pet-Store-Demo](petstore-demo/README.md) - Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
