@@ -5,12 +5,23 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
 import com.jillesvangurp.serializationext.DEFAULT_JSON
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlin.time.Instant
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 
 typealias Aggregations = JsonObject
 typealias MatchedQueries = JsonElement
@@ -18,21 +29,21 @@ typealias MatchedQueries = JsonElement
 @Suppress("unused")
 @Serializable
 data class SearchResponse(
-    val took: Long?=null, // sometimes missing; apparently
+    val took: Long?, // sometimes missing; apparently
     @SerialName("_shards")
-    val shards: Shards?=null,
+    val shards: Shards?,
     @SerialName("timed_out")
-    val timedOut: Boolean?=null,
+    val timedOut: Boolean?,
     val hits: Hits?,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
-    val aggregations: Aggregations?=null,
+    val aggregations: Aggregations?,
     @SerialName("_scroll_id")
-    val scrollId: String?=null,
+    val scrollId: String?,
     @SerialName("pit_id")
-    val pitId: String?=null,
+    val pitId: String?,
     @SerialName("point_in_time_id")
-    val pointInTimeId: String?=null,
-    val suggest: Map<String, List<Suggest>>?=null,
+    val pointInTimeId: String?,
+    val suggest: Map<String, List<Suggest>>?,
 ) {
     @Serializable
     data class Suggest(
@@ -59,22 +70,22 @@ data class SearchResponse(
         @SerialName("_id")
         override val id: String,
         @SerialName("_score")
-        val score: Double?=null,
+        val score: Double?,
         @SerialName("_source")
-        override val source: JsonObject?=null,
-        val fields: JsonObject?=null,
-        val sort: JsonArray?=null,
+        override val source: JsonObject?,
+        val fields: JsonObject?,
+        val sort: JsonArray?,
         @SerialName("inner_hits")
-        val innerHits: Map<String, HitsContainer>?=null,
-        val highlight: JsonObject?=null,
+        val innerHits: Map<String, HitsContainer>?,
+        val highlight: JsonObject?,
         @SerialName("_seq_no")
-        override val seqNo: Long? = null,
+        override val seqNo: Long?,
         @SerialName("_primary_term")
-        override val primaryTerm: Long? = null,
+        override val primaryTerm: Long?,
         @SerialName("_version")
-        override val version: Long?=null,
+        override val version: Long?,
         @SerialName("_explanation")
-        val explanation: JsonObject?=null,
+        val explanation: JsonObject?,
         /**
          * If named queries are used, the response includes a matched_queries property for each hit.
          * There are two forms of the matched_queries response:
@@ -85,7 +96,7 @@ data class SearchResponse(
          *   - MatchedQueries::scoreByName()
          */
         @SerialName("matched_queries")
-        val matchedQueries: MatchedQueries?=null,
+        val matchedQueries: MatchedQueries?,
     ) : SourceInformation
 
     @Serializable
