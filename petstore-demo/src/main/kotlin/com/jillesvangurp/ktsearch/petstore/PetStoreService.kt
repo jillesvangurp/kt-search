@@ -37,6 +37,7 @@ import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
 import com.jillesvangurp.searchdsls.querydsl.multiMatch
 import com.jillesvangurp.searchdsls.querydsl.range
 import com.jillesvangurp.searchdsls.querydsl.term
+import com.jillesvangurp.serializationext.DEFAULT_JSON
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.InputStream
 import java.time.Instant
@@ -65,7 +66,7 @@ class PetStoreService(
     private val searchClient: SearchClient,
     private val petsRepository: IndexRepository<Pet>,
     private val petSearchRepository: IndexRepository<PetSearchDocument>,
-    private val json: Json
+    private val json: Json = DEFAULT_JSON
 ) {
     private val wikiLookup = mapOf(
         "dog|dalmatian" to "https://en.wikipedia.org/wiki/Dalmatian_dog",

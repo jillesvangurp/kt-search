@@ -13,10 +13,7 @@ import org.springframework.context.annotation.Configuration
 class SearchConfiguration {
 
     @Bean
-    fun demoJson(): Json = DEFAULT_JSON // uses sane defaults
-
-    @Bean
-    fun searchClient(properties: DemoProperties, json: Json): SearchClient {
+    fun searchClient(properties: DemoProperties): SearchClient {
         // begin SEARCH_CLIENT_BEAN
         // The Ktor-based REST client powers both the DSL-based repository
         // helpers and the lower-level raw requests we occasionally need.
@@ -32,28 +29,27 @@ class SearchConfiguration {
                 // see all the interactions with Elasticsearch
                 logging = true
             ),
-            json = json
         )
         // end SEARCH_CLIENT_BEAN
     }
 
     @Bean
-    fun petsRepository(properties: DemoProperties, client: SearchClient, json: Json): IndexRepository<Pet> =
+    fun petsRepository(properties: DemoProperties, client: SearchClient): IndexRepository<Pet> =
         // Lightweight helper that wraps the DSL with strongly typed serialization.
         IndexRepository(
             indexNameOrWriteAlias = properties.indices.petsWrite,
             indexReadAlias = properties.indices.petsRead,
             client = client,
-            serializer = KotlinxSerializationModelSerializationStrategy(Pet.serializer(), json)
+            serializer = KotlinxSerializationModelSerializationStrategy(Pet.serializer())
         )
 
     @Bean
-    fun petSearchRepository(properties: DemoProperties, client: SearchClient, json: Json): IndexRepository<PetSearchDocument> =
+    fun petSearchRepository(properties: DemoProperties, client: SearchClient): IndexRepository<PetSearchDocument> =
         // Same repository pattern for the search projection index.
         IndexRepository(
             indexNameOrWriteAlias = properties.indices.petSearchWrite,
             indexReadAlias = properties.indices.petSearchRead,
             client = client,
-            serializer = KotlinxSerializationModelSerializationStrategy(PetSearchDocument.serializer(), json)
+            serializer = KotlinxSerializationModelSerializationStrategy(PetSearchDocument.serializer())
         )
 }
