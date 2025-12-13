@@ -28,6 +28,8 @@ class SearchConfiguration {
                 https = elastic.https,
                 user = elastic.username,
                 password = elastic.password,
+                // Very verbose but allows you to
+                // see all the interactions with Elasticsearch
                 logging = true
             ),
             json = json
