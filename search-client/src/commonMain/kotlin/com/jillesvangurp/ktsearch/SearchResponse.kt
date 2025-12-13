@@ -5,12 +5,23 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.ModelSerializationStrategy
 import com.jillesvangurp.serializationext.DEFAULT_JSON
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlin.time.Instant
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 
 typealias Aggregations = JsonObject
 typealias MatchedQueries = JsonElement
@@ -32,7 +43,7 @@ data class SearchResponse(
     val pitId: String?,
     @SerialName("point_in_time_id")
     val pointInTimeId: String?,
-    val suggest: Map<String, List<Suggest>>?
+    val suggest: Map<String, List<Suggest>>?,
 ) {
     @Serializable
     data class Suggest(
@@ -56,8 +67,6 @@ data class SearchResponse(
     data class Hit(
         @SerialName("_index")
         val index: String,
-        @SerialName("_type")
-        val type: String?,
         @SerialName("_id")
         override val id: String,
         @SerialName("_score")
@@ -70,9 +79,9 @@ data class SearchResponse(
         val innerHits: Map<String, HitsContainer>?,
         val highlight: JsonObject?,
         @SerialName("_seq_no")
-        override val seqNo: Long? = null,
+        override val seqNo: Long?,
         @SerialName("_primary_term")
-        override val primaryTerm: Long? = null,
+        override val primaryTerm: Long?,
         @SerialName("_version")
         override val version: Long?,
         @SerialName("_explanation")

@@ -1,0 +1,482 @@
+[
+  {
+    "id": "p-001",
+    "name": "Pixel",
+    "animal": "dog",
+    "breed": "Dalmatian",
+    "sex": "f",
+    "age": 2,
+    "price": 1200.0,
+    "description": "Energetic dalmatian who loves road trips and long runs.",
+    "traits": [
+      "athletic",
+      "spotty",
+      "loyal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/Dalmatian_dog.jpg"
+  },
+  {
+    "id": "p-002",
+    "name": "Marble",
+    "animal": "dog",
+    "breed": "Pug",
+    "sex": "m",
+    "age": 3,
+    "price": 950.0,
+    "description": "Charming pug with a goofy personality and endless curiosity.",
+    "traits": [
+      "cuddly",
+      "playful",
+      "indoor"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/55/Pug_dog_breed.jpg"
+  },
+  {
+    "id": "p-003",
+    "name": "Nova",
+    "animal": "dog",
+    "breed": "Border Collie",
+    "sex": "f",
+    "age": 4,
+    "price": 800.0,
+    "description": "Agile herder that already knows basic agility routines.",
+    "traits": [
+      "smart",
+      "runner",
+      "family"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Border_collie_dog_in_the_snow.jpg"
+  },
+  {
+    "id": "p-004",
+    "name": "Biscuit",
+    "animal": "dog",
+    "breed": "Labrador",
+    "sex": "m",
+    "age": 1,
+    "price": 1400.0,
+    "description": "Chocolate lab who adores swimming and fetch games.",
+    "traits": [
+      "friendly",
+      "water lover",
+      "kid safe"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Yellow_Labrador_Retriever_2.jpg"
+  },
+  {
+    "id": "p-005",
+    "name": "Saffron",
+    "animal": "cat",
+    "breed": "Maine Coon",
+    "sex": "m",
+    "age": 2,
+    "price": 1300.0,
+    "description": "Giant fluffy friend with a surprisingly gentle temperament.",
+    "traits": [
+      "gentle",
+      "giant",
+      "purr machine"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/Maine_Coon.JPG"
+  },
+  {
+    "id": "p-006",
+    "name": "Luna",
+    "animal": "cat",
+    "breed": "Siamese",
+    "sex": "f",
+    "age": 5,
+    "price": 600.0,
+    "description": "Vocal lap cat who insists on supervising every meeting.",
+    "traits": [
+      "chatty",
+      "lap cat",
+      "curious"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/97/Siamese_cat.jpg"
+  },
+  {
+    "id": "p-007",
+    "name": "Atlas",
+    "animal": "cat",
+    "breed": "Bengal",
+    "sex": "m",
+    "age": 3,
+    "price": 1800.0,
+    "description": "Athletic climber with a marbled coat and endless zoomies.",
+    "traits": [
+      "marbled",
+      "climber",
+      "vocal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Spottedbengalcat.jpg"
+  },
+  {
+    "id": "p-010",
+    "name": "Glimmer",
+    "animal": "fish",
+    "breed": "Goldfish",
+    "sex": "f",
+    "age": 1,
+    "price": 40.0,
+    "description": "Long-tailed goldfish with shimmering scales and calm energy.",
+    "traits": [
+      "hardy",
+      "peaceful",
+      "colorful"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Aquarium_fish_gold_fish.jpg"
+  },
+  {
+    "id": "p-011",
+    "name": "Orbit",
+    "animal": "fish",
+    "breed": "Goldfish",
+    "sex": "m",
+    "age": 2,
+    "price": 55.0,
+    "description": "Oranda goldfish with a bright red cap and mellow vibe.",
+    "traits": [
+      "easy",
+      "community",
+      "ornamental"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Aquarium_fish_gold_fish.jpg"
+  },
+  {
+    "id": "p-016",
+    "name": "Aspen",
+    "animal": "dog",
+    "breed": "Samoyed",
+    "sex": "f",
+    "age": 2,
+    "price": 2200.0,
+    "description": "Snow-white cloud that loves cold walks and smiling at strangers.",
+    "traits": [
+      "fluffy",
+      "talkative",
+      "majestic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Samoyed_on_snow.jpg"
+  },
+  {
+    "id": "p-017",
+    "name": "Rook",
+    "animal": "dog",
+    "breed": "Belgian Malinois",
+    "sex": "m",
+    "age": 3,
+    "price": 1700.0,
+    "description": "Working line Malinois that thrives on puzzles and parkour.",
+    "traits": [
+      "working",
+      "focused",
+      "agile"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Belgian_Malinois_01.jpg"
+  },
+  {
+    "id": "p-018",
+    "name": "Hazel",
+    "animal": "cat",
+    "breed": "Ragdoll",
+    "sex": "f",
+    "age": 4,
+    "price": 1100.0,
+    "description": "Ragdoll that melts in your arms and follows you room to room.",
+    "traits": [
+      "lap",
+      "soft",
+      "relaxed"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Ragdoll_%28cat_breed%29.jpg"
+  },
+  {
+    "id": "p-019",
+    "name": "Storm",
+    "animal": "cat",
+    "breed": "Scottish Fold",
+    "sex": "m",
+    "age": 1,
+    "price": 900.0,
+    "description": "Round-faced kitten with folded ears and an endless purr.",
+    "traits": [
+      "kitten",
+      "playful",
+      "sweet"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3d/Scottish-Fold-Cat.jpg"
+  },
+  {
+    "id": "p-020",
+    "name": "Harper",
+    "animal": "dog",
+    "breed": "Corgi",
+    "sex": "f",
+    "age": 2,
+    "price": 1500.0,
+    "description": "Queen-approved herder with endless zoomies and short legs.",
+    "traits": [
+      "stumpy",
+      "friendly",
+      "herder"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Cardigan_Welsh_Corgi_600.jpg"
+  },
+  {
+    "id": "p-022",
+    "name": "Ivy",
+    "animal": "cat",
+    "breed": "Sphynx",
+    "sex": "f",
+    "age": 3,
+    "price": 2000.0,
+    "description": "Cozy sphynx cat that loves sweaters and sunny spots.",
+    "traits": [
+      "hairless",
+      "cuddly",
+      "bold"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Canadian_Sphynx_Red.jpg"
+  },
+  {
+    "id": "p-023",
+    "name": "Rusty",
+    "animal": "dog",
+    "breed": "Australian Shepherd",
+    "sex": "m",
+    "age": 2,
+    "price": 1300.0,
+    "description": "Merle-coated herder who excels at frisbee and scent games.",
+    "traits": [
+      "herder",
+      "smart",
+      "active"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Australian_shepherds_running_in_the_snow.jpg"
+  },
+  {
+    "id": "p-024",
+    "name": "Cleo",
+    "animal": "cat",
+    "breed": "Maine Coon",
+    "sex": "f",
+    "age": 6,
+    "price": 950.0,
+    "description": "Experienced lap supervisor with tufted ears and a loud purr.",
+    "traits": [
+      "regal",
+      "fluffy",
+      "lap queen"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/Maine_Coon.JPG"
+  },
+  {
+    "id": "p-025",
+    "name": "Wanda",
+    "animal": "fish",
+    "breed": "A Fish Called Wanda",
+    "sex": "f",
+    "age": 3,
+    "price": 500.0,
+    "description": "Clever showstopper with dramatic fins and a taste for trouble.",
+    "traits": [
+      "schemer",
+      "flashy",
+      "aquatic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Clownfish_%28Amphiprion_ocellaris%29.jpg"
+  },
+  {
+    "id": "p-026",
+    "name": "Chomper",
+    "animal": "shark",
+    "breed": "Great White Shark",
+    "sex": "m",
+    "age": 6,
+    "price": 9000.0,
+    "description": "Fierce guardian with cinematic presence and a toothy grin.",
+    "traits": [
+      "apex",
+      "patrols",
+      "fearless"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Great_White_Shark_%2816407755484%29.jpg"
+  },
+  {
+    "id": "p-027",
+    "name": "Taz",
+    "animal": "tasmanian devil",
+    "breed": "Tasmanian Devil",
+    "sex": "m",
+    "age": 4,
+    "price": 4200.0,
+    "description": "Whirling marsupial with a growly soundtrack and boundless energy.",
+    "traits": [
+      "whirlwind",
+      "gritty",
+      "night owl"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Tasmanian_Devil_%2836313458360%29.jpg"
+  },
+  {
+    "id": "p-028",
+    "name": "Nemo",
+    "animal": "fish",
+    "breed": "Clownfish",
+    "sex": "m",
+    "age": 1,
+    "price": 150.0,
+    "description": "Bright reef clownfish with a sense of adventure and sidekick vibes.",
+    "traits": [
+      "curious",
+      "color-block",
+      "reef ready"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Clownfish_%28Amphiprion_ocellaris%29.jpg"
+  },
+  {
+    "id": "p-029",
+    "name": "Ripley",
+    "animal": "dog",
+    "breed": "Dalmatian",
+    "sex": "f",
+    "age": 5,
+    "price": 1250.0,
+    "description": "Spots for days and a heroic streak that loves adventures.",
+    "traits": [
+      "brave",
+      "speeder",
+      "loyal"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/Dalmatian_dog.jpg"
+  },
+  {
+    "id": "p-030",
+    "name": "Zelda",
+    "animal": "cat",
+    "breed": "Siamese",
+    "sex": "f",
+    "age": 2,
+    "price": 700.0,
+    "description": "Dungeon-crawling sidekick who solves puzzles for treats.",
+    "traits": [
+      "vocal",
+      "curious",
+      "acrobat"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/97/Siamese_cat.jpg"
+  },
+  {
+    "id": "p-031",
+    "name": "Bubbles",
+    "animal": "fish",
+    "breed": "Goldfish",
+    "sex": "m",
+    "age": 1,
+    "price": 35.0,
+    "description": "Tiny philosopher that contemplates castles and snails.",
+    "traits": [
+      "zen",
+      "glitter",
+      "chill"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Aquarium_fish_gold_fish.jpg"
+  },
+  {
+    "id": "p-032",
+    "name": "Jacques",
+    "animal": "fish",
+    "breed": "Clownfish",
+    "sex": "m",
+    "age": 2,
+    "price": 160.0,
+    "description": "Meticulous reef cleaner with Parisian flair and one-liners.",
+    "traits": [
+      "tidy",
+      "color-block",
+      "social"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Clownfish_%28Amphiprion_ocellaris%29.jpg"
+  },
+  {
+    "id": "p-033",
+    "name": "Bruce",
+    "animal": "shark",
+    "breed": "Great White Shark",
+    "sex": "m",
+    "age": 7,
+    "price": 11000.0,
+    "description": "Reformed biter who leads a support group for fellow predators.",
+    "traits": [
+      "majestic",
+      "mentor",
+      "cinematic"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Great_White_Shark_%2816407755484%29.jpg"
+  },
+  {
+    "id": "p-034",
+    "name": "Lil Whirl",
+    "animal": "tasmanian devil",
+    "breed": "Tasmanian Devil",
+    "sex": "f",
+    "age": 3,
+    "price": 4300.0,
+    "description": "Spins up chaos, then naps like nothing happened.",
+    "traits": [
+      "whirl",
+      "raspy",
+      "surprising"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Tasmanian_Devil_%2836313458360%29.jpg"
+  },
+  {
+    "id": "p-035",
+    "name": "Chewie",
+    "animal": "dog",
+    "breed": "Samoyed",
+    "sex": "m",
+    "age": 3,
+    "price": 2300.0,
+    "description": "Walking snowdrift with a Wookiee growl and gentle heart.",
+    "traits": [
+      "fluffy",
+      "talkative",
+      "guardian"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Samoyed_on_snow.jpg"
+  },
+  {
+    "id": "p-036",
+    "name": "Morpheus",
+    "animal": "cat",
+    "breed": "Maine Coon",
+    "sex": "m",
+    "age": 4,
+    "price": 1250.0,
+    "description": "Matrix-jumping lap giant who believes in plenty of naps.",
+    "traits": [
+      "philosopher",
+      "giant",
+      "purr machine"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/Maine_Coon.JPG"
+  },
+  {
+    "id": "p-037",
+    "name": "Cujo",
+    "animal": "dog",
+    "breed": "Saint Bernard",
+    "sex": "m",
+    "age": 4,
+    "price": 1600.0,
+    "description": "Literary legend turned gentle giant\u2014brings drama without the horror.",
+    "traits": [
+      "loyal",
+      "massive",
+      "watchful"
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/A_young_St._Bernard_dog_-_Shanu_playing_on_snow.jpg"
+  }
+]

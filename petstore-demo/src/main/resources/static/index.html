@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Search Pet Store Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+</head>
+<body>
+<header>
+    <div class="hero">
+        <div>
+            <p class="eyebrow">KT Search Demo</p>
+            <h1>Adopt your next favorite coworker</h1>
+            <p class="lede">Search over a curated list of pets and learn how KT Search and Spring Boot work together.</p>
+        </div>
+        <div class="cta">
+            <button id="reload" title="Reload demo data">Reindex search</button>
+            <button id="reset" title="Wipe and reload sample data" class="ghost">Reset demo</button>
+        </div>
+    </div>
+    <form id="search-form" class="search-bar">
+        <input type="text" id="query" name="query" placeholder="Search by name, breed, or vibe" aria-label="Search">
+        <button type="submit">Search</button>
+    </form>
+</header>
+<main>
+    <aside class="filters">
+        <div class="filter-group">
+            <h3>Animal</h3>
+            <div id="animal-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Breed</h3>
+            <div id="breed-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Sex</h3>
+            <div id="sex-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Age</h3>
+            <div id="age-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Price</h3>
+            <div id="price-filters" class="pill-group"></div>
+        </div>
+        <div class="filter-group">
+            <h3>Add a pet</h3>
+            <form id="pet-form" class="pet-form">
+                <input name="name" placeholder="Name" required>
+                <input name="animal" placeholder="Animal" required>
+                <input name="breed" placeholder="Breed" required>
+                <input name="sex" placeholder="Sex" required>
+                <input name="age" type="number" placeholder="Age" required>
+                <input name="price" type="number" step="0.01" placeholder="Price" required>
+                <textarea name="description" placeholder="Description" required></textarea>
+                <input name="traits" placeholder="Traits (comma separated)">
+                <input name="imageUrl" placeholder="Image URL">
+                <button type="submit">Create</button>
+            </form>
+        </div>
+    </aside>
+    <section class="results">
+        <section class="dashboard">
+            <div class="dash-header">
+                <div>
+                    <p class="eyebrow">Live Dashboard</p>
+                    <h2>Store insights</h2>
+                    <p class="muted">Charts update with your search and filters.</p>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Animals</h4><span class="chip">Pie</span>
+                    </div>
+                    <div id="chart-animals" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Price spread</h4><span class="chip">Line</span>
+                    </div>
+                    <div id="chart-price" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Age buckets</h4><span class="chip">Histogram</span>
+                    </div>
+                    <div id="chart-age" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Breeds</h4><span class="chip">Bar</span>
+                    </div>
+                    <div id="chart-breeds" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Avg price by animal</h4><span class="chip">Columns</span>
+                    </div>
+                    <div id="chart-avg-price" class="chart"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Traits</h4><span class="chip">Rose</span>
+                    </div>
+                    <div id="chart-traits" class="chart"></div>
+                </div>
+            </div>
+        </section>
+        <div class="meta">
+            <p id="hit-count">Loading pets…</p>
+        </div>
+        <div id="cards" class="cards"></div>
+    </section>
+</main>
+<footer class="footer">
+    <div class="footer-links">
+        <a href="https://github.com/jillesvangurp/kt-search" target="_blank" rel="noreferrer">KT Search on GitHub</a>
+        <span>•</span>
+        <a href="https://www.jillesvangurp.com" target="_blank" rel="noreferrer">jillesvangurp.com</a>
+    </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
