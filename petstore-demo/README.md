@@ -1,10 +1,24 @@
 # KT Search Pet Store Demo
 
 This module is a small Spring Boot app that demonstrates
-how to combine the kt-search DSL with a search-friendly
-read model. The README itself is generated with
-[kotlin4example](https://github.com/jillesvangurp/kt-search/tree/main/docs) so the snippets
-below always match the source.
+how to combine the kt-search DSLs with a search-friendly
+read model. 
+
+It has a few features to make it a bit more interesting than
+your average hello world application:
+
+- Rich search across several fields and search as you type.
+- Uses aggregations by price, tag, etc. And of course you can **filter** on these.
+- Dashboard with **apache echarts widgets powered* by aggregations as well.
+- Use kt-search to define mappings
+- Organize your indices with read and write aliases
+- You don't index what you store but should use an **ETL pipeline**. This demo has one that **enriches 
+the document with images and wikipedia articles**.
+- There are separate indices for searching and storing. 
+Normally you would use a database perhaps. But whenever 
+something changes it needs to be also added to the search index.
+Additionally, your code might require you to reindex, so that 
+is built into this demo. Finally, 
 
 ## Run it locally
 
@@ -39,9 +53,10 @@ return SearchClient(
     https = elastic.https,
     user = elastic.username,
     password = elastic.password,
+    // Very verbose but allows you to
+    // see all the interactions with Elasticsearch
     logging = true
   ),
-  json = json
 )
 ```
 
@@ -167,6 +182,7 @@ dis_max clause to blend typo-friendly prefix matching with
 best_fields relevance. Aggregations back the UI facets.
 
 ```kotlin
+val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
 // The UI sends optional filters plus a free-form search string. We
 // translate that into a bool query with filters and a dis_max clause
 // that mixes best_fields and phrase_prefix matches to keep results
@@ -176,52 +192,7 @@ val response = rawSearch<PetSearchDocument>(
 ) {
   from = 0
   resultSize = 100
-  val filters = collectFilters(animal, breed, sex, ageRange, priceRange)
-  query = bool {
-    searchText?.takeIf { it.isNotBlank() }?.let { q ->
-      must(
-        disMax {
-          tieBreaker = 0.2
-          queries(
-            multiMatch(
-              fields = listOf(
-                "name^5",
-                "breed^4",
-                "traits^3",
-                "animal^2",
-                "description"
-              ),
-              query = q
-            ) {
-              type = MultiMatchType.best_fields
-              lenient = true
-              fuzziness = "AUTO"
-              operator = MatchOperator.AND
-              minimumShouldMatch = "70%"
-            },
-            multiMatch(
-              fields = listOf("name^5", "breed^4", "traits^2"),
-              query = q
-            ) {
-              type = MultiMatchType.phrase_prefix
-              // Older clusters stored traits as keywords.
-              // Lenient avoids type errors on those docs.
-              lenient = true
-              slop = 2
-              maxExpansions = 30
-            },
-            matchPhrasePrefix(PetSearchDocument::description, q) {
-              slop = 3
-              maxExpansions = 50
-            }
-          )
-        }
-      )
-    }
-    if (filters.isNotEmpty()) {
-      filter(filters)
-    }
-  }
+  applySearchQuery(searchText, filters)
   highlight {
     preTags = "<mark>"
     postTags = "</mark>"
@@ -288,17 +259,4 @@ scope.launch {
   }
 }
 ```
-
-## Regenerate this README
-
-The file you are reading is generated; update the code or
-the snippets above and then run:
-
-```bash
-./gradlew :petstore-demo:test \\
-  --tests com.jillesvangurp.ktsearch.petstore.PetstoreReadmeTest
-```
-
-The test writes `petstore-demo/README.md` with the fresh
-snippets.
 
