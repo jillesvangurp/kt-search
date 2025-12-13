@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchEngineVersion(
-    val distribution: String?,
+    val distribution: String?=null,
     val number: String,
     @SerialName("build_flavor")
     val buildFlavor: String?,

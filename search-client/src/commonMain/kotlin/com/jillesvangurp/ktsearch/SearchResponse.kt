@@ -18,21 +18,21 @@ typealias MatchedQueries = JsonElement
 @Suppress("unused")
 @Serializable
 data class SearchResponse(
-    val took: Long?, // sometimes missing; apparently
+    val took: Long?=null, // sometimes missing; apparently
     @SerialName("_shards")
-    val shards: Shards?,
+    val shards: Shards?=null,
     @SerialName("timed_out")
-    val timedOut: Boolean?,
+    val timedOut: Boolean?=null,
     val hits: Hits?,
     // parse JsonObject to more specialized classes as needed/available and fall back to picking the JsonObject apart
-    val aggregations: Aggregations?,
+    val aggregations: Aggregations?=null,
     @SerialName("_scroll_id")
-    val scrollId: String?,
+    val scrollId: String?=null,
     @SerialName("pit_id")
-    val pitId: String?,
+    val pitId: String?=null,
     @SerialName("point_in_time_id")
-    val pointInTimeId: String?,
-    val suggest: Map<String, List<Suggest>>?
+    val pointInTimeId: String?=null,
+    val suggest: Map<String, List<Suggest>>?=null,
 ) {
     @Serializable
     data class Suggest(
@@ -56,27 +56,25 @@ data class SearchResponse(
     data class Hit(
         @SerialName("_index")
         val index: String,
-        @SerialName("_type")
-        val type: String?,
         @SerialName("_id")
         override val id: String,
         @SerialName("_score")
-        val score: Double?,
+        val score: Double?=null,
         @SerialName("_source")
-        override val source: JsonObject?,
-        val fields: JsonObject?,
-        val sort: JsonArray?,
+        override val source: JsonObject?=null,
+        val fields: JsonObject?=null,
+        val sort: JsonArray?=null,
         @SerialName("inner_hits")
-        val innerHits: Map<String, HitsContainer>?,
-        val highlight: JsonObject?,
+        val innerHits: Map<String, HitsContainer>?=null,
+        val highlight: JsonObject?=null,
         @SerialName("_seq_no")
         override val seqNo: Long? = null,
         @SerialName("_primary_term")
         override val primaryTerm: Long? = null,
         @SerialName("_version")
-        override val version: Long?,
+        override val version: Long?=null,
         @SerialName("_explanation")
-        val explanation: JsonObject?,
+        val explanation: JsonObject?=null,
         /**
          * If named queries are used, the response includes a matched_queries property for each hit.
          * There are two forms of the matched_queries response:
@@ -87,7 +85,7 @@ data class SearchResponse(
          *   - MatchedQueries::scoreByName()
          */
         @SerialName("matched_queries")
-        val matchedQueries: MatchedQueries?,
+        val matchedQueries: MatchedQueries?=null,
     ) : SourceInformation
 
     @Serializable

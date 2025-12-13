@@ -11,6 +11,7 @@ import com.jillesvangurp.ktsearch.repository.IndexRepository
 import com.jillesvangurp.ktsearch.snakeCase
 import com.jillesvangurp.ktsearch.TermsAggregationResult
 import com.jillesvangurp.ktsearch.TermsBucket
+import com.jillesvangurp.ktsearch.deleteIndex
 import com.jillesvangurp.ktsearch.termsResult
 import com.jillesvangurp.ktsearch.updateAliases
 import com.jillesvangurp.ktsearch.post
@@ -20,7 +21,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -207,17 +207,20 @@ class PetStoreService(
     /** Wipes both indices and reloads the bundled sample data set. */
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun resetSampleData(sampleStream: InputStream): ResetStats {
+        // delete the old indices
+        searchClient.getIndexesForAlias(properties.indices.petsWrite).forEach {
+            searchClient.deleteIndex(it)
+        }
+        searchClient.getIndexesForAlias(properties.indices.petSearchWrite).forEach {
+            searchClient.deleteIndex(it)
+        }
+        // recreate he indices
         ensureIndices()
-
-        val petsDeleted = petsRepository.deleteByQuery { query = matchAll() }.deleted
-        val searchDocsDeleted = petSearchRepository.deleteByQuery { query = matchAll() }.deleted
 
         val pets = decodeSamplePets(sampleStream)
         indexPets(pets)
 
         return ResetStats(
-            deletedPets = petsDeleted,
-            deletedSearchDocs = searchDocsDeleted,
             reloaded = pets.size.toLong()
         )
     }
@@ -226,17 +229,21 @@ class PetStoreService(
         if (pets.isEmpty()) return
         // Bulk the raw documents first; the search projection is derived from
         // the stored docs so it can safely be rebuilt later.
-        petsRepository.bulk {
+        petsRepository.bulk(refresh = Refresh.WaitFor) {
             pets.forEach { pet ->
                 index(petsRepository.serializer.serialize(pet), id = pet.id)
             }
         }
-        petSearchRepository.bulk(callBack = null, refresh = Refresh.WaitFor) {
-            pets.map { it.toSearchDocument() }.forEach { doc ->
-                index(petSearchRepository.serializer.serialize(doc), id = doc.id)
-            }
-        }
+
+//        petSearchRepository.bulk(callBack = null, refresh = Refresh.WaitFor) {
+//            pets.map { it.toSearchDocument() }.forEach { doc ->
+//                index(petSearchRepository.serializer.serialize(doc), id = doc.id)
+//            }
+//        }
+        reindexSearch()
     }
+
+
 
     /**
      * Roll the search projection to a fresh index using aliases so we never
@@ -266,7 +273,7 @@ class PetStoreService(
         searchClient.updateAliases {
             addAliasForIndex(targetIndex, properties.indices.petSearchRead)
             oldIndex?.takeIf { it != targetIndex }?.let {
-                removeAliasForIndex(it, properties.indices.petSearchRead, deleteIndex = true)
+                removeIndex { index = oldIndex }
             }
         }
 
@@ -707,10 +714,6 @@ class PetStoreService(
 
     /** Summary counters for a reset operation. */
     data class ResetStats(
-        /** Documents removed from the pets store. */
-        val deletedPets: Long,
-        /** Documents removed from the pet-search store. */
-        val deletedSearchDocs: Long,
         /** Sample pets ingested after the reset. */
         val reloaded: Long
     )
