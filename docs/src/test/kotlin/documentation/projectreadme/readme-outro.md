@@ -64,6 +64,7 @@ This repository contains several kotlin modules that each may be used independen
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
 | `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
 | `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
+| `petstore-demo` | Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications. |
 | `kt-search-lib-alerts` | Experimental alerting core library built on top of kt-search. Not production ready yet.                                                         |
 | `kt-search-alerts-demo` | JVM demo application that wires the alerting library into a runnable sample for local experimentation.                                            |
 
