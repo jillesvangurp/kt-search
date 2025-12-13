@@ -1,7 +1,6 @@
 package com.jillesvangurp.ktsearch.petstore
 
 import com.jillesvangurp.ktsearch.repository.IndexRepository
-import com.jillesvangurp.ktsearch.total
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -57,7 +56,7 @@ class PetStoreServiceTest {
 
     @Test
     fun `should reindex search index`(): Unit = runBlocking {
-        val before = petStoreService.reindexSearch()
+        val before = petStoreService.rebuildSearchIndex()
         before.shouldBeGreaterThan(0)
 
         val created = petStoreService.createPet(

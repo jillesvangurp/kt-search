@@ -3,32 +3,53 @@ package com.jillesvangurp.ktsearch.petstore
 import com.jillesvangurp.ktsearch.Aggregations
 import com.jillesvangurp.ktsearch.Refresh
 import com.jillesvangurp.ktsearch.SearchClient
-import com.jillesvangurp.ktsearch.bulk
-import com.jillesvangurp.ktsearch.getIndexesForAlias
-import com.jillesvangurp.ktsearch.parsedBuckets
-import com.jillesvangurp.ktsearch.rangesResult
-import com.jillesvangurp.ktsearch.repository.IndexRepository
-import com.jillesvangurp.ktsearch.snakeCase
 import com.jillesvangurp.ktsearch.TermsAggregationResult
 import com.jillesvangurp.ktsearch.TermsBucket
 import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.getIndexesForAlias
+import com.jillesvangurp.ktsearch.index
+import com.jillesvangurp.ktsearch.parseHit
+import com.jillesvangurp.ktsearch.parsedBuckets
+import com.jillesvangurp.ktsearch.post
+import com.jillesvangurp.ktsearch.rangesResult
+import com.jillesvangurp.ktsearch.repository.IndexRepository
+import com.jillesvangurp.ktsearch.snakeCase
 import com.jillesvangurp.ktsearch.termsResult
 import com.jillesvangurp.ktsearch.updateAliases
-import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
-import com.jillesvangurp.searchdsls.querydsl.*
+import com.jillesvangurp.searchdsls.querydsl.AggRange
+import com.jillesvangurp.searchdsls.querydsl.AvgAgg
+import com.jillesvangurp.searchdsls.querydsl.ESQuery
+import com.jillesvangurp.searchdsls.querydsl.HistogramAgg
+import com.jillesvangurp.searchdsls.querydsl.MatchOperator
+import com.jillesvangurp.searchdsls.querydsl.MultiMatchType
+import com.jillesvangurp.searchdsls.querydsl.Order
+import com.jillesvangurp.searchdsls.querydsl.QueryClauses
+import com.jillesvangurp.searchdsls.querydsl.RangesAgg
+import com.jillesvangurp.searchdsls.querydsl.SearchDSL
+import com.jillesvangurp.searchdsls.querydsl.TermsAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
+import com.jillesvangurp.searchdsls.querydsl.bool
+import com.jillesvangurp.searchdsls.querydsl.disMax
+import com.jillesvangurp.searchdsls.querydsl.highlight
+import com.jillesvangurp.searchdsls.querydsl.matchAll
+import com.jillesvangurp.searchdsls.querydsl.matchPhrasePrefix
+import com.jillesvangurp.searchdsls.querydsl.multiMatch
+import com.jillesvangurp.searchdsls.querydsl.range
+import com.jillesvangurp.searchdsls.querydsl.term
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.io.InputStream
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.UUID
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import java.io.InputStream
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.UUID
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger { }
@@ -214,7 +235,7 @@ class PetStoreService(
         searchClient.getIndexesForAlias(properties.indices.petSearchWrite).forEach {
             searchClient.deleteIndex(it)
         }
-        // recreate he indices
+        // recreate the indices
         ensureIndices()
 
         val pets = decodeSamplePets(sampleStream)
@@ -235,22 +256,15 @@ class PetStoreService(
             }
         }
 
-//        petSearchRepository.bulk(callBack = null, refresh = Refresh.WaitFor) {
-//            pets.map { it.toSearchDocument() }.forEach { doc ->
-//                index(petSearchRepository.serializer.serialize(doc), id = doc.id)
-//            }
-//        }
-        reindexSearch()
+        rebuildSearchIndex()
     }
-
-
 
     /**
      * Roll the search projection to a fresh index using aliases so we never
      * need a destructive delete-by-query.
      */
-    suspend fun reindexSearch(): Long {
-        ensureIndices()
+    suspend fun rebuildSearchIndex() {
+//        ensureIndices()
         val oldIndex = searchClient
             .getIndexesForAlias(properties.indices.petSearchRead)
             .firstOrNull()
@@ -266,8 +280,27 @@ class PetStoreService(
             }
         }
 
-        val pets = loadAllPets()
-        bulkIndexSearchDocs(pets.map { it.toSearchDocument() })
+        petsETLPipeline(targetIndex, oldIndex)
+    }
+
+    /**
+     * Extract, Transform, and Load (ETL) pipeline for pets
+     */
+    private suspend fun petsETLPipeline(targetIndex: String, oldIndex: String?) {
+        // EXTRACT the content of the petsRepository as a flow
+        val (_, flow) = petsRepository.searchAfter {
+            query = matchAll()
+        }
+        // bulk operations are the most efficient way to index large amounts of documents
+        petSearchRepository.bulk {
+            flow.map { hit ->
+                // TRANSFORM Pet to PetSearchDocument
+                hit.parseHit(Pet.serializer()).toSearchDocument()
+            }.collect { searchDocument ->
+                // LOAD the PetSearchDocument into the search index
+                index(searchDocument, id = searchDocument.id)
+            }
+        }
 
         // Atomically flip the read alias and drop the obsolete index.
         searchClient.updateAliases {
@@ -276,8 +309,6 @@ class PetStoreService(
                 removeIndex { index = oldIndex }
             }
         }
-
-        return pets.size.toLong()
     }
 
     suspend fun createPet(pet: Pet): PetSearchDocument {
@@ -614,32 +645,6 @@ class PetStoreService(
             parameter("refresh", Refresh.WaitFor.snakeCase())
             rawBody(payload)
         }.getOrThrow()
-    }
-
-    private suspend fun bulkIndexSearchDocs(documents: List<PetSearchDocument>) {
-        if (documents.isEmpty()) return
-        petSearchRepository.bulk(callBack = null, refresh = Refresh.WaitFor) {
-            documents.forEach { doc ->
-                index(petSearchRepository.serializer.serialize(doc), id = doc.id)
-            }
-        }
-    }
-
-    private suspend fun loadAllPets(batchSize: Int = 500): List<Pet> {
-        val results = mutableListOf<Pet>()
-        var from = 0
-        while (true) {
-            val page = rawSearch<Pet>(properties.indices.petsRead) {
-                this.from = from
-                resultSize = batchSize
-                query = matchAll()
-            }
-            val hits = page.hits.hits.mapNotNull { it.source }
-            results += hits
-            if (hits.size < batchSize) break
-            from += batchSize
-        }
-        return results
     }
 
     private fun nextVersionedIndexName(baseIndexName: String): String {

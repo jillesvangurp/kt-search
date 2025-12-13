@@ -80,9 +80,11 @@ class PetController(
     }
 
     @PostMapping("/reindex")
-    suspend fun reindex(): Map<String, Long> =
+    suspend fun reindex(): String {
         // Handy during demos: rebuild the search projection from the raw store.
-        mapOf("reindexed" to petStoreService.reindexSearch())
+        petStoreService.rebuildSearchIndex()
+        return "ok"
+    }
 
     @PostMapping("/reset")
     suspend fun reset(): PetStoreService.ResetStats {
