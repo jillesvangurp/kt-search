@@ -23,10 +23,25 @@ class PetstoreReadmeTest {
                 # KT Search Pet Store Demo
                 
                 This module is a small Spring Boot app that demonstrates
-                how to combine the kt-search DSL with a search-friendly
-                read model. The README itself is generated with
-                [kotlin4example]($repoUrl/tree/main/docs) so the snippets
-                below always match the source.
+                how to combine the kt-search DSLs with a search-friendly
+                read model. 
+                
+                It has a few features to make it a bit more interesting than
+                your average hello world application:
+                
+                - Rich search across several fields and search as you type.
+                - Uses aggregations by price, tag, etc. And of course you can **filter** on these.
+                - Dashboard with **apache echarts widgets powered* by aggregations as well.
+                - Use kt-search to define mappings
+                - Organize your indices with read and write aliases
+                - You don't index what you store but should use an **ETL pipeline**. This demo has one that **enriches 
+                the document with images and wikipedia articles**.
+                - There are separate indices for searching and storing. 
+                Normally you would use a database perhaps. But whenever 
+                something changes it needs to be also added to the search index.
+                Additionally, your code might require you to reindex, so that 
+                is built into this demo. Finally, 
+                
             """.trimIndent()
 
             section("Run it locally") {
@@ -117,21 +132,6 @@ class PetstoreReadmeTest {
                     "src/main/kotlin/com/jillesvangurp/ktsearch/petstore/StartupRunner.kt",
                     "STARTUP_BOOTSTRAP"
                 )
-            }
-
-            section("Regenerate this README") {
-                +"""
-                    The file you are reading is generated; update the code or
-                    the snippets above and then run:
-                    
-                    ```bash
-                    ./gradlew :petstore-demo:test \\
-                      --tests com.jillesvangurp.ktsearch.petstore.PetstoreReadmeTest
-                    ```
-                    
-                    The test writes `petstore-demo/README.md` with the fresh
-                    snippets.
-                """.trimIndent()
             }
         }
 
