@@ -4,7 +4,6 @@ import com.jillesvangurp.ktsearch.Aggregations
 import com.jillesvangurp.ktsearch.Refresh
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.bulk
-import com.jillesvangurp.ktsearch.deleteByQuery
 import com.jillesvangurp.ktsearch.getIndexesForAlias
 import com.jillesvangurp.ktsearch.parsedBuckets
 import com.jillesvangurp.ktsearch.rangesResult
@@ -26,6 +25,9 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.InputStream
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import org.springframework.stereotype.Service
 
@@ -236,21 +238,38 @@ class PetStoreService(
         }
     }
 
+    /**
+     * Roll the search projection to a fresh index using aliases so we never
+     * need a destructive delete-by-query.
+     */
     suspend fun reindexSearch(): Long {
-        val hits = rawSearch<Pet>(
-            target = properties.indices.petsRead
-        ) {
-            from = 0
-            resultSize = 500
+        ensureIndices()
+        val oldIndex = searchClient
+            .getIndexesForAlias(properties.indices.petSearchRead)
+            .firstOrNull()
+        val targetIndex = nextVersionedIndexName(properties.indices.petSearchIndex)
+
+        petSearchRepository.createIndex(targetIndex, petSearchMapping())
+
+        // Point writes at the new index first to keep mutations flowing.
+        searchClient.updateAliases {
+            addAliasForIndex(targetIndex, properties.indices.petSearchWrite)
+            oldIndex?.let {
+                removeAliasForIndex(it, properties.indices.petSearchWrite)
+            }
         }
-        // Convert the raw hits to the search projection and blow away the old
-        // search index so the aliases keep pointing at fresh data.
-        val pets = hits.hits.hits.mapNotNull { it.source }
-        petSearchRepository.deleteByQuery {
-            // Explicit match_all is required by ES when using _delete_by_query
-            query = matchAll()
+
+        val pets = loadAllPets()
+        bulkIndexSearchDocs(pets.map { it.toSearchDocument() })
+
+        // Atomically flip the read alias and drop the obsolete index.
+        searchClient.updateAliases {
+            addAliasForIndex(targetIndex, properties.indices.petSearchRead)
+            oldIndex?.takeIf { it != targetIndex }?.let {
+                removeAliasForIndex(it, properties.indices.petSearchRead, deleteIndex = true)
+            }
         }
-        indexPets(pets)
+
         return pets.size.toLong()
     }
 
@@ -588,6 +607,46 @@ class PetStoreService(
             parameter("refresh", Refresh.WaitFor.snakeCase())
             rawBody(payload)
         }.getOrThrow()
+    }
+
+    private suspend fun bulkIndexSearchDocs(documents: List<PetSearchDocument>) {
+        if (documents.isEmpty()) return
+        petSearchRepository.bulk(callBack = null, refresh = Refresh.WaitFor) {
+            documents.forEach { doc ->
+                index(petSearchRepository.serializer.serialize(doc), id = doc.id)
+            }
+        }
+    }
+
+    private suspend fun loadAllPets(batchSize: Int = 500): List<Pet> {
+        val results = mutableListOf<Pet>()
+        var from = 0
+        while (true) {
+            val page = rawSearch<Pet>(properties.indices.petsRead) {
+                this.from = from
+                resultSize = batchSize
+                query = matchAll()
+            }
+            val hits = page.hits.hits.mapNotNull { it.source }
+            results += hits
+            if (hits.size < batchSize) break
+            from += batchSize
+        }
+        return results
+    }
+
+    private fun nextVersionedIndexName(baseIndexName: String): String {
+        val sanitizedBase = baseIndexName
+            .lowercase()
+            .replace(Regex("[^a-z0-9_-]"), "-")
+            .trim('-')
+            .ifEmpty { "index" }
+        val base = Regex("(.+)-v\\d+$").find(sanitizedBase)?.groupValues?.get(1)
+            ?: sanitizedBase
+        val timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now())
+        return "$base-v$timestamp"
     }
 
     @Serializable
