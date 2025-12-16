@@ -36,12 +36,12 @@ class PetstoreReadmeTest {
                 - Organize your indices with read and write aliases
                 - You don't index what you store but should use an **ETL pipeline**. This demo has one that **enriches 
                 the document with images and wikipedia articles**.
-                - There are separate indices for searching and storing. 
-                Normally you would use a database perhaps. But whenever 
+                - There are separate indices for searching and storing. Normally you would use a database perhaps. But whenever 
                 something changes it needs to be also added to the search index.
                 Additionally, your code might require you to reindex, so that 
-                is built into this demo. Finally, 
+                is built into this demo. 
                 
+                ![petstore demo](petstore-demo.webp)
             """.trimIndent()
 
             section("Run it locally") {

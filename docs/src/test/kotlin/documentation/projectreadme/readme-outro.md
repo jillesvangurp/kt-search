@@ -1,3 +1,10 @@
+## Petstore Demo Project
+
+![petstore demo](petstore-demo/petstore-demo.webp)
+
+If you are looking for a quick way to get an impression of what a fully integrated search 
+would look like with kt-search, a good starting point is the [petstore demo](petstore-demo) project included in this project.
+
 ## Setting up a development environment
 
 Any recent version of Intellij should be able to import this project as is. 

@@ -419,6 +419,13 @@ Additionally, I also maintain a few other search related projects that you might
 - [Rankquest Studio](https://rankquest.jillesvangurp.com) - A user friendly tool that requires no installation process that helps you build and run test cases to measure search relevance for your search products. Rankquest Studio of course uses kt-search but it is also able to talk directly to your search API and is designed to work with any kind of search api or product that is able to return lists of results.
 - [querylight](https://github.com/jillesvangurp/querylight) - Sometimes Elasticsearch/Opensearch is just overkill. Query light is a tiny but capable in memory search engine that you can embed in your kotlin browser, server, or mobile applications. We use it at FORMATION to support e.g. in app icon search. Querylight comes with its own analyzers and query language. 
 
+## Petstore Demo Project
+
+![petstore demo](petstore-demo/petstore-demo.webp)
+
+If you are looking for a quick way to get an impression of what a fully integrated search 
+would look like with kt-search, a good starting point is the [petstore demo](petstore-demo) project included in this project.
+
 ## Setting up a development environment
 
 Any recent version of Intellij should be able to import this project as is. 
