@@ -1073,11 +1073,18 @@ fun <T : Any> SearchClient.repository(
     serializer: KSerializer<T>,
     indexReadAlias: String = indexWriteAlias,
     defaultParameters: Map<String, String>? = null,
+    defaultRefresh: Refresh? = Refresh.WaitFor,
+    defaultTimeout: Duration? = null,
+    logging: Boolean = true
 
-    ) = IndexRepository(
+
+) = IndexRepository(
     client = this,
     serializer = this.ktorModelSerializer(serializer),
     indexNameOrWriteAlias = indexWriteAlias,
     indexReadAlias = indexReadAlias,
-    defaultParameters = defaultParameters
+    defaultParameters = defaultParameters,
+    defaultRefresh = defaultRefresh,
+    defaultTimeout = defaultTimeout,
+    logging = logging,
 )
