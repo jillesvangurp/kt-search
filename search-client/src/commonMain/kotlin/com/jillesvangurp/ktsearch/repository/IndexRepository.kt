@@ -1,21 +1,61 @@
 package com.jillesvangurp.ktsearch.repository
 
-import com.jillesvangurp.ktsearch.*
+import com.jillesvangurp.ktsearch.BulkItemCallBack
+import com.jillesvangurp.ktsearch.BulkResponse
+import com.jillesvangurp.ktsearch.BulkSession
+import com.jillesvangurp.ktsearch.DefaultBulkSession
+import com.jillesvangurp.ktsearch.DeleteByQueryResponse
+import com.jillesvangurp.ktsearch.DocumentIndexResponse
+import com.jillesvangurp.ktsearch.ExpandWildCards
+import com.jillesvangurp.ktsearch.GetDocumentResponse
+import com.jillesvangurp.ktsearch.IndexCreateResponse
+import com.jillesvangurp.ktsearch.MGetRequest
+import com.jillesvangurp.ktsearch.MGetResponse
+import com.jillesvangurp.ktsearch.MsearchRequest
+import com.jillesvangurp.ktsearch.MultiSearchResponse
+import com.jillesvangurp.ktsearch.OperationType
+import com.jillesvangurp.ktsearch.Refresh
+import com.jillesvangurp.ktsearch.RestException
+import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.SearchOperator
+import com.jillesvangurp.ktsearch.SearchResponse
+import com.jillesvangurp.ktsearch.SearchType
+import com.jillesvangurp.ktsearch.SourceInformation
+import com.jillesvangurp.ktsearch.SuggestMode
+import com.jillesvangurp.ktsearch.VersionType
+import com.jillesvangurp.ktsearch.createIndex
+import com.jillesvangurp.ktsearch.deleteByQuery
+import com.jillesvangurp.ktsearch.deleteDocument
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.getDocument
+import com.jillesvangurp.ktsearch.getIndexesForAlias
+import com.jillesvangurp.ktsearch.indexDocument
+import com.jillesvangurp.ktsearch.mGet
+import com.jillesvangurp.ktsearch.msearch
+import com.jillesvangurp.ktsearch.parseHits
+import com.jillesvangurp.ktsearch.search
+import com.jillesvangurp.ktsearch.searchAfter
+import com.jillesvangurp.ktsearch.updateAliases
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
 import com.jillesvangurp.searchdsls.querydsl.SearchDSL
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.serialization.KSerializer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.KSerializer
 
-private val logger = KotlinLogging.logger {  }
+private val logger = KotlinLogging.logger { }
+
 internal class RetryingBulkHandler<T : Any>(
     private val updateFunctions: MutableMap<String, suspend (T) -> T>,
     private val indexRepository: IndexRepository<T>,
@@ -214,14 +254,14 @@ class IndexRepository<T : Any>(
      *
      * Important. you should of course take care of reindexing yourself before you call this with [deleteOldIndex] set to true
      */
-    suspend fun updateAliasesToNewIndex(newIndex: String, deleteOldIndex: Boolean=false) {
+    suspend fun updateAliasesToNewIndex(newIndex: String, deleteOldIndex: Boolean = false) {
         val oldIndex = client.getIndexesForAlias(indexNameOrWriteAlias).firstOrNull()
         client.updateAliases {
             addAliasForIndex(newIndex, indexReadAlias)
             addAliasForIndex(newIndex, indexNameOrWriteAlias)
-            if(oldIndex != null) {
-                removeAliasForIndex(oldIndex,indexReadAlias)
-                removeAliasForIndex(oldIndex,indexNameOrWriteAlias, deleteOldIndex)
+            if (oldIndex != null) {
+                removeAliasForIndex(oldIndex, indexReadAlias)
+                removeAliasForIndex(oldIndex, indexNameOrWriteAlias, deleteOldIndex)
             }
         }
     }
@@ -266,10 +306,10 @@ class IndexRepository<T : Any>(
      */
     suspend fun getDocument(id: String): T? {
         return try {
-            val (doc, _) =  get(id)
+            val (doc, _) = get(id)
             doc
         } catch (e: RestException) {
-            if(e.status == 404) {
+            if (e.status == 404) {
                 // not found, just return null
                 null
             } else {
@@ -365,8 +405,8 @@ class IndexRepository<T : Any>(
             )
         } catch (e: RestException) {
             if ((e.status == 409 || e.status == 429) && attempt < maxRetries) {
-                if(e.status == 429) {
-                    if(logging) {
+                if (e.status == 429) {
+                    if (logging) {
                         logger.warn { "update is triggering circuit breaker on attempt $attempt (status ${e.status}): ${e.message}" }
                     }
                     // 429 means we're triggering a circuit breaker, so back off before retrying
@@ -375,7 +415,7 @@ class IndexRepository<T : Any>(
                 }
                 return update(
                     id = id,
-                    attempt = attempt+1,
+                    attempt = attempt + 1,
                     maxRetries = maxRetries,
                     pipeline = pipeline,
                     refresh = refresh ?: defaultRefresh,
@@ -385,10 +425,10 @@ class IndexRepository<T : Any>(
                     block = block
                 )
                     .also {
-                    if(attempt>0 && logging) {
-                        logger.info { "update succeeded on attempt $attempt" }
+                        if (attempt > 0 && logging) {
+                            logger.info { "update succeeded on attempt $attempt" }
+                        }
                     }
-                }
             } else {
                 throw e
             }
@@ -494,6 +534,7 @@ class IndexRepository<T : Any>(
     ) {
         ids = docIds.toList()
     }
+
     suspend fun mGet(
         docIds: List<String>,
         preference: String? = null,
@@ -512,6 +553,7 @@ class IndexRepository<T : Any>(
     ) {
         ids = docIds
     }
+
     suspend fun mGetDocuments(
         docIds: List<String>,
         preference: String? = null,
@@ -530,7 +572,7 @@ class IndexRepository<T : Any>(
     ) {
         ids = docIds
     }.let { resp ->
-        resp.docs.mapNotNull { it.source?.let { src -> serializer.deSerialize(src) }}
+        resp.docs.mapNotNull { it.source?.let { src -> serializer.deSerialize(src) } }
     }
 
     suspend fun mGet(
@@ -606,7 +648,7 @@ class IndexRepository<T : Any>(
         extraParameters: Map<String, String>? = null,
         retries: Int = 3,
         retryDelay: Duration = 2.seconds,
-        ): SearchResponse {
+    ): SearchResponse {
         return client.search(
             target = indexReadAlias,
             rawJson = rawJson,
@@ -961,7 +1003,7 @@ class IndexRepository<T : Any>(
         searchType: SearchType? = null,
         typedKeys: Boolean? = null,
         block: MsearchRequest.() -> Unit,
-        ): MultiSearchResponse {
+    ): MultiSearchResponse {
         return client.msearch(
             target = indexReadAlias,
             allowNoIndices = allowNoIndices,
@@ -1024,11 +1066,18 @@ fun <T : Any> SearchClient.repository(
     serializer: KSerializer<T>,
     indexReadAlias: String = indexWriteAlias,
     defaultParameters: Map<String, String>? = null,
+    defaultRefresh: Refresh? = Refresh.WaitFor,
+    defaultTimeout: Duration? = null,
+    logging: Boolean = true
 
-    ) = IndexRepository(
+
+) = IndexRepository(
     client = this,
     serializer = this.ktorModelSerializer(serializer),
     indexNameOrWriteAlias = indexWriteAlias,
     indexReadAlias = indexReadAlias,
-    defaultParameters = defaultParameters
+    defaultParameters = defaultParameters,
+    defaultRefresh = defaultRefresh,
+    defaultTimeout = defaultTimeout,
+    logging = logging,
 )
