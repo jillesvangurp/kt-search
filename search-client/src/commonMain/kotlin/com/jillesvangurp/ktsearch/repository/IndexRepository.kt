@@ -562,17 +562,24 @@ class IndexRepository<T : Any>(
         routing: String? = null,
         storedFields: String? = null,
         source: String? = null,
-    ) = mGet(
-        preference = preference,
-        realtime = realtime,
-        refresh = refresh,
-        routing = routing,
-        storedFields = storedFields,
-        source = source
-    ) {
-        ids = docIds
-    }.let { resp ->
-        resp.docs.mapNotNull { it.source?.let { src -> serializer.deSerialize(src) } }
+    ): List<T> {
+        return if (docIds.isEmpty()) {
+            // common edge case
+            emptyList()
+        } else {
+            mGet(
+                preference = preference,
+                realtime = realtime,
+                refresh = refresh,
+                routing = routing,
+                storedFields = storedFields,
+                source = source
+            ) {
+                ids = docIds
+            }.let { resp ->
+                resp.docs.mapNotNull { it.source?.let { src -> serializer.deSerialize(src) } }
+            }
+        }
     }
 
     suspend fun mGet(
