@@ -1,5 +1,3 @@
-import com.avast.gradle.dockercompose.ComposeExtension
-import java.net.URI
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
@@ -148,49 +146,8 @@ if (enableNativeTargets) {
     }
 }
 
-configure<ComposeExtension> {
-    buildAdditionalArgs.set(listOf("--force-rm"))
-    stopContainers.set(true)
-    removeContainers.set(true)
-    forceRecreate.set(true)
-    val parentDir = project.parent?.projectDir?.path ?: error("parent should exist")
-    val searchEngine = project.findProperty("searchEngine")?.toString() ?: "es-9"
-    val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
-    dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
-    useComposeFiles.set(listOf(composeFile))
-    val dockerExecutablePath =
-        listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
-
-    if (dockerExecutablePath != null) {
-        dockerExecutable.set(dockerExecutablePath)
-    }
-}
-
-val composeUp by tasks.named("composeUp")
-
-tasks.named("jsNodeTest") {
-    val isUp = kotlin.runCatching {
-        URI("http://localhost:9999").toURL().openConnection().connect()
-    }.isSuccess
-    if (!isUp) {
-        dependsOn(composeUp)
-    }
-}
-
 tasks.withType<Test> {
-    val isUp = kotlin.runCatching {
-        URI("http://localhost:9999").toURL().openConnection().connect()
-    }.isSuccess
-    if (!isUp) {
-        dependsOn(composeUp)
-    }
     useJUnitPlatform()
     testLogging.exceptionFormat = FULL
     testLogging.events = setOf(FAILED, PASSED, SKIPPED, STANDARD_ERROR, STANDARD_OUT)
-}
-
-if (!listOf("/usr/bin/docker", "/usr/local/bin/docker").any { File(it).exists() }) {
-    tasks.matching { it.name.startsWith("compose") }.configureEach {
-        enabled = false
-    }
 }

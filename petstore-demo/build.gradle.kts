@@ -1,7 +1,3 @@
-import com.avast.gradle.dockercompose.ComposeExtension
-import java.io.File
-import java.net.URI
-
 plugins {
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.6"
@@ -11,6 +7,8 @@ plugins {
     id("com.avast.gradle.docker-compose")
     application
 }
+
+extra["composeSkipTestsWithoutDocker"] = true
 
 application {
     mainClass.set("com.jillesvangurp.ktsearch.petstore.PetStoreDemoApplicationKt")
@@ -47,48 +45,6 @@ dependencies {
     testImplementation("com.github.jillesvangurp:kotlin4example:_")
 }
 
-val dockerExecutablePath = listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker")
-    .firstOrNull { File(it).exists() }
-val dockerAvailable = dockerExecutablePath != null
-
-configure<ComposeExtension> {
-    buildAdditionalArgs.set(listOf("--force-rm"))
-    stopContainers.set(true)
-    removeContainers.set(true)
-    forceRecreate.set(true)
-    val parentDir = project.parent?.projectDir?.path ?: error("parent should exist")
-    val searchEngine = project.findProperty("searchEngine")?.toString() ?: "es-9"
-    val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
-    dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
-    useComposeFiles.set(listOf(composeFile))
-    val dockerExecutablePath =
-        listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker").firstOrNull { File(it).exists() }
-
-    if (dockerExecutablePath != null) {
-        dockerExecutable.set(dockerExecutablePath)
-    }
-}
-
-val composeUp by tasks.named("composeUp")
-
-fun isSearchUp() = kotlin.runCatching {
-    URI("http://localhost:9999").toURL().openConnection().connect()
-}.isSuccess
-
-if (!dockerAvailable) {
-    tasks.matching { it.name.startsWith("compose") }.configureEach {
-        enabled = false
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
-    when {
-        isSearchUp() -> logger.lifecycle("Using already running search cluster on port 9999")
-        dockerAvailable -> dependsOn(composeUp)
-        else -> {
-            logger.lifecycle("Skipping tests because Elasticsearch is not running and Docker is unavailable.")
-            enabled = false
-        }
-    }
 }
