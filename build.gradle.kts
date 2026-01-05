@@ -1,14 +1,64 @@
+import com.avast.gradle.dockercompose.ComposeExtension
+import java.io.File
+import java.net.URI
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 
 plugins {
     kotlin("multiplatform") apply false
     id("org.jetbrains.dokka") apply false
+    id("com.avast.gradle.docker-compose") apply false
 }
 
 println("project: $path")
 println("version: $version")
 println("group: $group")
+
+abstract class ComposeUpLockService : BuildService<BuildServiceParameters.None>, AutoCloseable {
+    override fun close() = Unit
+}
+
+val composeUpLock = gradle.sharedServices.registerIfAbsent(
+    "composeUpLock",
+    ComposeUpLockService::class
+) {
+    maxParallelUsages.set(1)
+}
+
+fun findDockerExecutablePath(): String? =
+    listOf("/usr/bin/docker", "/usr/local/bin/docker", "/opt/homebrew/bin/docker")
+        .firstOrNull { File(it).exists() }
+
+fun Project.extraString(name: String): String? =
+    if (extensions.extraProperties.has(name)) {
+        extensions.extraProperties.get(name)?.toString()
+    } else {
+        null
+    }
+
+fun Project.extraBoolean(name: String): Boolean? =
+    if (extensions.extraProperties.has(name)) {
+        extensions.extraProperties.get(name)?.toString()?.toBoolean()
+    } else {
+        null
+    }
+
+fun Project.composeSearchEngine(): String =
+    extraString("composeSearchEngine")
+        ?: findProperty("searchEngine")?.toString()
+        ?: "es-9"
+
+fun Project.composeSkipTestsWithoutDocker(): Boolean =
+    extraBoolean("composeSkipTestsWithoutDocker") ?: false
+
+fun Project.composeDisableWhenDockerMissing(): Boolean =
+    extraBoolean("composeDisableWhenDockerMissing") ?: true
+
+fun isSearchUp(): Boolean = kotlin.runCatching {
+    URI("http://localhost:9999").toURL().openConnection().connect()
+}.isSuccess
 
 allprojects {
     repositories {
@@ -74,6 +124,57 @@ subprojects {
                 }
             }
         })
+    }
+
+    plugins.withId("com.avast.gradle.docker-compose") {
+        val dockerExecutablePath = findDockerExecutablePath()
+        val dockerAvailable = dockerExecutablePath != null
+        val searchEngine = composeSearchEngine()
+
+        configure<ComposeExtension> {
+            buildAdditionalArgs.set(listOf("--force-rm"))
+            stopContainers.set(true)
+            removeContainers.set(true)
+            forceRecreate.set(true)
+            val composeFile = "${rootProject.projectDir}/docker-compose-$searchEngine.yml"
+            dockerComposeWorkingDirectory.set(rootProject.projectDir)
+            useComposeFiles.set(listOf(composeFile))
+
+            if (dockerExecutablePath != null) {
+                dockerExecutable.set(dockerExecutablePath)
+            }
+        }
+
+        tasks.matching { it.name == "composeUp" }.configureEach {
+            usesService(composeUpLock)
+            onlyIf { !isSearchUp() }
+        }
+
+        if (!dockerAvailable && composeDisableWhenDockerMissing()) {
+            tasks.matching { it.name.startsWith("compose") }.configureEach {
+                enabled = false
+            }
+        }
+
+        tasks.matching { it.name == "jsNodeTest" }.configureEach {
+            if (!isSearchUp()) {
+                dependsOn("composeUp")
+            }
+        }
+
+        tasks.withType<Test>().configureEach {
+            if (!isSearchUp()) {
+                if (dockerAvailable) {
+                    dependsOn("composeUp")
+                } else if (composeSkipTestsWithoutDocker()) {
+                    logger.lifecycle(
+                        "Skipping tests because Elasticsearch is not running " +
+                            "and Docker is unavailable."
+                    )
+                    enabled = false
+                }
+            }
+        }
     }
 
     apply(plugin = "maven-publish")

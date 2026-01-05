@@ -1,7 +1,5 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import com.avast.gradle.dockercompose.ComposeExtension
-import java.net.URI
 import java.util.Properties
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
@@ -65,6 +63,8 @@ repositories {
 }
 
 val searchEngine = getStringProperty("searchEngine", "es-9")
+extra["composeSearchEngine"] = searchEngine
+extra["composeDisableWhenDockerMissing"] = false
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -258,51 +258,7 @@ disabledTestTargets.forEach { target ->
     }
 }
 
-configure<ComposeExtension> {
-    buildAdditionalArgs.set(listOf("--force-rm"))
-    stopContainers.set(true)
-    removeContainers.set(true)
-    forceRecreate.set(true)
-    val parentDir = project.parent?.projectDir?.path ?: error("parent should exist")
-    val composeFile = "$parentDir/docker-compose-$searchEngine.yml"
-    dockerComposeWorkingDirectory.set(project.parent!!.projectDir)
-    useComposeFiles.set(listOf(composeFile))
-
-    listOf("/usr/bin/docker", "/usr/local/bin/docker","/opt/homebrew/bin/docker").firstOrNull {
-        File(it).exists()
-    }?.let { docker ->
-        // works around an issue where the docker
-        // command is not found
-        // falls back to the default, which may work on
-        // some platforms
-        dockerExecutable.set(docker)
-    }
-
-}
-
-tasks.named("jsNodeTest") {
-    // on gh actions jsNodeTest manages to run before tasks of type
-    // Test are initialized. So explicitly bring up compose before jsNodeTest fixes
-    // that problem
-    val isUp = kotlin.runCatching {
-        URI("http://localhost:9999").toURL().openConnection().connect()
-    }.isSuccess
-    if (!isUp) {
-        dependsOn(
-            "composeUp"
-        )
-    }
-}
-
 tasks.withType<Test> {
-    val isUp = kotlin.runCatching {
-        URI("http://localhost:9999").toURL().openConnection().connect()
-    }.isSuccess
-    if (!isUp) {
-        dependsOn(
-            "composeUp"
-        )
-    }
     useJUnitPlatform()
     // run tests in parallel
     systemProperties["junit.jupiter.execution.parallel.enabled"] = "true"
@@ -349,4 +305,3 @@ tasks.withType<Test> {
         }
     })
 }
-
