@@ -82,8 +82,8 @@ internal class RetryingBulkHandler<T : Any>(
                                 version = result.version,
                                 result = result.result,
                                 shards = result.shards,
-                                seqNo = result.seqNo.toLong(),
-                                primaryTerm = result.primaryTerm.toLong(),
+                                seqNo = result.seqNo,
+                                primaryTerm = result.primaryTerm,
                                 status = 200 // OK
                             )
                         )
