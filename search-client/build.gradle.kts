@@ -51,7 +51,6 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 val enableNativeTargets =
     !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
 
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -62,14 +61,11 @@ repositories {
     mavenCentral()
 }
 
-val searchEngine = getStringProperty("searchEngine", "es-9")
-extra["composeSearchEngine"] = searchEngine
-extra["composeDisableWhenDockerMissing"] = false
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
+
 kotlin {
     jvm {
         // should work for android as well

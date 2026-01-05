@@ -15,6 +15,7 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("com.avast.gradle.docker-compose")
 }
 
 repositories {

@@ -177,14 +177,6 @@ subprojects {
         }
     }
 
-    if (name == "docs") {
-        tasks.withType<Test>().configureEach {
-            if (!isSearchUp()) {
-                dependsOn(":search-client:composeUp")
-            }
-        }
-    }
-
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.dokka")
 
