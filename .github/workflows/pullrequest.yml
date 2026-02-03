@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the code
-      uses: actions/checkout@master
+      uses: actions/checkout@v5
     - name: Install cURL Headers
       run: sudo apt-get update && sudo apt-get install libcurl4-openssl-dev -y
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'adopt'
