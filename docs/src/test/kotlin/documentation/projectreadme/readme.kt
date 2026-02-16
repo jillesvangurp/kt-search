@@ -64,7 +64,10 @@ val projectReadme = sourceGitRepository.md {
             If you need to, you can also configure multiple hosts, 
             add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
             multiple hosts, you can also configure a strategy for selecting the host to connect to. And of course 
-            you can completely customize how the client connects. 
+            you can completely customize how the client connects.
+
+            For AWS OpenSearch endpoints, use `OpenSearchClient` to enable SigV4 request signing.
+            It is multiplatform and auto-detects `aoss` for serverless endpoints and `es` otherwise.
             
             For more on 
             this, read the [manual](${ManualPages.GettingStarted.publicLink}). 
@@ -281,4 +284,3 @@ val projectReadme = sourceGitRepository.md {
     includeMdFile("related.md")
     includeMdFile("readme-outro.md")
 }
-

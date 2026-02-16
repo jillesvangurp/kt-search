@@ -153,6 +153,7 @@ kotlin {
                 implementation(kotlin("test-annotations-common", "_"))
                 implementation(Testing.kotest.assertions.core)
                 implementation(KotlinX.coroutines.test)
+                implementation(Ktor.client.mock)
             }
         }
         jvmMain {
