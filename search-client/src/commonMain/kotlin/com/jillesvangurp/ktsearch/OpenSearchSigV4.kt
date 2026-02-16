@@ -64,7 +64,7 @@ class AwsSigV4Signer(
         val payloadHash = sha256Hex(request.payload.orEmpty())
         val hostHeader = hostHeader(request)
 
-        val headersToSign = sortedMapOf(
+        val headersToSign = mutableMapOf(
             "host" to hostHeader,
             "x-amz-content-sha256" to payloadHash,
             "x-amz-date" to timestamp
