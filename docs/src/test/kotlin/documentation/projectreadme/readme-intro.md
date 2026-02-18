@@ -25,7 +25,8 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
   operating Elasticsearch/OpenSearch clusters on macOS and Linux. It is
   implemented with Kotlin Multiplatform and includes bash/zsh style shell
   autocompletion. See the CLI
-  [README](ktsearch-cli/README.md) for detailed install instructions.
+  [README](ktsearch-cli/README.md) for detailed install instructions and the
+  generated [CLI manual](ktsearch-cli/cli-manual.md).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
