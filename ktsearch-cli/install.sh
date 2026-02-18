@@ -48,7 +48,7 @@ case "${os}" in
         ;;
 esac
 
-detect_completion_dir() {
+detect_bash_completion_dir() {
     if [[ -n "${KTSEARCH_BASH_COMPLETION_DIR:-}" ]]; then
         echo "${KTSEARCH_BASH_COMPLETION_DIR}"
         return
@@ -69,6 +69,46 @@ detect_completion_dir() {
             "${user_completion_dir}"
             "/usr/local/share/bash-completion/completions"
             "/usr/share/bash-completion/completions"
+        )
+    fi
+
+    local completion_dir=""
+    local dir
+    for dir in "${candidate_completion_dirs[@]}"; do
+        if [[ -d "${dir}" && -w "${dir}" ]]; then
+            completion_dir="${dir}"
+            break
+        fi
+    done
+
+    if [[ -z "${completion_dir}" ]]; then
+        completion_dir="${user_completion_dir}"
+    fi
+
+    echo "${completion_dir}"
+}
+
+detect_zsh_completion_dir() {
+    if [[ -n "${KTSEARCH_ZSH_COMPLETION_DIR:-}" ]]; then
+        echo "${KTSEARCH_ZSH_COMPLETION_DIR}"
+        return
+    fi
+
+    local xdg_dir="${XDG_DATA_HOME:-${HOME}/.local/share}"
+    local user_completion_dir="${xdg_dir}/zsh/site-functions"
+    local -a candidate_completion_dirs=()
+
+    if [[ "${os}" == "Darwin" ]]; then
+        candidate_completion_dirs=(
+            "/opt/homebrew/share/zsh/site-functions"
+            "/usr/local/share/zsh/site-functions"
+            "${user_completion_dir}"
+        )
+    else
+        candidate_completion_dirs=(
+            "${user_completion_dir}"
+            "/usr/local/share/zsh/site-functions"
+            "/usr/share/zsh/site-functions"
         )
     fi
 
@@ -141,12 +181,17 @@ fi
 cp "${binary_path}" "${install_dir}/ktsearch"
 chmod +x "${install_dir}/ktsearch"
 
-completion_dir="$(detect_completion_dir)"
-mkdir -p "${completion_dir}"
-"${install_dir}/ktsearch" completion bash > "${completion_dir}/ktsearch"
+bash_completion_dir="$(detect_bash_completion_dir)"
+mkdir -p "${bash_completion_dir}"
+"${install_dir}/ktsearch" completion bash > "${bash_completion_dir}/ktsearch"
+
+zsh_completion_dir="$(detect_zsh_completion_dir)"
+mkdir -p "${zsh_completion_dir}"
+"${install_dir}/ktsearch" completion zsh > "${zsh_completion_dir}/_ktsearch"
 
 echo "Installed ktsearch to ${install_dir}/ktsearch"
-echo "Installed bash completion to ${completion_dir}/ktsearch"
+echo "Installed bash completion to ${bash_completion_dir}/ktsearch"
+echo "Installed zsh completion to ${zsh_completion_dir}/_ktsearch"
 if [[ ":${PATH}:" != *":${install_dir}:"* ]]; then
     echo "Note: ${install_dir} is not on PATH."
 fi

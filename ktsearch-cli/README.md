@@ -70,10 +70,10 @@ host (incremental build) and installs `ktsearch` in a writable bin directory:
 - macOS: `/opt/homebrew/bin`, `/usr/local/bin`, `~/.local/bin`, or `~/bin`
 - Linux: `~/.local/bin`, `/usr/local/bin`, or `~/bin`
 
-It also installs bash completion as `ktsearch` in a writable completion dir:
+It also installs shell completions in writable completion dirs:
 
-- macOS: Homebrew/user completion dirs
-- Linux: user/system bash-completion dirs
+- Bash as `ktsearch` in bash-completion directories
+- Zsh as `_ktsearch` in zsh `site-functions` directories
 
 To force specific paths, set `KTSEARCH_INSTALL_DIR` and/or
-`KTSEARCH_BASH_COMPLETION_DIR`.
+`KTSEARCH_BASH_COMPLETION_DIR` and/or `KTSEARCH_ZSH_COMPLETION_DIR`.
