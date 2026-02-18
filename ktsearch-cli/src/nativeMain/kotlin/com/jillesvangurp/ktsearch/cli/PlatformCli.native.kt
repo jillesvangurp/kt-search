@@ -21,6 +21,12 @@ actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
     return NativeNdjsonGzipWriter(path)
 }
 
+actual fun platformWriteUtf8File(path: String, content: String) {
+    FileSystem.SYSTEM.write(path.toPath(), mustCreate = false) {
+        writeUtf8(content)
+    }
+}
+
 private class NativeNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
     private val sink = FileSystem.SYSTEM
         .sink(path.toPath(), mustCreate = false)

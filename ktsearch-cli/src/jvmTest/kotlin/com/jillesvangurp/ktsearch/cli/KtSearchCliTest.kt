@@ -129,6 +129,99 @@ class KtSearchCliTest {
         )
     }
 
+    @Test
+    fun searchRequiresEitherQueryOrData() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(arrayOf("index", "search", "products"))
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun searchRejectsBothQueryAndData() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "index",
+                    "search",
+                    "products",
+                    "--query",
+                    "name:apple",
+                    "--data",
+                    """{"query":{"match_all":{}}}""",
+                )
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun searchForwardsQueryOptions() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "search",
+                "products",
+                "--query",
+                "name:apple",
+                "--size",
+                "30",
+                "--offse",
+                "10",
+                "--fields",
+                "name,tags",
+                "--sort",
+                "timestamp:desc,_id:asc",
+                "--track-total-hits",
+                "true",
+                "--timeout",
+                "30s",
+                "--routing",
+                "r1",
+                "--preference",
+                "_local",
+                "--allow-partial-results",
+                "false",
+                "--profile",
+                "--explain",
+                "--terminate-after",
+                "7",
+                "--search-type",
+                "query_then_fetch",
+            )
+        )
+
+        service.lastSearchRequest shouldBe SearchRequest(
+            index = "products",
+            query = "name:apple",
+            data = null,
+            size = 30,
+            offset = 10,
+            fields = listOf("name", "tags"),
+            sort = "timestamp:desc,_id:asc",
+            trackTotalHits = true,
+            timeout = "30s",
+            routing = "r1",
+            preference = "_local",
+            allowPartialResults = false,
+            profile = true,
+            explain = true,
+            terminateAfter = 7,
+            searchType = "query_then_fetch",
+        )
+    }
+
     private fun newCommand(
         service: FakeService,
         platform: CliPlatform = FakePlatform(),
@@ -153,6 +246,7 @@ private class FakeService(
     var lastConnectionOptions: ConnectionOptions? = null
     var lastDumpedIndex: String? = null
     var statusCalls: Int = 0
+    var lastSearchRequest: SearchRequest? = null
 
     override suspend fun fetchStatus(connectionOptions: ConnectionOptions): StatusResult {
         statusCalls++
@@ -170,7 +264,67 @@ private class FakeService(
         dumpLines.forEach { writer.writeLine(it) }
         return dumpLines.size.toLong()
     }
+
+    override suspend fun searchIndexRaw(
+        connectionOptions: ConnectionOptions,
+        index: String,
+        query: String?,
+        data: String?,
+        size: Int,
+        offset: Int,
+        fields: List<String>?,
+        sort: String?,
+        trackTotalHits: Boolean?,
+        timeout: String?,
+        routing: String?,
+        preference: String?,
+        allowPartialResults: Boolean?,
+        profile: Boolean,
+        explain: Boolean,
+        terminateAfter: Int?,
+        searchType: String?,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastSearchRequest = SearchRequest(
+            index = index,
+            query = query,
+            data = data,
+            size = size,
+            offset = offset,
+            fields = fields,
+            sort = sort,
+            trackTotalHits = trackTotalHits,
+            timeout = timeout,
+            routing = routing,
+            preference = preference,
+            allowPartialResults = allowPartialResults,
+            profile = profile,
+            explain = explain,
+            terminateAfter = terminateAfter,
+            searchType = searchType,
+        )
+        return """{"hits":{"total":{"value":0,"relation":"eq"},"hits":[]}}"""
+    }
 }
+
+private data class SearchRequest(
+    val index: String,
+    val query: String?,
+    val data: String?,
+    val size: Int,
+    val offset: Int,
+    val fields: List<String>?,
+    val sort: String?,
+    val trackTotalHits: Boolean?,
+    val timeout: String?,
+    val routing: String?,
+    val preference: String?,
+    val allowPartialResults: Boolean?,
+    val profile: Boolean,
+    val explain: Boolean,
+    val terminateAfter: Int?,
+    val searchType: String?,
+)
 
 private class FakePlatform(
     private val interactive: Boolean = false,
