@@ -455,10 +455,10 @@ Usage: ktsearch index create [<options>] <index>
   Create an index.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -472,10 +472,10 @@ Usage: ktsearch index put [<options>] <index>
   Create an index.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -489,8 +489,8 @@ Usage: ktsearch index get [<options>] <index>
   Get index metadata.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -504,8 +504,8 @@ Usage: ktsearch index show [<options>] <index>
   Get index metadata.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -536,7 +536,7 @@ Options:
   -y, --yes                          Do not prompt.
   --dry-run                          Preview request without executing.
   --ignore-unavailable=(true|false)  Ignore missing indices (default true).
-  --pretty                           Pretty-print JSON output.
+  --pretty / --no-pretty             Pretty-print JSON output.
   -h, --help                         Show this message and exit
 
 Arguments:
@@ -554,7 +554,7 @@ Options:
   -y, --yes                          Do not prompt.
   --dry-run                          Preview request without executing.
   --ignore-unavailable=(true|false)  Ignore missing indices (default true).
-  --pretty                           Pretty-print JSON output.
+  --pretty / --no-pretty             Pretty-print JSON output.
   -h, --help                         Show this message and exit
 
 Arguments:
@@ -586,8 +586,8 @@ Usage: ktsearch index doc get [<options>] <index> <id>
   Get a document by id.
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -606,7 +606,7 @@ Options:
   --op-type=(index|create)  Operation type (default index).
   -d, --data=<text>         Raw JSON document.
   -f, --file=<text>         Read JSON document from file.
-  --pretty                  Pretty-print output.
+  --pretty / --no-pretty    Pretty-print JSON output.
   -h, --help                Show this message and exit
 
 Arguments:
@@ -621,9 +621,9 @@ Usage: ktsearch index doc delete [<options>] <index> <id>
   Delete a document by id.
 
 Options:
-  -y, --yes   Do not prompt.
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -638,10 +638,10 @@ Usage: ktsearch index doc mget [<options>] <index>
   Run _mget on an index.
 
 Options:
-  -d, --data=<text>  Raw JSON mget payload.
-  -f, --file=<text>  Read JSON payload from file.
-  --pretty           Pretty-print output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON mget payload.
+  -f, --file=<text>       Read JSON payload from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -670,8 +670,8 @@ Usage: ktsearch index mappings get [<options>] <index>
   Get index mappings.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -685,10 +685,10 @@ Usage: ktsearch index mappings put [<options>] <index>
   Update index mappings.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -717,8 +717,8 @@ Usage: ktsearch index settings get [<options>] <index>
   Get index settings.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -732,10 +732,10 @@ Usage: ktsearch index settings put [<options>] <index>
   Update index settings.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -780,8 +780,8 @@ Usage: ktsearch index template component get [<options>] [<templateid>]
   Get template by id or all.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -795,10 +795,10 @@ Usage: ktsearch index template component put [<options>] <templateid>
   Create or update template.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -812,10 +812,10 @@ Usage: ktsearch index template component delete [<options>] <templateid>
   Delete a template.
 
 Options:
-  -y, --yes   Do not prompt.
-  --dry-run   Preview request without executing.
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --dry-run               Preview request without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -845,8 +845,8 @@ Usage: ktsearch index template index get [<options>] [<templateid>]
   Get template by id or all.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -860,10 +860,10 @@ Usage: ktsearch index template index put [<options>] <templateid>
   Create or update template.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -877,10 +877,10 @@ Usage: ktsearch index template index delete [<options>] <templateid>
   Delete a template.
 
 Options:
-  -y, --yes   Do not prompt.
-  --dry-run   Preview request without executing.
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --dry-run               Preview request without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <templateid>  Template id.
@@ -910,8 +910,8 @@ Usage: ktsearch index data-stream create [<options>] <namearg>
   Create a data stream.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <namearg>  Data stream name.
@@ -925,8 +925,8 @@ Usage: ktsearch index data-stream get [<options>] [<namearg>]
   Get data stream info.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <namearg>  Data stream name.
@@ -940,9 +940,9 @@ Usage: ktsearch index data-stream delete [<options>] <namearg>
   Delete a data stream.
 
 Options:
-  -y, --yes   Do not prompt.
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <namearg>  Data stream name.
@@ -974,8 +974,8 @@ Usage: ktsearch index alias get [<options>] [<target>]
   Get aliases for target or all.
 
 Options:
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <target>  Index or alias target.
@@ -989,11 +989,11 @@ Usage: ktsearch index alias update [<options>]
   Apply atomic alias actions from JSON.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --dry-run          Print request body without executing.
-  --pretty           Pretty-print JSON output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --dry-run               Print request body without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 ```
 
 ## `ktsearch index alias add`
@@ -1004,10 +1004,10 @@ Usage: ktsearch index alias add [<options>] <index> <alias>
   Atomically add alias to index.
 
 Options:
-  --write=(true|false)  Set is_write_index true|false.
-  --dry-run             Print request body without executing.
-  --pretty              Pretty-print JSON output.
-  -h, --help            Show this message and exit
+  --write=(true|false)    Set is_write_index true|false.
+  --dry-run               Print request body without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -1022,9 +1022,9 @@ Usage: ktsearch index alias remove [<options>] <index> <alias>
   Atomically remove alias from index.
 
 Options:
-  --dry-run   Print request body without executing.
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  --dry-run               Print request body without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -1039,10 +1039,10 @@ Usage: ktsearch index alias remove-index [<options>] <index>
   Atomically remove index via alias API (deletes index).
 
 Options:
-  -y, --yes   Do not prompt.
-  --dry-run   Print request body without executing.
-  --pretty    Pretty-print JSON output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --dry-run               Print request body without executing.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <index>  Index name.
@@ -1091,10 +1091,10 @@ Usage: ktsearch index snapshot repo create [<options>] <repository>
   Create or update a snapshot repo.
 
 Options:
-  -d, --data=<text>  Raw JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1108,8 +1108,8 @@ Usage: ktsearch index snapshot repo get [<options>] [<repository>]
   Get snapshot repo(s).
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1123,9 +1123,9 @@ Usage: ktsearch index snapshot repo delete [<options>] <repository>
   Delete a snapshot repository.
 
 Options:
-  -y, --yes   Do not prompt.
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1139,8 +1139,8 @@ Usage: ktsearch index snapshot repo verify [<options>] <repository>
   Verify a snapshot repository.
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1154,10 +1154,10 @@ Usage: ktsearch index snapshot create [<options>] <repository> <snapshot>
   Create a snapshot.
 
 Options:
-  -d, --data=<text>  Optional JSON body.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Optional JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1172,8 +1172,8 @@ Usage: ktsearch index snapshot list [<options>] <repository> [<pattern>]
   List snapshots in a repository.
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1188,9 +1188,9 @@ Usage: ktsearch index snapshot delete [<options>] <repository> <snapshot>
   Delete a snapshot.
 
 Options:
-  -y, --yes   Do not prompt.
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1205,10 +1205,10 @@ Usage: ktsearch index snapshot restore [<options>] <repository> <snapshot>
   Restore a snapshot.
 
 Options:
-  -d, --data=<text>  Optional restore JSON.
-  -f, --file=<text>  Read JSON body from file.
-  --pretty           Pretty-print output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Optional restore JSON.
+  -f, --file=<text>       Read JSON body from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <repository>  Repository name.
@@ -1223,11 +1223,11 @@ Usage: ktsearch index reindex [<options>]
   Run _reindex.
 
 Options:
-  -d, --data=<text>      Raw reindex JSON body.
-  -f, --file=<text>      Read JSON body from file.
-  --wait=(true|false)    Wait for completion true|false (default true).
-  --pretty=(true|false)  Pretty-print output.
-  -h, --help             Show this message and exit
+  -d, --data=<text>       Raw reindex JSON body.
+  -f, --file=<text>       Read JSON body from file.
+  --wait=(true|false)     Wait for completion true|false (default true).
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 ```
 
 ## `ktsearch index reindex-task-status`
@@ -1238,8 +1238,8 @@ Usage: ktsearch index reindex-task-status [<options>] <taskid>
   Get _tasks status for reindex task.
 
 Options:
-  --pretty=(true|false)  Pretty-print output.
-  -h, --help             Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <taskid>  Task id.
@@ -1286,10 +1286,10 @@ Usage: ktsearch index ilm put [<options>] <policy>
   Create or update ILM policy.
 
 Options:
-  -d, --data=<text>  Raw policy JSON.
-  -f, --file=<text>  Read JSON from file.
-  --pretty           Pretty-print output.
-  -h, --help         Show this message and exit
+  -d, --data=<text>       Raw policy JSON.
+  -f, --file=<text>       Read JSON from file.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <policy>  Policy id.
@@ -1303,8 +1303,8 @@ Usage: ktsearch index ilm get [<options>] [<policy>]
   Get ILM policy/policies.
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <policy>  Policy id.
@@ -1318,9 +1318,9 @@ Usage: ktsearch index ilm delete [<options>] <policy>
   Delete ILM policy.
 
 Options:
-  -y, --yes   Do not prompt.
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  -y, --yes               Do not prompt.
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 
 Arguments:
   <policy>  Policy id.
@@ -1334,8 +1334,8 @@ Usage: ktsearch index ilm status [<options>]
   Get ILM status.
 
 Options:
-  --pretty    Pretty-print output.
-  -h, --help  Show this message and exit
+  --pretty / --no-pretty  Pretty-print JSON output.
+  -h, --help              Show this message and exit
 ```
 
 ## `ktsearch index apply`
@@ -1435,7 +1435,7 @@ Usage: ktsearch index search [<options>] <index>
 
 Options:
   --query=<text>                                         Lucene query string syntax.
-  --data=<text>                                          Raw JSON query body.
+  -d, --data=<text>                                      Raw JSON query body.
   --size=<int>                                           Number of hits to return.
   --offse, --offset=<int>                                Offset for paging. --offse kept for compatibility.
   --fields=<text>                                        Comma-separated list of source fields to include.
@@ -1445,7 +1445,7 @@ Options:
   --routing=<text>                                       Routing value for shard targeting.
   --preference=<text>                                    Search preference value (e.g. _local).
   --allow-partial-results=<text>                         Allow partial results when shards fail (true|false).
-  --pretty                                               Pretty-print JSON output.
+  --pretty / --no-pretty                                 Pretty-print JSON output.
   --output=<text>                                        Write output JSON to file instead of stdout.
   --profile                                              Enable query profiling.
   --explain                                              Include explain output for hits.

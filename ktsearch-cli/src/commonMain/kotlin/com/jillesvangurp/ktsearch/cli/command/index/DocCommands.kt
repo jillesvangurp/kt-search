@@ -5,13 +5,11 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class DocCommand(
     service: CliService,
@@ -44,8 +42,7 @@ private class DocGetCommand(
 
     private val index by argument(help = "Index name.")
     private val id by argument(help = "Document id.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -53,7 +50,7 @@ private class DocGetCommand(
             method = ApiMethod.Get,
             path = listOf(index, "_doc", id),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -70,8 +67,7 @@ private class DocIndexCommand(
     ).choice("index", "create").default("index")
     private val data by option("-d", "--data", help = "Raw JSON document.")
     private val file by option("-f", "--file", help = "Read JSON document from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -87,7 +83,7 @@ private class DocIndexCommand(
             parameters = mapOf("op_type" to opType),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -99,10 +95,8 @@ private class DocDeleteCommand(
 
     private val index by argument(help = "Index name.")
     private val id by argument(help = "Document id.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -116,7 +110,7 @@ private class DocDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf(index, "_doc", id),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -128,8 +122,7 @@ private class DocMGetCommand(
     private val index by argument(help = "Index name.")
     private val data by option("-d", "--data", help = "Raw JSON mget payload.")
     private val file by option("-f", "--file", help = "Read JSON payload from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -139,6 +132,6 @@ private class DocMGetCommand(
             path = listOf(index, "_mget"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

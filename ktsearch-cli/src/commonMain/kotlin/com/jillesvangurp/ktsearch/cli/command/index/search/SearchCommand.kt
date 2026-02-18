@@ -2,7 +2,6 @@ package com.jillesvangurp.ktsearch.cli.command.index.search
 
 import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.findObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -10,9 +9,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.platformWriteUtf8File
 import com.jillesvangurp.ktsearch.cli.prettyJson
+import com.jillesvangurp.ktsearch.cli.command.index.prettyFlag
+import com.jillesvangurp.ktsearch.cli.command.index.requireConnectionOptions
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 
@@ -30,6 +30,7 @@ class SearchCommand(
     )
 
     private val data by option(
+        "-d",
         "--data",
         help = "Raw JSON query body.",
     )
@@ -80,10 +81,7 @@ class SearchCommand(
         help = "Allow partial results when shards fail (true|false).",
     )
 
-    private val pretty by option(
-        "--pretty",
-        help = "Pretty-print JSON output.",
-    ).flag(default = false)
+    private val pretty by prettyFlag()
 
     private val output by option(
         "--output",
@@ -114,8 +112,7 @@ class SearchCommand(
     )
 
     override suspend fun run() {
-        val connectionOptions = currentContext.findObject<ConnectionOptions>()
-            ?: error("Missing connection options in command context")
+        val connectionOptions = requireConnectionOptions()
         val hasQuery = !query.isNullOrBlank()
         val hasData = !data.isNullOrBlank()
         if (hasQuery == hasData) {

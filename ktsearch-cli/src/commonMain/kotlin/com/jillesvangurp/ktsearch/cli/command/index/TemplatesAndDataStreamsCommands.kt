@@ -5,12 +5,10 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class TemplateCommand(
     service: CliService,
@@ -100,8 +98,7 @@ private class TemplateGetCommand(
     override fun help(context: Context): String = "Get template by id or all."
 
     private val templateId by argument(help = "Template id.").optional()
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val path = buildList {
@@ -113,7 +110,7 @@ private class TemplateGetCommand(
             method = ApiMethod.Get,
             path = path,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -127,8 +124,7 @@ private class TemplatePutCommand(
     private val templateId by argument(help = "Template id.")
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -138,7 +134,7 @@ private class TemplatePutCommand(
             path = listOf(endpoint, templateId),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -152,14 +148,9 @@ private class TemplateDeleteCommand(
     override fun help(context: Context): String = "Delete a template."
 
     private val templateId by argument(help = "Template id.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val dryRun by option(
-        "--dry-run",
-        help = "Preview request without executing.",
-    ).flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val dryRun by dryRunFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -177,7 +168,7 @@ private class TemplateDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf(endpoint, templateId),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -210,8 +201,7 @@ private class DataStreamCreateCommand(
     override fun help(context: Context): String = "Create a data stream."
 
     private val nameArg by argument(help = "Data stream name.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -219,7 +209,7 @@ private class DataStreamCreateCommand(
             method = ApiMethod.Put,
             path = listOf("_data_stream", nameArg),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -229,8 +219,7 @@ private class DataStreamGetCommand(
     override fun help(context: Context): String = "Get data stream info."
 
     private val nameArg by argument(help = "Data stream name.").optional()
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val path = buildList {
@@ -242,7 +231,7 @@ private class DataStreamGetCommand(
             method = ApiMethod.Get,
             path = path,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -253,10 +242,8 @@ private class DataStreamDeleteCommand(
     override fun help(context: Context): String = "Delete a data stream."
 
     private val nameArg by argument(help = "Data stream name.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -270,6 +257,6 @@ private class DataStreamDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf("_data_stream", nameArg),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

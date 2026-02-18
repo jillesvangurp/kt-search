@@ -4,13 +4,11 @@ import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class CreateIndexCommand(
     private val service: CliService,
@@ -21,8 +19,7 @@ class CreateIndexCommand(
     private val index by argument(help = "Index name.")
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = false)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = false, currentContext)
@@ -32,7 +29,7 @@ class CreateIndexCommand(
             path = listOf(index),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -43,8 +40,7 @@ class GetIndexCommand(
     override fun help(context: Context): String = "Get index metadata."
 
     private val index by argument(help = "Index name.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -52,7 +48,7 @@ class GetIndexCommand(
             method = ApiMethod.Get,
             path = listOf(index),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -77,18 +73,13 @@ class DeleteIndexCommand(
     override fun help(context: Context): String = "Delete an index."
 
     private val index by argument(help = "Index name.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val dryRun by option(
-        "--dry-run",
-        help = "Preview request without executing.",
-    ).flag(default = false)
+    private val yes by yesFlag()
+    private val dryRun by dryRunFlag()
     private val ignoreUnavailable by option(
         "--ignore-unavailable",
         help = "Ignore missing indices (default true).",
     ).choice("true", "false").default("true")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -107,6 +98,6 @@ class DeleteIndexCommand(
             path = listOf(index),
             parameters = mapOf("ignore_unavailable" to ignoreUnavailable),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

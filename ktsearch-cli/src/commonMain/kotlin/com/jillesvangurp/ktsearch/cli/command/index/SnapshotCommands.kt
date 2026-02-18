@@ -6,12 +6,10 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class SnapshotCommand(
     service: CliService,
@@ -70,8 +68,7 @@ private class SnapshotRepoCreateCommand(
     private val repository by argument(help = "Repository name.")
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -81,7 +78,7 @@ private class SnapshotRepoCreateCommand(
             path = listOf("_snapshot", repository),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -91,8 +88,7 @@ private class SnapshotRepoGetCommand(
     override fun help(context: Context): String = "Get snapshot repo(s)."
 
     private val repository by argument(help = "Repository name.").optional()
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val path = buildList {
@@ -104,7 +100,7 @@ private class SnapshotRepoGetCommand(
             method = ApiMethod.Get,
             path = path,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -115,10 +111,8 @@ private class SnapshotRepoDeleteCommand(
     override fun help(context: Context): String = "Delete a snapshot repository."
 
     private val repository by argument(help = "Repository name.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -132,7 +126,7 @@ private class SnapshotRepoDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf("_snapshot", repository),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -142,8 +136,7 @@ private class SnapshotRepoVerifyCommand(
     override fun help(context: Context): String = "Verify a snapshot repository."
 
     private val repository by argument(help = "Repository name.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -151,7 +144,7 @@ private class SnapshotRepoVerifyCommand(
             method = ApiMethod.Post,
             path = listOf("_snapshot", repository, "_verify"),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -164,8 +157,7 @@ private class SnapshotCreateCommand(
     private val snapshot by argument(help = "Snapshot name.")
     private val data by option("-d", "--data", help = "Optional JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = false, currentContext)
@@ -175,7 +167,7 @@ private class SnapshotCreateCommand(
             path = listOf("_snapshot", repository, snapshot),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -186,8 +178,7 @@ private class SnapshotListCommand(
 
     private val repository by argument(help = "Repository name.")
     private val pattern by argument(help = "Snapshot pattern.").default("_all")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -195,7 +186,7 @@ private class SnapshotListCommand(
             method = ApiMethod.Get,
             path = listOf("_snapshot", repository, pattern),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -207,10 +198,8 @@ private class SnapshotDeleteCommand(
 
     private val repository by argument(help = "Repository name.")
     private val snapshot by argument(help = "Snapshot name.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -224,7 +213,7 @@ private class SnapshotDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf("_snapshot", repository, snapshot),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -237,8 +226,7 @@ private class SnapshotRestoreCommand(
     private val snapshot by argument(help = "Snapshot name.")
     private val data by option("-d", "--data", help = "Optional restore JSON.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = false, currentContext)
@@ -248,6 +236,6 @@ private class SnapshotRestoreCommand(
             path = listOf("_snapshot", repository, snapshot, "_restore"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

@@ -9,8 +9,6 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.platformReadUtf8File
-import com.jillesvangurp.ktsearch.cli.prettyJson
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
@@ -54,7 +52,7 @@ class ApplyCommand(
             path = path,
             data = body,
         )
-        echo(prettyJson(response))
+        echoJson(response, pretty = true)
     }
 }
 
@@ -80,7 +78,7 @@ class WaitGreenCommand(
             val json = Json.Default.decodeFromString(JsonObject.serializer(), response)
             val status = json["status"]?.toString()?.trim('"')
             if (status == "green") {
-                echo(prettyJson(response))
+                echoJson(response, pretty = true)
                 return
             }
             if (Clock.System.now() - started > timeoutSeconds.seconds) {

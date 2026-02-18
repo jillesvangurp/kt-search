@@ -9,7 +9,6 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
@@ -27,8 +26,7 @@ class ReindexCommand(
         "--wait",
         help = "Wait for completion true|false (default true).",
     ).choice("true", "false").default("true")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .choice("true", "false").default("true")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -39,11 +37,7 @@ class ReindexCommand(
             parameters = mapOf("wait_for_completion" to wait),
             data = body,
         )
-        if (pretty == "true") {
-            echo(prettyJson(response))
-        } else {
-            echo(response)
-        }
+        echoJson(response, pretty)
     }
 }
 
@@ -53,8 +47,7 @@ class ReindexTaskStatusCommand(
     override fun help(context: Context): String = "Get _tasks status for reindex task."
 
     private val taskId by argument(help = "Task id.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .choice("true", "false").default("true")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -62,11 +55,7 @@ class ReindexTaskStatusCommand(
             method = ApiMethod.Get,
             path = listOf("_tasks", taskId),
         )
-        if (pretty == "true") {
-            echo(prettyJson(response))
-        } else {
-            echo(response)
-        }
+        echoJson(response, pretty)
     }
 }
 
@@ -96,7 +85,7 @@ class ReindexWaitCommand(
             val obj = Json.Default.decodeFromString(JsonObject.serializer(), response)
             val completed = obj["completed"]?.jsonPrimitive?.content == "true"
             if (completed) {
-                echo(prettyJson(response))
+                echoJson(response, pretty = true)
                 return
             }
             val waited = kotlin.time.Clock.System.now() - started

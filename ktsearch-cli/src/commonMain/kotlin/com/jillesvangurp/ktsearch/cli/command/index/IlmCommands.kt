@@ -5,12 +5,10 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class IlmCommand(
     service: CliService,
@@ -44,8 +42,7 @@ private class IlmPutCommand(
     private val policy by argument(help = "Policy id.")
     private val data by option("-d", "--data", help = "Raw policy JSON.")
     private val file by option("-f", "--file", help = "Read JSON from file.")
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -55,7 +52,7 @@ private class IlmPutCommand(
             path = listOf("_ilm", "policy", policy),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -65,8 +62,7 @@ private class IlmGetCommand(
     override fun help(context: Context): String = "Get ILM policy/policies."
 
     private val policy by argument(help = "Policy id.").optional()
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val path = buildList {
@@ -79,7 +75,7 @@ private class IlmGetCommand(
             method = ApiMethod.Get,
             path = path,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -90,10 +86,8 @@ private class IlmDeleteCommand(
     override fun help(context: Context): String = "Delete ILM policy."
 
     private val policy by argument(help = "Policy id.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -107,7 +101,7 @@ private class IlmDeleteCommand(
             method = ApiMethod.Delete,
             path = listOf("_ilm", "policy", policy),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -116,8 +110,7 @@ private class IlmStatusCommand(
 ) : CoreSuspendingCliktCommand(name = "status") {
     override fun help(context: Context): String = "Get ILM status."
 
-    private val pretty by option("--pretty", help = "Pretty-print output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -125,6 +118,6 @@ private class IlmStatusCommand(
             method = ApiMethod.Get,
             path = listOf("_ilm", "status"),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

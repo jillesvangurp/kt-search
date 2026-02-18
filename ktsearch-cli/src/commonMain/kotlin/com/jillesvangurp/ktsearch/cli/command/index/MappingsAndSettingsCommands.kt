@@ -4,11 +4,9 @@ import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class MappingsCommand(
     service: CliService,
@@ -37,8 +35,7 @@ private class GetMappingsCommand(
     override fun help(context: Context): String = "Get index mappings."
 
     private val index by argument(help = "Index name.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -46,7 +43,7 @@ private class GetMappingsCommand(
             method = ApiMethod.Get,
             path = listOf(index, "_mappings"),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -58,8 +55,7 @@ private class PutMappingsCommand(
     private val index by argument(help = "Index name.")
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -69,7 +65,7 @@ private class PutMappingsCommand(
             path = listOf(index, "_mapping"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -100,8 +96,7 @@ private class GetSettingsCommand(
     override fun help(context: Context): String = "Get index settings."
 
     private val index by argument(help = "Index name.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val response = service.apiRequest(
@@ -109,7 +104,7 @@ private class GetSettingsCommand(
             method = ApiMethod.Get,
             path = listOf(index, "_settings"),
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -121,8 +116,7 @@ private class PutSettingsCommand(
     private val index by argument(help = "Index name.")
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -132,6 +126,6 @@ private class PutSettingsCommand(
             path = listOf(index, "_settings"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }

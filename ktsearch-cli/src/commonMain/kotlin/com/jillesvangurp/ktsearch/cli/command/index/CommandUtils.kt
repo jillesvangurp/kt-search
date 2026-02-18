@@ -3,9 +3,12 @@ package com.jillesvangurp.ktsearch.cli.command.index
 import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.findObject
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.platformReadUtf8File
+import com.jillesvangurp.ktsearch.cli.prettyJson
 
 internal fun requireConfirmation(
     context: Context,
@@ -49,3 +52,23 @@ internal fun readBody(
 internal fun CoreSuspendingCliktCommand.requireConnectionOptions() =
     currentContext.findObject<ConnectionOptions>()
         ?: error("Missing connection options in command context")
+
+internal fun CoreSuspendingCliktCommand.prettyFlag(default: Boolean = true) =
+    option("--pretty", help = "Pretty-print JSON output.")
+        .flag("--no-pretty", default = default)
+
+internal fun CoreSuspendingCliktCommand.yesFlag() =
+    option("-y", "--yes", help = "Do not prompt.")
+        .flag(default = false)
+
+internal fun CoreSuspendingCliktCommand.dryRunFlag(
+    help: String = "Preview request without executing.",
+) = option("--dry-run", help = help)
+    .flag(default = false)
+
+internal fun CoreSuspendingCliktCommand.echoJson(
+    response: String,
+    pretty: Boolean,
+) {
+    echo(if (pretty) prettyJson(response) else response)
+}

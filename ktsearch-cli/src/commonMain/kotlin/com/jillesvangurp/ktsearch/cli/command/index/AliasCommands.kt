@@ -5,13 +5,11 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
-import com.jillesvangurp.ktsearch.cli.prettyJson
 
 class AliasCommand(
     service: CliService,
@@ -45,8 +43,7 @@ private class AliasGetCommand(
     override fun help(context: Context): String = "Get aliases for target or all."
 
     private val target by argument(help = "Index or alias target.").optional()
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val path = buildList {
@@ -58,7 +55,7 @@ private class AliasGetCommand(
             method = ApiMethod.Get,
             path = path,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -69,12 +66,8 @@ private class AliasUpdateCommand(
 
     private val data by option("-d", "--data", help = "Raw JSON body.")
     private val file by option("-f", "--file", help = "Read JSON body from file.")
-    private val dryRun by option(
-        "--dry-run",
-        help = "Print request body without executing.",
-    ).flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val dryRun by dryRunFlag("Print request body without executing.")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = readBody(data, file, required = true, currentContext)
@@ -88,7 +81,7 @@ private class AliasUpdateCommand(
             path = listOf("_aliases"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -103,12 +96,8 @@ private class AliasAddCommand(
         "--write",
         help = "Set is_write_index true|false.",
     ).choice("true", "false")
-    private val dryRun by option(
-        "--dry-run",
-        help = "Print request body without executing.",
-    ).flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val dryRun by dryRunFlag("Print request body without executing.")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val writePart = when (write) {
@@ -129,7 +118,7 @@ private class AliasAddCommand(
             path = listOf("_aliases"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -140,12 +129,8 @@ private class AliasRemoveCommand(
 
     private val index by argument(help = "Index name.")
     private val alias by argument(help = "Alias name.")
-    private val dryRun by option(
-        "--dry-run",
-        help = "Print request body without executing.",
-    ).flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val dryRun by dryRunFlag("Print request body without executing.")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         val body = """
@@ -161,7 +146,7 @@ private class AliasRemoveCommand(
             path = listOf("_aliases"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
 
@@ -173,14 +158,9 @@ private class AliasRemoveIndexCommand(
         "Atomically remove index via alias API (deletes index)."
 
     private val index by argument(help = "Index name.")
-    private val yes by option("-y", "--yes", help = "Do not prompt.")
-        .flag(default = false)
-    private val dryRun by option(
-        "--dry-run",
-        help = "Print request body without executing.",
-    ).flag(default = false)
-    private val pretty by option("--pretty", help = "Pretty-print JSON output.")
-        .flag(default = true)
+    private val yes by yesFlag()
+    private val dryRun by dryRunFlag("Print request body without executing.")
+    private val pretty by prettyFlag()
 
     override suspend fun run() {
         requireConfirmation(
@@ -202,6 +182,6 @@ private class AliasRemoveIndexCommand(
             path = listOf("_aliases"),
             data = body,
         )
-        echo(if (pretty) prettyJson(response) else response)
+        echoJson(response, pretty)
     }
 }
