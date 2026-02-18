@@ -21,8 +21,11 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
 - [Pet-Store-Demo](petstore-demo/README.md) - Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
-- [ktsearch-cli](ktsearch-cli/README.md) - Multiplatform CLI for operating
-  Elasticsearch/OpenSearch clusters from the command line.
+- [ktsearch-cli](ktsearch-cli/README.md) - Native command line tool for
+  operating Elasticsearch/OpenSearch clusters on macOS and Linux. It is
+  implemented with Kotlin Multiplatform and includes bash/zsh style shell
+  autocompletion. See the CLI
+  [README](ktsearch-cli/README.md) for detailed install instructions.
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
