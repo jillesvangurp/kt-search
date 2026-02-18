@@ -42,3 +42,20 @@ ktsearch completion fish
 
 - Native executable: `ktsearch` (host-supported native targets)
 - JVM fat jar: `./gradlew :ktsearch-cli:jvmFatJar`
+
+## Install / uninstall
+
+Use the provided scripts from the repository root:
+
+```bash
+./ktsearch-cli/install.sh
+./ktsearch-cli/uninstall.sh
+```
+
+`install.sh` builds the native release executable for your current macOS/Linux
+host (incremental build) and installs `ktsearch` in a writable bin directory:
+
+- macOS: `/opt/homebrew/bin`, `/usr/local/bin`, `~/.local/bin`, or `~/bin`
+- Linux: `~/.local/bin`, `/usr/local/bin`, or `~/bin`
+
+To force a specific installation path, set `KTSEARCH_INSTALL_DIR`.
