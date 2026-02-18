@@ -17,7 +17,7 @@ import org.springframework.core.io.ResourceLoader
 @SpringBootTest(
     properties = [
         "demo.elastic.host=127.0.0.1",
-        "demo.elastic.port=9999",
+        "demo.elastic.port=9990",
         "demo.elastic.https=false"
     ]
 )

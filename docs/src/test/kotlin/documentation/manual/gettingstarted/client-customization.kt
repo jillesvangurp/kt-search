@@ -9,8 +9,8 @@ import kotlin.time.Duration.Companion.seconds
 
 
 val clientConfiguration = sourceGitRepository.md {
-    // test server runs on 9999, so we need to override
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    // test server runs on 9990, so we need to override
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
 
     +"""
         One of the parameters on `SearchClient` is the `restClient` parameter which has a default value

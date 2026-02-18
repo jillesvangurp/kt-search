@@ -1,6 +1,7 @@
 services:
-  es8:
+  testes:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.18.1
+    container_name: testes
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
@@ -22,4 +23,4 @@ services:
         hard: -1
     ports:
       # give our test instance a port number that is for sure not going to write to some poor cluster listening on 9200
-      - "9999:9200"
+      - "9990:9200"

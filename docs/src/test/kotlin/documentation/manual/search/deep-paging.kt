@@ -18,7 +18,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration.Companion.minutes
 
 val deepPagingMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     @Serializable
     data class TestDoc(val id: String, val name: String, val tags: List<String> = listOf())
     val indexName = "docs-search-demo"

@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("NAME_SHADOWING")
 val indexRepoMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     @Serializable
     data class TestDoc(val message: String)
     val repo = client.repository("test", TestDoc.serializer())

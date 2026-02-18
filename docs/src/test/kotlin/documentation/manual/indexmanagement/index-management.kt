@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.Json
 
 val indexManagementMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     runCatching {
         runBlocking {
             client.deleteIndex(target = "an-index", ignoreUnavailable = true)

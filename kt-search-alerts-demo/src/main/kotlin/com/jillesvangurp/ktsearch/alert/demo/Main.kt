@@ -25,7 +25,7 @@ private fun env(key: String, default: String) = System.getenv(key) ?: default
 @OptIn(ExperimentalTime::class)
 suspend fun main() {
     val elasticHost = env("ELASTIC_HOST", "localhost")
-    val elasticPort = env("ELASTIC_PORT", "9999").toInt()
+    val elasticPort = env("ELASTIC_PORT", "9990").toInt()
     val environment = env("ENVIRONMENT", "prod")
     val debug = env("DEBUG", "false").toBoolean()
     val slackHook = env("SLACK_HOOK", "").takeIf { it.isNotBlank() }
