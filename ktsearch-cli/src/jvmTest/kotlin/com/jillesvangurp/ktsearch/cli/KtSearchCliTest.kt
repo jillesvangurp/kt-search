@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
 import com.jillesvangurp.ktsearch.ClusterStatus
+import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.io.FileInputStream
