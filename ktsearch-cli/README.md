@@ -3,6 +3,15 @@
 `ktsearch-cli` is a multiplatform command line tool for Elasticsearch and
 OpenSearch operations based on `kt-search`.
 
+## Why use this CLI
+
+- One CLI for three Elasticsearch generations (`7`, `8`, `9`) and three
+  OpenSearch generations (`1`, `2`, `3`).
+- Single easy-to-install binary (`ktsearch`) for macOS/Linux.
+- Built-in shell auto-complete with install support for Bash and Zsh.
+- Focused operational commands for day-to-day index, snapshot, data stream,
+  alias, ILM, reindex, and search tasks.
+
 ## Commands
 
 - `ktsearch status`
@@ -92,6 +101,8 @@ ktsearch completion zsh
 ktsearch completion fish
 ```
 
+The install script automatically installs completion for Bash and Zsh.
+
 ## Build artifacts
 
 - Native executable: `ktsearch` (host-supported native targets)
@@ -119,3 +130,50 @@ It also installs shell completions in writable completion dirs:
 
 To force specific paths, set `KTSEARCH_INSTALL_DIR` and/or
 `KTSEARCH_BASH_COMPLETION_DIR` and/or `KTSEARCH_ZSH_COMPLETION_DIR`.
+
+## Scriptability and agentic workflows
+
+`ktsearch-cli` is intended for day-to-day operational scripts:
+
+- Runs well in non-interactive mode with explicit flags like `--yes`.
+- Emits machine-friendly output (`--csv` for cat commands, JSON for API-style
+  commands).
+- Uses environment variables for repeatable CI/dev shell setup.
+
+It also works well with agentic coding tools like Codex and Claude Code.
+Because commands are explicit and composable, agents can safely perform common
+index and cluster operations in runbooks and automation tasks.
+
+> Minimal skill snippet you can add to your project `AGENTS.md`:
+>
+> ```md
+> ## Skill: ktsearch-ops
+> Use `ktsearch` as the default CLI for Elasticsearch/OpenSearch operations.
+>
+> - Prefer `ktsearch` over raw `curl` when a matching command exists.
+> - Use non-interactive flags in automation (`--yes` where needed).
+> - For tabular cat output in scripts, use `--csv`.
+> - For reproducibility, prefer env vars:
+>   `KTSEARCH_HOST`, `KTSEARCH_PORT`, `KTSEARCH_HTTPS`,
+>   `KTSEARCH_USER`, `KTSEARCH_PASSWORD`.
+> - Always print the exact command before executing destructive actions.
+> ```
+
+## Related tools
+
+The tools below are useful alternatives or complements, but `ktsearch-cli`
+is designed to give you one native binary across Elasticsearch and OpenSearch
+generations.
+
+| Tool | What it is good at | Compared to `ktsearch-cli` |
+|---|---|---|
+| `ecctl` (Elastic Cloud) | Managing Elastic Cloud deployments, traffic filters, and platform settings. | Cloud-control focused. `ktsearch-cli` focuses on index/cluster APIs and should add first-class Elastic Cloud endpoint/auth ergonomics. |
+| `opensearch-cli` / AWS CLI (OpenSearch) | OpenSearch plugin workflows and Amazon OpenSearch domain/service operations. | Useful for service/domain provisioning and plugin commands. `ktsearch-cli` focuses on search/index operations and should add smoother AWS OpenSearch auth/profile support. |
+| `curl` + `jq` | Universal access to any endpoint. | Very flexible, but no domain-specific commands, no built-in safety prompts, and no integrated completion model. |
+| `elasticdump` | Data migration/export workflows. | Strong ETL focus, but not a general-purpose operational CLI for aliases/templates/snapshots/ILM in one tool. |
+| `elasticsearch-curator` | Policy-style index housekeeping jobs. | Great for scheduled maintenance; less suited as an interactive daily CLI for both Elasticsearch and OpenSearch generations. |
+| OpenSearch/Elastic Dev Tools consoles | Interactive request authoring in UI. | Excellent for ad hoc requests, but browser-based and not ideal for shell automation in CI/scripts. |
+
+If you want one installable CLI binary with Bash/Zsh completion and broad
+index/cluster operations for Elasticsearch `7-9` and OpenSearch `1-3`,
+`ktsearch-cli` is the primary focus here.
