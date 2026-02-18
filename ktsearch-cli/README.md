@@ -1,0 +1,44 @@
+# ktsearch-cli
+
+`ktsearch-cli` is a multiplatform command line tool for Elasticsearch and
+OpenSearch operations based on `kt-search`.
+
+## Commands
+
+- `ktsearch status`
+- `ktsearch index dump <index>`
+
+`ktsearch index dump` writes a gzipped NDJSON file (`<index>.ndjson.gz`) where
+each line is the document `_source`.
+
+## Examples
+
+```bash
+ktsearch status
+ktsearch --host localhost --port 9200 index dump products
+ktsearch --https --user elastic --password secret index dump products --yes
+```
+
+## Environment variables
+
+- `KTSEARCH_HOST`
+- `KTSEARCH_PORT`
+- `KTSEARCH_HTTPS`
+- `KTSEARCH_USER`
+- `KTSEARCH_PASSWORD`
+- `KTSEARCH_LOGGING`
+
+## Completion
+
+Generate completion scripts via the built-in command:
+
+```bash
+ktsearch completion bash
+ktsearch completion zsh
+ktsearch completion fish
+```
+
+## Build artifacts
+
+- Native executable: `ktsearch` (host-supported native targets)
+- JVM fat jar: `./gradlew :ktsearch-cli:jvmFatJar`

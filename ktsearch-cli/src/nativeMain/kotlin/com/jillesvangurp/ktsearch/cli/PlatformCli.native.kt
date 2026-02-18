@@ -1,0 +1,38 @@
+package com.jillesvangurp.ktsearch.cli
+
+import kotlinx.cinterop.ExperimentalForeignApi
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import okio.buffer
+import okio.gzip
+import platform.posix.fileno
+import platform.posix.isatty
+import platform.posix.stdin
+
+actual fun platformFileExists(path: String): Boolean =
+    FileSystem.SYSTEM.exists(path.toPath())
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun platformIsInteractiveInput(): Boolean = isatty(fileno(stdin)) != 0
+
+actual fun platformReadLineFromStdin(): String? = readLine()
+
+actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
+    return NativeNdjsonGzipWriter(path)
+}
+
+private class NativeNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
+    private val sink = FileSystem.SYSTEM
+        .sink(path.toPath(), mustCreate = false)
+        .gzip()
+        .buffer()
+
+    override fun writeLine(line: String) {
+        sink.writeUtf8(line)
+        sink.writeByte('\n'.code)
+    }
+
+    override fun close() {
+        sink.close()
+    }
+}

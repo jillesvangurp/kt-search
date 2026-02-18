@@ -15,6 +15,7 @@ refreshVersions {
 
 include("search-dsls")
 include("search-client")
+include("ktsearch-cli")
 include("docs")
 include("kt-search-lib-alerts")
 include("kt-search-alerts-demo")
