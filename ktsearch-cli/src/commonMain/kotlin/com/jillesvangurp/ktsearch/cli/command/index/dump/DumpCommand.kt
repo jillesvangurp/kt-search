@@ -25,6 +25,7 @@ class DumpCommand(
     )
 
     private val yes by option(
+        "-y",
         "--yes",
         help = "Overwrite without confirmation if file exists.",
     ).flag(default = false)

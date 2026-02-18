@@ -2,9 +2,12 @@ package com.jillesvangurp.ktsearch.cli
 
 import java.io.BufferedWriter
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
+import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 actual fun platformFileExists(path: String): Boolean = File(path).exists()
@@ -15,6 +18,14 @@ actual fun platformReadLineFromStdin(): String? = readLine()
 
 actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
     return JvmNdjsonGzipWriter(path)
+}
+
+actual fun platformCreateGzipReader(path: String): NdjsonGzipReader {
+    return JvmNdjsonGzipReader(path)
+}
+
+actual fun platformReadUtf8File(path: String): String {
+    return File(path).readText(Charsets.UTF_8)
 }
 
 actual fun platformWriteUtf8File(path: String, content: String) {
@@ -36,5 +47,20 @@ private class JvmNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
 
     override fun close() {
         writer.close()
+    }
+}
+
+private class JvmNdjsonGzipReader(path: String) : NdjsonGzipReader {
+    private val reader = InputStreamReader(
+        GZIPInputStream(FileInputStream(path)),
+        StandardCharsets.UTF_8,
+    ).buffered()
+
+    override fun readLine(): String? {
+        return reader.readLine()
+    }
+
+    override fun close() {
+        reader.close()
     }
 }

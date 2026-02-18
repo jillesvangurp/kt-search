@@ -421,8 +421,970 @@ Options:
   -h, --help  Show this message and exit
 
 Commands:
-  dump    Dump all index documents to gzipped NDJSON using search_after.
-  search  Run a search with lucene query string or raw JSON body.
+  create               Create an index.
+  put                  Create an index.
+  get                  Get index metadata.
+  show                 Get index metadata.
+  exists               Check if an index exists.
+  delete               Delete an index.
+  rm                   Delete an index.
+  doc                  Document CRUD and mget.
+  mappings             Manage index mappings.
+  settings             Manage index settings.
+  template             Manage component/index templates.
+  data-stream          Manage data streams.
+  alias                Manage aliases with atomic _aliases operations.
+  snapshot             Manage snapshot repos/snapshots.
+  reindex              Run _reindex.
+  reindex-task-status  Get _tasks status for reindex task.
+  reindex-wait         Poll reindex task until completion.
+  ilm                  Manage ILM policies.
+  apply                Apply JSON as mappings/settings/component-template/index-template.
+  wait-green           Wait until index health is green.
+  wait-exists          Wait until index exists.
+  dump                 Dump all index documents to gzipped NDJSON using search_after.
+  restore              Restore gzipped NDJSON dump into an index.
+  search               Run a search with lucene query string or raw JSON body.
+```
+
+## `ktsearch index create`
+
+```text
+Usage: ktsearch index create [<options>] <index>
+
+  Create an index.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index put`
+
+```text
+Usage: ktsearch index put [<options>] <index>
+
+  Create an index.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index get`
+
+```text
+Usage: ktsearch index get [<options>] <index>
+
+  Get index metadata.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index show`
+
+```text
+Usage: ktsearch index show [<options>] <index>
+
+  Get index metadata.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index exists`
+
+```text
+Usage: ktsearch index exists [<options>] <index>
+
+  Check if an index exists.
+
+Options:
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index delete`
+
+```text
+Usage: ktsearch index delete [<options>] <index>
+
+  Delete an index.
+
+Options:
+  -y, --yes                          Do not prompt.
+  --dry-run                          Preview request without executing.
+  --ignore-unavailable=(true|false)  Ignore missing indices (default true).
+  --pretty                           Pretty-print JSON output.
+  -h, --help                         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index rm`
+
+```text
+Usage: ktsearch index rm [<options>] <index>
+
+  Delete an index.
+
+Options:
+  -y, --yes                          Do not prompt.
+  --dry-run                          Preview request without executing.
+  --ignore-unavailable=(true|false)  Ignore missing indices (default true).
+  --pretty                           Pretty-print JSON output.
+  -h, --help                         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index doc`
+
+```text
+Usage: ktsearch index doc [<options>] <command> [<args>]...
+
+  Document CRUD and mget.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get     Get a document by id.
+  index   Index a document.
+  delete  Delete a document by id.
+  mget    Run _mget on an index.
+```
+
+## `ktsearch index doc get`
+
+```text
+Usage: ktsearch index doc get [<options>] <index> <id>
+
+  Get a document by id.
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+  <id>     Document id.
+```
+
+## `ktsearch index doc index`
+
+```text
+Usage: ktsearch index doc index [<options>] <index>
+
+  Index a document.
+
+Options:
+  --id=<text>               Document id. If omitted, auto id.
+  --op-type=(index|create)  Operation type (default index).
+  -d, --data=<text>         Raw JSON document.
+  -f, --file=<text>         Read JSON document from file.
+  --pretty                  Pretty-print output.
+  -h, --help                Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index doc delete`
+
+```text
+Usage: ktsearch index doc delete [<options>] <index> <id>
+
+  Delete a document by id.
+
+Options:
+  -y, --yes   Do not prompt.
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+  <id>     Document id.
+```
+
+## `ktsearch index doc mget`
+
+```text
+Usage: ktsearch index doc mget [<options>] <index>
+
+  Run _mget on an index.
+
+Options:
+  -d, --data=<text>  Raw JSON mget payload.
+  -f, --file=<text>  Read JSON payload from file.
+  --pretty           Pretty-print output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index mappings`
+
+```text
+Usage: ktsearch index mappings [<options>] <command> [<args>]...
+
+  Manage index mappings.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get  Get index mappings.
+  put  Update index mappings.
+```
+
+## `ktsearch index mappings get`
+
+```text
+Usage: ktsearch index mappings get [<options>] <index>
+
+  Get index mappings.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index mappings put`
+
+```text
+Usage: ktsearch index mappings put [<options>] <index>
+
+  Update index mappings.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index settings`
+
+```text
+Usage: ktsearch index settings [<options>] <command> [<args>]...
+
+  Manage index settings.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get  Get index settings.
+  put  Update index settings.
+```
+
+## `ktsearch index settings get`
+
+```text
+Usage: ktsearch index settings get [<options>] <index>
+
+  Get index settings.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index settings put`
+
+```text
+Usage: ktsearch index settings put [<options>] <index>
+
+  Update index settings.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index template`
+
+```text
+Usage: ktsearch index template [<options>] <command> [<args>]...
+
+  Manage component/index templates.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  component  Manage component templates.
+  index      Manage index templates.
+```
+
+## `ktsearch index template component`
+
+```text
+Usage: ktsearch index template component [<options>] <command> [<args>]...
+
+  Manage component templates.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get     Get template by id or all.
+  put     Create or update template.
+  delete  Delete a template.
+```
+
+## `ktsearch index template component get`
+
+```text
+Usage: ktsearch index template component get [<options>] [<templateid>]
+
+  Get template by id or all.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index template component put`
+
+```text
+Usage: ktsearch index template component put [<options>] <templateid>
+
+  Create or update template.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index template component delete`
+
+```text
+Usage: ktsearch index template component delete [<options>] <templateid>
+
+  Delete a template.
+
+Options:
+  -y, --yes   Do not prompt.
+  --dry-run   Preview request without executing.
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index template index`
+
+```text
+Usage: ktsearch index template index [<options>] <command> [<args>]...
+
+  Manage index templates.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get     Get template by id or all.
+  put     Create or update template.
+  delete  Delete a template.
+```
+
+## `ktsearch index template index get`
+
+```text
+Usage: ktsearch index template index get [<options>] [<templateid>]
+
+  Get template by id or all.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index template index put`
+
+```text
+Usage: ktsearch index template index put [<options>] <templateid>
+
+  Create or update template.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index template index delete`
+
+```text
+Usage: ktsearch index template index delete [<options>] <templateid>
+
+  Delete a template.
+
+Options:
+  -y, --yes   Do not prompt.
+  --dry-run   Preview request without executing.
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <templateid>  Template id.
+```
+
+## `ktsearch index data-stream`
+
+```text
+Usage: ktsearch index data-stream [<options>] <command> [<args>]...
+
+  Manage data streams.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  create  Create a data stream.
+  get     Get data stream info.
+  delete  Delete a data stream.
+```
+
+## `ktsearch index data-stream create`
+
+```text
+Usage: ktsearch index data-stream create [<options>] <namearg>
+
+  Create a data stream.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <namearg>  Data stream name.
+```
+
+## `ktsearch index data-stream get`
+
+```text
+Usage: ktsearch index data-stream get [<options>] [<namearg>]
+
+  Get data stream info.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <namearg>  Data stream name.
+```
+
+## `ktsearch index data-stream delete`
+
+```text
+Usage: ktsearch index data-stream delete [<options>] <namearg>
+
+  Delete a data stream.
+
+Options:
+  -y, --yes   Do not prompt.
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <namearg>  Data stream name.
+```
+
+## `ktsearch index alias`
+
+```text
+Usage: ktsearch index alias [<options>] <command> [<args>]...
+
+  Manage aliases with atomic _aliases operations.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  get           Get aliases for target or all.
+  update        Apply atomic alias actions from JSON.
+  add           Atomically add alias to index.
+  remove        Atomically remove alias from index.
+  remove-index  Atomically remove index via alias API (deletes index).
+```
+
+## `ktsearch index alias get`
+
+```text
+Usage: ktsearch index alias get [<options>] [<target>]
+
+  Get aliases for target or all.
+
+Options:
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <target>  Index or alias target.
+```
+
+## `ktsearch index alias update`
+
+```text
+Usage: ktsearch index alias update [<options>]
+
+  Apply atomic alias actions from JSON.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --dry-run          Print request body without executing.
+  --pretty           Pretty-print JSON output.
+  -h, --help         Show this message and exit
+```
+
+## `ktsearch index alias add`
+
+```text
+Usage: ktsearch index alias add [<options>] <index> <alias>
+
+  Atomically add alias to index.
+
+Options:
+  --write=(true|false)  Set is_write_index true|false.
+  --dry-run             Print request body without executing.
+  --pretty              Pretty-print JSON output.
+  -h, --help            Show this message and exit
+
+Arguments:
+  <index>  Index name.
+  <alias>  Alias name.
+```
+
+## `ktsearch index alias remove`
+
+```text
+Usage: ktsearch index alias remove [<options>] <index> <alias>
+
+  Atomically remove alias from index.
+
+Options:
+  --dry-run   Print request body without executing.
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+  <alias>  Alias name.
+```
+
+## `ktsearch index alias remove-index`
+
+```text
+Usage: ktsearch index alias remove-index [<options>] <index>
+
+  Atomically remove index via alias API (deletes index).
+
+Options:
+  -y, --yes   Do not prompt.
+  --dry-run   Print request body without executing.
+  --pretty    Pretty-print JSON output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index snapshot`
+
+```text
+Usage: ktsearch index snapshot [<options>] <command> [<args>]...
+
+  Manage snapshot repos/snapshots.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  repo     Manage snapshot repositories.
+  create   Create a snapshot.
+  list     List snapshots in a repository.
+  delete   Delete a snapshot.
+  restore  Restore a snapshot.
+```
+
+## `ktsearch index snapshot repo`
+
+```text
+Usage: ktsearch index snapshot repo [<options>] <command> [<args>]...
+
+  Manage snapshot repositories.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  create  Create or update a snapshot repo.
+  get     Get snapshot repo(s).
+  delete  Delete a snapshot repository.
+  verify  Verify a snapshot repository.
+```
+
+## `ktsearch index snapshot repo create`
+
+```text
+Usage: ktsearch index snapshot repo create [<options>] <repository>
+
+  Create or update a snapshot repo.
+
+Options:
+  -d, --data=<text>  Raw JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+```
+
+## `ktsearch index snapshot repo get`
+
+```text
+Usage: ktsearch index snapshot repo get [<options>] [<repository>]
+
+  Get snapshot repo(s).
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+```
+
+## `ktsearch index snapshot repo delete`
+
+```text
+Usage: ktsearch index snapshot repo delete [<options>] <repository>
+
+  Delete a snapshot repository.
+
+Options:
+  -y, --yes   Do not prompt.
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+```
+
+## `ktsearch index snapshot repo verify`
+
+```text
+Usage: ktsearch index snapshot repo verify [<options>] <repository>
+
+  Verify a snapshot repository.
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+```
+
+## `ktsearch index snapshot create`
+
+```text
+Usage: ktsearch index snapshot create [<options>] <repository> <snapshot>
+
+  Create a snapshot.
+
+Options:
+  -d, --data=<text>  Optional JSON body.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+  <snapshot>    Snapshot name.
+```
+
+## `ktsearch index snapshot list`
+
+```text
+Usage: ktsearch index snapshot list [<options>] <repository> [<pattern>]
+
+  List snapshots in a repository.
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+  <pattern>     Snapshot pattern.
+```
+
+## `ktsearch index snapshot delete`
+
+```text
+Usage: ktsearch index snapshot delete [<options>] <repository> <snapshot>
+
+  Delete a snapshot.
+
+Options:
+  -y, --yes   Do not prompt.
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+  <snapshot>    Snapshot name.
+```
+
+## `ktsearch index snapshot restore`
+
+```text
+Usage: ktsearch index snapshot restore [<options>] <repository> <snapshot>
+
+  Restore a snapshot.
+
+Options:
+  -d, --data=<text>  Optional restore JSON.
+  -f, --file=<text>  Read JSON body from file.
+  --pretty           Pretty-print output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <repository>  Repository name.
+  <snapshot>    Snapshot name.
+```
+
+## `ktsearch index reindex`
+
+```text
+Usage: ktsearch index reindex [<options>]
+
+  Run _reindex.
+
+Options:
+  -d, --data=<text>      Raw reindex JSON body.
+  -f, --file=<text>      Read JSON body from file.
+  --wait=(true|false)    Wait for completion true|false (default true).
+  --pretty=(true|false)  Pretty-print output.
+  -h, --help             Show this message and exit
+```
+
+## `ktsearch index reindex-task-status`
+
+```text
+Usage: ktsearch index reindex-task-status [<options>] <taskid>
+
+  Get _tasks status for reindex task.
+
+Options:
+  --pretty=(true|false)  Pretty-print output.
+  -h, --help             Show this message and exit
+
+Arguments:
+  <taskid>  Task id.
+```
+
+## `ktsearch index reindex-wait`
+
+```text
+Usage: ktsearch index reindex-wait [<options>] <taskid>
+
+  Poll reindex task until completion.
+
+Options:
+  --interval-seconds=<int>  Polling interval seconds.
+  --timeout-seconds=<int>   Max wait seconds.
+  -h, --help                Show this message and exit
+
+Arguments:
+  <taskid>  Task id.
+```
+
+## `ktsearch index ilm`
+
+```text
+Usage: ktsearch index ilm [<options>] <command> [<args>]...
+
+  Manage ILM policies.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  put     Create or update ILM policy.
+  get     Get ILM policy/policies.
+  delete  Delete ILM policy.
+  status  Get ILM status.
+```
+
+## `ktsearch index ilm put`
+
+```text
+Usage: ktsearch index ilm put [<options>] <policy>
+
+  Create or update ILM policy.
+
+Options:
+  -d, --data=<text>  Raw policy JSON.
+  -f, --file=<text>  Read JSON from file.
+  --pretty           Pretty-print output.
+  -h, --help         Show this message and exit
+
+Arguments:
+  <policy>  Policy id.
+```
+
+## `ktsearch index ilm get`
+
+```text
+Usage: ktsearch index ilm get [<options>] [<policy>]
+
+  Get ILM policy/policies.
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <policy>  Policy id.
+```
+
+## `ktsearch index ilm delete`
+
+```text
+Usage: ktsearch index ilm delete [<options>] <policy>
+
+  Delete ILM policy.
+
+Options:
+  -y, --yes   Do not prompt.
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+
+Arguments:
+  <policy>  Policy id.
+```
+
+## `ktsearch index ilm status`
+
+```text
+Usage: ktsearch index ilm status [<options>]
+
+  Get ILM status.
+
+Options:
+  --pretty    Pretty-print output.
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch index apply`
+
+```text
+Usage: ktsearch index apply [<options>] <target>
+
+  Apply JSON as mappings/settings/component-template/index-template.
+
+Options:
+  -f, --file=<text>                                                  Input JSON file.
+  -d, --data=<text>                                                  Raw JSON payload.
+  --kind=(auto|mappings|settings|component-template|index-template)  Kind or auto.
+  -h, --help                                                         Show this message and exit
+
+Arguments:
+  <target>  Index or template id.
+```
+
+## `ktsearch index wait-green`
+
+```text
+Usage: ktsearch index wait-green [<options>] <index>
+
+  Wait until index health is green.
+
+Options:
+  --interval-seconds=<int>
+  --timeout-seconds=<int>
+  -h, --help                Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index wait-exists`
+
+```text
+Usage: ktsearch index wait-exists [<options>] <index>
+
+  Wait until index exists.
+
+Options:
+  --interval-seconds=<int>
+  --timeout-seconds=<int>
+  -h, --help                Show this message and exit
+
+Arguments:
+  <index>  Index name.
 ```
 
 ## `ktsearch index dump`
@@ -434,11 +1396,34 @@ Usage: ktsearch index dump [<options>] <index>
 
 Options:
   --output=<text>  Output file path. Defaults to <index>.ndjson.gz.
-  --yes            Overwrite without confirmation if file exists.
+  -y, --yes        Overwrite without confirmation if file exists.
   -h, --help       Show this message and exit
 
 Arguments:
   <index>  Index name to dump.
+```
+
+## `ktsearch index restore`
+
+```text
+Usage: ktsearch index restore [<options>] <index>
+
+  Restore gzipped NDJSON dump into an index.
+
+Options:
+  --input=<text>                    Input file path. Defaults to <index>.ndjson.gz.
+  --bulk-size=<int>                 Bulk request size.
+  --recreate                        Delete and recreate target index before restore.
+  --create-if-missing=(true|false)  Create target index when missing (default true).
+  --refresh=(wait_for|true|false)   Refresh mode: wait_for|true|false.
+  --pipeline=<text>                 Ingest pipeline for restore indexing.
+  --routing=<text>                  Routing value for all restored docs.
+  --id-field=<text>                 Extract document id from this JSON field per line.
+  -y, --yes                         Do not prompt for destructive actions.
+  -h, --help                        Show this message and exit
+
+Arguments:
+  <index>  Target index name.
 ```
 
 ## `ktsearch index search`

@@ -58,6 +58,8 @@ interface CliPlatform {
     fun readLineFromStdin(): String?
 
     fun createGzipWriter(path: String): NdjsonGzipWriter
+
+    fun createGzipReader(path: String): NdjsonGzipReader
 }
 
 expect fun platformFileExists(path: String): Boolean
@@ -68,10 +70,20 @@ expect fun platformReadLineFromStdin(): String?
 
 expect fun platformCreateGzipWriter(path: String): NdjsonGzipWriter
 
+expect fun platformCreateGzipReader(path: String): NdjsonGzipReader
+
+expect fun platformReadUtf8File(path: String): String
+
 expect fun platformWriteUtf8File(path: String, content: String)
 
 interface NdjsonGzipWriter {
     fun writeLine(line: String)
+
+    fun close()
+}
+
+interface NdjsonGzipReader {
+    fun readLine(): String?
 
     fun close()
 }
@@ -85,4 +97,7 @@ object DefaultCliPlatform : CliPlatform {
 
     override fun createGzipWriter(path: String): NdjsonGzipWriter =
         platformCreateGzipWriter(path)
+
+    override fun createGzipReader(path: String): NdjsonGzipReader =
+        platformCreateGzipReader(path)
 }

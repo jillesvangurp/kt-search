@@ -1,7 +1,10 @@
 package com.jillesvangurp.ktsearch.cli
 
 import com.jillesvangurp.ktsearch.KtorRestClient
+import com.jillesvangurp.ktsearch.Refresh
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.bulkSession
+import com.jillesvangurp.ktsearch.createIndex
 import com.jillesvangurp.ktsearch.CatRequestOptions as ClientCatRequestOptions
 import com.jillesvangurp.ktsearch.CatBytes as ClientCatBytes
 import com.jillesvangurp.ktsearch.CatFormat as ClientCatFormat
@@ -22,7 +25,12 @@ import com.jillesvangurp.ktsearch.catTasks
 import com.jillesvangurp.ktsearch.catTemplates
 import com.jillesvangurp.ktsearch.catThreadPool
 import com.jillesvangurp.ktsearch.clusterHealth
+import com.jillesvangurp.ktsearch.delete
+import com.jillesvangurp.ktsearch.deleteIndex
+import com.jillesvangurp.ktsearch.exists
+import com.jillesvangurp.ktsearch.get
 import com.jillesvangurp.ktsearch.post
+import com.jillesvangurp.ktsearch.put
 import com.jillesvangurp.ktsearch.root
 import com.jillesvangurp.ktsearch.searchAfter
 import kotlin.time.Duration.Companion.minutes
@@ -31,6 +39,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 
 /** Small service abstraction to keep command tests hermetic. */
 interface CliService {
@@ -66,6 +75,39 @@ interface CliService {
         connectionOptions: ConnectionOptions,
         request: CatRequest,
     ): String
+
+    suspend fun apiRequest(
+        connectionOptions: ConnectionOptions,
+        method: ApiMethod,
+        path: List<String>,
+        parameters: Map<String, String>? = null,
+        data: String? = null,
+    ): String
+
+    suspend fun restoreIndex(
+        connectionOptions: ConnectionOptions,
+        index: String,
+        reader: NdjsonGzipReader,
+        bulkSize: Int = 500,
+        createIfMissing: Boolean = true,
+        recreate: Boolean = false,
+        refresh: String = "wait_for",
+        pipeline: String? = null,
+        routing: String? = null,
+        idField: String? = null,
+    ): Long
+
+    suspend fun indexExists(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): Boolean
+}
+
+enum class ApiMethod {
+    Get,
+    Post,
+    Put,
+    Delete,
 }
 
 /** Default service implementation backed by [SearchClient]. */
@@ -208,6 +250,119 @@ class DefaultCliService : CliService {
         }
     }
 
+    override suspend fun apiRequest(
+        connectionOptions: ConnectionOptions,
+        method: ApiMethod,
+        path: List<String>,
+        parameters: Map<String, String>?,
+        data: String?,
+    ): String {
+        val client = createClient(connectionOptions)
+        return try {
+            val response = when (method) {
+                ApiMethod.Get -> client.restClient.get {
+                    path(*path.toTypedArray())
+                    parameters(parameters)
+                }.getOrThrow()
+                ApiMethod.Post -> client.restClient.post {
+                    path(*path.toTypedArray())
+                    parameters(parameters)
+                    data?.let { rawBody(it) }
+                }.getOrThrow()
+                ApiMethod.Put -> client.restClient.put {
+                    path(*path.toTypedArray())
+                    parameters(parameters)
+                    data?.let { rawBody(it) }
+                }.getOrThrow()
+                ApiMethod.Delete -> client.restClient.delete {
+                    path(*path.toTypedArray())
+                    parameters(parameters)
+                    data?.let { rawBody(it) }
+                }.getOrThrow()
+            }
+            response.text
+        } finally {
+            client.close()
+        }
+    }
+
+    override suspend fun restoreIndex(
+        connectionOptions: ConnectionOptions,
+        index: String,
+        reader: NdjsonGzipReader,
+        bulkSize: Int,
+        createIfMissing: Boolean,
+        recreate: Boolean,
+        refresh: String,
+        pipeline: String?,
+        routing: String?,
+        idField: String?,
+    ): Long {
+        val client = createClient(connectionOptions)
+        return try {
+            val indexExists = client.exists(index)
+            if (recreate && indexExists) {
+                client.deleteIndex(index, ignoreUnavailable = true)
+            }
+            if (recreate || (createIfMissing && !indexExists)) {
+                client.createIndex(index)
+            }
+
+            val session = client.bulkSession(
+                target = index,
+                bulkSize = bulkSize,
+                refresh = parseRefresh(refresh),
+                pipeline = pipeline,
+                routing = routing,
+                failOnFirstError = true,
+            )
+            try {
+                var lines = 0L
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    val trimmed = line.trim()
+                    if (trimmed.isEmpty()) {
+                        continue
+                    }
+                    val id = idField?.let { key ->
+                        runCatching {
+                            Json.Default
+                                .decodeFromString(JsonObject.serializer(), trimmed)
+                                .get(key)
+                                ?.let { value ->
+                                    if (value is JsonPrimitive) {
+                                        value.content
+                                    } else {
+                                        value.toString()
+                                    }
+                                }
+                        }.getOrNull()
+                    }
+                    session.index(source = trimmed, id = id)
+                    lines++
+                }
+                session.flush()
+                lines
+            } finally {
+                session.close()
+            }
+        } finally {
+            client.close()
+        }
+    }
+
+    override suspend fun indexExists(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): Boolean {
+        val client = createClient(connectionOptions)
+        return try {
+            client.exists(index)
+        } finally {
+            client.close()
+        }
+    }
+
     private fun createClient(connectionOptions: ConnectionOptions): SearchClient {
         return SearchClient(
             KtorRestClient(
@@ -219,6 +374,15 @@ class DefaultCliService : CliService {
                 logging = connectionOptions.logging,
             ),
         )
+    }
+}
+
+private fun parseRefresh(value: String): Refresh {
+    return when (value.lowercase()) {
+        "wait_for", "waitfor" -> Refresh.WaitFor
+        "true" -> Refresh.True
+        "false" -> Refresh.False
+        else -> Refresh.WaitFor
     }
 }
 

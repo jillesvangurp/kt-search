@@ -296,6 +296,120 @@ class KtSearchCliTest {
         service.lastCatRequest?.variant shouldBe CatVariant.Health
     }
 
+    @Test
+    fun deleteIndexRequiresYesInNonInteractiveMode() = runTest {
+        val service = FakeService()
+        val platform = FakePlatform(interactive = false)
+        val cmd = newCommand(service = service, platform = platform)
+
+        val result = runCatching {
+            cmd.parse(arrayOf("index", "delete", "products"))
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun aliasAddUsesAtomicAliasesApi() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("index", "alias", "add", "products-v1", "products"))
+
+        service.lastApiRequest?.method shouldBe ApiMethod.Post
+        service.lastApiRequest?.path shouldBe listOf("_aliases")
+    }
+
+    @Test
+    fun restoreReadsInputAndForwardsOptions() = runTest {
+        val service = FakeService()
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf("products.ndjson.gz"),
+        ).apply {
+            nextReaderLines = listOf("""{"id":1}""", """{"id":2}""")
+        }
+        val cmd = newCommand(service = service, platform = platform)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "restore",
+                "products",
+                "--bulk-size",
+                "200",
+                "--yes",
+            ),
+        )
+
+        service.lastRestoreRequest shouldBe RestoreRequest(
+            index = "products",
+            bulkSize = 200,
+            createIfMissing = true,
+            recreate = false,
+            refresh = "wait_for",
+            pipeline = null,
+            routing = null,
+            idField = null,
+            lines = listOf("""{"id":1}""", """{"id":2}"""),
+        )
+    }
+
+    @Test
+    fun docGetCallsDocEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("index", "doc", "get", "products", "42"))
+
+        service.lastApiRequest shouldBe ApiRequest(
+            method = ApiMethod.Get,
+            path = listOf("products", "_doc", "42"),
+            parameters = null,
+            data = null,
+        )
+    }
+
+    @Test
+    fun reindexWaitFalseSetsWaitForCompletionParameter() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "reindex",
+                "--wait",
+                "false",
+                "--data",
+                """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            ),
+        )
+
+        service.lastApiRequest?.path shouldBe listOf("_reindex")
+        service.lastApiRequest?.parameters shouldBe
+            mapOf("wait_for_completion" to "false")
+    }
+
+    @Test
+    fun applyAutoDetectsIndexTemplate() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "apply",
+                "logs-template",
+                "--data",
+                """{"index_patterns":["logs-*"],"template":{"settings":{"index.number_of_shards":1}}}""",
+            ),
+        )
+
+        service.lastApiRequest?.path shouldBe
+            listOf("_index_template", "logs-template")
+    }
+
     private fun newCommand(
         service: FakeService,
         platform: CliPlatform = FakePlatform(),
@@ -323,6 +437,8 @@ private class FakeService(
     var statusCalls: Int = 0
     var lastSearchRequest: SearchRequest? = null
     var lastCatRequest: CatServiceRequest? = null
+    var lastApiRequest: ApiRequest? = null
+    var lastRestoreRequest: RestoreRequest? = null
 
     override suspend fun fetchStatus(connectionOptions: ConnectionOptions): StatusResult {
         statusCalls++
@@ -400,6 +516,63 @@ private class FakeService(
         )
         return catResponse
     }
+
+    override suspend fun apiRequest(
+        connectionOptions: ConnectionOptions,
+        method: ApiMethod,
+        path: List<String>,
+        parameters: Map<String, String>?,
+        data: String?,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastApiRequest = ApiRequest(
+            method = method,
+            path = path,
+            parameters = parameters,
+            data = data,
+        )
+        return """{"acknowledged":true}"""
+    }
+
+    override suspend fun restoreIndex(
+        connectionOptions: ConnectionOptions,
+        index: String,
+        reader: NdjsonGzipReader,
+        bulkSize: Int,
+        createIfMissing: Boolean,
+        recreate: Boolean,
+        refresh: String,
+        pipeline: String?,
+        routing: String?,
+        idField: String?,
+    ): Long {
+        lastConnectionOptions = connectionOptions
+        val lines = mutableListOf<String>()
+        while (true) {
+            val line = reader.readLine() ?: break
+            lines.add(line)
+        }
+        lastRestoreRequest = RestoreRequest(
+            index = index,
+            bulkSize = bulkSize,
+            createIfMissing = createIfMissing,
+            recreate = recreate,
+            refresh = refresh,
+            pipeline = pipeline,
+            routing = routing,
+            idField = idField,
+            lines = lines,
+        )
+        return lines.size.toLong()
+    }
+
+    override suspend fun indexExists(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): Boolean {
+        lastConnectionOptions = connectionOptions
+        return true
+    }
 }
 
 private data class SearchRequest(
@@ -433,11 +606,31 @@ private data class CatServiceRequest(
     val local: Boolean?,
 )
 
+private data class ApiRequest(
+    val method: ApiMethod,
+    val path: List<String>,
+    val parameters: Map<String, String>?,
+    val data: String?,
+)
+
+private data class RestoreRequest(
+    val index: String,
+    val bulkSize: Int,
+    val createIfMissing: Boolean,
+    val recreate: Boolean,
+    val refresh: String,
+    val pipeline: String?,
+    val routing: String?,
+    val idField: String?,
+    val lines: List<String>,
+)
+
 private class FakePlatform(
     private val interactive: Boolean = false,
     private val existingPaths: MutableSet<String> = mutableSetOf(),
 ) : CliPlatform {
     val lastWriter = RecordingWriter()
+    var nextReaderLines: List<String> = emptyList()
 
     override fun fileExists(path: String): Boolean = existingPaths.contains(path)
 
@@ -448,6 +641,10 @@ private class FakePlatform(
     override fun createGzipWriter(path: String): NdjsonGzipWriter {
         return lastWriter
     }
+
+    override fun createGzipReader(path: String): NdjsonGzipReader {
+        return RecordingReader(nextReaderLines)
+    }
 }
 
 private class RecordingWriter : NdjsonGzipWriter {
@@ -455,6 +652,19 @@ private class RecordingWriter : NdjsonGzipWriter {
 
     override fun writeLine(line: String) {
         lines.add(line)
+    }
+
+    override fun close() {
+    }
+}
+
+private class RecordingReader(
+    lines: List<String>,
+) : NdjsonGzipReader {
+    private val iterator = lines.iterator()
+
+    override fun readLine(): String? {
+        return if (iterator.hasNext()) iterator.next() else null
     }
 
     override fun close() {

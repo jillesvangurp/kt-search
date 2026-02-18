@@ -21,6 +21,16 @@ actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
     return NativeNdjsonGzipWriter(path)
 }
 
+actual fun platformCreateGzipReader(path: String): NdjsonGzipReader {
+    return NativeNdjsonGzipReader(path)
+}
+
+actual fun platformReadUtf8File(path: String): String {
+    return FileSystem.SYSTEM.read(path.toPath()) {
+        readUtf8()
+    }
+}
+
 actual fun platformWriteUtf8File(path: String, content: String) {
     FileSystem.SYSTEM.write(path.toPath(), mustCreate = false) {
         writeUtf8(content)
@@ -40,5 +50,20 @@ private class NativeNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
 
     override fun close() {
         sink.close()
+    }
+}
+
+private class NativeNdjsonGzipReader(path: String) : NdjsonGzipReader {
+    private val source = FileSystem.SYSTEM
+        .source(path.toPath())
+        .gzip()
+        .buffer()
+
+    override fun readLine(): String? {
+        return source.readUtf8Line()
+    }
+
+    override fun close() {
+        source.close()
     }
 }
