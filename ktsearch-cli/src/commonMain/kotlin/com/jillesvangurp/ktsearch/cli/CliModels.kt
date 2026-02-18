@@ -19,6 +19,37 @@ data class StatusResult(
     val timedOut: Boolean,
 )
 
+enum class CatVariant {
+    Aliases,
+    Allocation,
+    Count,
+    Health,
+    Indices,
+    Master,
+    Nodes,
+    PendingTasks,
+    Recovery,
+    Repositories,
+    Shards,
+    Snapshots,
+    Tasks,
+    Templates,
+    ThreadPool,
+}
+
+data class CatRequest(
+    val variant: CatVariant,
+    val target: String? = null,
+    val columns: List<String>? = null,
+    val sort: List<String>? = null,
+    val verbose: Boolean? = null,
+    val help: Boolean? = null,
+    val bytes: String? = null,
+    val time: String? = null,
+    val local: Boolean? = null,
+    val extraParameters: Map<String, String>? = null,
+)
+
 interface CliPlatform {
     fun fileExists(path: String): Boolean
 

@@ -6,15 +6,27 @@ OpenSearch operations based on `kt-search`.
 ## Commands
 
 - `ktsearch status`
+- `ktsearch cat <variant>`
 - `ktsearch index dump <index>`
 
 `ktsearch index dump` writes a gzipped NDJSON file (`<index>.ndjson.gz`) where
 each line is the document `_source`.
 
+`ktsearch cat <variant>` supports:
+`aliases`, `allocation`, `count`, `health`, `indices`, `master`, `nodes`,
+`pending-tasks`, `recovery`, `repositories`, `shards`, `snapshots`, `tasks`,
+`templates`, and `thread-pool`.
+
+By default cat output is rendered as an aligned table. Use `--csv` to render
+CSV output.
+
 ## Examples
 
 ```bash
 ktsearch status
+ktsearch cat health
+ktsearch cat indices products-* --columns health,status,index,docs.count
+ktsearch cat nodes --csv
 ktsearch --host localhost --port 9200 index dump products
 ktsearch --https --user elastic --password secret index dump products --yes
 ```

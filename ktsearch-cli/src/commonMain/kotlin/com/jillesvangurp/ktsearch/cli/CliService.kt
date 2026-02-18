@@ -2,6 +2,25 @@ package com.jillesvangurp.ktsearch.cli
 
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.CatRequestOptions as ClientCatRequestOptions
+import com.jillesvangurp.ktsearch.CatBytes as ClientCatBytes
+import com.jillesvangurp.ktsearch.CatFormat as ClientCatFormat
+import com.jillesvangurp.ktsearch.CatTime as ClientCatTime
+import com.jillesvangurp.ktsearch.catAliases
+import com.jillesvangurp.ktsearch.catAllocation
+import com.jillesvangurp.ktsearch.catCount
+import com.jillesvangurp.ktsearch.catHealth
+import com.jillesvangurp.ktsearch.catIndices
+import com.jillesvangurp.ktsearch.catMaster
+import com.jillesvangurp.ktsearch.catNodes
+import com.jillesvangurp.ktsearch.catPendingTasks
+import com.jillesvangurp.ktsearch.catRecovery
+import com.jillesvangurp.ktsearch.catRepositories
+import com.jillesvangurp.ktsearch.catShards
+import com.jillesvangurp.ktsearch.catSnapshots
+import com.jillesvangurp.ktsearch.catTasks
+import com.jillesvangurp.ktsearch.catTemplates
+import com.jillesvangurp.ktsearch.catThreadPool
 import com.jillesvangurp.ktsearch.clusterHealth
 import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.ktsearch.root
@@ -41,6 +60,11 @@ interface CliService {
         explain: Boolean,
         terminateAfter: Int?,
         searchType: String?,
+    ): String
+
+    suspend fun cat(
+        connectionOptions: ConnectionOptions,
+        request: CatRequest,
     ): String
 }
 
@@ -143,6 +167,47 @@ class DefaultCliService : CliService {
         }
     }
 
+    override suspend fun cat(
+        connectionOptions: ConnectionOptions,
+        request: CatRequest,
+    ): String {
+        val client = createClient(connectionOptions)
+        return try {
+            val options = ClientCatRequestOptions(
+                headers = request.columns,
+                sort = request.sort,
+                verbose = request.verbose,
+                help = request.help,
+                bytes = parseBytes(request.bytes),
+                time = parseTime(request.time),
+                format = ClientCatFormat.Json,
+                local = request.local,
+                extraParameters = request.extraParameters,
+            )
+            when (request.variant) {
+                CatVariant.Aliases -> client.catAliases(request.target, options)
+                CatVariant.Allocation -> client.catAllocation(request.target, options)
+                CatVariant.Count -> client.catCount(request.target, options)
+                CatVariant.Health -> client.catHealth(options)
+                CatVariant.Indices -> client.catIndices(request.target, options)
+                CatVariant.Master -> client.catMaster(options)
+                CatVariant.Nodes -> client.catNodes(request.target, options)
+                CatVariant.PendingTasks -> client.catPendingTasks(options)
+                CatVariant.Recovery -> client.catRecovery(request.target, options)
+                CatVariant.Repositories -> client.catRepositories(options)
+                CatVariant.Shards -> client.catShards(request.target, options)
+                CatVariant.Snapshots -> {
+                    client.catSnapshots(request.target ?: "_all", options)
+                }
+                CatVariant.Tasks -> client.catTasks(options)
+                CatVariant.Templates -> client.catTemplates(request.target, options)
+                CatVariant.ThreadPool -> client.catThreadPool(request.target, options)
+            }
+        } finally {
+            client.close()
+        }
+    }
+
     private fun createClient(connectionOptions: ConnectionOptions): SearchClient {
         return SearchClient(
             KtorRestClient(
@@ -154,6 +219,33 @@ class DefaultCliService : CliService {
                 logging = connectionOptions.logging,
             ),
         )
+    }
+}
+
+private fun parseBytes(value: String?): ClientCatBytes? {
+    return when (value?.lowercase()) {
+        null -> null
+        "b" -> ClientCatBytes.B
+        "kb" -> ClientCatBytes.Kb
+        "mb" -> ClientCatBytes.Mb
+        "gb" -> ClientCatBytes.Gb
+        "tb" -> ClientCatBytes.Tb
+        "pb" -> ClientCatBytes.Pb
+        else -> null
+    }
+}
+
+private fun parseTime(value: String?): ClientCatTime? {
+    return when (value?.lowercase()) {
+        null -> null
+        "d" -> ClientCatTime.D
+        "h" -> ClientCatTime.H
+        "m" -> ClientCatTime.M
+        "s" -> ClientCatTime.S
+        "ms" -> ClientCatTime.Ms
+        "micros" -> ClientCatTime.Micros
+        "nanos" -> ClientCatTime.Nanos
+        else -> null
     }
 }
 

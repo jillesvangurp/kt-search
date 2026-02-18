@@ -223,6 +223,79 @@ class KtSearchCliTest {
         )
     }
 
+    @Test
+    fun catHealthUsesTableOutputByDefault() = runTest {
+        val service = FakeService(
+            catResponse = """[{"epoch":"1732817716","status":"green"}]""",
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cat", "health"))
+
+        service.lastCatRequest shouldBe CatServiceRequest(
+            variant = CatVariant.Health,
+            target = null,
+            columns = null,
+            sort = null,
+            verbose = false,
+            help = false,
+            bytes = null,
+            time = null,
+            local = null,
+        )
+    }
+
+    @Test
+    fun catIndicesForwardsOptionsAndTarget() = runTest {
+        val service = FakeService(
+            catResponse = """[{"health":"green","index":"products"}]""",
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "cat",
+                "indices",
+                "products-*",
+                "--columns",
+                "health,index",
+                "--sort",
+                "health,index",
+                "--verbose",
+                "--bytes",
+                "mb",
+                "--time",
+                "ms",
+                "--local",
+                "true",
+            )
+        )
+
+        service.lastCatRequest shouldBe CatServiceRequest(
+            variant = CatVariant.Indices,
+            target = "products-*",
+            columns = listOf("health", "index"),
+            sort = listOf("health", "index"),
+            verbose = true,
+            help = false,
+            bytes = "mb",
+            time = "ms",
+            local = true,
+        )
+    }
+
+    @Test
+    fun catHealthSupportsCsvFlag() = runTest {
+        val service = FakeService(
+            catResponse = """[{"status":"green"}]""",
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cat", "health", "--csv"))
+
+        service.lastCatRequest?.variant shouldBe CatVariant.Health
+    }
+
     private fun newCommand(
         service: FakeService,
         platform: CliPlatform = FakePlatform(),
@@ -243,11 +316,13 @@ private class FakeService(
     private val status: StatusResult =
         StatusResult("cluster", ClusterStatus.Green, timedOut = false),
     private val dumpLines: List<String> = listOf("{\"id\":1}"),
+    private val catResponse: String = "[]",
 ) : CliService {
     var lastConnectionOptions: ConnectionOptions? = null
     var lastDumpedIndex: String? = null
     var statusCalls: Int = 0
     var lastSearchRequest: SearchRequest? = null
+    var lastCatRequest: CatServiceRequest? = null
 
     override suspend fun fetchStatus(connectionOptions: ConnectionOptions): StatusResult {
         statusCalls++
@@ -306,6 +381,25 @@ private class FakeService(
         )
         return """{"hits":{"total":{"value":0,"relation":"eq"},"hits":[]}}"""
     }
+
+    override suspend fun cat(
+        connectionOptions: ConnectionOptions,
+        request: CatRequest,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastCatRequest = CatServiceRequest(
+            variant = request.variant,
+            target = request.target,
+            columns = request.columns,
+            sort = request.sort,
+            verbose = request.verbose,
+            help = request.help,
+            bytes = request.bytes,
+            time = request.time,
+            local = request.local,
+        )
+        return catResponse
+    }
 }
 
 private data class SearchRequest(
@@ -325,6 +419,18 @@ private data class SearchRequest(
     val explain: Boolean,
     val terminateAfter: Int?,
     val searchType: String?,
+)
+
+private data class CatServiceRequest(
+    val variant: CatVariant,
+    val target: String?,
+    val columns: List<String>?,
+    val sort: List<String>?,
+    val verbose: Boolean?,
+    val help: Boolean?,
+    val bytes: String?,
+    val time: String?,
+    val local: Boolean?,
 )
 
 private class FakePlatform(
