@@ -1,6 +1,7 @@
 package com.jillesvangurp.ktsearch.cli
 
 import com.jillesvangurp.ktsearch.cli.output.JsonTableAdapter
+import com.jillesvangurp.ktsearch.cli.output.JsonOutputRenderer
 import com.jillesvangurp.ktsearch.cli.output.OutputFormat
 import com.jillesvangurp.ktsearch.cli.output.TableData
 import com.jillesvangurp.ktsearch.cli.output.TableRenderer
@@ -57,5 +58,42 @@ class TableOutputTest {
     @Test
     fun adapterReturnsNullForNonArrayJson() {
         JsonTableAdapter.fromJson("{\"status\":\"green\"}") shouldBe null
+    }
+
+    @Test
+    fun adaptsJsonObjectToKeyValueTable() {
+        val raw = """
+            {
+              "cluster_name":"demo",
+              "version":{"number":"9.0.0"}
+            }
+        """.trimIndent()
+
+        val table = JsonTableAdapter.fromJsonObject(raw)
+
+        table?.columns shouldBe listOf("field", "value")
+        table?.rows shouldBe listOf(
+            listOf("cluster_name", "demo"),
+            listOf("version.number", "9.0.0"),
+        )
+    }
+
+    @Test
+    fun sharedRendererHandlesObjectAndFallsBackToRaw() {
+        val objectJson = """{"status":"green"}"""
+        val renderedObject = JsonOutputRenderer.renderTableOrRaw(
+            rawJson = objectJson,
+            outputFormat = OutputFormat.Table,
+        )
+        renderedObject.contains("field") shouldBe true
+        renderedObject.contains("status") shouldBe true
+        renderedObject.contains("green") shouldBe true
+
+        val raw = "not-json"
+        val renderedRaw = JsonOutputRenderer.renderTableOrRaw(
+            rawJson = raw,
+            outputFormat = OutputFormat.Table,
+        )
+        renderedRaw shouldBe raw
     }
 }

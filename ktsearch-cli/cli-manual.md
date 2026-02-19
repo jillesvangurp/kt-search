@@ -20,7 +20,8 @@ Options:
   -h, --help         Show this message and exit
 
 Commands:
-  status      Check cluster name and health color.
+  status      Show cluster health from GET /_cluster/health.
+  info        Show cluster details from GET /.
   cat         Run cat APIs and render the output as a table.
   index       Index-related commands.
   completion  Generate a tab-complete script for the given shell
@@ -31,7 +32,24 @@ Commands:
 ```text
 Usage: ktsearch status [<options>]
 
-  Check cluster name and health color.
+  Show cluster health from GET /_cluster/health.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch info`
+
+```text
+Usage: ktsearch info [<options>]
+
+  Show cluster details from GET /.
+
+Output:
+  --csv  Render output as CSV.
 
 Options:
   -h, --help  Show this message and exit

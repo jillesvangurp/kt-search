@@ -30,6 +30,18 @@ These instructions apply to `ktsearch-cli/` only.
 - Keep code clean and tight: small focused functions, minimal branching,
   and clear naming.
 - Avoid adding abstractions until duplication or complexity justifies them.
+- Reuse shared CLI plumbing for cross-cutting behavior. Do not re-implement
+  table rendering, JSON-to-table adaptation, output format switching, or
+  common flag parsing per command.
+- For table output, route through the shared renderer in
+  `cli/output` (currently `JsonOutputRenderer` + `TableRenderer`) so table
+  layout and CSV behavior stay consistent across commands.
+- For shared flags/options, prefer existing `OptionGroup` utilities (such as
+  `OutputOptions`) and extend those centrally when needed; avoid ad hoc
+  command-local variants of the same flags.
+- If a command needs behavior that current shared utilities do not support,
+  update the shared utility first and then consume it from the command to
+  prevent wheel reinvention.
 - Preserve existing CLI behavior and output formats unless explicitly
   changing UX.
 - Use `kotlin.test` annotations and `kotest` assertions (for example

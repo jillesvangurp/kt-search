@@ -36,6 +36,25 @@ object JsonTableAdapter {
         return TableData(columns = columns, rows = rows)
     }
 
+    fun fromJsonObject(rawJson: String): TableData? {
+        val element = try {
+            Json.Default.decodeFromString(JsonElement.serializer(), rawJson)
+        } catch (_: Exception) {
+            return null
+        }
+        if (element !is JsonObject) {
+            return null
+        }
+        val rows = mutableListOf<List<String>>()
+        element.keys.sorted().forEach { key ->
+            flattenObjectValue(prefix = key, value = element.getValue(key), rows = rows)
+        }
+        return TableData(
+            columns = listOf("field", "value"),
+            rows = rows,
+        )
+    }
+
     private fun collectColumns(objects: List<JsonObject>): List<String> {
         val columns = linkedSetOf<String>()
         objects.forEach { obj ->
@@ -58,6 +77,42 @@ object JsonTableAdapter {
                 }
             }
             else -> value.toString()
+        }
+    }
+
+    private fun flattenObjectValue(
+        prefix: String,
+        value: JsonElement,
+        rows: MutableList<List<String>>,
+    ) {
+        when (value) {
+            is JsonObject -> {
+                if (value.isEmpty()) {
+                    rows.add(listOf(prefix, "{}"))
+                } else {
+                    value.keys.sorted().forEach { key ->
+                        flattenObjectValue(
+                            prefix = "$prefix.$key",
+                            value = value.getValue(key),
+                            rows = rows,
+                        )
+                    }
+                }
+            }
+            is JsonArray -> {
+                if (value.isEmpty()) {
+                    rows.add(listOf(prefix, "[]"))
+                } else {
+                    value.forEachIndexed { index, element ->
+                        flattenObjectValue(
+                            prefix = "$prefix[$index]",
+                            value = element,
+                            rows = rows,
+                        )
+                    }
+                }
+            }
+            else -> rows.add(listOf(prefix, valueToString(value)))
         }
     }
 }

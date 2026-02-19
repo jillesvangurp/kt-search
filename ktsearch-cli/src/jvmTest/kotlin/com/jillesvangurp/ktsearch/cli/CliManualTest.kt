@@ -110,6 +110,7 @@ class CliManualTest {
         val commandPaths = listOf(
             emptyList(),
             listOf("status"),
+            listOf("info"),
             listOf("cat"),
             listOf("cat", "aliases"),
             listOf("cat", "allocation"),

@@ -1,24 +1,19 @@
-package com.jillesvangurp.ktsearch.cli.command.status
+package com.jillesvangurp.ktsearch.cli.command.info
 
 import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.findObject
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
-import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.output.JsonOutputRenderer
 import com.jillesvangurp.ktsearch.cli.output.OutputOptions
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonObject
 
-class StatusCommand(
+class InfoCommand(
     private val service: CliService,
-) : CoreSuspendingCliktCommand(name = "status") {
+) : CoreSuspendingCliktCommand(name = "info") {
     override fun help(context: Context): String =
-        "Show cluster health from GET /_cluster/health."
+        "Show cluster details from GET /."
 
     private val outputOptions by OutputOptions()
 
@@ -26,23 +21,11 @@ class StatusCommand(
         val connectionOptions = currentContext.findObject<ConnectionOptions>()
             ?: error("Missing connection options in command context")
 
-        val raw = service.fetchClusterHealth(connectionOptions)
+        val raw = service.fetchRootInfo(connectionOptions)
         val output = JsonOutputRenderer.renderTableOrRaw(
             rawJson = raw,
             outputFormat = outputOptions.outputFormat,
         )
         echo(output)
-
-        val json = runCatching {
-            Json.Default.parseToJsonElement(raw).jsonObject
-        }.getOrNull()
-        val timedOut = (json?.get("timed_out") as? JsonPrimitive)?.content == "true"
-        val status = (json?.get("status") as? JsonPrimitive)
-            ?.content
-            ?.lowercase()
-
-        if (timedOut || status == ClusterStatus.Red.name.lowercase()) {
-            throw ProgramResult(2)
-        }
     }
 }

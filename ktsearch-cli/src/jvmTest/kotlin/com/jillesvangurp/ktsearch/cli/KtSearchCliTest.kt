@@ -22,13 +22,20 @@ class KtSearchCliTest {
                 clusterName = "demo",
                 status = ClusterStatus.Yellow,
                 timedOut = false,
-            )
+            ),
+            clusterHealthResponse = """
+                {
+                  "cluster_name": "demo",
+                  "status": "yellow",
+                  "timed_out": false
+                }
+            """.trimIndent(),
         )
         val cmd = newCommand(service = service)
 
         cmd.parse(arrayOf("status"))
 
-        service.statusCalls shouldBe 1
+        service.clusterHealthCalls shouldBe 1
     }
 
     @Test
@@ -38,7 +45,14 @@ class KtSearchCliTest {
                 clusterName = "demo",
                 status = ClusterStatus.Red,
                 timedOut = false,
-            )
+            ),
+            clusterHealthResponse = """
+                {
+                  "cluster_name": "demo",
+                  "status": "red",
+                  "timed_out": false
+                }
+            """.trimIndent(),
         )
         val cmd = newCommand(service = service)
 
@@ -48,6 +62,26 @@ class KtSearchCliTest {
 
         (result is ProgramResult) shouldBe true
         (result as ProgramResult).statusCode shouldBe 2
+    }
+
+    @Test
+    fun infoCallsRootEndpoint() = runTest {
+        val service = FakeService(
+            rootInfoResponse = """
+                {
+                  "name": "n1",
+                  "cluster_name": "demo",
+                  "version": {
+                    "number": "9.0.0"
+                  }
+                }
+            """.trimIndent(),
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("info"))
+
+        service.rootInfoCalls shouldBe 1
     }
 
     @Test
@@ -431,10 +465,16 @@ private class FakeService(
         StatusResult("cluster", ClusterStatus.Green, timedOut = false),
     private val dumpLines: List<String> = listOf("{\"id\":1}"),
     private val catResponse: String = "[]",
+    private val rootInfoResponse: String = """{"name":"node"}""",
+    private val clusterHealthResponse: String = """
+        {"cluster_name":"cluster","status":"green","timed_out":false}
+    """.trimIndent(),
 ) : CliService {
     var lastConnectionOptions: ConnectionOptions? = null
     var lastDumpedIndex: String? = null
     var statusCalls: Int = 0
+    var rootInfoCalls: Int = 0
+    var clusterHealthCalls: Int = 0
     var lastSearchRequest: SearchRequest? = null
     var lastCatRequest: CatServiceRequest? = null
     var lastApiRequest: ApiRequest? = null
@@ -444,6 +484,20 @@ private class FakeService(
         statusCalls++
         lastConnectionOptions = connectionOptions
         return status
+    }
+
+    override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
+        rootInfoCalls++
+        lastConnectionOptions = connectionOptions
+        return rootInfoResponse
+    }
+
+    override suspend fun fetchClusterHealth(
+        connectionOptions: ConnectionOptions,
+    ): String {
+        clusterHealthCalls++
+        lastConnectionOptions = connectionOptions
+        return clusterHealthResponse
     }
 
     override suspend fun dumpIndex(

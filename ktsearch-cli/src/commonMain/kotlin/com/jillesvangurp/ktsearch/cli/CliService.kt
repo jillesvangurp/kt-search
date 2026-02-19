@@ -45,6 +45,10 @@ import kotlinx.serialization.json.jsonObject
 interface CliService {
     suspend fun fetchStatus(connectionOptions: ConnectionOptions): StatusResult
 
+    suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String
+
+    suspend fun fetchClusterHealth(connectionOptions: ConnectionOptions): String
+
     suspend fun dumpIndex(
         connectionOptions: ConnectionOptions,
         index: String,
@@ -126,6 +130,26 @@ class DefaultCliService : CliService {
                 status = health.status,
                 timedOut = health.timedOut,
             )
+        } finally {
+            client.close()
+        }
+    }
+
+    override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
+        val client = createClient(connectionOptions)
+        return try {
+            client.restClient.get { }.getOrThrow().text
+        } finally {
+            client.close()
+        }
+    }
+
+    override suspend fun fetchClusterHealth(connectionOptions: ConnectionOptions): String {
+        val client = createClient(connectionOptions)
+        return try {
+            client.restClient.get {
+                path("_cluster", "health")
+            }.getOrThrow().text
         } finally {
             client.close()
         }

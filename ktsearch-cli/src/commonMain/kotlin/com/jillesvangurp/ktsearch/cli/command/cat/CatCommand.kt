@@ -15,9 +15,8 @@ import com.jillesvangurp.ktsearch.cli.CatRequest
 import com.jillesvangurp.ktsearch.cli.CatVariant
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
-import com.jillesvangurp.ktsearch.cli.output.JsonTableAdapter
+import com.jillesvangurp.ktsearch.cli.output.JsonOutputRenderer
 import com.jillesvangurp.ktsearch.cli.output.OutputOptions
-import com.jillesvangurp.ktsearch.cli.output.TableRenderer
 
 class CatCommand(
     private val service: CliService,
@@ -104,12 +103,11 @@ private abstract class BaseCatSubCommand(
             local = queryOptions.local,
         )
         val raw = service.cat(connectionOptions, request)
-        val table = JsonTableAdapter.fromJson(raw, request.columns)
-        val output = if (table != null) {
-            TableRenderer.render(table, outputOptions.outputFormat)
-        } else {
-            raw
-        }
+        val output = JsonOutputRenderer.renderTableOrRaw(
+            rawJson = raw,
+            outputFormat = outputOptions.outputFormat,
+            preferredColumns = request.columns,
+        )
         echo(output)
     }
 }

@@ -15,6 +15,7 @@ import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.DefaultCliPlatform
 import com.jillesvangurp.ktsearch.cli.DefaultCliService
 import com.jillesvangurp.ktsearch.cli.command.cat.CatCommand
+import com.jillesvangurp.ktsearch.cli.command.info.InfoCommand
 import com.jillesvangurp.ktsearch.cli.command.index.IndexCommand
 import com.jillesvangurp.ktsearch.cli.command.status.StatusCommand
 
@@ -82,6 +83,7 @@ class KtSearchCommand(
     init {
         subcommands(
             StatusCommand(service),
+            InfoCommand(service),
             CatCommand(service),
             IndexCommand(service, platform),
             SuspendingCompletionCommand(name = "completion"),

@@ -15,6 +15,7 @@ OpenSearch operations based on `kt-search`.
 ## Commands
 
 - `ktsearch status`
+- `ktsearch info`
 - `ktsearch cat <variant>`
 - `ktsearch index dump <index>`
 - `ktsearch index restore <index>`
@@ -57,6 +58,7 @@ CSV output.
 
 ```bash
 ktsearch status
+ktsearch info
 ktsearch cat health
 ktsearch cat indices products-* --columns health,status,index,docs.count
 ktsearch cat nodes --csv

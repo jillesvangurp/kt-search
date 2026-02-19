@@ -15,7 +15,7 @@ actual fun platformFileExists(path: String): Boolean =
 @OptIn(ExperimentalForeignApi::class)
 actual fun platformIsInteractiveInput(): Boolean = isatty(fileno(stdin)) != 0
 
-actual fun platformReadLineFromStdin(): String? = readLine()
+actual fun platformReadLineFromStdin(): String? = readlnOrNull()
 
 actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
     return NativeNdjsonGzipWriter(path)
