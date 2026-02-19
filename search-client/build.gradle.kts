@@ -50,6 +50,12 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 
 val enableNativeTargets =
     !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val isLinuxHost = OperatingSystem.current().isLinux
+val isMacHost = OperatingSystem.current().isMacOsX
+val enableLinuxTargetsOnMac = getBooleanProperty("ktsearch.enableLinuxTargetsOnMac")
+val enableLinuxX64Target = isLinuxHost || (isMacHost && enableLinuxTargetsOnMac)
+val enableLinuxArm64Target = isLinuxHost
+val enableLinuxTargets = enableLinuxX64Target || enableLinuxArm64Target
 
 plugins {
     kotlin("multiplatform")
@@ -93,7 +99,7 @@ kotlin {
         }
     }
     if (enableNativeTargets) {
-        if (OperatingSystem.current().isLinux) {
+        if (enableLinuxTargets) {
             fun KotlinNativeTarget.configureLinuxTarget() {
                 binaries {
                     all {
@@ -106,8 +112,12 @@ kotlin {
                     }
                 }
             }
-            linuxX64 { configureLinuxTarget() }
-            linuxArm64 { configureLinuxTarget() }
+            if (enableLinuxX64Target) {
+                linuxX64 { configureLinuxTarget() }
+            }
+            if (enableLinuxArm64Target) {
+                linuxArm64 { configureLinuxTarget() }
+            }
         }
         mingwX64()
         macosX64()
@@ -206,7 +216,7 @@ kotlin {
                 }
             }
 
-            if (OperatingSystem.current().isLinux) {
+            if (enableLinuxTargets) {
                 linuxMain {
                     dependencies {
                         implementation(Ktor.client.curl)
@@ -242,12 +252,16 @@ val disabledTestTargets = mutableListOf(
 )
 
 if (enableNativeTargets) {
+    if (isMacHost && enableLinuxX64Target) {
+        disabledTestTargets += "linuxX64Test"
+    }
+
     disabledTestTargets += "iosSimulatorArm64Test"
 }
 
 disabledTestTargets.forEach { target ->
     // skip the test weirdness for now
-    tasks.named(target) {
+    tasks.matching { it.name == target }.configureEach {
         // requires IOS simulator and tens of GB of other stuff to be installed
         // so keep it disabled
         enabled = false

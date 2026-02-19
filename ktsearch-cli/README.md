@@ -6,10 +6,6 @@ It supports Elasticsearch `7-9` and OpenSearch `1-3`, with
 installable native binaries for macOS/Linux and Bash/Zsh
 completion.
 
-Windows binaries are currently not supported. Support may be
-added later; PRs are welcome from contributors who can test
-and validate Windows builds.
-
 The full command reference is generated in
 [`cli-manual.md`](./cli-manual.md).
 
@@ -30,6 +26,33 @@ The CLI is a thin layer on top of `kt-search`.
 It uses [Clikt](https://ajalt.github.io/clikt/) for
 command-line parsing and [Okio](https://square.github.io/okio/)
 for native I/O.
+
+## Native build limitations
+
+Native support in Kotlin/Native and dependency toolchains
+keeps improving, and some limits below may change in
+future releases.
+
+- Main focus is reliable support for `macosArm64`, `macosX64`, and `linuxArm64`.
+- `linuxX64` is supported and can be cross-built on macOS with `-Pktsearch.enableLinuxTargetsOnMac=true`.
+- Cross-building `linuxArm64` on macOS currently fails at link time due to `ktor-client-curl`/OpenSSL static-linker issues.
+- Building Apple final binaries on Linux CI is not supported by Kotlin/Native host restrictions.
+- Windows `mingwX64` binaries can be built, but Windows ARM64 is not available as a Kotlin/Native target today.
+- For now, the easiest way to get a native binary for your system is to run the build on that same system via `./ktsearch-cli/install.sh`.
+- Prebuilt packaging and CI-produced binaries may be added later if this stabilizes.
+
+## Wasm builds (experimental)
+
+`ktsearch-cli` has experimental WebAssembly support.
+
+- `wasmJs` status: supported as an opt-in target (`-Pktsearch.enableWasmCli=true`) and runnable with Node.js.
+- Build optimized wasm executable artifacts:
+- `./gradlew :ktsearch-cli:compileProductionExecutableKotlinWasmJs -Pktsearch.enableWasmCli=true`
+- Run from Node.js:
+- `./gradlew :ktsearch-cli:wasmJsNodeProductionRun -Pktsearch.enableWasmCli=true`
+- `wasmJs` limitation: platform I/O is partial. Commands that require local file read/write or gzip dump/restore are not supported yet.
+- `wasmWasi` status: not supported yet in this project.
+- `wasmWasi` blocker: WASI runtimes (for example `wasmtime`) are not wired yet. That would require adding a `wasmWasi` target plus platform I/O implementations.
 
 ## Install / uninstall
 

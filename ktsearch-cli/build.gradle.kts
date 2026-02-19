@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -19,6 +20,20 @@ repositories {
 
 val enableNativeTargets =
     !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val isLinuxHost = OperatingSystem.current().isLinux
+val isMacHost = OperatingSystem.current().isMacOsX
+val enableLinuxTargetsOnMac = providers
+    .gradleProperty("ktsearch.enableLinuxTargetsOnMac")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
+val enableWasmCli = providers
+    .gradleProperty("ktsearch.enableWasmCli")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
+val enableLinuxX64Target = isLinuxHost || (isMacHost && enableLinuxTargetsOnMac)
+val enableLinuxArm64Target = isLinuxHost
 
 kotlin {
     jvm {
@@ -29,7 +44,7 @@ kotlin {
     }
 
     if (enableNativeTargets) {
-        if (OperatingSystem.current().isLinux) {
+        if (enableLinuxX64Target) {
             linuxX64 {
                 binaries {
                     executable {
@@ -38,6 +53,8 @@ kotlin {
                     }
                 }
             }
+        }
+        if (enableLinuxArm64Target) {
             linuxArm64 {
                 binaries {
                     executable {
@@ -47,8 +64,16 @@ kotlin {
                 }
             }
         }
+        mingwX64 {
+            binaries {
+                executable {
+                    baseName = "ktsearch"
+                    entryPoint = "com.jillesvangurp.ktsearch.cli.main"
+                }
+            }
+        }
 
-        if (OperatingSystem.current().isMacOsX) {
+        if (isMacHost) {
             macosX64 {
                 binaries {
                     executable {
@@ -65,6 +90,14 @@ kotlin {
                     }
                 }
             }
+        }
+    }
+
+    if (enableWasmCli) {
+        @OptIn(ExperimentalWasmDsl::class)
+        wasmJs {
+            nodejs()
+            binaries.executable()
         }
     }
 
