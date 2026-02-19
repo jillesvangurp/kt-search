@@ -1,6 +1,6 @@
 services:
   testes:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
     container_name: testes
     environment:
       - cluster.name=docker-test-cluster
