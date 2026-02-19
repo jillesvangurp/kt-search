@@ -20,19 +20,95 @@ Options:
   -h, --help         Show this message and exit
 
 Commands:
-  status      Show cluster health from GET /_cluster/health.
+  cluster     Cluster-level commands.
   info        Show cluster details from GET /.
   cat         Run cat APIs and render the output as a table.
   index       Index-related commands.
   completion  Generate a tab-complete script for the given shell
 ```
 
-## `ktsearch status`
+## `ktsearch cluster`
 
 ```text
-Usage: ktsearch status [<options>]
+Usage: ktsearch cluster [<options>] <command> [<args>]...
+
+  Cluster-level commands.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  health         Show cluster health from GET /_cluster/health.
+  stats          Show cluster stats from GET /_cluster/stats.
+  state          Show cluster state from GET /_cluster/state.
+  settings       Show cluster settings from GET /_cluster/settings.
+  pending-tasks  Show pending tasks from GET /_cluster/pending_tasks.
+```
+
+## `ktsearch cluster health`
+
+```text
+Usage: ktsearch cluster health [<options>]
 
   Show cluster health from GET /_cluster/health.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch cluster stats`
+
+```text
+Usage: ktsearch cluster stats [<options>]
+
+  Show cluster stats from GET /_cluster/stats.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch cluster state`
+
+```text
+Usage: ktsearch cluster state [<options>]
+
+  Show cluster state from GET /_cluster/state.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch cluster settings`
+
+```text
+Usage: ktsearch cluster settings [<options>]
+
+  Show cluster settings from GET /_cluster/settings.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  --include-defaults  Include default settings.
+  --flat-settings     Return settings in flat key format.
+  -h, --help          Show this message and exit
+```
+
+## `ktsearch cluster pending-tasks`
+
+```text
+Usage: ktsearch cluster pending-tasks [<options>]
+
+  Show pending tasks from GET /_cluster/pending_tasks.
 
 Output:
   --csv  Render output as CSV.

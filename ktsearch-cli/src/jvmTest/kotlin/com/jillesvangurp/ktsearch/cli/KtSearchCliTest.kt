@@ -3,7 +3,6 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
-import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -16,13 +15,8 @@ import kotlinx.coroutines.test.runTest
 
 class KtSearchCliTest {
     @Test
-    fun statusReturnsZeroForYellowCluster() = runTest {
+    fun clusterHealthReturnsZeroForYellowCluster() = runTest {
         val service = FakeService(
-            status = StatusResult(
-                clusterName = "demo",
-                status = ClusterStatus.Yellow,
-                timedOut = false,
-            ),
             clusterHealthResponse = """
                 {
                   "cluster_name": "demo",
@@ -33,19 +27,14 @@ class KtSearchCliTest {
         )
         val cmd = newCommand(service = service)
 
-        cmd.parse(arrayOf("status"))
+        cmd.parse(arrayOf("cluster", "health"))
 
         service.clusterHealthCalls shouldBe 1
     }
 
     @Test
-    fun statusReturnsNonZeroForRedCluster() = runTest {
+    fun clusterHealthReturnsNonZeroForRedCluster() = runTest {
         val service = FakeService(
-            status = StatusResult(
-                clusterName = "demo",
-                status = ClusterStatus.Red,
-                timedOut = false,
-            ),
             clusterHealthResponse = """
                 {
                   "cluster_name": "demo",
@@ -57,7 +46,7 @@ class KtSearchCliTest {
         val cmd = newCommand(service = service)
 
         val result = runCatching {
-            cmd.parse(arrayOf("status"))
+            cmd.parse(arrayOf("cluster", "health"))
         }.exceptionOrNull()
 
         (result is ProgramResult) shouldBe true
@@ -132,14 +121,8 @@ class KtSearchCliTest {
     }
 
     @Test
-    fun statusUsesGlobalConnectionOptions() = runTest {
-        val service = FakeService(
-            status = StatusResult(
-                clusterName = "demo",
-                status = ClusterStatus.Green,
-                timedOut = false,
-            )
-        )
+    fun clusterHealthUsesGlobalConnectionOptions() = runTest {
+        val service = FakeService()
         val cmd = newCommand(service = service)
 
         cmd.parse(
@@ -150,7 +133,8 @@ class KtSearchCliTest {
                 "--user", "bob",
                 "--password", "secret",
                 "--logging",
-                "status",
+                "cluster",
+                "health",
             )
         )
 
@@ -162,6 +146,36 @@ class KtSearchCliTest {
             password = "secret",
             logging = true,
         )
+    }
+
+    @Test
+    fun clusterStatsCallsClusterStatsEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cluster", "stats"))
+
+        service.lastApiRequest?.method shouldBe ApiMethod.Get
+        service.lastApiRequest?.path shouldBe listOf("_cluster", "stats")
+    }
+
+    @Test
+    fun clusterSettingsForwardsFlagsAsQueryParameters() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "cluster",
+                "settings",
+                "--include-defaults",
+                "--flat-settings",
+            ),
+        )
+
+        service.lastApiRequest?.path shouldBe listOf("_cluster", "settings")
+        service.lastApiRequest?.parameters shouldBe
+            mapOf("include_defaults" to "true", "flat_settings" to "true")
     }
 
     @Test
@@ -461,8 +475,6 @@ class KtSearchCliTest {
 }
 
 private class FakeService(
-    private val status: StatusResult =
-        StatusResult("cluster", ClusterStatus.Green, timedOut = false),
     private val dumpLines: List<String> = listOf("{\"id\":1}"),
     private val catResponse: String = "[]",
     private val rootInfoResponse: String = """{"name":"node"}""",
@@ -472,19 +484,12 @@ private class FakeService(
 ) : CliService {
     var lastConnectionOptions: ConnectionOptions? = null
     var lastDumpedIndex: String? = null
-    var statusCalls: Int = 0
     var rootInfoCalls: Int = 0
     var clusterHealthCalls: Int = 0
     var lastSearchRequest: SearchRequest? = null
     var lastCatRequest: CatServiceRequest? = null
     var lastApiRequest: ApiRequest? = null
     var lastRestoreRequest: RestoreRequest? = null
-
-    override suspend fun fetchStatus(connectionOptions: ConnectionOptions): StatusResult {
-        statusCalls++
-        lastConnectionOptions = connectionOptions
-        return status
-    }
 
     override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
         rootInfoCalls++

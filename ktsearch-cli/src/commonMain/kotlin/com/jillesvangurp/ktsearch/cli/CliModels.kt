@@ -1,7 +1,5 @@
 package com.jillesvangurp.ktsearch.cli
 
-import com.jillesvangurp.ktsearch.ClusterStatus
-
 /** Shared connection options used by all CLI commands. */
 data class ConnectionOptions(
     val host: String,
@@ -10,13 +8,6 @@ data class ConnectionOptions(
     val user: String?,
     val password: String?,
     val logging: Boolean,
-)
-
-/** Result object for cluster status checks. */
-data class StatusResult(
-    val clusterName: String,
-    val status: ClusterStatus,
-    val timedOut: Boolean,
 )
 
 enum class CatVariant {

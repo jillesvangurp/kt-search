@@ -109,7 +109,12 @@ class CliManualTest {
     private companion object {
         val commandPaths = listOf(
             emptyList(),
-            listOf("status"),
+            listOf("cluster"),
+            listOf("cluster", "health"),
+            listOf("cluster", "stats"),
+            listOf("cluster", "state"),
+            listOf("cluster", "settings"),
+            listOf("cluster", "pending-tasks"),
             listOf("info"),
             listOf("cat"),
             listOf("cat", "aliases"),

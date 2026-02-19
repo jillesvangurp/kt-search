@@ -15,9 +15,9 @@ import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.DefaultCliPlatform
 import com.jillesvangurp.ktsearch.cli.DefaultCliService
 import com.jillesvangurp.ktsearch.cli.command.cat.CatCommand
+import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterCommand
 import com.jillesvangurp.ktsearch.cli.command.info.InfoCommand
 import com.jillesvangurp.ktsearch.cli.command.index.IndexCommand
-import com.jillesvangurp.ktsearch.cli.command.status.StatusCommand
 
 /** Root command and shared options for the CLI. */
 class KtSearchCommand(
@@ -82,7 +82,7 @@ class KtSearchCommand(
 
     init {
         subcommands(
-            StatusCommand(service),
+            ClusterCommand(service),
             InfoCommand(service),
             CatCommand(service),
             IndexCommand(service, platform),
