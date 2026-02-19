@@ -29,11 +29,39 @@ class CliReadmeTest {
                 `ktsearch-cli` is a multiplatform command line tool for
                 Elasticsearch and OpenSearch operations based on `kt-search`.
                 It supports Elasticsearch `7-9` and OpenSearch `1-3`, with
-                installable binaries for macOS/Linux and Bash/Zsh completion.
+                installable native binaries for macOS/Linux and Bash/Zsh
+                completion.
+
+                Windows binaries are currently not supported. Support may be
+                added later; PRs are welcome from contributors who can test
+                and validate Windows builds.
 
                 The full command reference is generated in
                 [`cli-manual.md`](./cli-manual.md).
             """.trimIndent()
+
+            section("Why native binaries") {
+                +"""
+                    A key advantage of `kt-search` being multiplatform is that
+                    `ktsearch-cli` ships as native binaries on macOS and Linux.
+                """.trimIndent()
+                unorderedList(
+                    "Easy installation",
+                    "No runtime dependencies",
+                    "Fast startup",
+                    "Easy to script",
+                    "Easy to use for agentic coding workflows",
+                )
+            }
+
+            section("How this works") {
+                +"""
+                    The CLI is a thin layer on top of `kt-search`.
+                    It uses [Clikt](https://ajalt.github.io/clikt/) for
+                    command-line parsing and [Okio](https://square.github.io/okio/)
+                    for native I/O.
+                """.trimIndent()
+            }
 
             section("Install / uninstall") {
                 +"""

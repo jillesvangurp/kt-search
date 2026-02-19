@@ -2,7 +2,13 @@
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem on any platform that kotlin can compile to. It provides Kotlin DSLs for querying, defining mappings, bulk indexing, index templates, index life cycle management, index aliases, and much more. The key goal for this library is to provide a best in class developer experience for using Elasticsearch and Opensearch.  
+Kt-search is a Kotlin Multi Platform library to search across the Opensearch
+and Elasticsearch ecosystem on any platform that kotlin can compile to. It
+provides Kotlin DSLs for querying, defining mappings, bulk indexing, index
+templates, index life cycle management, index aliases, and much more. The key
+goal for this library is to provide a best in class developer experience for
+using Elasticsearch and Opensearch. This multiplatform foundation also enables
+`ktsearch-cli` native binaries on macOS/Linux.
 
 ## Why Kt-search?
 
@@ -13,7 +19,13 @@ Kt-search has you covered for all of those. The official Elastic or Opensearch c
 Kt-search solves a few important problems here:
 
 - It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use coroutines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
-- It's a multiplatform library. We use it on the jvm and in the browser (javascript). Targets for native, IOS, WASM, etc. are also there. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
+- It's a multiplatform library. We use it on the jvm and in the browser
+  (javascript). Targets for native, IOS, WASM, etc. are also there. So, your
+  Kotlin code should be extremely portable. So, whether you are doing backend
+  development, doing lambda functions, command line tools, mobile apps, or web
+  apps, you can embed kt-search in each of those. A concrete benefit is that
+  `ktsearch-cli` ships as native macOS/Linux binaries: easy install, no runtime
+  dependencies, fast startup, and convenient scripting/agentic coding usage.
 - It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
 - It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
 
@@ -29,8 +41,10 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
 - [ktsearch-cli](ktsearch-cli/README.md) - Native command line tool for
   operating Elasticsearch/OpenSearch clusters on macOS and Linux. It is
-  implemented with Kotlin Multiplatform and includes bash/zsh style shell
-  autocompletion. See the CLI
+  implemented with Kotlin Multiplatform and ships as native binaries:
+  easy install, no runtime dependencies, and fast startup. Windows binaries
+  are not currently supported; PRs are welcome from contributors who can test
+  Windows support. See the CLI
   [README](ktsearch-cli/README.md) for detailed install instructions and the
   generated [CLI manual](ktsearch-cli/cli-manual.md).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
