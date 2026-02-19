@@ -7,7 +7,11 @@ import kotlinx.serialization.Serializable
 import kotlin.test.Test
 
 @Serializable
-data class KnnTestDoc(val name: String, val vector: List<Double>)
+data class KnnTestDoc(
+    val name: String,
+    // ES 9.2+ may omit dense_vector fields from _source by default.
+    val vector: List<Double>? = null,
+)
 
 class KnnSearchTest : SearchTestBase() {
 

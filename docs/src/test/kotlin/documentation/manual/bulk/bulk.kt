@@ -21,7 +21,7 @@ val bulkMd = sourceGitRepository.md {
         in ES. Kt-search provides a few key abstractions to make bulk indexing easy, robust, 
         and straightforward.
     """
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
 
     @Serializable
     data class Foo(val foo: String)

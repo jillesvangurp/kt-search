@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.hours
 
 val dataStreamsMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     cleanup(client)
     +"""
         Particularly for large volume time series data, you can use data streams to make the management of 
