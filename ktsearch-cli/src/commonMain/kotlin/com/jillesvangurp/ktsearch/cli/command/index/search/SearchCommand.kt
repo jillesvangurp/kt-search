@@ -115,8 +115,8 @@ class SearchCommand(
         val connectionOptions = requireConnectionOptions()
         val hasQuery = !query.isNullOrBlank()
         val hasData = !data.isNullOrBlank()
-        if (hasQuery == hasData) {
-            currentContext.fail("Provide exactly one of --query or --data")
+        if (hasQuery && hasData) {
+            currentContext.fail("Provide only one of --query or --data")
         }
 
         val parsedFields = fields

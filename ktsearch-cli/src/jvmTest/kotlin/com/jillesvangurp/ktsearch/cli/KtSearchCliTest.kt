@@ -179,15 +179,30 @@ class KtSearchCliTest {
     }
 
     @Test
-    fun searchRequiresEitherQueryOrData() = runTest {
+    fun searchWithoutQueryOrDataIsAllowed() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
 
-        val result = runCatching {
-            cmd.parse(arrayOf("index", "search", "products"))
-        }.exceptionOrNull()
+        cmd.parse(arrayOf("index", "search", "products"))
 
-        (result is UsageError) shouldBe true
+        service.lastSearchRequest shouldBe SearchRequest(
+            index = "products",
+            query = null,
+            data = null,
+            size = 50,
+            offset = 0,
+            fields = null,
+            sort = null,
+            trackTotalHits = null,
+            timeout = null,
+            routing = null,
+            preference = null,
+            allowPartialResults = null,
+            profile = false,
+            explain = false,
+            terminateAfter = null,
+            searchType = null,
+        )
     }
 
     @Test
