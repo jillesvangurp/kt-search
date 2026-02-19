@@ -132,6 +132,7 @@ class KtSearchCliTest {
                 "--https",
                 "--user", "bob",
                 "--password", "secret",
+                "--elastic-api-key", "my-api-key",
                 "--logging",
                 "cluster",
                 "health",
@@ -144,7 +145,33 @@ class KtSearchCliTest {
             https = true,
             user = "bob",
             password = "secret",
+            elasticApiKey = "my-api-key",
             logging = true,
+        )
+    }
+
+    @Test
+    fun clusterHealthAcceptsElasticApiKeyWithoutBasicAuth() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "--host", "search.internal",
+                "--elastic-api-key", "my-api-key",
+                "cluster",
+                "health",
+            )
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9200,
+            https = false,
+            user = null,
+            password = null,
+            elasticApiKey = "my-api-key",
+            logging = false,
         )
     }
 

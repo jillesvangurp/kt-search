@@ -7,6 +7,7 @@ data class ConnectionOptions(
     val https: Boolean,
     val user: String?,
     val password: String?,
+    val elasticApiKey: String?,
     val logging: Boolean,
 )
 

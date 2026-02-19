@@ -372,6 +372,7 @@ class DefaultCliService : CliService {
                 https = connectionOptions.https,
                 user = connectionOptions.user,
                 password = connectionOptions.password,
+                elasticApiKey = connectionOptions.elasticApiKey,
                 logging = connectionOptions.logging,
             ),
         )

@@ -107,6 +107,7 @@ Configure connection defaults via environment variables:
 - `KTSEARCH_HTTPS`
 - `KTSEARCH_USER`
 - `KTSEARCH_PASSWORD`
+- `KTSEARCH_ELASTIC_API_KEY`
 - `KTSEARCH_LOGGING`
 
 ## Completion

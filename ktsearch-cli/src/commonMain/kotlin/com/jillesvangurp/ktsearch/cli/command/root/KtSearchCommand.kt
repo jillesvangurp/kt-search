@@ -69,6 +69,12 @@ class KtSearchCommand(
         envvar = "KTSEARCH_PASSWORD",
     )
 
+    private val elasticApiKey by option(
+        "--elastic-api-key",
+        help = "Elastic API key.",
+        envvar = "KTSEARCH_ELASTIC_API_KEY",
+    )
+
     private val loggingFromEnv by option(
         "--logging-from-env",
         hidden = true,
@@ -101,6 +107,7 @@ class KtSearchCommand(
             },
             user = user,
             password = password,
+            elasticApiKey = elasticApiKey,
             logging = if (logging) true else parseBoolean(loggingFromEnv),
         )
 

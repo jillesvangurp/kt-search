@@ -10,14 +10,15 @@ Usage: ktsearch [<options>] <command> [<args>]...
   Swiss-army CLI for Elasticsearch/OpenSearch operations.
 
 Options:
-  --host=<text>      Search host.
-  --port=<int>       Search port.
-  --https            Use HTTPS.
-  --http             Force HTTP.
-  --user=<text>      Basic auth username.
-  --password=<text>  Basic auth password.
-  --logging          Enable client request logging.
-  -h, --help         Show this message and exit
+  --host=<text>             Search host.
+  --port=<int>              Search port.
+  --https                   Use HTTPS.
+  --http                    Force HTTP.
+  --user=<text>             Basic auth username.
+  --password=<text>         Basic auth password.
+  --elastic-api-key=<text>  Elastic API key.
+  --logging                 Enable client request logging.
+  -h, --help                Show this message and exit
 
 Commands:
   cluster     Cluster-level commands.
