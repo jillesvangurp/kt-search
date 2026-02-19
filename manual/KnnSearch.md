@@ -133,40 +133,6 @@ This prints:
 
 ```text
 query for vector of rice:
-H3N4JJwBvFKCr7T1uE5f - 0.9389602: chicken
-HXN4JJwBvFKCr7T1uE5f - 0.916195: chicken teriyaki with rice
-GXN4JJwBvFKCr7T1uE5f - 0.91184926: apple pie
----
-query for vector of gebak en taart:
-HHN4JJwBvFKCr7T1uE5f - 0.9021789: pattiserie
-HnN4JJwBvFKCr7T1uE5f - 0.9010898: tikka massala
-GXN4JJwBvFKCr7T1uE5f - 0.8989133: apple pie
----
-query for vector of muppets:
-GXN4JJwBvFKCr7T1uE5f - 0.9121342: apple pie
-H3N4JJwBvFKCr7T1uE5f - 0.91064054: chicken
-HHN4JJwBvFKCr7T1uE5f - 0.90385926: pattiserie
----
-query for vector of artisanal baker:
-GnN4JJwBvFKCr7T1uE5f - 0.9168335: chocolate chip cookie
-GXN4JJwBvFKCr7T1uE5f - 0.9131622: apple pie
-G3N4JJwBvFKCr7T1uE5f - 0.90785366: the cookie monster
----
-query for vector of indian curry:
-H3N4JJwBvFKCr7T1uE5f - 0.93832636: chicken
-HXN4JJwBvFKCr7T1uE5f - 0.93595815: chicken teriyaki with rice
-HnN4JJwBvFKCr7T1uE5f - 0.9253379: tikka massala
----
-query for vector of japanese food:
-HXN4JJwBvFKCr7T1uE5f - 0.9337206: chicken teriyaki with rice
-H3N4JJwBvFKCr7T1uE5f - 0.9329304: chicken
-GXN4JJwBvFKCr7T1uE5f - 0.9222199: apple pie
----
-query for vector of baked goods:
-GXN4JJwBvFKCr7T1uE5f - 0.9228046: apple pie
-GnN4JJwBvFKCr7T1uE5f - 0.91771054: chocolate chip cookie
-GHN4JJwBvFKCr7T1uE5f - 0.9135959: apple crumble
----
 ```
 
 This shows both the power and weakness of knn search:
