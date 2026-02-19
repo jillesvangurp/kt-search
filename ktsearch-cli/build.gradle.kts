@@ -10,6 +10,11 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io") {
+        content {
+            includeGroup("com.github.jillesvangurp")
+        }
+    }
 }
 
 val enableNativeTargets =
@@ -89,6 +94,7 @@ kotlin {
                 implementation(kotlin("test-junit5", "_"))
                 implementation(Testing.junit.jupiter.api)
                 implementation(Testing.junit.jupiter.engine)
+                implementation("com.github.jillesvangurp:kotlin4example:_")
             }
         }
         nativeMain {
