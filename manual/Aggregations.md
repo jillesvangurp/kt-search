@@ -118,7 +118,7 @@ This prints:
 
 ```text
 {
-  "took": 15,
+  "took": 26,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -386,7 +386,7 @@ This prints:
 
 ```text
 {
-  "took": 16,
+  "took": 15,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -579,10 +579,10 @@ response.aggregations
 This prints:
 
 ```text
+1771545600000 => 1
 1771459200000 => 1
 1771372800000 => 1
 1771286400000 => 1
-1771200000000 => 1
 ```
 
 ## Other aggregations
@@ -619,7 +619,7 @@ This prints:
 
 ```text
 {
-  "took": 96,
+  "took": 13,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -750,7 +750,6 @@ println(
 This prints:
 
 ```text
-2026-01-20T00:00:00.000Z: 0
 2026-01-21T00:00:00.000Z: 0
 2026-01-22T00:00:00.000Z: 0
 2026-01-23T00:00:00.000Z: 0
@@ -788,6 +787,7 @@ This prints:
 2026-02-24T00:00:00.000Z: 0
 2026-02-25T00:00:00.000Z: 0
 2026-02-26T00:00:00.000Z: 0
+2026-02-27T00:00:00.000Z: 0
 (missing): 5
 ```
 
