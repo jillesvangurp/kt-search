@@ -27,6 +27,23 @@ It uses [Clikt](https://ajalt.github.io/clikt/) for
 command-line parsing and [Okio](https://square.github.io/okio/)
 for native I/O.
 
+## Quick command map
+
+Use this as a high-level map. For full command syntax,
+flags, and more examples, see
+[`cli-manual.md`](./cli-manual.md).
+
+- `ktsearch cluster ...` for health, stats, state, and settings.
+- `ktsearch cat ...` for table/csv operational views.
+- `ktsearch index create|get|delete|search ...` for index-level operations.
+- `ktsearch index mappings/settings/template ...` for schema and template management.
+- `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
+- `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.
+- `ktsearch index dump|restore ...` for NDJSON export/import.
+
+Commands that modify or delete data ask for confirmation
+by default. Use `--yes` in automation.
+
 ## Native build limitations
 
 Native support in Kotlin/Native and dependency toolchains
@@ -73,6 +90,10 @@ Captured Output:
 
 `install.sh` builds and installs `ktsearch` for the current
 macOS/Linux host and also installs Bash/Zsh completion.
+
+For installation behavior details (install path selection
+and completion path overrides), see
+[`cli-manual.md`](./cli-manual.md).
 
 ## Examples
 
@@ -133,6 +154,41 @@ ktsearch completion fish
 
 - Native executable: `ktsearch`
 - JVM fat jar: `./gradlew :ktsearch-cli:jvmFatJar`
+
+## Scriptability and agentic workflows
+
+`ktsearch-cli` is intended for day-to-day operational
+scripts.
+
+- Runs well in non-interactive mode with explicit flags like `--yes`.
+- Emits machine-friendly output (`--csv` for cat commands, JSON for API-style commands).
+- JSON output works well with tools like `jq` for filtering and extraction in shell scripts.
+- Uses environment variables for repeatable CI/dev shell setup.
+
+It also works well with agentic coding tools like Codex
+and Claude Code. Because commands are explicit and
+composable, agents can safely perform common index and
+cluster operations in runbooks and automation tasks.
+
+> Minimal skill snippet you can add to your project
+> `AGENTS.md`:
+>
+> ```md
+> ## Skill: ktsearch-ops
+> Use `ktsearch` as the default CLI for
+> Elasticsearch/OpenSearch operations.
+>
+> - Prefer `ktsearch` over raw `curl` when a matching
+>   command exists.
+> - Use non-interactive flags in automation (`--yes`
+>   where needed).
+> - For tabular cat output in scripts, use `--csv`.
+> - For reproducibility, prefer env vars:
+>   `KTSEARCH_HOST`, `KTSEARCH_PORT`, `KTSEARCH_HTTPS`,
+>   `KTSEARCH_USER`, `KTSEARCH_PASSWORD`.
+> - Always print the exact command before executing
+>   destructive actions.
+> ```
 
 ## Related tools
 
