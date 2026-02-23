@@ -48,11 +48,11 @@ fun getStringProperty(propertyName: String, defaultValue: String) =
 
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 
-val enableNativeTargets =
-    !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val enableNativeTargets = true
 val isLinuxHost = OperatingSystem.current().isLinux
 val isMacHost = OperatingSystem.current().isMacOsX
 val enableLinuxTargetsOnMac = getBooleanProperty("ktsearch.enableLinuxTargetsOnMac")
+val linuxOnlyNativeTargets = getBooleanProperty("ktsearch.linuxOnlyNativeTargets")
 val enableLinuxX64Target = isLinuxHost || (isMacHost && enableLinuxTargetsOnMac)
 val enableLinuxArm64Target = isLinuxHost
 val enableLinuxTargets = enableLinuxX64Target || enableLinuxArm64Target
@@ -119,13 +119,15 @@ kotlin {
                 linuxArm64 { configureLinuxTarget() }
             }
         }
-        mingwX64()
-        macosX64()
-        macosArm64()
-        // iOS targets
-        iosArm64()
-        iosX64()
-        iosSimulatorArm64()
+        if (!linuxOnlyNativeTargets) {
+            mingwX64()
+            macosX64()
+            macosArm64()
+            // iOS targets
+            iosArm64()
+            iosX64()
+            iosSimulatorArm64()
+        }
     }
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -204,15 +206,17 @@ kotlin {
         }
 
         if (enableNativeTargets) {
-            iosMain {
-                dependencies {
-                    implementation(Ktor.client.darwin)
+            if (!linuxOnlyNativeTargets) {
+                iosMain {
+                    dependencies {
+                        implementation(Ktor.client.darwin)
+                    }
                 }
-            }
 
-            macosMain {
-                dependencies {
-                    implementation(Ktor.client.darwin)
+                macosMain {
+                    dependencies {
+                        implementation(Ktor.client.darwin)
+                    }
                 }
             }
 
@@ -224,9 +228,11 @@ kotlin {
                 }
             }
 
-            mingwMain {
-                dependencies {
-                    implementation(Ktor.client.curl)
+            if (!linuxOnlyNativeTargets) {
+                mingwMain {
+                    dependencies {
+                        implementation(Ktor.client.curl)
+                    }
                 }
             }
         }
@@ -256,7 +262,9 @@ if (enableNativeTargets) {
         disabledTestTargets += "linuxX64Test"
     }
 
-    disabledTestTargets += "iosSimulatorArm64Test"
+    if (!linuxOnlyNativeTargets) {
+        disabledTestTargets += "iosSimulatorArm64Test"
+    }
 }
 
 disabledTestTargets.forEach { target ->

@@ -18,8 +18,7 @@ repositories {
     }
 }
 
-val enableNativeTargets =
-    !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val enableNativeTargets = true
 val isLinuxHost = OperatingSystem.current().isLinux
 val isMacHost = OperatingSystem.current().isMacOsX
 val enableLinuxTargetsOnMac = providers
@@ -29,6 +28,11 @@ val enableLinuxTargetsOnMac = providers
     .get()
 val enableWasmCli = providers
     .gradleProperty("ktsearch.enableWasmCli")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
+val linuxOnlyNativeTargets = providers
+    .gradleProperty("ktsearch.linuxOnlyNativeTargets")
     .map(String::toBoolean)
     .orElse(false)
     .get()
@@ -64,17 +68,8 @@ kotlin {
                 }
             }
         }
-        mingwX64 {
-            binaries {
-                executable {
-                    baseName = "ktsearch"
-                    entryPoint = "com.jillesvangurp.ktsearch.cli.main"
-                }
-            }
-        }
-
-        if (isMacHost) {
-            macosX64 {
+        if (!linuxOnlyNativeTargets) {
+            mingwX64 {
                 binaries {
                     executable {
                         baseName = "ktsearch"
@@ -82,11 +77,22 @@ kotlin {
                     }
                 }
             }
-            macosArm64 {
-                binaries {
-                    executable {
-                        baseName = "ktsearch"
-                        entryPoint = "com.jillesvangurp.ktsearch.cli.main"
+
+            if (isMacHost) {
+                macosX64 {
+                    binaries {
+                        executable {
+                            baseName = "ktsearch"
+                            entryPoint = "com.jillesvangurp.ktsearch.cli.main"
+                        }
+                    }
+                }
+                macosArm64 {
+                    binaries {
+                        executable {
+                            baseName = "ktsearch"
+                            entryPoint = "com.jillesvangurp.ktsearch.cli.main"
+                        }
                     }
                 }
             }
