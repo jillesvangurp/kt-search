@@ -136,6 +136,59 @@ val clientConfiguration = sourceGitRepository.md {
 
     }
 
+    section("AWS Credentials and OpenSearch") {
+        +"""
+            `OpenSearchClient` with SigV4 support is currently **experimental**.
+            API shape and defaults may change in future releases.
+
+            Use this when authenticating to Amazon OpenSearch Service or
+            OpenSearch Serverless endpoints (`*.es.amazonaws.com`,
+            `*.aoss.amazonaws.com`).
+        """.trimIndent()
+
+        +"""
+            ### Local development authentication
+
+            Common local options:
+
+            - hard-coded credentials in code for quick local tests
+            - environment variables
+              (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+              optional `AWS_SESSION_TOKEN`)
+            - shared profile credentials from `~/.aws/credentials`
+            - role-based profiles (for example `source_profile` + `role_arn`)
+              on JVM via the AWS SDK provider chain
+        """.trimIndent()
+
+        +"""
+            Recommended for local development is profile-based setup so no
+            secrets are committed into code or shell history.
+        """.trimIndent()
+
+        +"""
+            ### Authentication when running inside AWS
+
+            Typical production options:
+
+            - IAM role attached to the runtime:
+              EC2 instance profile, ECS task role, EKS IRSA, or Lambda role
+            - short-lived session credentials from STS
+            - explicit profile selection only for special cases
+
+            In AWS environments, prefer role-based credentials over static
+            keys. This is safer and supports automatic key rotation.
+        """.trimIndent()
+
+        +"""
+            ### Region and service selection
+
+            - region can be configured explicitly
+            - service defaults to `aoss` for serverless hosts and `es` for
+              other Amazon OpenSearch hosts
+            - you can still override service manually if needed
+        """.trimIndent()
+    }
+
     section("Node selectors") {
 
         +"""
