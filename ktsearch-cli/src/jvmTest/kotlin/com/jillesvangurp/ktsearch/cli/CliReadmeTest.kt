@@ -213,7 +213,28 @@ class CliReadmeTest {
                     "`KTSEARCH_PASSWORD`",
                     "`KTSEARCH_ELASTIC_API_KEY`",
                     "`KTSEARCH_LOGGING`",
+                    "`KTSEARCH_AWS_SIGV4`",
+                    "`KTSEARCH_AWS_REGION`",
+                    "`KTSEARCH_AWS_SERVICE`",
+                    "`KTSEARCH_AWS_PROFILE`",
                 )
+            }
+
+            section("AWS OpenSearch auth") {
+                +"""
+                    Use SigV4 signing with AWS credential providers:
+                """.trimIndent()
+                block(type = "bash") {
+                    println("ktsearch \\")
+                    println("  --host my-domain.us-west-2.es.amazonaws.com \\")
+                    println("  --https --aws-sigv4 --aws-region us-west-2 \\")
+                    println("  cluster health")
+                }
+                +"""
+                    Credentials are resolved from the default AWS chain (env,
+                    shared profile, role-based providers) on JVM. You can force
+                    a profile with `--aws-profile`.
+                """.trimIndent()
             }
 
             section("Completion") {

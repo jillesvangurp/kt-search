@@ -147,6 +147,10 @@ class KtSearchCliTest {
             password = "secret",
             elasticApiKey = "my-api-key",
             logging = true,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
         )
     }
 
@@ -172,7 +176,85 @@ class KtSearchCliTest {
             password = null,
             elasticApiKey = "my-api-key",
             logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
         )
+    }
+
+    @Test
+    fun clusterHealthAcceptsAwsSigV4Options() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "--host", "search.internal",
+                "--https",
+                "--aws-sigv4",
+                "--aws-region", "us-west-2",
+                "--aws-service", "es",
+                "--aws-profile", "dev",
+                "cluster",
+                "health",
+            ),
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9200,
+            https = true,
+            user = null,
+            password = null,
+            elasticApiKey = null,
+            logging = false,
+            awsSigV4 = true,
+            awsRegion = "us-west-2",
+            awsService = "es",
+            awsProfile = "dev",
+        )
+    }
+
+    @Test
+    fun awsSigV4RejectsBasicAuth() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "--aws-sigv4",
+                    "--aws-region", "us-west-2",
+                    "--user", "bob",
+                    "--password", "secret",
+                    "cluster",
+                    "health",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun awsSigV4RejectsElasticApiKey() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "--aws-sigv4",
+                    "--aws-region", "us-west-2",
+                    "--elastic-api-key", "abc",
+                    "cluster",
+                    "health",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
     }
 
     @Test

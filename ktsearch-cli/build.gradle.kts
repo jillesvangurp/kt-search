@@ -126,6 +126,9 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(kotlin("stdlib", "_"))
+                implementation("software.amazon.awssdk:auth:_")
+                implementation("software.amazon.awssdk:profiles:_")
+                implementation("software.amazon.awssdk:sts:_")
             }
         }
         jvmTest {

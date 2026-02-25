@@ -16,6 +16,10 @@ class CliErrorHandlingTest {
         password = null,
         elasticApiKey = null,
         logging = false,
+        awsSigV4 = false,
+        awsRegion = null,
+        awsService = null,
+        awsProfile = null,
     )
 
     @Test

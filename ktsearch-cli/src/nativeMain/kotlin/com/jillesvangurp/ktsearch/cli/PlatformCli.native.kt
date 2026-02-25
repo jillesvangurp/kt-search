@@ -1,11 +1,13 @@
 package com.jillesvangurp.ktsearch.cli
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.toKString
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
 import okio.gzip
 import platform.posix.fileno
+import platform.posix.getenv
 import platform.posix.isatty
 import platform.posix.stdin
 
@@ -36,6 +38,9 @@ actual fun platformWriteUtf8File(path: String, content: String) {
         writeUtf8(content)
     }
 }
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun platformGetEnv(name: String): String? = getenv(name)?.toKString()
 
 private class NativeNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
     private val sink = FileSystem.SYSTEM

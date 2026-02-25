@@ -18,6 +18,10 @@ Options:
   --password=<text>         Basic auth password.
   --elastic-api-key=<text>  Elastic API key.
   --logging                 Enable client request logging.
+  --aws-sigv4               Enable AWS SigV4 request signing.
+  --aws-region=<text>       AWS region for SigV4 (e.g. us-west-2).
+  --aws-service=<text>      AWS SigV4 service name (defaults: aoss/es by host).
+  --aws-profile=<text>      AWS shared credentials profile name.
   -h, --help                Show this message and exit
 
 Commands:

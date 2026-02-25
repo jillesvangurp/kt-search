@@ -35,7 +35,7 @@ flags, and more examples, see
 
 - `ktsearch cluster ...` for health, stats, state, and settings.
 - `ktsearch cat ...` for table/csv operational views.
-- `ktsearch index create|get|delete|search ...` for index-level operations.
+- `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
 - `ktsearch index mappings/settings/template ...` for schema and template management.
 - `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
 - `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.
@@ -157,6 +157,35 @@ Configure connection defaults via environment variables:
 - `KTSEARCH_PASSWORD`
 - `KTSEARCH_ELASTIC_API_KEY`
 - `KTSEARCH_LOGGING`
+- `KTSEARCH_AWS_SIGV4`
+- `KTSEARCH_AWS_REGION`
+- `KTSEARCH_AWS_SERVICE`
+- `KTSEARCH_AWS_PROFILE`
+
+## AWS OpenSearch auth
+
+Use SigV4 signing with AWS credential providers:
+
+```bash
+println("ktsearch \\")
+println("  --host my-domain.us-west-2.es.amazonaws.com \\")
+println("  --https --aws-sigv4 --aws-region us-west-2 \\")
+println("  cluster health")
+```
+
+Captured Output:
+
+```
+ktsearch \
+  --host my-domain.us-west-2.es.amazonaws.com \
+  --https --aws-sigv4 --aws-region us-west-2 \
+  cluster health
+
+```
+
+Credentials are resolved from the default AWS chain (env,
+shared profile, role-based providers) on JVM. You can force
+a profile with `--aws-profile`.
 
 ## Completion
 

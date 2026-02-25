@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch.cli.command.root
 import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.completion.SuspendingCompletionCommand
 import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.default
@@ -86,6 +87,53 @@ class KtSearchCommand(
         help = "Enable client request logging.",
     ).flag(default = false)
 
+    private val awsSigV4 by option(
+        "--aws-sigv4",
+        help = "Enable AWS SigV4 request signing.",
+    ).flag(default = false)
+
+    private val awsSigV4FromEnv by option(
+        "--aws-sigv4-from-env",
+        hidden = true,
+        envvar = "KTSEARCH_AWS_SIGV4",
+    )
+
+    private val awsRegion by option(
+        "--aws-region",
+        help = "AWS region for SigV4 (e.g. us-west-2).",
+        envvar = "KTSEARCH_AWS_REGION",
+    )
+
+    private val awsRegionFromEnv by option(
+        "--aws-region-from-env",
+        hidden = true,
+        envvar = "AWS_REGION",
+    )
+
+    private val awsDefaultRegionFromEnv by option(
+        "--aws-default-region-from-env",
+        hidden = true,
+        envvar = "AWS_DEFAULT_REGION",
+    )
+
+    private val awsService by option(
+        "--aws-service",
+        help = "AWS SigV4 service name (defaults: aoss/es by host).",
+        envvar = "KTSEARCH_AWS_SERVICE",
+    )
+
+    private val awsProfile by option(
+        "--aws-profile",
+        help = "AWS shared credentials profile name.",
+        envvar = "KTSEARCH_AWS_PROFILE",
+    )
+
+    private val awsProfileFromEnv by option(
+        "--aws-profile-from-env",
+        hidden = true,
+        envvar = "AWS_PROFILE",
+    )
+
     init {
         subcommands(
             ClusterCommand(service),
@@ -97,6 +145,14 @@ class KtSearchCommand(
     }
 
     override suspend fun run() {
+        val useAwsSigV4 = if (awsSigV4) true else parseBoolean(awsSigV4FromEnv)
+        if (useAwsSigV4 && (!user.isNullOrBlank() || !password.isNullOrBlank())) {
+            throw UsageError("--aws-sigv4 cannot be combined with --user/--password")
+        }
+        if (useAwsSigV4 && !elasticApiKey.isNullOrBlank()) {
+            throw UsageError("--aws-sigv4 cannot be combined with --elastic-api-key")
+        }
+
         currentContext.obj = ConnectionOptions(
             host = host,
             port = port,
@@ -109,6 +165,10 @@ class KtSearchCommand(
             password = password,
             elasticApiKey = elasticApiKey,
             logging = if (logging) true else parseBoolean(loggingFromEnv),
+            awsSigV4 = useAwsSigV4,
+            awsRegion = awsRegion ?: awsRegionFromEnv ?: awsDefaultRegionFromEnv,
+            awsService = awsService,
+            awsProfile = awsProfile ?: awsProfileFromEnv,
         )
 
         if (currentContext.invokedSubcommand == null) {
