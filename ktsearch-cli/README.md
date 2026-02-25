@@ -35,6 +35,7 @@ flags, and more examples, see
 
 - `ktsearch cluster ...` for health, stats, state, and settings.
 - `ktsearch cat ...` for table/csv operational views.
+- `ktsearch cloud elastic ...` for cloud context, check, and status helpers.
 - `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
 - `ktsearch index mappings/settings/template ...` for schema and template management.
 - `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
@@ -131,6 +132,7 @@ For more examples and all flags, see
 println("ktsearch cluster health")
 println("ktsearch info")
 println("ktsearch cat indices")
+println("ktsearch cloud elastic context")
 println("ktsearch index create products")
 println("ktsearch index wait-green products")
 ```
@@ -141,21 +143,50 @@ Captured Output:
 ktsearch cluster health
 ktsearch info
 ktsearch cat indices
+ktsearch cloud elastic context
 ktsearch index create products
 ktsearch index wait-green products
 
 ```
 
+## Elastic Cloud quick start
+
+Use Cloud ID and API key directly:
+
+```bash
+println("ktsearch \\")
+println("  --cloud-id \"\$ELASTIC_CLOUD_ID\" \\")
+println("  --api-key \"\$ELASTIC_API_KEY\" \\")
+println("  cloud elastic status")
+```
+
+Captured Output:
+
+```
+ktsearch \
+  --cloud-id "$ELASTIC_CLOUD_ID" \
+  --api-key "$ELASTIC_API_KEY" \
+  cloud elastic status
+
+```
+
+- `--cloud-id` resolves host/port automatically and enforces HTTPS.
+- `--api-key` is a convenience alias for `--elastic-api-key`.
+- Use `cloud elastic context` to inspect effective endpoint/auth settings.
+
 ## Environment
 
 Configure connection defaults via environment variables:
 
+- `KTSEARCH_CLOUD_ID`
+- `ELASTIC_CLOUD_ID`
 - `KTSEARCH_HOST`
 - `KTSEARCH_PORT`
 - `KTSEARCH_HTTPS`
 - `KTSEARCH_USER`
 - `KTSEARCH_PASSWORD`
 - `KTSEARCH_ELASTIC_API_KEY`
+- `ELASTIC_API_KEY`
 - `KTSEARCH_LOGGING`
 - `KTSEARCH_AWS_SIGV4`
 - `KTSEARCH_AWS_REGION`

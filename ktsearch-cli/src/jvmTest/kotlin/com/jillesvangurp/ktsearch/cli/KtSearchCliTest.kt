@@ -143,6 +143,7 @@ class KtSearchCliTest {
             host = "search.internal",
             port = 9443,
             https = true,
+            cloudId = null,
             user = "bob",
             password = "secret",
             elasticApiKey = "my-api-key",
@@ -172,6 +173,7 @@ class KtSearchCliTest {
             host = "search.internal",
             port = 9200,
             https = false,
+            cloudId = null,
             user = null,
             password = null,
             elasticApiKey = "my-api-key",
@@ -205,6 +207,7 @@ class KtSearchCliTest {
             host = "search.internal",
             port = 9200,
             https = true,
+            cloudId = null,
             user = null,
             password = null,
             elasticApiKey = null,
@@ -255,6 +258,107 @@ class KtSearchCliTest {
         }.exceptionOrNull()
 
         (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun clusterHealthAcceptsApiKeyAlias() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "--host", "search.internal",
+                "--api-key", "my-api-key",
+                "cluster",
+                "health",
+            ),
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9200,
+            https = false,
+            cloudId = null,
+            user = null,
+            password = null,
+            elasticApiKey = "my-api-key",
+            logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
+        )
+    }
+
+    @Test
+    fun clusterHealthResolvesElasticCloudId() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "--cloud-id",
+                "demo:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJGVzJGs=",
+                "cluster",
+                "health",
+            ),
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "es.us-east4.gcp.elastic-cloud.com",
+            port = 443,
+            https = true,
+            cloudId = "demo:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJGVzJGs=",
+            user = null,
+            password = null,
+            elasticApiKey = null,
+            logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
+        )
+    }
+
+    @Test
+    fun cloudIdRejectsHostOverride() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "--cloud-id",
+                    "demo:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJGVzJGs=",
+                    "--host",
+                    "search.internal",
+                    "cluster",
+                    "health",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
+    fun cloudElasticCheckCallsRootEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cloud", "elastic", "check"))
+
+        service.rootInfoCalls shouldBe 1
+    }
+
+    @Test
+    fun cloudElasticStatusCallsClusterHealth() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cloud", "elastic", "status"))
+
+        service.clusterHealthCalls shouldBe 1
     }
 
     @Test

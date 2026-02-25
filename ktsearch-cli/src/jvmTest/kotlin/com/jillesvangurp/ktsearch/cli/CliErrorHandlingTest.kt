@@ -12,6 +12,7 @@ class CliErrorHandlingTest {
         host = "localhost",
         port = 9200,
         https = false,
+        cloudId = null,
         user = null,
         password = null,
         elasticApiKey = null,

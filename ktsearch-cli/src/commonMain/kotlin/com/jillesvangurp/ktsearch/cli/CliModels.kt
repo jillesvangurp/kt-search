@@ -5,6 +5,7 @@ data class ConnectionOptions(
     val host: String,
     val port: Int,
     val https: Boolean,
+    val cloudId: String?,
     val user: String?,
     val password: String?,
     val elasticApiKey: String?,
