@@ -70,7 +70,7 @@ class CliReadmeTest {
                     "`ktsearch cluster ...` for health, stats, state, and " +
                         "settings.",
                     "`ktsearch cat ...` for table/csv operational views.",
-                    "`ktsearch index create|get|delete|search ...` for " +
+                    "`ktsearch index create|get|refresh|delete|search ...` for " +
                         "index-level operations.",
                     "`ktsearch index mappings/settings/template ...` for " +
                         "schema and template management.",

@@ -15,6 +15,7 @@ import com.jillesvangurp.ktsearch.MsearchRequest
 import com.jillesvangurp.ktsearch.MultiSearchResponse
 import com.jillesvangurp.ktsearch.OperationType
 import com.jillesvangurp.ktsearch.Refresh
+import com.jillesvangurp.ktsearch.RefreshResponse
 import com.jillesvangurp.ktsearch.RestException
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.SearchOperator
@@ -33,6 +34,7 @@ import com.jillesvangurp.ktsearch.indexDocument
 import com.jillesvangurp.ktsearch.mGet
 import com.jillesvangurp.ktsearch.msearch
 import com.jillesvangurp.ktsearch.parseHits
+import com.jillesvangurp.ktsearch.refresh
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.ktsearch.searchAfter
 import com.jillesvangurp.ktsearch.updateAliases
@@ -246,6 +248,21 @@ class IndexRepository<T : Any>(
     ) {
         client.deleteIndex(indexName, masterTimeOut, timeout, ignoreUnavailable, combineParams(extraParameters))
     }
+
+    /** Refreshes [target] so recent writes become visible to search and count APIs. */
+    suspend fun refresh(
+        target: String = indexNameOrWriteAlias,
+        allowNoIndices: Boolean? = null,
+        expandWildcards: ExpandWildCards? = null,
+        ignoreUnavailable: Boolean? = null,
+        extraParameters: Map<String, String>? = null,
+    ): RefreshResponse = client.refresh(
+        target = target,
+        allowNoIndices = allowNoIndices,
+        expandWildcards = expandWildcards,
+        ignoreUnavailable = ignoreUnavailable,
+        extraParameters = combineParams(extraParameters)
+    )
 
     /**
      * Convenient way to atomically change over to a new index.

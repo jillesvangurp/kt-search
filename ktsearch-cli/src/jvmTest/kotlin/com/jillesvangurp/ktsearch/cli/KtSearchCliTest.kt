@@ -400,6 +400,37 @@ class KtSearchCliTest {
     }
 
     @Test
+    fun refreshIndexCallsRefreshEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "refresh",
+                "products",
+                "--allow-no-indices",
+                "true",
+                "--expand-wildcards",
+                "open",
+                "--ignore-unavailable",
+                "false",
+            ),
+        )
+
+        service.lastApiRequest shouldBe ApiRequest(
+            method = ApiMethod.Post,
+            path = listOf("products", "_refresh"),
+            parameters = mapOf(
+                "allow_no_indices" to "true",
+                "expand_wildcards" to "open",
+                "ignore_unavailable" to "false",
+            ),
+            data = null,
+        )
+    }
+
+    @Test
     fun aliasAddUsesAtomicAliasesApi() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
