@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     kotlin("multiplatform")
     id("com.gradleup.shadow")
+    id("com.avast.gradle.docker-compose")
 }
 
 repositories {
