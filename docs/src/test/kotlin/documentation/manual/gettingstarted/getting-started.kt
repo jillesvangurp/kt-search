@@ -27,8 +27,8 @@ val gettingStartedMd = sourceGitRepository.md {
         The process is the same for both jvm and kotlin-js.
     """.trimIndent()
     includeMdFile("../../projectreadme/gradle-maven.md")
-    // test server runs on 9999, so we need to override
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    // test server runs on 9990, so we need to override
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
 
     section("Create a Client") {
         +"""

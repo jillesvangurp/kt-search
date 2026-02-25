@@ -24,11 +24,11 @@ val projectReadme = sourceGitRepository.md {
     includeMdFile("gradle-maven.md")
 
     section("Usage") {
-        // our test server runs on port 9999
+        // our test server runs on port 9990
         val client = SearchClient(
             KtorRestClient(
-                // our test server runs on port 9999
-                port = 9999
+                // our test server runs on port 9990
+                port = 9990
             )
         )
 

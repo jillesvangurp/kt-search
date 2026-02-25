@@ -10,7 +10,7 @@ import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 val specializedQueriesMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990), logging = true))
 
     section("Distance Feature") {
         val indexName = "specializedqueries"

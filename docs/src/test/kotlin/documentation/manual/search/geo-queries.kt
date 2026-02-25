@@ -76,7 +76,7 @@ fun Kotlin4Example.createGeoPointsDoc() {
 }
 
 val geoQueriesMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999), logging = true))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990), logging = true))
     
     val indexName = "docs-geo-queries-demo"
 

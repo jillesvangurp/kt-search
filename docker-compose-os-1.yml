@@ -1,6 +1,7 @@
 services:
-  os1:
-    image: opensearchproject/opensearch:1
+  testes:
+    image: opensearchproject/opensearch:1.3.20
+    container_name: testes
     environment:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
@@ -19,4 +20,4 @@ services:
         hard: -1
     ports:
       # give our test instance a port number that is for sure not going to write to some poor cluster listening on 9200
-      - "9999:9200"
+      - "9990:9200"

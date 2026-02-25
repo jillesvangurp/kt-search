@@ -16,6 +16,9 @@ data class IndexCreateResponse(
     val index: String
 )
 
+@Serializable
+data class RefreshResponse(@SerialName("_shards") val shards: Shards)
+
 suspend fun SearchClient.createIndex(
     name: String,
     mappingAndSettings: String,
@@ -92,6 +95,24 @@ suspend fun SearchClient.deleteIndex(
     parameters(extraParameters)
 }.parseJsonObject()
 
+/** `POST /{target?}/_refresh`: make recent index operations searchable. */
+suspend fun SearchClient.refresh(
+    target: String? = null,
+    allowNoIndices: Boolean? = null,
+    expandWildcards: ExpandWildCards? = null,
+    ignoreUnavailable: Boolean? = null,
+    extraParameters: Map<String, String>? = null,
+): RefreshResponse {
+    return restClient.post {
+        path(*listOfNotNull(target.takeIf { !it.isNullOrBlank() }, "_refresh").toTypedArray())
+
+        parameter("allow_no_indices", allowNoIndices)
+        parameter("expand_wildcards", expandWildcards)
+        parameter("ignore_unavailable", ignoreUnavailable)
+        parameters(extraParameters)
+    }.parse(RefreshResponse.serializer(), json)
+}
+
 suspend fun SearchClient.getIndex(name: String): JsonObject {
     return restClient.get {
         path(name)
@@ -103,4 +124,3 @@ suspend fun SearchClient.getIndexMappings(name: String): JsonObject {
         path(name,"_mappings")
     }.parseJsonObject()
 }
-

@@ -47,6 +47,10 @@ Documentation lives under the `docs` module and is produced by running the modul
 - To publish rich formats, run the `quarto.sh` helper script from the repository root after the tests complete. It mounts the generated files into the official Quarto Docker image and renders HTML (and optionally PDF/EPUB) outputs inside `docs/build/manual-quarto/quarto`.【F:quarto.sh†L1-L4】【F:docs/src/test/kotlin/documentation/DocumentationTest.kt†L83-L101】
 - Note. disabling examples in the docs module is not an acceptable change in case the test run fails. Assume the problem is with the branch and the modifications or with the way the tests are run (is elasticsearch running?).
 - Mind the line length limit of 80 characters in code examples. Format long lines across multiple lines. Use short identifier names.
+- Treat generated documentation files as outputs, not sources. Do not
+  hand-edit generated files such as `ktsearch-cli/README.md` or
+  `ktsearch-cli/cli-manual.md`; update the generator tests/source (for
+  example `CliReadmeTest`/`CliManualTest`) and regenerate instead.
 
 ## Dokka 
 

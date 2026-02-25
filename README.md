@@ -2,7 +2,13 @@
 
 [![matrix-test-and-deploy-docs](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml/badge.svg?branch=master)](https://github.com/jillesvangurp/kt-search/actions/workflows/deploy-docs-and-test.yml)
 
-Kt-search is a Kotlin Multi Platform library to search across the Opensearch and Elasticsearch ecosystem on any platform that kotlin can compile to. It provides Kotlin DSLs for querying, defining mappings, bulk indexing, index templates, index life cycle management, index aliases, and much more. The key goal for this library is to provide a best in class developer experience for using Elasticsearch and Opensearch.  
+Kt-search is a Kotlin Multi Platform library to search across the Opensearch
+and Elasticsearch ecosystem on any platform that kotlin can compile to. It
+provides Kotlin DSLs for querying, defining mappings, bulk indexing, index
+templates, index life cycle management, index aliases, and much more. The key
+goal for this library is to provide a best in class developer experience for
+using Elasticsearch and Opensearch. This multiplatform foundation also enables
+`ktsearch-cli` native binaries on macOS/Linux.
 
 ## Why Kt-search?
 
@@ -13,7 +19,13 @@ Kt-search has you covered for all of those. The official Elastic or Opensearch c
 Kt-search solves a few important problems here:
 
 - It's Kotlin! You don't have to deal with all the Java idiomatic stuff that comes with the three Java libraries. You can write pure Kotlin code, use coroutines, and use Kotlin DSLs for everything. Simpler code, easier to debug, etc.
-- It's a multiplatform library. We use it on the jvm and in the browser (javascript). Targets for native, IOS, WASM, etc. are also there. So, your Kotlin code should be extremely portable. So, whether you are doing backend development, doing lambda functions, command line tools, mobile apps, or web apps, you can embed kt-search in each of those.
+- It's a multiplatform library. We use it on the jvm and in the browser
+  (javascript). Targets for native, IOS, WASM, etc. are also there. So, your
+  Kotlin code should be extremely portable. So, whether you are doing backend
+  development, doing lambda functions, command line tools, mobile apps, or web
+  apps, you can embed kt-search in each of those. A concrete benefit is that
+  `ktsearch-cli` ships as native macOS/Linux binaries: easy install, no runtime
+  dependencies, fast startup, and convenient scripting/agentic coding usage.
 - It doesn't force you to choose between Elasticsearch or Opensearch. Some features are specific to those products and will only work for those platforms but most of the baseline functionality is exactly the same for both.
 - It's future proof. Everything is extensible (DSLs) and modular. Even supporting custom plugins that add new features is pretty easy with the `json-dsl` library that is part of kt-search.
 
@@ -27,6 +39,14 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
 - [Pet-Store-Demo](petstore-demo/README.md) - Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications.
 - [API Documentation](https://jillesvangurp.github.io/kt-search/api/). Dokka documentation. You can browse it, or access this in your IDE.
 - [Release Notes](https://github.com/jillesvangurp/kt-search/releases).
+- [ktsearch-cli](ktsearch-cli/README.md) - Native command line tool for
+  operating Elasticsearch/OpenSearch clusters on macOS and Linux. It is
+  implemented with Kotlin Multiplatform and ships as native binaries:
+  easy install, no runtime dependencies, and fast startup. Windows binaries
+  are not currently supported; PRs are welcome from contributors who can test
+  Windows support. See the CLI
+  [README](ktsearch-cli/README.md) for detailed install instructions and the
+  generated [CLI manual](ktsearch-cli/cli-manual.md).
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
@@ -494,14 +514,19 @@ This repository contains several kotlin modules that each may be used independen
 |-----------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
 | `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
+| `ktsearch-cli`  | Native command line interface for querying clusters, managing indices, and running maintenance tasks with kt-search.                          |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme.                             |
 | `petstore-demo` | Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications. |
 | `kt-search-lib-alerts` | Experimental alerting core library built on top of kt-search. Not production ready yet.                                                         |
 | `kt-search-alerts-demo` | JVM demo application that wires the alerting library into a runnable sample for local experimentation.                                            |
 
 The `search-client` module is the main module of this library that users will want to use. The `search-dsls` module implements most of the DSLs needed for querying, mappings etc. It's what you could use to build your own search client if you can't or don't want to use the `search-client` module.
 
-You can find the documentation h the `docs` module. Note, this uses my `kotlin4example` project to generate markdown documentation. Make sure you understand how this works if you want to make documentation pull requests. It's not that hard to figure out and, if I say so myself, quite nice to use for writing documentation.
+You can find the documentation in the `docs` module. Note, this uses my
+`kotlin4example` project to generate markdown documentation. Make sure you
+understand how this works if you want to make documentation pull requests.
+It's not that hard to figure out and, if I say so myself, quite nice to use
+for writing documentation.
 
 The `kt-search-lib-alerts` and `kt-search-alerts-demo` might eventually move out of this project into a separate project. See the [README.md](kt-search-alerts-demo/README.md) and the demo module and it's documentation for more information on how to use that.
 

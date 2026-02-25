@@ -57,7 +57,7 @@ fun Project.composeDisableWhenDockerMissing(): Boolean =
     extraBoolean("composeDisableWhenDockerMissing") ?: true
 
 fun isSearchUp(): Boolean = kotlin.runCatching {
-    URI("http://localhost:9999").toURL().openConnection().connect()
+    URI("http://localhost:9990").toURL().openConnection().connect()
 }.isSuccess
 
 allprojects {

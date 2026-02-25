@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.Json
 
 val indexManagementMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     runCatching {
         runBlocking {
             client.deleteIndex(target = "an-index", ignoreUnavailable = true)
@@ -112,6 +112,23 @@ val indexManagementMd = sourceGitRepository.md {
             
             As with all our DSLs, the objects are backed by `JsonDsl` which means you can freely add things using `put` that are  not explicitly supported by the DSL. There are a lot of included filters, tokenizers, etc. And more are available via plugins. So, full coverage of all their settings is not likely to happen.
         """.trimIndent()
+    }
+
+    section("Refreshing indices") {
+        +"""
+            Refreshing makes recent writes visible to search and count APIs.
+            This is useful when you use a long refresh interval or temporarily
+            disable auto-refresh during reindexing.
+        """.trimIndent()
+
+        example(false) {
+            client.refresh("my-first-index")
+            client.refresh(
+                target = "logs-*",
+                ignoreUnavailable = true,
+                allowNoIndices = true
+            )
+        }
     }
 
     section("Aliases") {

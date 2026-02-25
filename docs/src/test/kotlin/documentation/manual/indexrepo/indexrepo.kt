@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("NAME_SHADOWING")
 val indexRepoMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     @Serializable
     data class TestDoc(val message: String)
     val repo = client.repository("test", TestDoc.serializer())
@@ -108,6 +108,18 @@ val indexRepoMd = sourceGitRepository.md {
                 index(TestDoc("test2"))
                 index(TestDoc("test3"))
             }
+        }
+    }
+
+    section("Refreshing with IndexRepository") {
+        +"""
+            `IndexRepository` also exposes a refresh helper so you don't have
+            to call the low-level REST API.
+        """.trimIndent()
+
+        example(false) {
+            repo.index(TestDoc("A document"))
+            repo.refresh()
         }
     }
 

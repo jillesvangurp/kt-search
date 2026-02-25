@@ -70,14 +70,19 @@ This repository contains several kotlin modules that each may be used independen
 |-----------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `search-dsls`   | DSLs for search and mappings based on `json-dsl`.                                                                                              |
 | `search-client` | Multiplatform REST client for Elasticsearch 7.x, 8.x & 9.x and Opensearch 1.x, 2.x & 3.x. This is what you would want to use in your projects. |
-| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme..                             |
+| `ktsearch-cli`  | Native command line interface for querying clusters, managing indices, and running maintenance tasks with kt-search.                          |
+| `docs`          | Contains the code that generates the [manual](https://jillesvangurp.github.io/kt-search/manual/) and this readme.                             |
 | `petstore-demo` | Demo Spring Boot application and kt-search. A practical example of how you can implement search, breakdowns, dashboards, ETL, etc. in your applications. |
 | `kt-search-lib-alerts` | Experimental alerting core library built on top of kt-search. Not production ready yet.                                                         |
 | `kt-search-alerts-demo` | JVM demo application that wires the alerting library into a runnable sample for local experimentation.                                            |
 
 The `search-client` module is the main module of this library that users will want to use. The `search-dsls` module implements most of the DSLs needed for querying, mappings etc. It's what you could use to build your own search client if you can't or don't want to use the `search-client` module.
 
-You can find the documentation h the `docs` module. Note, this uses my `kotlin4example` project to generate markdown documentation. Make sure you understand how this works if you want to make documentation pull requests. It's not that hard to figure out and, if I say so myself, quite nice to use for writing documentation.
+You can find the documentation in the `docs` module. Note, this uses my
+`kotlin4example` project to generate markdown documentation. Make sure you
+understand how this works if you want to make documentation pull requests.
+It's not that hard to figure out and, if I say so myself, quite nice to use
+for writing documentation.
 
 The `kt-search-lib-alerts` and `kt-search-alerts-demo` might eventually move out of this project into a separate project. See the [README.md](kt-search-alerts-demo/README.md) and the demo module and it's documentation for more information on how to use that.
 

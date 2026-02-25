@@ -18,7 +18,7 @@ private var versionInfo: SearchEngineInformation?=null
 /**
  * Base class for search tests. Use together with the gradle compose plugin.
  *
- * It will talk to whatever runs on port 9999. That's intentionally different
+ * It will talk to whatever runs on port 9990. That's intentionally different
  * from the default port, so you don't fill your production cluster with test data.
  */
 open class SearchTestBase {
@@ -55,8 +55,8 @@ open class SearchTestBase {
     companion object {
         private val sharedClient by lazy {
             val nodes = arrayOf(
-                Node("127.0.0.1", 9999),
-                Node("localhost", 9999)
+                Node("127.0.0.1", 9990),
+                Node("localhost", 9990)
             )
             KtorRestClient(
                 nodes = nodes,

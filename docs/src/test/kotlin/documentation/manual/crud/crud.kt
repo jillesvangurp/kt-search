@@ -11,7 +11,7 @@ import documentation.sourceGitRepository
 import kotlinx.serialization.Serializable
 
 val crudMd = sourceGitRepository.md {
-    val client = SearchClient(KtorRestClient(Node("localhost", 9999)))
+    val client = SearchClient(KtorRestClient(Node("localhost", 9990)))
     @Serializable
     data class TestDoc(val id: String, val name: String, val tags: List<String> = listOf())
 
