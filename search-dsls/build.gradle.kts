@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -14,8 +13,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-val enableNativeTargets =
-    !(OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val enableNativeTargets = true
 
 kotlin {
 
@@ -122,5 +120,3 @@ if (enableNativeTargets) {
         enabled = false
     }
 }
-
-

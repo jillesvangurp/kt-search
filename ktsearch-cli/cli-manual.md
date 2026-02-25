@@ -521,6 +521,7 @@ Commands:
   get                  Get index metadata.
   show                 Get index metadata.
   exists               Check if an index exists.
+  refresh              Refresh an index.
   delete               Delete an index.
   rm                   Delete an index.
   doc                  Document CRUD and mget.
@@ -615,6 +616,24 @@ Usage: ktsearch index exists [<options>] <index>
 
 Options:
   -h, --help  Show this message and exit
+
+Arguments:
+  <index>  Index name.
+```
+
+## `ktsearch index refresh`
+
+```text
+Usage: ktsearch index refresh [<options>] <index>
+
+  Refresh an index.
+
+Options:
+  --allow-no-indices=(true|false)                   Ignore wildcard/alias with only missing indices.
+  --expand-wildcards=(open|closed|hidden|none|all)  Wildcard expansion: open|closed|hidden|none|all.
+  --ignore-unavailable=(true|false)                 Ignore missing or closed indices.
+  --pretty / --no-pretty                            Pretty-print JSON output.
+  -h, --help                                        Show this message and exit
 
 Arguments:
   <index>  Index name.

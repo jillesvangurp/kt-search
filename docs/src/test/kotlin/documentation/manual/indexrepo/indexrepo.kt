@@ -111,6 +111,18 @@ val indexRepoMd = sourceGitRepository.md {
         }
     }
 
+    section("Refreshing with IndexRepository") {
+        +"""
+            `IndexRepository` also exposes a refresh helper so you don't have
+            to call the low-level REST API.
+        """.trimIndent()
+
+        example(false) {
+            repo.index(TestDoc("A document"))
+            repo.refresh()
+        }
+    }
+
     section("Multi Get") {
         +"""
             Multi get is of course also supported.

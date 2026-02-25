@@ -24,6 +24,7 @@ class IndexCommand(
             GetIndexCommand(service),
             GetIndexCommand(service, name = "show"),
             IndexExistsCommand(service),
+            RefreshIndexCommand(service),
             DeleteIndexCommand(service, platform),
             DeleteIndexCommand(service, platform, name = "rm"),
             DocCommand(service, platform),

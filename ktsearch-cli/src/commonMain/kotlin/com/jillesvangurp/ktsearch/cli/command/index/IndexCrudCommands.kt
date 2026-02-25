@@ -101,3 +101,39 @@ class DeleteIndexCommand(
         echoJson(response, pretty)
     }
 }
+
+class RefreshIndexCommand(
+    private val service: CliService,
+) : CoreSuspendingCliktCommand(name = "refresh") {
+    override fun help(context: Context): String = "Refresh an index."
+
+    private val index by argument(help = "Index name.")
+    private val allowNoIndices by option(
+        "--allow-no-indices",
+        help = "Ignore wildcard/alias with only missing indices.",
+    ).choice("true", "false")
+    private val expandWildcards by option(
+        "--expand-wildcards",
+        help = "Wildcard expansion: open|closed|hidden|none|all.",
+    ).choice("open", "closed", "hidden", "none", "all")
+    private val ignoreUnavailable by option(
+        "--ignore-unavailable",
+        help = "Ignore missing or closed indices.",
+    ).choice("true", "false")
+    private val pretty by prettyFlag()
+
+    override suspend fun run() {
+        val params = mutableMapOf<String, String>()
+        allowNoIndices?.let { params["allow_no_indices"] = it }
+        expandWildcards?.let { params["expand_wildcards"] = it }
+        ignoreUnavailable?.let { params["ignore_unavailable"] = it }
+
+        val response = service.apiRequest(
+            connectionOptions = requireConnectionOptions(),
+            method = ApiMethod.Post,
+            path = listOf(index, "_refresh"),
+            parameters = params.ifEmpty { null },
+        )
+        echoJson(response, pretty)
+    }
+}

@@ -114,6 +114,23 @@ val indexManagementMd = sourceGitRepository.md {
         """.trimIndent()
     }
 
+    section("Refreshing indices") {
+        +"""
+            Refreshing makes recent writes visible to search and count APIs.
+            This is useful when you use a long refresh interval or temporarily
+            disable auto-refresh during reindexing.
+        """.trimIndent()
+
+        example(false) {
+            client.refresh("my-first-index")
+            client.refresh(
+                target = "logs-*",
+                ignoreUnavailable = true,
+                allowNoIndices = true
+            )
+        }
+    }
+
     section("Aliases") {
         +"""
             Aliases are a useful tool to manage indices over time. As your data mode evolves, you find yourself needing

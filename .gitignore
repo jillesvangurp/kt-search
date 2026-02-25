@@ -1,4 +1,5 @@
 .gradle
+.gradle-docker
 bin
 build/
 !gradle/wrapper/gradle-wrapper.jar

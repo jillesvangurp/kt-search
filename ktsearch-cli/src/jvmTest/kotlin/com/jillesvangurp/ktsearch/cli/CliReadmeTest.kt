@@ -70,7 +70,7 @@ class CliReadmeTest {
                     "`ktsearch cluster ...` for health, stats, state, and " +
                         "settings.",
                     "`ktsearch cat ...` for table/csv operational views.",
-                    "`ktsearch index create|get|delete|search ...` for " +
+                    "`ktsearch index create|get|refresh|delete|search ...` for " +
                         "index-level operations.",
                     "`ktsearch index mappings/settings/template ...` for " +
                         "schema and template management.",
@@ -99,9 +99,12 @@ class CliReadmeTest {
                     "`linuxX64` is supported and can be cross-built on " +
                         "macOS with " +
                         "`-Pktsearch.enableLinuxTargetsOnMac=true`.",
-                    "Cross-building `linuxArm64` on macOS currently fails " +
-                        "at link time due to `ktor-client-curl`/OpenSSL " +
-                        "static-linker issues.",
+                    "Direct host cross-builds for `linuxArm64` on macOS " +
+                        "may still fail at link time due to " +
+                        "`ktor-client-curl`/OpenSSL linker issues.",
+                    "Use `./ktsearch-cli/build-linux-binaries-docker.sh` " +
+                        "to build Linux `x86_64` and `arm64` binaries via " +
+                        "Docker on macOS and Linux.",
                     "Building Apple final binaries on Linux CI is not " +
                         "supported by Kotlin/Native host restrictions.",
                     "Windows `mingwX64` binaries can be built, but " +
@@ -112,6 +115,31 @@ class CliReadmeTest {
                         "system via `./ktsearch-cli/install.sh`.",
                     "Prebuilt packaging and CI-produced binaries may be " +
                         "added later if this stabilizes.",
+                )
+            }
+
+            section("Linux Docker builds") {
+                +"""
+                    Build Linux native binaries for both `x86_64` and
+                    `arm64` with Docker:
+                """.trimIndent()
+                block(type = "bash") {
+                    println("./ktsearch-cli/build-linux-binaries-docker.sh")
+                }
+                +"""
+                    The script creates per-architecture builder images with
+                    Java and native toolchain dependencies, runs Gradle in a
+                    Linux `amd64` container, cross-compiles both targets, and
+                    writes output binaries to:
+                    `ktsearch-cli/build/docker-linux-binaries/`
+                """.trimIndent()
+                unorderedList(
+                    "Override container platform with " +
+                        "`KTSEARCH_DOCKER_PLATFORM` (default " +
+                        "`linux/amd64`).",
+                    "Override image name with `KTSEARCH_DOCKER_IMAGE`.",
+                    "Override Gradle cache location with " +
+                        "`KTSEARCH_DOCKER_GRADLE_CACHE`.",
                 )
             }
 

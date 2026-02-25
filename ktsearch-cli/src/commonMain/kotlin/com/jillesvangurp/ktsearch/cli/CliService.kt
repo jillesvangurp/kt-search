@@ -1,7 +1,10 @@
 package com.jillesvangurp.ktsearch.cli
 
+import com.github.ajalt.clikt.core.CliktError
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.Refresh
+import com.jillesvangurp.ktsearch.RestException
+import com.jillesvangurp.ktsearch.RestResponse
 import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.bulkSession
 import com.jillesvangurp.ktsearch.createIndex
@@ -113,22 +116,26 @@ enum class ApiMethod {
 /** Default service implementation backed by [SearchClient]. */
 class DefaultCliService : CliService {
     override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
-        val client = createClient(connectionOptions)
-        return try {
-            client.restClient.get { }.getOrThrow().text
-        } finally {
-            client.close()
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                client.restClient.get { }.getOrThrow().text
+            } finally {
+                client.close()
+            }
         }
     }
 
     override suspend fun fetchClusterHealth(connectionOptions: ConnectionOptions): String {
-        val client = createClient(connectionOptions)
-        return try {
-            client.restClient.get {
-                path("_cluster", "health")
-            }.getOrThrow().text
-        } finally {
-            client.close()
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                client.restClient.get {
+                    path("_cluster", "health")
+                }.getOrThrow().text
+            } finally {
+                client.close()
+            }
         }
     }
 
@@ -137,25 +144,27 @@ class DefaultCliService : CliService {
         index: String,
         writer: NdjsonGzipWriter,
     ): Long {
-        val client = createClient(connectionOptions)
-        return try {
-            var lines = 0L
-            val (_, flow) = client.searchAfter(index, keepAlive = 1.minutes) {
-                resultSize = 500
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                var lines = 0L
+                val (_, flow) = client.searchAfter(index, keepAlive = 1.minutes) {
+                    resultSize = 500
+                }
+                flow.collect { hit ->
+                    val source = hit.source
+                        ?: error("Hit ${hit.index}/${hit.id} has no _source")
+                    val line = client.json.encodeToString(
+                        JsonObject.serializer(),
+                        source,
+                    )
+                    writer.writeLine(line)
+                    lines++
+                }
+                lines
+            } finally {
+                client.close()
             }
-            flow.collect { hit ->
-                val source = hit.source
-                    ?: error("Hit ${hit.index}/${hit.id} has no _source")
-                val line = client.json.encodeToString(
-                    JsonObject.serializer(),
-                    source,
-                )
-                writer.writeLine(line)
-                lines++
-            }
-            lines
-        } finally {
-            client.close()
         }
     }
 
@@ -178,35 +187,37 @@ class DefaultCliService : CliService {
         terminateAfter: Int?,
         searchType: String?,
     ): String {
-        val client = createClient(connectionOptions)
-        return try {
-            val body = when {
-                !data.isNullOrBlank() -> withExtraProfile(data, profile)
-                !query.isNullOrBlank() -> createQueryStringBody(query, profile)
-                else -> null
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                val body = when {
+                    !data.isNullOrBlank() -> withExtraProfile(data, profile)
+                    !query.isNullOrBlank() -> createQueryStringBody(query, profile)
+                    else -> null
+                }
+                val response = client.restClient.post {
+                    path(index, "_search")
+                    parameter("size", size)
+                    parameter("from", offset)
+                    parameter("sort", sort)
+                    parameter("track_total_hits", trackTotalHits)
+                    parameter("timeout", timeout)
+                    parameter("routing", routing)
+                    parameter("preference", preference)
+                    parameter(
+                        "allow_partial_search_results",
+                        allowPartialResults,
+                    )
+                    parameter("explain", explain)
+                    parameter("terminate_after", terminateAfter)
+                    parameter("search_type", searchType)
+                    parameter("_source_includes", fields?.joinToString(","))
+                    body?.let { rawBody(it) }
+                }.getOrThrow()
+                response.text
+            } finally {
+                client.close()
             }
-            val response = client.restClient.post {
-                path(index, "_search")
-                parameter("size", size)
-                parameter("from", offset)
-                parameter("sort", sort)
-                parameter("track_total_hits", trackTotalHits)
-                parameter("timeout", timeout)
-                parameter("routing", routing)
-                parameter("preference", preference)
-                parameter(
-                    "allow_partial_search_results",
-                    allowPartialResults,
-                )
-                parameter("explain", explain)
-                parameter("terminate_after", terminateAfter)
-                parameter("search_type", searchType)
-                parameter("_source_includes", fields?.joinToString(","))
-                body?.let { rawBody(it) }
-            }.getOrThrow()
-            response.text
-        } finally {
-            client.close()
         }
     }
 
@@ -214,40 +225,44 @@ class DefaultCliService : CliService {
         connectionOptions: ConnectionOptions,
         request: CatRequest,
     ): String {
-        val client = createClient(connectionOptions)
-        return try {
-            val options = ClientCatRequestOptions(
-                headers = request.columns,
-                sort = request.sort,
-                verbose = request.verbose,
-                help = request.help,
-                bytes = parseBytes(request.bytes),
-                time = parseTime(request.time),
-                format = ClientCatFormat.Json,
-                local = request.local,
-                extraParameters = request.extraParameters,
-            )
-            when (request.variant) {
-                CatVariant.Aliases -> client.catAliases(request.target, options)
-                CatVariant.Allocation -> client.catAllocation(request.target, options)
-                CatVariant.Count -> client.catCount(request.target, options)
-                CatVariant.Health -> client.catHealth(options)
-                CatVariant.Indices -> client.catIndices(request.target, options)
-                CatVariant.Master -> client.catMaster(options)
-                CatVariant.Nodes -> client.catNodes(request.target, options)
-                CatVariant.PendingTasks -> client.catPendingTasks(options)
-                CatVariant.Recovery -> client.catRecovery(request.target, options)
-                CatVariant.Repositories -> client.catRepositories(options)
-                CatVariant.Shards -> client.catShards(request.target, options)
-                CatVariant.Snapshots -> {
-                    client.catSnapshots(request.target ?: "_all", options)
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                val options = ClientCatRequestOptions(
+                    headers = request.columns,
+                    sort = request.sort,
+                    verbose = request.verbose,
+                    help = request.help,
+                    bytes = parseBytes(request.bytes),
+                    time = parseTime(request.time),
+                    format = ClientCatFormat.Json,
+                    local = request.local,
+                    extraParameters = request.extraParameters,
+                )
+                when (request.variant) {
+                    CatVariant.Aliases -> client.catAliases(request.target, options)
+                    CatVariant.Allocation -> client.catAllocation(request.target, options)
+                    CatVariant.Count -> client.catCount(request.target, options)
+                    CatVariant.Health -> client.catHealth(options)
+                    CatVariant.Indices -> client.catIndices(request.target, options)
+                    CatVariant.Master -> client.catMaster(options)
+                    CatVariant.Nodes -> client.catNodes(request.target, options)
+                    CatVariant.PendingTasks -> client.catPendingTasks(options)
+                    CatVariant.Recovery -> client.catRecovery(request.target, options)
+                    CatVariant.Repositories -> client.catRepositories(options)
+                    CatVariant.Shards -> client.catShards(request.target, options)
+                    CatVariant.Snapshots -> {
+                        client.catSnapshots(request.target ?: "_all", options)
+                    }
+                    CatVariant.Tasks -> client.catTasks(options)
+                    CatVariant.Templates -> client.catTemplates(request.target, options)
+                    CatVariant.ThreadPool -> {
+                        client.catThreadPool(request.target, options)
+                    }
                 }
-                CatVariant.Tasks -> client.catTasks(options)
-                CatVariant.Templates -> client.catTemplates(request.target, options)
-                CatVariant.ThreadPool -> client.catThreadPool(request.target, options)
+            } finally {
+                client.close()
             }
-        } finally {
-            client.close()
         }
     }
 
@@ -258,32 +273,34 @@ class DefaultCliService : CliService {
         parameters: Map<String, String>?,
         data: String?,
     ): String {
-        val client = createClient(connectionOptions)
-        return try {
-            val response = when (method) {
-                ApiMethod.Get -> client.restClient.get {
-                    path(*path.toTypedArray())
-                    parameters(parameters)
-                }.getOrThrow()
-                ApiMethod.Post -> client.restClient.post {
-                    path(*path.toTypedArray())
-                    parameters(parameters)
-                    data?.let { rawBody(it) }
-                }.getOrThrow()
-                ApiMethod.Put -> client.restClient.put {
-                    path(*path.toTypedArray())
-                    parameters(parameters)
-                    data?.let { rawBody(it) }
-                }.getOrThrow()
-                ApiMethod.Delete -> client.restClient.delete {
-                    path(*path.toTypedArray())
-                    parameters(parameters)
-                    data?.let { rawBody(it) }
-                }.getOrThrow()
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                val response = when (method) {
+                    ApiMethod.Get -> client.restClient.get {
+                        path(*path.toTypedArray())
+                        parameters(parameters)
+                    }.getOrThrow()
+                    ApiMethod.Post -> client.restClient.post {
+                        path(*path.toTypedArray())
+                        parameters(parameters)
+                        data?.let { rawBody(it) }
+                    }.getOrThrow()
+                    ApiMethod.Put -> client.restClient.put {
+                        path(*path.toTypedArray())
+                        parameters(parameters)
+                        data?.let { rawBody(it) }
+                    }.getOrThrow()
+                    ApiMethod.Delete -> client.restClient.delete {
+                        path(*path.toTypedArray())
+                        parameters(parameters)
+                        data?.let { rawBody(it) }
+                    }.getOrThrow()
+                }
+                response.text
+            } finally {
+                client.close()
             }
-            response.text
-        } finally {
-            client.close()
         }
     }
 
@@ -299,56 +316,60 @@ class DefaultCliService : CliService {
         routing: String?,
         idField: String?,
     ): Long {
-        val client = createClient(connectionOptions)
-        return try {
-            val indexExists = client.exists(index)
-            if (recreate && indexExists) {
-                client.deleteIndex(index, ignoreUnavailable = true)
-            }
-            if (recreate || (createIfMissing && !indexExists)) {
-                client.createIndex(index)
-            }
-
-            val session = client.bulkSession(
-                target = index,
-                bulkSize = bulkSize,
-                refresh = parseRefresh(refresh),
-                pipeline = pipeline,
-                routing = routing,
-                failOnFirstError = true,
-            )
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
             try {
-                var lines = 0L
-                while (true) {
-                    val line = reader.readLine() ?: break
-                    val trimmed = line.trim()
-                    if (trimmed.isEmpty()) {
-                        continue
-                    }
-                    val id = idField?.let { key ->
-                        runCatching {
-                            Json.Default
-                                .decodeFromString(JsonObject.serializer(), trimmed)
-                                .get(key)
-                                ?.let { value ->
-                                    if (value is JsonPrimitive) {
-                                        value.content
-                                    } else {
-                                        value.toString()
-                                    }
-                                }
-                        }.getOrNull()
-                    }
-                    session.index(source = trimmed, id = id)
-                    lines++
+                val indexExists = client.exists(index)
+                if (recreate && indexExists) {
+                    client.deleteIndex(index, ignoreUnavailable = true)
                 }
-                session.flush()
-                lines
+                if (recreate || (createIfMissing && !indexExists)) {
+                    client.createIndex(index)
+                }
+
+                val session = client.bulkSession(
+                    target = index,
+                    bulkSize = bulkSize,
+                    refresh = parseRefresh(refresh),
+                    pipeline = pipeline,
+                    routing = routing,
+                    failOnFirstError = true,
+                )
+                try {
+                    var lines = 0L
+                    while (true) {
+                        val line = reader.readLine() ?: break
+                        val trimmed = line.trim()
+                        if (trimmed.isEmpty()) {
+                            continue
+                        }
+                        val id = idField?.let { key ->
+                            runCatching {
+                                Json.Default
+                                    .decodeFromString(
+                                        JsonObject.serializer(),
+                                        trimmed,
+                                    ).get(key)
+                                    ?.let { value ->
+                                        if (value is JsonPrimitive) {
+                                            value.content
+                                        } else {
+                                            value.toString()
+                                        }
+                                    }
+                            }.getOrNull()
+                        }
+                        session.index(source = trimmed, id = id)
+                        lines++
+                    }
+                    session.flush()
+                    lines
+                } finally {
+                    session.close()
+                }
             } finally {
-                session.close()
+                client.close()
             }
-        } finally {
-            client.close()
         }
     }
 
@@ -356,11 +377,13 @@ class DefaultCliService : CliService {
         connectionOptions: ConnectionOptions,
         index: String,
     ): Boolean {
-        val client = createClient(connectionOptions)
-        return try {
-            client.exists(index)
-        } finally {
-            client.close()
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                client.exists(index)
+            } finally {
+                client.close()
+            }
         }
     }
 
@@ -378,6 +401,85 @@ class DefaultCliService : CliService {
         )
     }
 }
+
+private suspend fun <T> runWithCliErrorMapping(
+    connectionOptions: ConnectionOptions,
+    block: suspend () -> T,
+): T {
+    return try {
+        block()
+    } catch (e: Throwable) {
+        throw mapCliException(e, connectionOptions)
+    }
+}
+
+internal fun mapCliException(
+    error: Throwable,
+    connectionOptions: ConnectionOptions,
+): Throwable {
+    if (error is CliktError || error is Error) {
+        return error
+    }
+    return when (error) {
+        is RestException -> CliRequestError(mapRestError(error, connectionOptions))
+        else -> if (looksLikeNetworkError(error)) {
+            CliRequestError(
+                "Unable to connect to ${connectionOptions.baseUrl()}. " +
+                    "Check --host/--port/--http/--https and that the " +
+                    "cluster is reachable.",
+            )
+        } else {
+            error
+        }
+    }
+}
+
+private fun mapRestError(
+    error: RestException,
+    connectionOptions: ConnectionOptions,
+): String {
+    val status = error.status
+    val path = (error.response as? RestResponse.Status4XX)?.path
+    return when (status) {
+        400 -> "Request failed with HTTP 400 (Bad Request) for " +
+            "${path ?: connectionOptions.baseUrl()}. Verify request flags " +
+            "and payload."
+        404 -> "Request failed with HTTP 404 (Not Found) for " +
+            "${path ?: connectionOptions.baseUrl()}. Verify resource names " +
+            "and endpoint path."
+        else -> "Request failed with HTTP $status for " +
+            "${path ?: connectionOptions.baseUrl()}."
+    }
+}
+
+private fun looksLikeNetworkError(error: Throwable): Boolean {
+    var current: Throwable? = error
+    while (current != null) {
+        val typeName = current::class.simpleName.orEmpty()
+        if (
+            typeName.contains("Connect", ignoreCase = true) ||
+            typeName.contains("Socket", ignoreCase = true) ||
+            typeName.contains("Timeout", ignoreCase = true) ||
+            typeName.contains("Host", ignoreCase = true) ||
+            typeName.contains("Network", ignoreCase = true) ||
+            typeName.contains("Address", ignoreCase = true) ||
+            typeName.contains("IO", ignoreCase = true)
+        ) {
+            return true
+        }
+        current = current.cause
+    }
+    return false
+}
+
+private fun ConnectionOptions.baseUrl(): String {
+    val scheme = if (https) "https" else "http"
+    return "$scheme://$host:$port"
+}
+
+private class CliRequestError(
+    message: String,
+) : CliktError(message = message, statusCode = 1, printError = true)
 
 private fun parseRefresh(value: String): Refresh {
     return when (value.lowercase()) {

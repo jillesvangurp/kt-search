@@ -138,6 +138,7 @@ class CliManualTest {
             listOf("index", "get"),
             listOf("index", "show"),
             listOf("index", "exists"),
+            listOf("index", "refresh"),
             listOf("index", "delete"),
             listOf("index", "rm"),
             listOf("index", "doc"),
