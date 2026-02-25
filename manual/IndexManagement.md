@@ -92,6 +92,21 @@ This is a deliberately more elaborate example that shows off a few of the featur
 
 As with all our DSLs, the objects are backed by `JsonDsl` which means you can freely add things using `put` that are  not explicitly supported by the DSL. There are a lot of included filters, tokenizers, etc. And more are available via plugins. So, full coverage of all their settings is not likely to happen.
 
+## Refreshing indices
+
+Refreshing makes recent writes visible to search and count APIs.
+This is useful when you use a long refresh interval or temporarily
+disable auto-refresh during reindexing.
+
+```kotlin
+client.refresh("my-first-index")
+client.refresh(
+  target = "logs-*",
+  ignoreUnavailable = true,
+  allowNoIndices = true
+)
+```
+
 ## Aliases
 
 Aliases are a useful tool to manage indices over time. As your data mode evolves, you find yourself needing

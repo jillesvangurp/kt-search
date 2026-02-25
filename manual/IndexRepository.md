@@ -86,6 +86,16 @@ repo.bulk {
 }
 ```
 
+## Refreshing with IndexRepository
+
+`IndexRepository` also exposes a refresh helper so you don't have
+to call the low-level REST API.
+
+```kotlin
+repo.index(TestDoc("A document"))
+repo.refresh()
+```
+
 ## Multi Get
 
 Multi get is of course also supported.
