@@ -239,6 +239,11 @@ Because reindexing can potentially take a long time, you have to choose whether 
 
 The client supports several ways to do this.
 
+Reindex helpers also support temporary indexing settings on the
+destination index via `disableRefreshInterval` and
+`setReplicasToZero`. These settings are restored after reindexing,
+including when the original values were not explicitly set.
+
 ### Reindex and poll until done (Recommended)
 
 The client includes a convenient function that takes care of all this. It creates a reindex task and
@@ -260,6 +265,9 @@ val reindexResponse = client.reindexAndAwaitTask {
 You can also do this manually with `reindexAsync`. This sets `wait_for-completion=false` and returns
 a task id that you can use to track progress of the task. You can then call `awaitTaskCompleted` and
 pick apart the response to dig out the `IndexResponse`.
+
+If you use temporary indexing settings, wait for task
+completion before restoring settings on the destination index.
 
 ```kotlin
 // creates a task and returns immediately
