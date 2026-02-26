@@ -4,6 +4,8 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettings
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -36,6 +38,35 @@ suspend fun SearchClient.putIndexSettings(
         numberOfReplicas?.let { this["index.number_of_replicas"] = it }
     }
     return putIndexSettings(target = target, settings = settings)
+}
+
+private suspend fun SearchClient.putIndexSettingsRaw(
+    target: String,
+    refreshInterval: String? = null,
+    numberOfReplicas: String? = null,
+    resetRefreshInterval: Boolean = false,
+    resetNumberOfReplicas: Boolean = false,
+): JsonObject {
+    val indexSettings = buildJsonObject {
+        if (resetRefreshInterval) {
+            put("refresh_interval", JsonNull)
+        } else {
+            refreshInterval?.let { put("refresh_interval", JsonPrimitive(it)) }
+        }
+        if (resetNumberOfReplicas) {
+            put("number_of_replicas", JsonNull)
+        } else {
+            numberOfReplicas?.let { put("number_of_replicas", JsonPrimitive(it)) }
+        }
+    }
+    if (indexSettings.isEmpty()) {
+        return buildJsonObject {}
+    }
+    val body = buildJsonObject { put("index", indexSettings) }
+    return restClient.put {
+        path(target, "_settings")
+        rawBody(json.encodeToString(JsonObject.serializer(), body))
+    }.parseJsonObject()
 }
 
 /**
@@ -122,7 +153,7 @@ suspend fun <T> SearchClient.withTemporaryIndexingSettings(
     } finally {
         try {
             snapshots.forEach { (index, snapshot) ->
-                putIndexSettings(
+                putIndexSettingsRaw(
                     target = index,
                     refreshInterval = if (disableRefreshInterval) {
                         snapshot.refreshInterval
@@ -134,11 +165,15 @@ suspend fun <T> SearchClient.withTemporaryIndexingSettings(
                     } else {
                         null
                     },
+                    resetRefreshInterval = disableRefreshInterval && snapshot.refreshInterval == null,
+                    resetNumberOfReplicas = setReplicasToZero && snapshot.numberOfReplicas == null,
                 )
             }
         } finally {
             if (disableRefreshInterval && snapshots.isNotEmpty()) {
-                refresh(target = snapshots.keys.joinToString(","))
+                runCatching {
+                    refresh(target = snapshots.keys.joinToString(","))
+                }
             }
         }
     }
