@@ -35,6 +35,10 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
   Windows support. See the CLI
   [README](ktsearch-cli/README.md) for detailed install instructions and the
   generated [CLI manual](ktsearch-cli/cli-manual.md).
+
+`ktsearch top` gives you a live dashboard view of cluster and node health:
+
+![ktsearch top](ktsearch-cli/images/ktsearch-top.webp)
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.

@@ -88,6 +88,11 @@ class CliReadmeTest {
                         "export/import.",
                 )
                 +"""
+                    Example `ktsearch top` dashboard output:
+
+                    ![ktsearch top](./images/ktsearch-top.webp)
+                """.trimIndent()
+                +"""
                     Commands that modify or delete data ask for confirmation
                     by default. Use `--yes` in automation.
                 """.trimIndent()

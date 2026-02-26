@@ -44,6 +44,10 @@ flags, and more examples, see
 - `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.
 - `ktsearch index dump|restore ...` for NDJSON export/import.
 
+Example `ktsearch top` dashboard output:
+
+![ktsearch top](./images/ktsearch-top.webp)
+
 Commands that modify or delete data ask for confirmation
 by default. Use `--yes` in automation.
 
@@ -302,4 +306,3 @@ The tools below are useful alternatives or complements.
  `elasticdump` | Data migration/export workflows. | Strong ETL focus, but not a general-purpose operational CLI for aliases/templates/snapshots/ILM in one tool. |
  `elasticsearch-curator` | Policy-style index housekeeping jobs. | Great for scheduled maintenance; less suited as an interactive daily CLI for both Elasticsearch and OpenSearch generations. |
  OpenSearch/Elastic Dev Tools consoles | Interactive request authoring in UI. | Excellent for ad hoc requests, but browser-based and not ideal for shell automation in CI/scripts. |
-
