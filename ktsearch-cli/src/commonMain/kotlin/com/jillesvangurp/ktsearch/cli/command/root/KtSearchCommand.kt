@@ -19,6 +19,7 @@ import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterCommand
 import com.jillesvangurp.ktsearch.cli.command.info.InfoCommand
 import com.jillesvangurp.ktsearch.cli.command.index.IndexCommand
 import com.jillesvangurp.ktsearch.cli.command.tasks.TasksCommand
+import com.jillesvangurp.ktsearch.cli.command.top.TopCommand
 
 /** Root command and shared options for the CLI. */
 class KtSearchCommand(
@@ -94,6 +95,7 @@ class KtSearchCommand(
             CatCommand(service),
             IndexCommand(service, platform),
             TasksCommand(service),
+            TopCommand(service),
             SuspendingCompletionCommand(name = "completion"),
         )
     }

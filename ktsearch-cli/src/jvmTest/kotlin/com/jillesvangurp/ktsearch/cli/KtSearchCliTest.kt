@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
+import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterTopApiSnapshot
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
 import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
 import io.kotest.matchers.shouldBe
@@ -12,6 +13,7 @@ import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
 import kotlin.io.path.createTempFile
 import kotlin.test.Test
+import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 
 class KtSearchCliTest {
@@ -204,6 +206,36 @@ class KtSearchCliTest {
         service.lastApiRequest?.path shouldBe listOf("_cluster", "settings")
         service.lastApiRequest?.parameters shouldBe
             mapOf("include_defaults" to "true", "flat_settings" to "true")
+    }
+
+    @Test
+    fun topDefaultsToThreeSecondPolling() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("top", "--samples", "1"))
+
+        service.clusterTopCalls shouldBe 1
+    }
+
+    @Test
+    fun topRejectsZeroInterval() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "top",
+                    "--interval-seconds",
+                    "0",
+                    "--samples",
+                    "1",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
     }
 
     @Test
@@ -661,6 +693,7 @@ private class FakeService(
     var lastApiRequest: ApiRequest? = null
     var lastRestoreRequest: RestoreRequest? = null
     var lastReindexRequest: ReindexRequest? = null
+    var clusterTopCalls: Int = 0
 
     override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
         rootInfoCalls++
@@ -674,6 +707,20 @@ private class FakeService(
         clusterHealthCalls++
         lastConnectionOptions = connectionOptions
         return clusterHealthResponse
+    }
+
+    override suspend fun fetchClusterTopSnapshot(
+        connectionOptions: ConnectionOptions,
+    ): ClusterTopApiSnapshot {
+        lastConnectionOptions = connectionOptions
+        clusterTopCalls++
+        return ClusterTopApiSnapshot(
+            clusterStats = null,
+            clusterHealth = null,
+            nodesStats = null,
+            errors = emptyList(),
+            fetchedAt = Clock.System.now(),
+        )
     }
 
     override suspend fun dumpIndex(
@@ -898,6 +945,14 @@ private class FakePlatform(
     override fun fileExists(path: String): Boolean = existingPaths.contains(path)
 
     override fun isInteractiveInput(): Boolean = interactive
+
+    override fun consumeTopKey(): TopKey? = null
+
+    override fun enableSingleKeyInput() {
+    }
+
+    override fun disableSingleKeyInput() {
+    }
 
     override fun readLineFromStdin(): String? = "y"
 

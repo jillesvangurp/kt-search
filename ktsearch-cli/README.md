@@ -34,6 +34,7 @@ flags, and more examples, see
 [`cli-manual.md`](./cli-manual.md).
 
 - `ktsearch cluster ...` for health, stats, state, and settings.
+- `ktsearch top` for live cluster/node vitals and admin panels.
 - `ktsearch cat ...` for table/csv operational views.
 - `ktsearch tasks status|wait ...` for task inspection and task polling.
 - `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
@@ -139,6 +140,7 @@ For more examples and all flags, see
 
 ```bash
 println("ktsearch cluster health")
+println("ktsearch top --samples 1")
 println("ktsearch info")
 println("ktsearch cat indices")
 println("ktsearch index create products")
@@ -149,6 +151,7 @@ Captured Output:
 
 ```
 ktsearch cluster health
+ktsearch top --samples 1
 ktsearch info
 ktsearch cat indices
 ktsearch index create products

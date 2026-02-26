@@ -26,6 +26,7 @@ Commands:
   cat         Run cat APIs and render the output as a table.
   index       Index-related commands.
   tasks       Task API commands.
+  top         Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
   completion  Generate a tab-complete script for the given shell
 ```
 
@@ -117,6 +118,20 @@ Output:
 
 Options:
   -h, --help  Show this message and exit
+```
+
+## `ktsearch top`
+
+```text
+Usage: ktsearch top [<options>]
+
+  Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
+
+Options:
+  --interval-seconds=<int>  Polling interval seconds.
+  --samples=<int>           Number of refresh cycles. 0 means infinite.
+  --no-color                Disable colored output.
+  -h, --help                Show this message and exit
 ```
 
 ## `ktsearch info`

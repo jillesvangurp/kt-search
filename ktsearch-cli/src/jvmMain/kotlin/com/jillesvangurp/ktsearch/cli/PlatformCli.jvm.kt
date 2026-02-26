@@ -14,6 +14,25 @@ actual fun platformFileExists(path: String): Boolean = File(path).exists()
 
 actual fun platformIsInteractiveInput(): Boolean = System.console() != null
 
+actual fun platformConsumeTopKey(): TopKey? {
+    val input = System.`in`
+    while (input.available() > 0) {
+        val ch = input.read()
+        when (ch) {
+            'q'.code, 'Q'.code -> return TopKey.Quit
+            'h'.code, 'H'.code, '?'.code -> return TopKey.Help
+            27 -> return TopKey.Escape
+        }
+    }
+    return null
+}
+
+actual fun platformEnableSingleKeyInput() {
+}
+
+actual fun platformDisableSingleKeyInput() {
+}
+
 actual fun platformReadLineFromStdin(): String? = readLine()
 
 actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
