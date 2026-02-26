@@ -1,10 +1,8 @@
 package com.jillesvangurp.ktsearch.cli
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.alloc
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import okio.FileSystem
@@ -13,9 +11,6 @@ import okio.buffer
 import okio.gzip
 import platform.posix.fileno
 import platform.posix.isatty
-import platform.posix.poll
-import platform.posix.pollfd
-import platform.posix.POLLIN
 import platform.posix.read
 import platform.posix.stdin
 import platform.posix.system
@@ -52,17 +47,12 @@ actual fun platformDisableSingleKeyInput() {
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun platformConsumeTopKey(): TopKey? = memScoped {
-    val fd = fileno(stdin)
-    val pollFd = alloc<pollfd>()
-    val oneByte = ByteArray(1)
-    pollFd.fd = fd
-    pollFd.events = POLLIN.convert()
-    pollFd.revents = 0
-    val ready = poll(pollFd.ptr, 1.convert(), 0)
-    if (ready <= 0 || (pollFd.revents.toInt() and POLLIN) == 0) {
+    if (!singleKeyEnabled) {
         return@memScoped null
     }
-    val readCount: Long = oneByte.usePinned { pinned ->
+    val fd = fileno(stdin)
+    val oneByte = ByteArray(1)
+    val readCount = oneByte.usePinned { pinned ->
         read(fd, pinned.addressOf(0), 1.convert())
     }
     if (readCount <= 0) {
