@@ -124,3 +124,11 @@ suspend fun SearchClient.getIndexMappings(name: String): JsonObject {
         path(name,"_mappings")
     }.parseJsonObject()
 }
+
+/** `PUT /{name}/_mapping`: update mappings for an existing index. */
+suspend fun SearchClient.putIndexMappings(name: String, mappings: String): JsonObject {
+    return restClient.put {
+        path(name, "_mapping")
+        rawBody(mappings)
+    }.parseJsonObject()
+}

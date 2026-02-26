@@ -4,11 +4,15 @@ import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
+import com.jillesvangurp.ktsearch.cli.command.tasks.TaskEtaTracker
+import com.jillesvangurp.ktsearch.cli.command.tasks.printTaskProgressLine
+import com.jillesvangurp.ktsearch.cli.command.tasks.taskProgress
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
@@ -24,19 +28,53 @@ class ReindexCommand(
     private val file by option("-f", "--file", help = "Read JSON body from file.")
     private val wait by option(
         "--wait",
-        help = "Wait for completion true|false (default true).",
-    ).choice("true", "false").default("true")
+        help = "Wait for completion true|false (default false).",
+    ).choice("true", "false").default("false")
+    private val disableRefreshInterval by option(
+        "--disable-refresh-interval",
+        help = "Temporarily set destination refresh_interval to -1.",
+    ).flag(default = false)
+    private val setReplicasToZero by option(
+        "--set-replicas-zero",
+        help = "Temporarily set destination number_of_replicas to 0.",
+    ).flag(default = false)
+    private val progressReporting by option(
+        "--progress-reporting",
+        help = "Poll task and print progress when --wait=false.",
+    ).flag(default = false)
     private val pretty by prettyFlag()
 
     override suspend fun run() {
-        val body = readBody(data, file, required = true, currentContext)
-        val response = service.apiRequest(
-            connectionOptions = requireConnectionOptions(),
-            method = ApiMethod.Post,
-            path = listOf("_reindex"),
-            parameters = mapOf("wait_for_completion" to wait),
-            data = body,
+        val body = requireNotNull(
+            readBody(data, file, required = true, currentContext),
         )
+        val shouldReportProgress = progressReporting ||
+            disableRefreshInterval ||
+            setReplicasToZero
+        val tracker = TaskEtaTracker()
+        var progressLen = 0
+        val response = service.reindex(
+            connectionOptions = requireConnectionOptions(),
+            body = body,
+            waitForCompletion = wait == "true",
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
+            onTaskProgress = if (shouldReportProgress) {
+                { progress ->
+                    progressLen = printTaskProgressLine(
+                        prefix = "reindex",
+                        progress = progress,
+                        previousLength = progressLen,
+                        eta = tracker.update(progress),
+                    )
+                }
+            } else {
+                null
+            },
+        )
+        if (progressLen > 0) {
+            println()
+        }
         echoJson(response, pretty)
     }
 }
@@ -68,14 +106,19 @@ class ReindexWaitCommand(
     private val intervalSeconds by option(
         "--interval-seconds",
         help = "Polling interval seconds.",
-    ).int().default(2)
+    ).int().default(5)
     private val timeoutSeconds by option(
         "--timeout-seconds",
         help = "Max wait seconds.",
     ).int().default(600)
 
     override suspend fun run() {
+        if (intervalSeconds < 2) {
+            currentContext.fail("--interval-seconds must be >= 2")
+        }
         val started = kotlin.time.Clock.System.now()
+        val tracker = TaskEtaTracker()
+        var progressLen = 0
         while (true) {
             val response = service.apiRequest(
                 connectionOptions = requireConnectionOptions(),
@@ -83,8 +126,19 @@ class ReindexWaitCommand(
                 path = listOf("_tasks", taskId),
             )
             val obj = Json.Default.decodeFromString(JsonObject.serializer(), response)
+            taskProgress(obj, taskId)?.let {
+                progressLen = printTaskProgressLine(
+                    prefix = "reindex",
+                    progress = it,
+                    previousLength = progressLen,
+                    eta = tracker.update(it),
+                )
+            }
             val completed = obj["completed"]?.jsonPrimitive?.content == "true"
             if (completed) {
+                if (progressLen > 0) {
+                    println()
+                }
                 echoJson(response, pretty = true)
                 return
             }

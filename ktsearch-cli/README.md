@@ -35,7 +35,8 @@ flags, and more examples, see
 
 - `ktsearch cluster ...` for health, stats, state, and settings.
 - `ktsearch cat ...` for table/csv operational views.
-- `ktsearch index create|get|delete|search ...` for index-level operations.
+- `ktsearch tasks status|wait ...` for task inspection and task polling.
+- `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
 - `ktsearch index mappings/settings/template ...` for schema and template management.
 - `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
 - `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.
@@ -43,6 +44,15 @@ flags, and more examples, see
 
 Commands that modify or delete data ask for confirmation
 by default. Use `--yes` in automation.
+
+## Reindex behavior notes
+
+`ktsearch index reindex` defaults to `--wait false` and
+returns the task response immediately.
+
+- Use `--progress-reporting` to keep polling and print a single-line progress view (percent, docs, batches, rate, ETA).
+- If you use `--disable-refresh-interval` or `--set-replicas-zero`, the CLI keeps polling until the task completes so temporary destination settings can be restored safely (these flags imply progress reporting).
+- Temporary destination settings are restored to prior values (or defaults if they were unset).
 
 ## Native build limitations
 
