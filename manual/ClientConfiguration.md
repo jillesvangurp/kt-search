@@ -49,18 +49,112 @@ val client = SearchClient(
 )
 ```
 
-For Opensearch clusters in AWS, you need to use Amazon's [sigv4](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html) to sign requests. This is currently
-not directly supported in the client. However, it should be pretty easy to construct your own REST client that does this.
- 
- See this [gist](https://gist.github.com/hassaku63/e3ed3cac288d429563cdddf1768613d6) on how
- to do curl requests against an AWS Opensearch cluster.
+For Opensearch clusters in AWS, use `OpenSearchClient`. It wraps a `SearchClient`
+and configures SigV4 request signing in a multiplatform way.
 
-To work around this, you can provide your own customized ktor client that 
- does this; or provide an alternative `RestClient` implementation in case you don't want to use ktor client. 
- 
- Pull requests that document authenticating with Opensearch in AWS in more detail
- or enable this in a multiplatform way with the ktor client are welcome. I currently
- do not have access to an Opensearch cluster in AWS.
+The signer auto-detects the AWS service name from the host:
+- `*.aoss.amazonaws.com` uses `aoss`
+- all other hosts default to `es`
+
+You can still explicitly set the service name if needed.
+
+```kotlin
+val client = OpenSearchClient(
+  host = "my-domain.us-west-2.es.amazonaws.com",
+  region = "us-west-2",
+  credentialsProvider = AwsCredentialsProvider {
+    AwsCredentials(
+      accessKeyId = "AKIA...",
+      secretAccessKey = "secret",
+    )
+  }
+)
+```
+
+For OpenSearch Serverless endpoints, auto-detection picks `aoss` by default:
+
+```kotlin
+val client = OpenSearchClient(
+  host = "my-collection.us-west-2.aoss.amazonaws.com",
+  region = "us-west-2",
+  credentialsProvider = AwsCredentialsProvider {
+    AwsCredentials(
+      accessKeyId = "AKIA...",
+      secretAccessKey = "secret",
+      sessionToken = "optional-session-token"
+    )
+  }
+)
+```
+
+If needed, you can force a specific service name:
+
+```kotlin
+val client = OpenSearchClient(
+  host = "my-domain.us-west-2.es.amazonaws.com",
+  region = "us-west-2",
+  service = "es",
+  credentialsProvider = AwsCredentialsProvider {
+    AwsCredentials("AKIA...", "secret")
+  }
+)
+```
+
+### Testing without an AWS account
+
+You can verify signing locally with unit tests. The tests in this project assert
+canonical request generation, string-to-sign logic, payload hashes, and generated
+SigV4 headers.
+
+This is enough for local development and CI. You only need an AWS account for
+end-to-end verification against a real OpenSearch Service or OpenSearch Serverless
+endpoint.
+
+If you have AWS access, you can do a manual check by creating a client with real
+credentials and running a simple call such as `root()` or `clusterHealth()`.
+
+## AWS Credentials and OpenSearch
+
+`OpenSearchClient` with SigV4 support is currently **experimental**.
+API shape and defaults may change in future releases.
+
+Use this when authenticating to Amazon OpenSearch Service or
+OpenSearch Serverless endpoints (`*.es.amazonaws.com`,
+`*.aoss.amazonaws.com`).
+
+### Local development authentication
+
+Common local options:
+
+- hard-coded credentials in code for quick local tests
+- environment variables
+  (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+  optional `AWS_SESSION_TOKEN`)
+- shared profile credentials from `~/.aws/credentials`
+- role-based profiles (for example `source_profile` + `role_arn`)
+  on JVM via the AWS SDK provider chain
+
+Recommended for local development is profile-based setup so no
+secrets are committed into code or shell history.
+
+### Authentication when running inside AWS
+
+Typical production options:
+
+- IAM role attached to the runtime:
+  EC2 instance profile, ECS task role, EKS IRSA, or Lambda role
+- short-lived session credentials from STS
+- explicit profile selection only for special cases
+
+In AWS environments, prefer role-based credentials over static
+keys. This is safer and supports automatic key rotation.
+
+### Region and service selection
+
+- region can be configured explicitly
+- service defaults to `aoss` for serverless hosts and `es` for
+  other Amazon OpenSearch hosts
+- you can still override service manually if needed
 
 ## Node selectors
 
