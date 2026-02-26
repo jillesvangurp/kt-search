@@ -47,6 +47,12 @@ interface CliPlatform {
 
     fun isInteractiveInput(): Boolean
 
+    fun consumeQuitKey(): Boolean
+
+    fun enableSingleKeyInput()
+
+    fun disableSingleKeyInput()
+
     fun readLineFromStdin(): String?
 
     fun createGzipWriter(path: String): NdjsonGzipWriter
@@ -57,6 +63,12 @@ interface CliPlatform {
 expect fun platformFileExists(path: String): Boolean
 
 expect fun platformIsInteractiveInput(): Boolean
+
+expect fun platformConsumeQuitKey(): Boolean
+
+expect fun platformEnableSingleKeyInput()
+
+expect fun platformDisableSingleKeyInput()
 
 expect fun platformReadLineFromStdin(): String?
 
@@ -84,6 +96,12 @@ object DefaultCliPlatform : CliPlatform {
     override fun fileExists(path: String): Boolean = platformFileExists(path)
 
     override fun isInteractiveInput(): Boolean = platformIsInteractiveInput()
+
+    override fun consumeQuitKey(): Boolean = platformConsumeQuitKey()
+
+    override fun enableSingleKeyInput() = platformEnableSingleKeyInput()
+
+    override fun disableSingleKeyInput() = platformDisableSingleKeyInput()
 
     override fun readLineFromStdin(): String? = platformReadLineFromStdin()
 

@@ -113,6 +113,7 @@ kotlin {
                 implementation(project(":search-client"))
                 implementation(KotlinX.coroutines.core)
                 implementation("com.github.ajalt.clikt:clikt:_")
+                implementation("com.github.ajalt.mordant:mordant:_")
             }
         }
         commonTest {

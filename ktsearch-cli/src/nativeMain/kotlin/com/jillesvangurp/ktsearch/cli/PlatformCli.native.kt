@@ -1,19 +1,81 @@
 package com.jillesvangurp.ktsearch.cli
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
 import okio.gzip
 import platform.posix.fileno
 import platform.posix.isatty
+import platform.posix.poll
+import platform.posix.pollfd
+import platform.posix.POLLIN
+import platform.posix.read
 import platform.posix.stdin
+import platform.posix.system
 
 actual fun platformFileExists(path: String): Boolean =
     FileSystem.SYSTEM.exists(path.toPath())
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun platformIsInteractiveInput(): Boolean = isatty(fileno(stdin)) != 0
+
+private var singleKeyEnabled: Boolean = false
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun platformEnableSingleKeyInput() {
+    if (singleKeyEnabled) {
+        return
+    }
+    val exitCode = system(
+        "stty -echo -icanon min 0 time 0 < /dev/tty > /dev/tty 2>/dev/null"
+    )
+    if (exitCode == 0) {
+        singleKeyEnabled = true
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun platformDisableSingleKeyInput() {
+    if (!singleKeyEnabled) {
+        return
+    }
+    system("stty sane < /dev/tty > /dev/tty 2>/dev/null")
+    singleKeyEnabled = false
+}
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun platformConsumeQuitKey(): Boolean = memScoped {
+    val fd = fileno(stdin)
+    val pollFd = alloc<pollfd>()
+    val oneByte = ByteArray(1)
+    repeat(64) {
+        pollFd.fd = fd
+        pollFd.events = POLLIN.convert()
+        pollFd.revents = 0
+        val ready = poll(pollFd.ptr, 1.convert(), 0)
+        if (ready <= 0 || (pollFd.revents.toInt() and POLLIN) == 0) {
+            return@memScoped false
+        }
+        val readCount: Long = oneByte.usePinned { pinned ->
+            read(fd, pinned.addressOf(0), 1.convert())
+        }
+        if (readCount <= 0) {
+            return@memScoped false
+        }
+        val c = oneByte[0].toInt()
+        if (c == 'q'.code || c == 'Q'.code) {
+            return@memScoped true
+        }
+    }
+    false
+}
 
 actual fun platformReadLineFromStdin(): String? = readlnOrNull()
 

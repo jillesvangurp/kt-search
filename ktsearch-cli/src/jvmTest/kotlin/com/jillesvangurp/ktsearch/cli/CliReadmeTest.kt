@@ -68,7 +68,7 @@ class CliReadmeTest {
                 """.trimIndent()
                 unorderedList(
                     "`ktsearch cluster ...` for health, stats, state, and " +
-                        "settings.",
+                        "settings, including `cluster top` for live vitals.",
                     "`ktsearch cat ...` for table/csv operational views.",
                     "`ktsearch tasks status|wait ...` for task inspection " +
                         "and task polling.",
@@ -215,6 +215,7 @@ class CliReadmeTest {
                 """.trimIndent()
                 block(type = "bash") {
                     println("ktsearch cluster health")
+                    println("ktsearch cluster top --samples 1")
                     println("ktsearch info")
                     println("ktsearch cat indices")
                     println("ktsearch index create products")
