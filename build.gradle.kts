@@ -1,5 +1,6 @@
 import com.avast.gradle.dockercompose.ComposeExtension
 import java.io.File
+import java.net.HttpURLConnection
 import java.net.URI
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -57,8 +58,17 @@ fun Project.composeDisableWhenDockerMissing(): Boolean =
     extraBoolean("composeDisableWhenDockerMissing") ?: true
 
 fun isSearchUp(): Boolean = kotlin.runCatching {
-    URI("http://localhost:9990").toURL().openConnection().connect()
-}.isSuccess
+    val connection =
+        (URI("http://localhost:9990/_cluster/health").toURL()
+            .openConnection() as HttpURLConnection)
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 1000
+    connection.readTimeout = 1000
+    connection.useCaches = false
+    connection.instanceFollowRedirects = false
+    connection.connect()
+    connection.responseCode in 200..299
+}.getOrElse { false }
 
 allprojects {
     repositories {
@@ -157,22 +167,20 @@ subprojects {
         }
 
         tasks.matching { it.name == "jsNodeTest" }.configureEach {
-            if (!isSearchUp()) {
+            if (dockerAvailable) {
                 dependsOn("composeUp")
             }
         }
 
         tasks.withType<Test>().configureEach {
-            if (!isSearchUp()) {
-                if (dockerAvailable) {
-                    dependsOn("composeUp")
-                } else if (composeSkipTestsWithoutDocker()) {
-                    logger.lifecycle(
-                        "Skipping tests because Elasticsearch is not running " +
-                            "and Docker is unavailable."
-                    )
-                    enabled = false
-                }
+            if (dockerAvailable) {
+                dependsOn("composeUp")
+            } else if (composeSkipTestsWithoutDocker()) {
+                logger.lifecycle(
+                    "Skipping tests because Elasticsearch is not running " +
+                        "and Docker is unavailable."
+                )
+                enabled = false
             }
         }
     }
