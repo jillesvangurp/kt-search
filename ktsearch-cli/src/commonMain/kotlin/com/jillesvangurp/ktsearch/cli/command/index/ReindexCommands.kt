@@ -13,6 +13,7 @@ import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ReindexTaskProgress
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Clock
+import kotlin.math.round
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -203,12 +204,12 @@ private fun printProgressLine(
     }
     val line = buildString {
         append("reindex ")
-        pct?.let { append("${"%.1f".format(it)}% ") }
+        pct?.let { append("${oneDecimal(it)}% ") }
         append("${progress.processed}")
         progress.total?.let { append("/$it") }
         progress.batches?.let { append(" batches=$it") }
         eta.docsPerSecond?.let {
-            append(" rate=${"%.1f".format(it)}/s")
+            append(" rate=${oneDecimal(it)}/s")
         }
         eta.etaSeconds?.takeIf { it >= 0 }?.let {
             append(" eta=${formatEta(it)}")
@@ -221,4 +222,11 @@ private fun printProgressLine(
     }
     print("\r$padded")
     return maxOf(previousLength, line.length)
+}
+
+private fun oneDecimal(value: Double): String {
+    val rounded = round(value * 10.0) / 10.0
+    val intPart = rounded.toLong()
+    val frac = round((rounded - intPart) * 10.0).toLong()
+    return "$intPart.$frac"
 }
