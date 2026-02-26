@@ -3,8 +3,8 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
-import com.jillesvangurp.ktsearch.cli.ReindexTaskProgress
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
+import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.io.FileInputStream
@@ -541,6 +541,7 @@ class KtSearchCliTest {
             waitForCompletion = false,
             disableRefreshInterval = false,
             setReplicasToZero = false,
+            progressReporting = false,
         )
     }
 
@@ -565,6 +566,46 @@ class KtSearchCliTest {
             waitForCompletion = false,
             disableRefreshInterval = true,
             setReplicasToZero = true,
+            progressReporting = true,
+        )
+    }
+
+    @Test
+    fun reindexProgressReportingFlagEnablesProgressCallback() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "reindex",
+                "--progress-reporting",
+                "--data",
+                """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            ),
+        )
+
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
+            progressReporting = true,
+        )
+    }
+
+    @Test
+    fun tasksStatusCallsTaskEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("tasks", "status", "abc:123"))
+
+        service.lastApiRequest shouldBe ApiRequest(
+            method = ApiMethod.Get,
+            path = listOf("_tasks", "abc:123"),
+            parameters = null,
+            data = null,
         )
     }
 
@@ -765,7 +806,7 @@ private class FakeService(
         waitForCompletion: Boolean,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
-        onTaskProgress: ((ReindexTaskProgress) -> Unit)?,
+        onTaskProgress: ((TaskProgress) -> Unit)?,
     ): String {
         lastConnectionOptions = connectionOptions
         lastReindexRequest = ReindexRequest(
@@ -773,6 +814,7 @@ private class FakeService(
             waitForCompletion = waitForCompletion,
             disableRefreshInterval = disableRefreshInterval,
             setReplicasToZero = setReplicasToZero,
+            progressReporting = onTaskProgress != null,
         )
         return """{"acknowledged":true}"""
     }
@@ -843,6 +885,7 @@ private data class ReindexRequest(
     val waitForCompletion: Boolean,
     val disableRefreshInterval: Boolean,
     val setReplicasToZero: Boolean,
+    val progressReporting: Boolean,
 )
 
 private class FakePlatform(

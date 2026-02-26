@@ -36,6 +36,7 @@ import com.jillesvangurp.ktsearch.getTask
 import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.ktsearch.put
 import com.jillesvangurp.ktsearch.searchAfter
+import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
 import com.jillesvangurp.ktsearch.withTemporaryIndexingSettings
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -48,17 +49,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-
-data class ReindexTaskProgress(
-    val taskId: String,
-    val total: Long?,
-    val created: Long = 0,
-    val updated: Long = 0,
-    val deleted: Long = 0,
-    val batches: Long? = null,
-) {
-    val processed: Long get() = created + updated + deleted
-}
 
 /** Small service abstraction to keep command tests hermetic. */
 interface CliService {
@@ -126,7 +116,7 @@ interface CliService {
         waitForCompletion: Boolean = false,
         disableRefreshInterval: Boolean = false,
         setReplicasToZero: Boolean = false,
-        onTaskProgress: ((ReindexTaskProgress) -> Unit)? = null,
+        onTaskProgress: ((TaskProgress) -> Unit)? = null,
     ): String
 
     suspend fun indexExists(
@@ -423,7 +413,7 @@ class DefaultCliService : CliService {
         waitForCompletion: Boolean,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
-        onTaskProgress: ((ReindexTaskProgress) -> Unit)?,
+        onTaskProgress: ((TaskProgress) -> Unit)?,
     ): String {
         return runWithCliErrorMapping(connectionOptions) {
             val client = createClient(connectionOptions)
@@ -464,7 +454,20 @@ class DefaultCliService : CliService {
                         response
                     }
                 } else {
-                    runReindex()
+                    val response = runReindex()
+                    if (!waitForCompletion && onTaskProgress != null) {
+                        val taskId = Json.Default.decodeFromString(
+                            TaskResponse.serializer(),
+                            response,
+                        ).task
+                        pollReindexTaskUntilCompleted(
+                            client = client,
+                            taskId = taskId,
+                            timeout = 12.hours,
+                            onTaskProgress = onTaskProgress,
+                        )
+                    }
+                    response
                 }
             } finally {
                 client.close()
@@ -505,7 +508,7 @@ private suspend fun pollReindexTaskUntilCompleted(
     client: SearchClient,
     taskId: String,
     timeout: kotlin.time.Duration,
-    onTaskProgress: ((ReindexTaskProgress) -> Unit)?,
+    onTaskProgress: ((TaskProgress) -> Unit)?,
 ) {
     val started = kotlin.time.Clock.System.now()
     while (true) {
@@ -513,12 +516,16 @@ private suspend fun pollReindexTaskUntilCompleted(
         val completed = status["completed"]?.jsonPrimitive?.content == "true"
         status["task"]?.jsonObject?.get("status")?.jsonObject?.let { s ->
             onTaskProgress?.invoke(
-                ReindexTaskProgress(
+                TaskProgress(
                     taskId = taskId,
                     total = s["total"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(),
-                    created = s["created"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L,
-                    updated = s["updated"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L,
-                    deleted = s["deleted"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L,
+                    processed =
+                        (s["created"]?.jsonPrimitive?.contentOrNull
+                            ?.toLongOrNull() ?: 0L) +
+                            (s["updated"]?.jsonPrimitive?.contentOrNull
+                                ?.toLongOrNull() ?: 0L) +
+                            (s["deleted"]?.jsonPrimitive?.contentOrNull
+                                ?.toLongOrNull() ?: 0L),
                     batches = s["batches"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(),
                 ),
             )
