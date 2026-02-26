@@ -3,7 +3,9 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
+import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterTopApiSnapshot
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
+import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.io.FileInputStream
@@ -11,6 +13,7 @@ import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
 import kotlin.io.path.createTempFile
 import kotlin.test.Test
+import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 
 class KtSearchCliTest {
@@ -392,6 +395,36 @@ class KtSearchCliTest {
     }
 
     @Test
+    fun topDefaultsToThreeSecondPolling() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("top", "--samples", "1"))
+
+        service.clusterTopCalls shouldBe 1
+    }
+
+    @Test
+    fun topRejectsZeroInterval() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "top",
+                    "--interval-seconds",
+                    "0",
+                    "--samples",
+                    "1",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
+    }
+
+    @Test
     fun searchWithoutQueryOrDataIsAllowed() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
@@ -658,8 +691,36 @@ class KtSearchCliTest {
             pipeline = null,
             routing = null,
             idField = null,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
             lines = listOf("""{"id":1}""", """{"id":2}"""),
         )
+    }
+
+    @Test
+    fun restoreForwardsTemporaryIndexingSettingsFlags() = runTest {
+        val service = FakeService()
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf("products.ndjson.gz"),
+        ).apply {
+            nextReaderLines = listOf("""{"id":1}""")
+        }
+        val cmd = newCommand(service = service, platform = platform)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "restore",
+                "products",
+                "--disable-refresh-interval",
+                "--set-replicas-zero",
+                "--yes",
+            ),
+        )
+
+        service.lastRestoreRequest?.disableRefreshInterval shouldBe true
+        service.lastRestoreRequest?.setReplicasToZero shouldBe true
     }
 
     @Test
@@ -693,9 +754,77 @@ class KtSearchCliTest {
             ),
         )
 
-        service.lastApiRequest?.path shouldBe listOf("_reindex")
-        service.lastApiRequest?.parameters shouldBe
-            mapOf("wait_for_completion" to "false")
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
+            progressReporting = false,
+        )
+    }
+
+    @Test
+    fun reindexForwardsTemporaryIndexingSettingsFlags() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "reindex",
+                "--disable-refresh-interval",
+                "--set-replicas-zero",
+                "--data",
+                """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            ),
+        )
+
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = true,
+            setReplicasToZero = true,
+            progressReporting = true,
+        )
+    }
+
+    @Test
+    fun reindexProgressReportingFlagEnablesProgressCallback() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "reindex",
+                "--progress-reporting",
+                "--data",
+                """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            ),
+        )
+
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
+            progressReporting = true,
+        )
+    }
+
+    @Test
+    fun tasksStatusCallsTaskEndpoint() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("tasks", "status", "abc:123"))
+
+        service.lastApiRequest shouldBe ApiRequest(
+            method = ApiMethod.Get,
+            path = listOf("_tasks", "abc:123"),
+            parameters = null,
+            data = null,
+        )
     }
 
     @Test
@@ -749,6 +878,8 @@ private class FakeService(
     var lastCatRequest: CatServiceRequest? = null
     var lastApiRequest: ApiRequest? = null
     var lastRestoreRequest: RestoreRequest? = null
+    var lastReindexRequest: ReindexRequest? = null
+    var clusterTopCalls: Int = 0
 
     override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
         rootInfoCalls++
@@ -762,6 +893,20 @@ private class FakeService(
         clusterHealthCalls++
         lastConnectionOptions = connectionOptions
         return clusterHealthResponse
+    }
+
+    override suspend fun fetchClusterTopSnapshot(
+        connectionOptions: ConnectionOptions,
+    ): ClusterTopApiSnapshot {
+        lastConnectionOptions = connectionOptions
+        clusterTopCalls++
+        return ClusterTopApiSnapshot(
+            clusterStats = null,
+            clusterHealth = null,
+            nodesStats = null,
+            errors = emptyList(),
+            fetchedAt = Clock.System.now(),
+        )
     }
 
     override suspend fun dumpIndex(
@@ -863,6 +1008,8 @@ private class FakeService(
         pipeline: String?,
         routing: String?,
         idField: String?,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
     ): Long {
         lastConnectionOptions = connectionOptions
         val lines = mutableListOf<String>()
@@ -879,9 +1026,30 @@ private class FakeService(
             pipeline = pipeline,
             routing = routing,
             idField = idField,
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
             lines = lines,
         )
         return lines.size.toLong()
+    }
+
+    override suspend fun reindex(
+        connectionOptions: ConnectionOptions,
+        body: String,
+        waitForCompletion: Boolean,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
+        onTaskProgress: ((TaskProgress) -> Unit)?,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastReindexRequest = ReindexRequest(
+            body = body,
+            waitForCompletion = waitForCompletion,
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
+            progressReporting = onTaskProgress != null,
+        )
+        return """{"acknowledged":true}"""
     }
 
     override suspend fun indexExists(
@@ -940,7 +1108,17 @@ private data class RestoreRequest(
     val pipeline: String?,
     val routing: String?,
     val idField: String?,
+    val disableRefreshInterval: Boolean,
+    val setReplicasToZero: Boolean,
     val lines: List<String>,
+)
+
+private data class ReindexRequest(
+    val body: String,
+    val waitForCompletion: Boolean,
+    val disableRefreshInterval: Boolean,
+    val setReplicasToZero: Boolean,
+    val progressReporting: Boolean,
 )
 
 private class FakePlatform(
@@ -953,6 +1131,14 @@ private class FakePlatform(
     override fun fileExists(path: String): Boolean = existingPaths.contains(path)
 
     override fun isInteractiveInput(): Boolean = interactive
+
+    override fun consumeTopKey(): TopKey? = null
+
+    override fun enableSingleKeyInput() {
+    }
+
+    override fun disableSingleKeyInput() {
+    }
 
     override fun readLineFromStdin(): String? = "y"
 

@@ -5,10 +5,14 @@ import com.github.ajalt.clikt.core.UsageError
 import com.jillesvangurp.ktsearch.AwsSigV4Config
 import com.jillesvangurp.ktsearch.AwsSigV4Signer
 import com.jillesvangurp.ktsearch.KtorRestClient
+import com.jillesvangurp.ktsearch.ClusterHealthResponse
 import com.jillesvangurp.ktsearch.Refresh
 import com.jillesvangurp.ktsearch.RestException
 import com.jillesvangurp.ktsearch.RestResponse
 import com.jillesvangurp.ktsearch.SearchClient
+import com.jillesvangurp.ktsearch.TaskResponse
+import com.jillesvangurp.ktsearch.clusterStats
+import com.jillesvangurp.ktsearch.clusterHealth
 import com.jillesvangurp.ktsearch.bulkSession
 import com.jillesvangurp.ktsearch.createIndex
 import com.jillesvangurp.ktsearch.CatRequestOptions as ClientCatRequestOptions
@@ -34,22 +38,36 @@ import com.jillesvangurp.ktsearch.delete
 import com.jillesvangurp.ktsearch.deleteIndex
 import com.jillesvangurp.ktsearch.exists
 import com.jillesvangurp.ktsearch.get
+import com.jillesvangurp.ktsearch.getTask
 import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.ktsearch.put
 import com.jillesvangurp.ktsearch.searchAfter
+import com.jillesvangurp.ktsearch.nodesStats
+import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
+import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterTopApiSnapshot
+import com.jillesvangurp.ktsearch.withTemporaryIndexingSettings
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /** Small service abstraction to keep command tests hermetic. */
 interface CliService {
     suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String
 
     suspend fun fetchClusterHealth(connectionOptions: ConnectionOptions): String
+
+    suspend fun fetchClusterTopSnapshot(
+        connectionOptions: ConnectionOptions,
+    ): ClusterTopApiSnapshot
 
     suspend fun dumpIndex(
         connectionOptions: ConnectionOptions,
@@ -101,7 +119,18 @@ interface CliService {
         pipeline: String? = null,
         routing: String? = null,
         idField: String? = null,
+        disableRefreshInterval: Boolean = false,
+        setReplicasToZero: Boolean = false,
     ): Long
+
+    suspend fun reindex(
+        connectionOptions: ConnectionOptions,
+        body: String,
+        waitForCompletion: Boolean = false,
+        disableRefreshInterval: Boolean = false,
+        setReplicasToZero: Boolean = false,
+        onTaskProgress: ((TaskProgress) -> Unit)? = null,
+    ): String
 
     suspend fun indexExists(
         connectionOptions: ConnectionOptions,
@@ -139,6 +168,193 @@ class DefaultCliService : CliService {
             } finally {
                 client.close()
             }
+        }
+    }
+
+    override suspend fun fetchClusterTopSnapshot(
+        connectionOptions: ConnectionOptions,
+    ): ClusterTopApiSnapshot {
+        val client = createClient(connectionOptions)
+        return try {
+            val errors = mutableListOf<String>()
+            val clusterStats = runCatching {
+                client.clusterStats(
+                    filterPath = listOf(
+                        "cluster_name",
+                        "status",
+                        "indices.docs.count",
+                        "indices.shards.total",
+                        "indices.store.size_in_bytes",
+                        "indices.segments.count",
+                        "indices.segments.memory_in_bytes",
+                        "nodes.count.total",
+                    ),
+                )
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "cluster stats request failed",
+                )
+            }.getOrNull()
+
+            val clusterHealth = runCatching {
+                client.clusterHealth(
+                    extraParameters = mapOf(
+                        "filter_path" to listOf(
+                            "cluster_name",
+                            "status",
+                            "timed_out",
+                            "number_of_nodes",
+                            "active_shards",
+                            "relocating_shards",
+                            "initializing_shards",
+                            "unassigned_shards",
+                        ).joinToString(","),
+                    ),
+                )
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "cluster health request failed",
+                )
+            }.getOrNull()
+
+            val nodesStats = runCatching {
+                client.nodesStats(
+                    metrics = listOf(
+                        "os",
+                        "process",
+                        "jvm",
+                        "fs",
+                        "indices",
+                        "thread_pool",
+                    ),
+                    filterPath = listOf(
+                        "cluster_name",
+                        "nodes.*.name",
+                        "nodes.*.ip",
+                        "nodes.*.host",
+                        "nodes.*.roles",
+                        "nodes.*.os.cpu.percent",
+                        "nodes.*.process.cpu.percent",
+                        "nodes.*.jvm.mem.heap_used_in_bytes",
+                        "nodes.*.jvm.mem.heap_max_in_bytes",
+                        "nodes.*.jvm.mem.heap_used_percent",
+                        "nodes.*.fs.total.total_in_bytes",
+                        "nodes.*.fs.total.available_in_bytes",
+                        "nodes.*.indices.docs.count",
+                        "nodes.*.indices.store.size_in_bytes",
+                        "nodes.*.indices.segments.count",
+                        "nodes.*.indices.segments.memory_in_bytes",
+                        "nodes.*.indices.indexing.index_total",
+                        "nodes.*.indices.search.query_total",
+                        "nodes.*.thread_pool.*.active",
+                        "nodes.*.thread_pool.*.queue",
+                        "nodes.*.thread_pool.*.rejected",
+                    ),
+                )
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "nodes stats request failed",
+                )
+            }.getOrNull()
+
+            val indicesStatsRaw = runCatching {
+                client.restClient.get {
+                    path("_stats")
+                    parameter("level", "indices")
+                    parameter(
+                        "filter_path",
+                        listOf(
+                            "indices.*.total.docs.count",
+                            "indices.*.total.store.size_in_bytes",
+                            "indices.*.total.segments.memory_in_bytes",
+                            "indices.*.total.indexing.index_total",
+                            "indices.*.total.search.query_total",
+                        ).joinToString(","),
+                    )
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "indices stats request failed",
+                )
+            }.getOrNull()
+
+            val threadPoolCatRaw = runCatching {
+                client.restClient.get {
+                    path("_cat", "thread_pool")
+                    parameter("format", "json")
+                    parameter("h", "node_name,name,active,queue,rejected")
+                    parameter("s", "queue:desc,rejected:desc")
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "thread pool request failed",
+                )
+            }.getOrNull()
+
+            val allocationCatRaw = runCatching {
+                client.restClient.get {
+                    path("_cat", "allocation")
+                    parameter("format", "json")
+                    parameter("h", "node,disk.percent,disk.avail,disk.total,shards")
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "allocation request failed",
+                )
+            }.getOrNull()
+
+            val clusterSettingsRaw = runCatching {
+                client.restClient.get {
+                    path("_cluster", "settings")
+                    parameter("include_defaults", true)
+                    parameter("flat_settings", true)
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "cluster settings request failed",
+                )
+            }.getOrNull()
+
+            val tasksRaw = runCatching {
+                client.restClient.get {
+                    path("_tasks")
+                    parameter("detailed", true)
+                    parameter("actions", "indices:*search*,*reindex*,*byquery*")
+                    parameter(
+                        "filter_path",
+                        "nodes.*.name,nodes.*.host,nodes.*.tasks.*.action," +
+                            "nodes.*.tasks.*.description," +
+                            "nodes.*.tasks.*.running_time_in_nanos",
+                    )
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "tasks request failed",
+                )
+            }.getOrNull()
+
+            ClusterTopApiSnapshot(
+                clusterStats = clusterStats,
+                clusterHealth = clusterHealth,
+                nodesStats = nodesStats,
+                indicesStatsRaw = indicesStatsRaw,
+                threadPoolCatRaw = threadPoolCatRaw,
+                allocationCatRaw = allocationCatRaw,
+                clusterSettingsRaw = clusterSettingsRaw,
+                tasksRaw = tasksRaw,
+                errors = errors,
+                fetchedAt = Clock.System.now(),
+            )
+        } finally {
+            client.close()
         }
     }
 
@@ -318,6 +534,8 @@ class DefaultCliService : CliService {
         pipeline: String?,
         routing: String?,
         idField: String?,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
     ): Long {
         return runWithCliErrorMapping(connectionOptions) {
             val client = createClient(connectionOptions)
@@ -330,45 +548,126 @@ class DefaultCliService : CliService {
                     client.createIndex(index)
                 }
 
-                val session = client.bulkSession(
-                    target = index,
-                    bulkSize = bulkSize,
-                    refresh = parseRefresh(refresh),
-                    pipeline = pipeline,
-                    routing = routing,
-                    failOnFirstError = true,
-                )
-                try {
-                    var lines = 0L
-                    while (true) {
-                        val line = reader.readLine() ?: break
-                        val trimmed = line.trim()
-                        if (trimmed.isEmpty()) {
-                            continue
-                        }
-                        val id = idField?.let { key ->
-                            runCatching {
-                                Json.Default
-                                    .decodeFromString(
-                                        JsonObject.serializer(),
-                                        trimmed,
-                                    ).get(key)
-                                    ?.let { value ->
-                                        if (value is JsonPrimitive) {
-                                            value.content
-                                        } else {
-                                            value.toString()
+                suspend fun runRestore(): Long {
+                    val session = client.bulkSession(
+                        target = index,
+                        bulkSize = bulkSize,
+                        refresh = parseRefresh(refresh),
+                        pipeline = pipeline,
+                        routing = routing,
+                        failOnFirstError = true,
+                    )
+                    try {
+                        var lines = 0L
+                        while (true) {
+                            val line = reader.readLine() ?: break
+                            val trimmed = line.trim()
+                            if (trimmed.isEmpty()) {
+                                continue
+                            }
+                            val id = idField?.let { key ->
+                                runCatching {
+                                    Json.Default
+                                        .decodeFromString(
+                                            JsonObject.serializer(),
+                                            trimmed,
+                                        ).get(key)
+                                        ?.let { value ->
+                                            if (value is JsonPrimitive) {
+                                                value.content
+                                            } else {
+                                                value.toString()
+                                            }
                                         }
-                                    }
-                            }.getOrNull()
+                                }.getOrNull()
+                            }
+                            session.index(source = trimmed, id = id)
+                            lines++
                         }
-                        session.index(source = trimmed, id = id)
-                        lines++
+                        session.flush()
+                        return lines
+                    } finally {
+                        session.close()
                     }
-                    session.flush()
-                    lines
-                } finally {
-                    session.close()
+                }
+                if (disableRefreshInterval || setReplicasToZero) {
+                    client.withTemporaryIndexingSettings(
+                        target = index,
+                        disableRefreshInterval = disableRefreshInterval,
+                        setReplicasToZero = setReplicasToZero,
+                    ) {
+                        runRestore()
+                    }
+                } else {
+                    runRestore()
+                }
+            } finally {
+                client.close()
+            }
+        }
+    }
+
+    override suspend fun reindex(
+        connectionOptions: ConnectionOptions,
+        body: String,
+        waitForCompletion: Boolean,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
+        onTaskProgress: ((TaskProgress) -> Unit)?,
+    ): String {
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                val destinationIndex = Json.parseToJsonElement(body)
+                    .jsonObject["dest"]?.jsonObject
+                    ?.get("index")?.jsonPrimitive?.contentOrNull
+
+                suspend fun runReindex() = client.restClient.post {
+                    path("_reindex")
+                    parameter("wait_for_completion", waitForCompletion)
+                    rawBody(body)
+                }.getOrThrow().text
+
+                if (disableRefreshInterval || setReplicasToZero) {
+                    val destination = requireNotNull(destinationIndex) {
+                        "dest.index is required when --disable-refresh-interval " +
+                            "or --set-replicas-zero is enabled"
+                    }
+                    client.withTemporaryIndexingSettings(
+                        target = destination,
+                        disableRefreshInterval = disableRefreshInterval,
+                        setReplicasToZero = setReplicasToZero,
+                    ) {
+                        val response = runReindex()
+                        if (!waitForCompletion) {
+                            val taskId = Json.Default.decodeFromString(
+                                TaskResponse.serializer(),
+                                response,
+                            ).task
+                            pollReindexTaskUntilCompleted(
+                                client = client,
+                                taskId = taskId,
+                                timeout = 12.hours,
+                                onTaskProgress = onTaskProgress,
+                            )
+                        }
+                        response
+                    }
+                } else {
+                    val response = runReindex()
+                    if (!waitForCompletion && onTaskProgress != null) {
+                        val taskId = Json.Default.decodeFromString(
+                            TaskResponse.serializer(),
+                            response,
+                        ).task
+                        pollReindexTaskUntilCompleted(
+                            client = client,
+                            taskId = taskId,
+                            timeout = 12.hours,
+                            onTaskProgress = onTaskProgress,
+                        )
+                    }
+                    response
                 }
             } finally {
                 client.close()
@@ -424,6 +723,42 @@ class DefaultCliService : CliService {
                 logging = connectionOptions.logging,
             ),
         )
+    }
+}
+
+private suspend fun pollReindexTaskUntilCompleted(
+    client: SearchClient,
+    taskId: String,
+    timeout: kotlin.time.Duration,
+    onTaskProgress: ((TaskProgress) -> Unit)?,
+) {
+    val started = kotlin.time.Clock.System.now()
+    while (true) {
+        val status = client.getTask(taskId)
+        val completed = status["completed"]?.jsonPrimitive?.content == "true"
+        status["task"]?.jsonObject?.get("status")?.jsonObject?.let { s ->
+            onTaskProgress?.invoke(
+                TaskProgress(
+                    taskId = taskId,
+                    total = s["total"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(),
+                    processed =
+                        (s["created"]?.jsonPrimitive?.contentOrNull
+                            ?.toLongOrNull() ?: 0L) +
+                            (s["updated"]?.jsonPrimitive?.contentOrNull
+                                ?.toLongOrNull() ?: 0L) +
+                            (s["deleted"]?.jsonPrimitive?.contentOrNull
+                                ?.toLongOrNull() ?: 0L),
+                    batches = s["batches"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(),
+                ),
+            )
+        }
+        if (completed) {
+            return
+        }
+        if (kotlin.time.Clock.System.now() - started > timeout) {
+            error("Timed out waiting for reindex task $taskId")
+        }
+        kotlinx.coroutines.delay(5.seconds)
     }
 }
 

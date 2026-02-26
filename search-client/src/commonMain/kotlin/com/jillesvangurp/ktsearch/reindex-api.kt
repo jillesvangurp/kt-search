@@ -9,9 +9,12 @@ import com.jillesvangurp.serializationext.DEFAULT_JSON
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 data class ReindexResponse(
@@ -54,6 +57,8 @@ suspend fun SearchClient.reindex(
     scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
+    disableRefreshInterval: Boolean = false,
+    setReplicasToZero: Boolean = false,
     block: ReindexDSL.() -> Unit,
 ): ReindexResponse = reindexGeneric(
     refresh,
@@ -65,6 +70,8 @@ suspend fun SearchClient.reindex(
     scroll,
     slices,
     maxDocs,
+    disableRefreshInterval,
+    setReplicasToZero,
     block
 ).parse(ReindexResponse.serializer())
 
@@ -81,6 +88,8 @@ suspend fun SearchClient.reindexAsync(
     scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
+    disableRefreshInterval: Boolean = false,
+    setReplicasToZero: Boolean = false,
     block: ReindexDSL.() -> Unit,
 ): TaskId = reindexGeneric(
     refresh,
@@ -92,6 +101,8 @@ suspend fun SearchClient.reindexAsync(
     scroll,
     slices,
     maxDocs,
+    disableRefreshInterval,
+    setReplicasToZero,
     block
 ).parse(TaskResponse.serializer()).toTaskId()
 
@@ -111,6 +122,8 @@ suspend fun SearchClient.reindexAndAwaitTask(
     scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
+    disableRefreshInterval: Boolean = false,
+    setReplicasToZero: Boolean = false,
     pollInterval: Duration = 5.seconds,
     block: ReindexDSL.() -> Unit,
 ): ReindexResponse? {
@@ -124,6 +137,8 @@ suspend fun SearchClient.reindexAndAwaitTask(
         scroll,
         slices,
         maxDocs,
+        disableRefreshInterval,
+        setReplicasToZero,
         block
     ).parse(TaskResponse.serializer()).toTaskId()
     val taskResp = awaitTaskCompleted(taskId,timeout, interval = pollInterval)
@@ -144,12 +159,18 @@ private suspend fun SearchClient.reindexGeneric(
     scroll: Duration? = null,
     slices: Int? = null,
     maxDocs: Int? = null,
+    disableRefreshInterval: Boolean = false,
+    setReplicasToZero: Boolean = false,
     block: ReindexDSL.() -> Unit,
 ): Result<RestResponse.Status2XX> {
     val reindexDSL = ReindexDSL()
     block(reindexDSL)
+    val requestBody = reindexDSL.toString()
+    val destinationIndex = Json.parseToJsonElement(requestBody)
+        .jsonObject["dest"]?.jsonObject
+        ?.get("index")?.jsonPrimitive?.content
 
-    return restClient.post {
+    suspend fun executeReindex() = restClient.post {
         path("_reindex")
         parameter("refresh", refresh)
         parameter("timeout", timeout)
@@ -160,7 +181,27 @@ private suspend fun SearchClient.reindexGeneric(
         parameter("scroll", scroll)
         parameter("slices", slices)
         parameter("max_docs", maxDocs)
-        body = reindexDSL.toString()
+        body = requestBody
+    }
+    return if (disableRefreshInterval || setReplicasToZero) {
+        val destination = requireNotNull(destinationIndex) {
+            "destination.index is required when disableRefreshInterval " +
+                "or setReplicasToZero is enabled"
+        }
+        withTemporaryIndexingSettings(
+            target = destination,
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
+        ) {
+            val response = executeReindex()
+            if (waitForCompletion == false) {
+                val task = response.parse(TaskResponse.serializer()).toTaskId()
+                awaitTaskCompleted(task, timeout = 12.hours)
+            }
+            response
+        }
+    } else {
+        executeReindex()
     }
 }
 

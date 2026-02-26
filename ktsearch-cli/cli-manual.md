@@ -32,6 +32,8 @@ Commands:
   cat         Run cat APIs and render the output as a table.
   cloud       Cloud helper commands.
   index       Index-related commands.
+  tasks       Task API commands.
+  top         Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
   completion  Generate a tab-complete script for the given shell
 ```
 
@@ -123,6 +125,20 @@ Output:
 
 Options:
   -h, --help  Show this message and exit
+```
+
+## `ktsearch top`
+
+```text
+Usage: ktsearch top [<options>]
+
+  Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
+
+Options:
+  --interval-seconds=<int>  Polling interval seconds.
+  --samples=<int>           Number of refresh cycles. 0 means infinite.
+  --no-color                Disable colored output.
+  -h, --help                Show this message and exit
 ```
 
 ## `ktsearch info`
@@ -579,6 +595,51 @@ Output:
 
 Options:
   -h, --help  Show this message and exit
+```
+
+## `ktsearch tasks`
+
+```text
+Usage: ktsearch tasks [<options>] <command> [<args>]...
+
+  Task API commands.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  status  Get _tasks status for task.
+  wait    Poll task until completion.
+```
+
+## `ktsearch tasks status`
+
+```text
+Usage: ktsearch tasks status [<options>] <taskid>
+
+  Get _tasks status for task.
+
+Options:
+  -h, --help  Show this message and exit
+
+Arguments:
+  <taskid>  Task id.
+```
+
+## `ktsearch tasks wait`
+
+```text
+Usage: ktsearch tasks wait [<options>] <taskid>
+
+  Poll task until completion.
+
+Options:
+  --interval-seconds=<int>  Polling interval seconds.
+  --timeout-seconds=<int>   Max wait seconds.
+  -h, --help                Show this message and exit
+
+Arguments:
+  <taskid>  Task id.
 ```
 
 ## `ktsearch index`
@@ -1413,11 +1474,14 @@ Usage: ktsearch index reindex [<options>]
   Run _reindex.
 
 Options:
-  -d, --data=<text>       Raw reindex JSON body.
-  -f, --file=<text>       Read JSON body from file.
-  --wait=(true|false)     Wait for completion true|false (default true).
-  --pretty / --no-pretty  Pretty-print JSON output.
-  -h, --help              Show this message and exit
+  -d, --data=<text>           Raw reindex JSON body.
+  -f, --file=<text>           Read JSON body from file.
+  --wait=(true|false)         Wait for completion true|false (default false).
+  --disable-refresh-interval  Temporarily set destination refresh_interval to -1.
+  --set-replicas-zero         Temporarily set destination number_of_replicas to 0.
+  --progress-reporting        Poll task and print progress when --wait=false.
+  --pretty / --no-pretty      Pretty-print JSON output.
+  -h, --help                  Show this message and exit
 ```
 
 ## `ktsearch index reindex-task-status`
@@ -1609,6 +1673,8 @@ Options:
   --pipeline=<text>                 Ingest pipeline for restore indexing.
   --routing=<text>                  Routing value for all restored docs.
   --id-field=<text>                 Extract document id from this JSON field per line.
+  --disable-refresh-interval        Temporarily set index refresh_interval to -1.
+  --set-replicas-zero               Temporarily set index number_of_replicas to 0.
   -y, --yes                         Do not prompt for destructive actions.
   -h, --help                        Show this message and exit
 

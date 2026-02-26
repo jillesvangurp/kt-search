@@ -589,14 +589,27 @@ suspend fun SearchClient.bulk(
     callBack: BulkItemCallBack? = null,
     closeOnRequestError: Boolean = true,
     extraParameters: Map<String, String>? = null,
+    disableRefreshInterval: Boolean = false,
+    setReplicasToZero: Boolean = false,
     block: suspend BulkSession.() -> Unit
 ) {
+    if ((disableRefreshInterval || setReplicasToZero) && target.isNullOrBlank()) {
+        error(
+            "target is required when disableRefreshInterval or " +
+                "setReplicasToZero is enabled",
+        )
+    }
+    val effectiveRefresh = if (disableRefreshInterval && refresh == Refresh.WaitFor) {
+        Refresh.False
+    } else {
+        refresh
+    }
     val session = bulkSession(
         failOnFirstError = failOnFirstError,
         callBack = callBack,
         bulkSize = bulkSize,
         pipeline = pipeline,
-        refresh = refresh,
+        refresh = effectiveRefresh,
         routing = routing,
         timeout = timeout,
         waitForActiveShards = waitForActiveShards,
@@ -608,10 +621,26 @@ suspend fun SearchClient.bulk(
         closeOnRequestError = closeOnRequestError,
         extraParameters = extraParameters
     )
-
-    block.invoke(session)
-    // flush remaining items
-    session.flush()
+    suspend fun runSession() {
+        try {
+            block.invoke(session)
+            // flush remaining items
+            session.flush()
+        } finally {
+            session.close()
+        }
+    }
+    if (disableRefreshInterval || setReplicasToZero) {
+        withTemporaryIndexingSettings(
+            target = requireNotNull(target),
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
+        ) {
+            runSession()
+        }
+    } else {
+        runSession()
+    }
 }
 
 fun SearchClient.bulkSession(
@@ -650,4 +679,3 @@ fun SearchClient.bulkSession(
         extraParameters = extraParameters
     )
 }
-

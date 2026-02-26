@@ -22,6 +22,8 @@ import com.jillesvangurp.ktsearch.cli.command.info.InfoCommand
 import com.jillesvangurp.ktsearch.cli.command.index.IndexCommand
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import com.jillesvangurp.ktsearch.cli.command.tasks.TasksCommand
+import com.jillesvangurp.ktsearch.cli.command.top.TopCommand
 
 /** Root command and shared options for the CLI. */
 class KtSearchCommand(
@@ -162,6 +164,8 @@ class KtSearchCommand(
             CatCommand(service),
             CloudCommand(service),
             IndexCommand(service, platform),
+            TasksCommand(service),
+            TopCommand(service),
             SuspendingCompletionCommand(name = "completion"),
         )
     }

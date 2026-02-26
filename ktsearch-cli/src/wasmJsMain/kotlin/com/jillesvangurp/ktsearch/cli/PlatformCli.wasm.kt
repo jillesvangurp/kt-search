@@ -7,6 +7,14 @@ actual fun platformFileExists(path: String): Boolean = false
 
 actual fun platformIsInteractiveInput(): Boolean = false
 
+actual fun platformConsumeTopKey(): TopKey? = null
+
+actual fun platformEnableSingleKeyInput() {
+}
+
+actual fun platformDisableSingleKeyInput() {
+}
+
 actual fun platformReadLineFromStdin(): String? = null
 
 actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {

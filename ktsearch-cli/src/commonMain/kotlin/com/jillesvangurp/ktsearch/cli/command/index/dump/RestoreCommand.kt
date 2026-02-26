@@ -61,6 +61,15 @@ class RestoreCommand(
         "--id-field",
         help = "Extract document id from this JSON field per line.",
     )
+    private val disableRefreshInterval by option(
+        "--disable-refresh-interval",
+        help = "Temporarily set index refresh_interval to -1.",
+    ).flag(default = false)
+
+    private val setReplicasToZero by option(
+        "--set-replicas-zero",
+        help = "Temporarily set index number_of_replicas to 0.",
+    ).flag(default = false)
 
     private val yes by option(
         "-y",
@@ -102,6 +111,8 @@ class RestoreCommand(
                 pipeline = pipeline,
                 routing = routing,
                 idField = idField,
+                disableRefreshInterval = disableRefreshInterval,
+                setReplicasToZero = setReplicasToZero,
             )
         } finally {
             reader.close()
