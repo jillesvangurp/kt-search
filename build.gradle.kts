@@ -57,18 +57,23 @@ fun Project.composeSkipTestsWithoutDocker(): Boolean =
 fun Project.composeDisableWhenDockerMissing(): Boolean =
     extraBoolean("composeDisableWhenDockerMissing") ?: true
 
-fun isSearchUp(): Boolean = kotlin.runCatching {
-    val connection =
+fun isSearchUp(): Boolean {
+    val connection = kotlin.runCatching {
         (URI("http://localhost:9990/_cluster/health").toURL()
-            .openConnection() as HttpURLConnection)
-    connection.requestMethod = "GET"
-    connection.connectTimeout = 1000
-    connection.readTimeout = 1000
-    connection.useCaches = false
-    connection.instanceFollowRedirects = false
-    connection.connect()
-    connection.responseCode in 200..299
-}.getOrElse { false }
+            .openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 1000
+            readTimeout = 1000
+            useCaches = false
+            instanceFollowRedirects = false
+        }
+    }.getOrElse { return false }
+
+    return kotlin.runCatching {
+        connection.connect()
+        connection.responseCode in 200..299
+    }.getOrDefault(false)
+}
 
 allprojects {
     repositories {
