@@ -51,30 +51,29 @@ actual fun platformDisableSingleKeyInput() {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun platformConsumeQuitKey(): Boolean = memScoped {
+actual fun platformConsumeTopKey(): TopKey? = memScoped {
     val fd = fileno(stdin)
     val pollFd = alloc<pollfd>()
     val oneByte = ByteArray(1)
-    repeat(64) {
-        pollFd.fd = fd
-        pollFd.events = POLLIN.convert()
-        pollFd.revents = 0
-        val ready = poll(pollFd.ptr, 1.convert(), 0)
-        if (ready <= 0 || (pollFd.revents.toInt() and POLLIN) == 0) {
-            return@memScoped false
-        }
-        val readCount: Long = oneByte.usePinned { pinned ->
-            read(fd, pinned.addressOf(0), 1.convert())
-        }
-        if (readCount <= 0) {
-            return@memScoped false
-        }
-        val c = oneByte[0].toInt()
-        if (c == 'q'.code || c == 'Q'.code) {
-            return@memScoped true
-        }
+    pollFd.fd = fd
+    pollFd.events = POLLIN.convert()
+    pollFd.revents = 0
+    val ready = poll(pollFd.ptr, 1.convert(), 0)
+    if (ready <= 0 || (pollFd.revents.toInt() and POLLIN) == 0) {
+        return@memScoped null
     }
-    false
+    val readCount: Long = oneByte.usePinned { pinned ->
+        read(fd, pinned.addressOf(0), 1.convert())
+    }
+    if (readCount <= 0) {
+        return@memScoped null
+    }
+    when (oneByte[0].toInt()) {
+        'q'.code, 'Q'.code -> TopKey.Quit
+        'h'.code, 'H'.code, '?'.code -> TopKey.Help
+        27 -> TopKey.Escape
+        else -> null
+    }
 }
 
 actual fun platformReadLineFromStdin(): String? = readlnOrNull()

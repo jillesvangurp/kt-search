@@ -42,12 +42,18 @@ data class CatRequest(
     val extraParameters: Map<String, String>? = null,
 )
 
+enum class TopKey {
+    Quit,
+    Help,
+    Escape,
+}
+
 interface CliPlatform {
     fun fileExists(path: String): Boolean
 
     fun isInteractiveInput(): Boolean
 
-    fun consumeQuitKey(): Boolean
+    fun consumeTopKey(): TopKey?
 
     fun enableSingleKeyInput()
 
@@ -64,7 +70,7 @@ expect fun platformFileExists(path: String): Boolean
 
 expect fun platformIsInteractiveInput(): Boolean
 
-expect fun platformConsumeQuitKey(): Boolean
+expect fun platformConsumeTopKey(): TopKey?
 
 expect fun platformEnableSingleKeyInput()
 
@@ -97,7 +103,7 @@ object DefaultCliPlatform : CliPlatform {
 
     override fun isInteractiveInput(): Boolean = platformIsInteractiveInput()
 
-    override fun consumeQuitKey(): Boolean = platformConsumeQuitKey()
+    override fun consumeTopKey(): TopKey? = platformConsumeTopKey()
 
     override fun enableSingleKeyInput() = platformEnableSingleKeyInput()
 

@@ -14,9 +14,10 @@ import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
+import com.jillesvangurp.ktsearch.cli.TopKey
 import com.jillesvangurp.ktsearch.cli.output.JsonOutputRenderer
 import com.jillesvangurp.ktsearch.cli.output.OutputOptions
-import com.jillesvangurp.ktsearch.cli.platformConsumeQuitKey
+import com.jillesvangurp.ktsearch.cli.platformConsumeTopKey
 import com.jillesvangurp.ktsearch.cli.platformDisableSingleKeyInput
 import com.jillesvangurp.ktsearch.cli.platformEnableSingleKeyInput
 import com.jillesvangurp.ktsearch.cli.platformIsInteractiveInput
@@ -62,7 +63,7 @@ private class ClusterTopCommand(
     private val service: CliService,
 ) : CoreSuspendingCliktCommand(name = "top") {
     override fun help(context: Context): String =
-        "Live cluster/node vitals dashboard. Press q + Enter to quit."
+        "Live cluster/node vitals dashboard. q quit, h/? help, Esc back."
 
     private val intervalSeconds by option(
         "--interval-seconds",
@@ -96,6 +97,7 @@ private class ClusterTopCommand(
             var renderedSamples = 0
             var previousApi: ClusterTopApiSnapshot? = null
             val quitRequested = MutableStateFlow(false)
+            val helpVisible = MutableStateFlow(false)
             if (interactive) {
                 platformEnableSingleKeyInput()
             }
@@ -103,9 +105,13 @@ private class ClusterTopCommand(
                 launch(Dispatchers.Default) {
                     while (isActive) {
                         val line = platformReadLineFromStdin() ?: break
-                        if (line.trim().equals("q", ignoreCase = true)) {
-                            quitRequested.value = true
-                            break
+                        when (line.trim().lowercase()) {
+                            "q" -> {
+                                quitRequested.value = true
+                                break
+                            }
+                            "h", "?" -> helpVisible.value = true
+                            "esc", "escape" -> helpVisible.value = false
                         }
                     }
                 }
@@ -114,28 +120,39 @@ private class ClusterTopCommand(
             }
             try {
                 while (samples == 0 || renderedSamples < samples) {
-                    if (interactive && (platformConsumeQuitKey() || quitRequested.value)) {
-                        break
-                    }
-                    val currentApi = service.fetchClusterTopSnapshot(connectionOptions)
-                    val snapshot = currentApi.toTopSnapshot(previousApi)
                     if (interactive) {
-                        print(ansiClear())
+                        consumeTopKeys(quitRequested, helpVisible)
                     }
-                    print(renderer.render(snapshot, intervalSeconds))
-                    print("\n")
-                    renderedSamples++
-                    previousApi = currentApi
-                    if (samples > 0 && renderedSamples >= samples) {
+                    if (quitRequested.value) {
                         break
                     }
-                    if (interactive && (platformConsumeQuitKey() || quitRequested.value)) {
-                        break
+                    if (helpVisible.value) {
+                        if (interactive) {
+                            print(ansiClear())
+                        }
+                        print(renderer.renderHelp())
+                        print("\n")
+                    } else {
+                        val currentApi = service.fetchClusterTopSnapshot(
+                            connectionOptions,
+                        )
+                        val snapshot = currentApi.toTopSnapshot(previousApi)
+                        if (interactive) {
+                            print(ansiClear())
+                        }
+                        print(renderer.render(snapshot, intervalSeconds))
+                        print("\n")
+                        renderedSamples++
+                        previousApi = currentApi
+                        if (samples > 0 && renderedSamples >= samples) {
+                            break
+                        }
                     }
                     if (waitForNextRefreshOrQuit(
                             intervalSeconds = intervalSeconds,
                             interactive = interactive,
                             quitRequested = quitRequested,
+                            helpVisible = helpVisible,
                         )
                     ) {
                         break
@@ -155,12 +172,21 @@ private suspend fun waitForNextRefreshOrQuit(
     intervalSeconds: Int,
     interactive: Boolean,
     quitRequested: MutableStateFlow<Boolean>,
+    helpVisible: MutableStateFlow<Boolean>,
 ): Boolean {
     val totalWaitMillis = intervalSeconds * 1000L
     var waitedMillis = 0L
+    val initialHelpVisible = helpVisible.value
     while (waitedMillis < totalWaitMillis) {
-        if (interactive && (platformConsumeQuitKey() || quitRequested.value)) {
+        if (interactive) {
+            consumeTopKeys(quitRequested, helpVisible)
+        }
+        if (quitRequested.value) {
             return true
+        }
+        if (helpVisible.value != initialHelpVisible) {
+            // Help visibility changed: redraw immediately instead of waiting
+            return false
         }
         val remaining = totalWaitMillis - waitedMillis
         val stepMillis = minOf(10L, remaining)
@@ -168,6 +194,23 @@ private suspend fun waitForNextRefreshOrQuit(
         waitedMillis += stepMillis
     }
     return false
+}
+
+private fun consumeTopKeys(
+    quitRequested: MutableStateFlow<Boolean>,
+    helpVisible: MutableStateFlow<Boolean>,
+) {
+    repeat(16) {
+        when (platformConsumeTopKey()) {
+            TopKey.Quit -> {
+                quitRequested.value = true
+                return
+            }
+            TopKey.Help -> helpVisible.value = true
+            TopKey.Escape -> helpVisible.value = false
+            null -> return
+        }
+    }
 }
 
 private abstract class BaseClusterReadCommand(

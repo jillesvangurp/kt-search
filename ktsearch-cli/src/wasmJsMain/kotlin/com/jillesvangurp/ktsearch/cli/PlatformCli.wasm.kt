@@ -7,7 +7,7 @@ actual fun platformFileExists(path: String): Boolean = false
 
 actual fun platformIsInteractiveInput(): Boolean = false
 
-actual fun platformConsumeQuitKey(): Boolean = false
+actual fun platformConsumeTopKey(): TopKey? = null
 
 actual fun platformEnableSingleKeyInput() {
 }

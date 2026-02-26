@@ -14,16 +14,17 @@ actual fun platformFileExists(path: String): Boolean = File(path).exists()
 
 actual fun platformIsInteractiveInput(): Boolean = System.console() != null
 
-actual fun platformConsumeQuitKey(): Boolean {
+actual fun platformConsumeTopKey(): TopKey? {
     val input = System.`in`
-    var quit = false
     while (input.available() > 0) {
         val ch = input.read()
-        if (ch == 'q'.code || ch == 'Q'.code) {
-            quit = true
+        when (ch) {
+            'q'.code, 'Q'.code -> return TopKey.Quit
+            'h'.code, 'H'.code, '?'.code -> return TopKey.Help
+            27 -> return TopKey.Escape
         }
     }
-    return quit
+    return null
 }
 
 actual fun platformEnableSingleKeyInput() {

@@ -45,7 +45,7 @@ Commands:
   state          Show cluster state from GET /_cluster/state.
   settings       Show cluster settings from GET /_cluster/settings.
   pending-tasks  Show pending tasks from GET /_cluster/pending_tasks.
-  top            Live cluster/node vitals dashboard. Press q + Enter to quit.
+  top            Live cluster/node vitals dashboard. q quit, h help, Esc back.
 ```
 
 ## `ktsearch cluster health`
@@ -125,7 +125,7 @@ Options:
 ```text
 Usage: ktsearch cluster top [<options>]
 
-  Live cluster/node vitals dashboard. Press q + Enter to quit.
+  Live cluster/node vitals dashboard. q quit, h help, Esc back.
 
 Options:
   --interval-seconds=<int>  Polling interval seconds.

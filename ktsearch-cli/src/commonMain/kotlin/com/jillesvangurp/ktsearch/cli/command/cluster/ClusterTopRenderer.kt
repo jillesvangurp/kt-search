@@ -2,11 +2,39 @@ package com.jillesvangurp.ktsearch.cli.command.cluster
 
 import com.jillesvangurp.ktsearch.ClusterStatus
 import com.github.ajalt.mordant.rendering.TextColors
+import com.github.ajalt.mordant.rendering.TextStyles
 import kotlin.math.roundToInt
 
 class ClusterTopRenderer(
     private val useColor: Boolean,
 ) {
+    fun renderHelp(): String {
+        val lines = listOf(
+            bold("cluster top help"),
+            "",
+            "${bold("keys")}:",
+            "  h/?   show this help",
+            "  esc   close help",
+            "  q     quit cluster top",
+            "",
+            "${bold("header")}:",
+            "  status: cluster health (green/yellow/red)",
+            "  nodes:  node count, colored by cluster status",
+            "  shards a/r/i/u: active/relocating/initializing/unassigned",
+            "",
+            "${bold("metrics")}:",
+            "  cpu%   green<70, yellow<90, red>=90",
+            "  heap%  green<80, yellow<90, red>=90",
+            "  disk%  green<75, yellow<90, red>=90",
+            "",
+            "${bold("notes")}:",
+            "  docs/segs/store are per-node totals.",
+            "  tp-r is thread-pool rejected ops.",
+            "  idx/s and qry/s are derived rates between refreshes.",
+        )
+        return lines.joinToString("\n")
+    }
+
     fun render(snapshot: ClusterTopSnapshot, intervalSeconds: Int): String {
         val width = terminalWidth()
         val metricWidth = ((width - 4) / 3).coerceAtLeast(18)
@@ -15,18 +43,30 @@ class ClusterTopRenderer(
         val statusLabel = snapshot.status?.name?.lowercase() ?: "-"
         val statusColored = styleStatus(statusLabel, snapshot.status)
         val header = buildString {
-            append("cluster ")
+            append(bold("cluster"))
+            append(" ")
             append(snapshot.clusterName)
-            append("  status=")
+            append("  ")
+            append(bold("status"))
+            append("=")
             append(statusColored)
-            append("  nodes=")
-            append(snapshot.nodeCount ?: snapshot.nodes.size)
-            append("  interval=")
+            append("  ")
+            append(bold("nodes"))
+            append("=")
+            append(
+                styleByStatus(
+                    (snapshot.nodeCount ?: snapshot.nodes.size).toString(),
+                    snapshot.status,
+                ),
+            )
+            append("  ")
+            append(bold("interval"))
+            append("=")
             append(intervalSeconds)
             append("s")
         }
         lines += truncate(header, width)
-        lines += "shards a/r/i/u=" +
+        lines += "${bold("shards")} a/r/i/u=" +
             "${fmtCount(snapshot.activeShards?.toLong())}/" +
             "${fmtCount(snapshot.relocatingShards?.toLong())}/" +
             "${fmtCount(snapshot.initializingShards?.toLong())}/" +
@@ -38,9 +78,9 @@ class ClusterTopRenderer(
                     ColorLevel.Good
                 },
             )
-        lines += "updated=${snapshot.fetchedAt}  " +
-            "idx/s=${colorizedRate(snapshot.indexRatePerSecond)}  " +
-            "qry/s=${colorizedRate(snapshot.queryRatePerSecond)}"
+        lines += "${bold("updated")}=${snapshot.fetchedAt}  " +
+            "${bold("idx/s")}=${colorizedRate(snapshot.indexRatePerSecond)}  " +
+            "${bold("qry/s")}=${colorizedRate(snapshot.queryRatePerSecond)}"
         lines += ""
         lines += joinBars(
             left = metricBar("cpu", snapshot.cpuAvg, snapshot.cpuMax, metricWidth),
@@ -49,10 +89,12 @@ class ClusterTopRenderer(
             width = width,
         )
         lines += ""
-        lines += truncate(
+        lines += bold(
+            truncate(
             "node         ip              roles      cpu heap disk docs    segs   " +
                 "store    tp-q tp-r i/s  q/s",
             width,
+            ),
         )
         lines += truncate("-".repeat(width), width)
 
@@ -89,8 +131,8 @@ class ClusterTopRenderer(
         val clamped = value.coerceIn(0.0, 100.0)
         val fill = ((clamped / 100.0) * barWidth.toDouble()).roundToInt()
         val bar = "#".repeat(fill) + "-".repeat((barWidth - fill).coerceAtLeast(0))
-        val avgText = colorizedPercent(avg)
-        val maxText = colorizedPercent(max)
+        val avgText = colorizedMetric(name, avg)
+        val maxText = colorizedMetric(name, max)
         return "$name avg=$avgText max=$maxText [$bar]"
     }
 
@@ -108,9 +150,9 @@ class ClusterTopRenderer(
             pad(node.name, 12),
             pad(node.ip, 15),
             pad(shortRoles(node.roles), 10),
-            pad(colorizedPercent(node.cpuPercent), 3),
-            pad(colorizedPercent(node.heapPercent), 4),
-            pad(colorizedPercent(node.diskPercent), 4),
+            pad(colorizedMetric("cpu", node.cpuPercent), 3),
+            pad(colorizedMetric("heap", node.heapPercent), 4),
+            pad(colorizedMetric("disk", node.diskPercent), 4),
             pad(fmtCount(node.docs), 7),
             pad(fmtCount(node.segments), 6),
             pad(fmtBytes(node.storeBytes), 8),
@@ -167,18 +209,59 @@ class ClusterTopRenderer(
         }
     }
 
+    private fun styleByStatus(text: String, status: ClusterStatus?): String {
+        return when (status) {
+            ClusterStatus.Green -> colorizeLevel(text, ColorLevel.Good)
+            ClusterStatus.Yellow -> colorizeLevel(text, ColorLevel.Warning)
+            ClusterStatus.Red -> colorizeLevel(text, ColorLevel.Critical)
+            null -> text
+        }
+    }
+
+    private fun severity(metric: String, value: Double): ColorLevel? {
+        return when (metric) {
+            "heap" -> when {
+                value < 80.0 -> ColorLevel.Good
+                value < 90.0 -> ColorLevel.Warning
+                else -> ColorLevel.Critical
+            }
+            "cpu" -> when {
+                value < 70.0 -> ColorLevel.Good
+                value < 90.0 -> ColorLevel.Warning
+                else -> ColorLevel.Critical
+            }
+            "disk" -> when {
+                value < 75.0 -> ColorLevel.Good
+                value < 90.0 -> ColorLevel.Warning
+                else -> ColorLevel.Critical
+            }
+            else -> when {
+                value < 70.0 -> ColorLevel.Good
+                value < 90.0 -> ColorLevel.Warning
+                else -> ColorLevel.Critical
+            }
+        }
+    }
+
+    private fun colorizedMetric(metric: String, value: Double?): String {
+        val percent = fmtPercent(value)
+        val level = value?.let { severity(metric, it) }
+        return colorizeLevel(percent, level)
+    }
+
+    private fun bold(text: String): String {
+        if (!useColor) {
+            return text
+        }
+        return TextStyles.bold(text)
+    }
+
     private fun severity(value: Double): ColorLevel? {
         return when {
             value >= 90.0 -> ColorLevel.Critical
             value >= 75.0 -> ColorLevel.Warning
             else -> null
         }
-    }
-
-    private fun colorizedPercent(value: Double?): String {
-        val percent = fmtPercent(value)
-        val severity = value?.let { severity(it) }
-        return colorizeLevel(percent, severity)
     }
 
     private fun colorizedRate(value: Double?): String {

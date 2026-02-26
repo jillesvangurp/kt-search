@@ -947,7 +947,7 @@ private class FakePlatform(
 
     override fun isInteractiveInput(): Boolean = interactive
 
-    override fun consumeQuitKey(): Boolean = false
+    override fun consumeTopKey(): TopKey? = null
 
     override fun enableSingleKeyInput() {
     }
