@@ -47,6 +47,10 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
   Windows support. See the CLI
   [README](ktsearch-cli/README.md) for detailed install instructions and the
   generated [CLI manual](ktsearch-cli/cli-manual.md).
+
+`ktsearch top` gives you a live dashboard view of cluster and node health:
+
+![ktsearch top](ktsearch-cli/images/ktsearch-top.webp)
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
@@ -162,7 +166,10 @@ val client = SearchClient(
 If you need to, you can also configure multiple hosts, 
 add ssl and basic authentication to connect to managed Opensearch or Elasticsearch clusters. If you use
 multiple hosts, you can also configure a strategy for selecting the host to connect to. And of course 
-you can completely customize how the client connects. 
+you can completely customize how the client connects.
+
+For AWS OpenSearch endpoints, use `OpenSearchClient` to enable SigV4 request signing.
+It is multiplatform and auto-detects `aoss` for serverless endpoints and `es` otherwise.
 
 For more on 
 this, read the [manual](https://jillesvangurp.github.io/kt-search/manual/GettingStarted.html). 
@@ -623,4 +630,3 @@ both the manual and this readme heavily depend on this and it makes maintaining 
 The way it works is that it provides a dsl for writing markdown that you use to write documentation. It allows you to include runnable code blocks and when it builds the documentation it figures out how to extract those from the kotlin source files and adds them as markdown code snippets. It can also intercept printed output and the return values of the blocks.
 
 If you have projects of your own that need documentation, you might get some value out of using this as well. 
-

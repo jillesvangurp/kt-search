@@ -83,6 +83,7 @@ class KtorRestClient(
     private val logging: Boolean = false,
     private val nodeSelector: NodeSelector = RoundRobinNodeSelector(nodes),
     private val elasticApiKey: String? = null,
+    private val requestSigner: RequestSigner? = null,
     private val client: HttpClient = defaultKtorHttpClient(
         logging = logging,
         user = user,
@@ -100,6 +101,7 @@ class KtorRestClient(
         password: String? = null,
         logging: Boolean = false,
         elasticApiKey: String? = null,
+        requestSigner: RequestSigner? = null,
         client: HttpClient = defaultKtorHttpClient(
             logging = logging,
             user = user,
@@ -115,7 +117,8 @@ class KtorRestClient(
         password = password,
         logging = logging,
         nodes = arrayOf(Node(host, port)),
-        elasticApiKey = elasticApiKey
+        elasticApiKey = elasticApiKey,
+        requestSigner = requestSigner
     )
 
     override suspend fun nextNode(): Node = nodeSelector.selectNode()
@@ -129,9 +132,42 @@ class KtorRestClient(
         contentType: String,
         headers: Map<String, Any>?
     ): RestResponse {
+        val node = nextNode()
+        val rawPath = pathComponents.joinToString("/")
+        val signingPath = rawPath.let {
+            when {
+                it.isBlank() -> "/"
+                it.startsWith("/") -> it
+                else -> "/$it"
+            }
+        }
+        val queryParameters = parameters
+            ?.mapValues { listOf(it.value.toString()) }
+            ?: emptyMap()
+        val existingHeaders = headers
+            ?.entries
+            ?.mapNotNull { (key, value) ->
+                when (value) {
+                    is String -> key to value
+                    is List<*> -> key to value.filterIsInstance<String>().joinToString(",")
+                    else -> null
+                }
+            }
+            ?.toMap()
+            ?: emptyMap()
+        val signerHeaders = requestSigner?.sign(
+            SigningRequest(
+                node = node,
+                https = https,
+                path = signingPath,
+                method = httpMethod.value,
+                queryParameters = queryParameters,
+                headers = existingHeaders,
+                payload = payload
+            )
+        ) ?: emptyMap()
 
         val response = client.request {
-            val node = nextNode()
             method = HttpMethod.parse(httpMethod.value)
             url {
                 host = node.host
@@ -139,7 +175,7 @@ class KtorRestClient(
                     port = node.port
                 }
                 protocol = if (https) URLProtocol.HTTPS else URLProtocol.HTTP
-                path(pathComponents.joinToString("/"))
+                path(rawPath)
                 if (!parameters.isNullOrEmpty()) {
                     parameters.entries.forEach { (key, value) ->
                         parameter(key, value)
@@ -156,6 +192,16 @@ class KtorRestClient(
                         } else if (value is List<*>) {
                             appendAll(it.key, value as List<String>)
                         }
+                    }
+                    signerHeaders.forEach { (key, value) ->
+                        set(key, value)
+                    }
+                }
+            }
+            if (headers == null && signerHeaders.isNotEmpty()) {
+                headers {
+                    signerHeaders.forEach { (key, value) ->
+                        set(key, value)
                     }
                 }
             }
@@ -231,6 +277,4 @@ class KtorRestClient(
         client.close()
     }
 }
-
-
 

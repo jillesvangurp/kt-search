@@ -33,6 +33,8 @@ actual fun platformWriteUtf8File(path: String, content: String) {
     unsupported("writing files")
 }
 
+actual fun platformGetEnv(name: String): String? = null
+
 private class WasmNdjsonGzipWriter(private val path: String) : NdjsonGzipWriter {
     override fun writeLine(line: String) {
         unsupported("gzip write for '$path'")

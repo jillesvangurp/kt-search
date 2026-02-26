@@ -12,18 +12,25 @@ Usage: ktsearch [<options>] <command> [<args>]...
 Options:
   --host=<text>             Search host.
   --port=<int>              Search port.
+  --cloud-id=<text>         Elastic Cloud ID (overrides host/port, enforces HTTPS).
   --https                   Use HTTPS.
   --http                    Force HTTP.
   --user=<text>             Basic auth username.
   --password=<text>         Basic auth password.
   --elastic-api-key=<text>  Elastic API key.
+  --api-key=<text>          Elastic API key (alias for --elastic-api-key).
   --logging                 Enable client request logging.
+  --aws-sigv4               Enable AWS SigV4 request signing.
+  --aws-region=<text>       AWS region for SigV4 (e.g. us-west-2).
+  --aws-service=<text>      AWS SigV4 service name (defaults: aoss/es by host).
+  --aws-profile=<text>      AWS shared credentials profile name.
   -h, --help                Show this message and exit
 
 Commands:
   cluster     Cluster-level commands.
   info        Show cluster details from GET /.
   cat         Run cat APIs and render the output as a table.
+  cloud       Cloud helper commands.
   index       Index-related commands.
   tasks       Task API commands.
   top         Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
@@ -519,6 +526,75 @@ Options:
 
 Arguments:
   <value>  Pattern(s).
+```
+
+## `ktsearch cloud`
+
+```text
+Usage: ktsearch cloud [<options>] <command> [<args>]...
+
+  Cloud helper commands.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  elastic  Elastic Cloud helpers.
+```
+
+## `ktsearch cloud elastic`
+
+```text
+Usage: ktsearch cloud elastic [<options>] <command> [<args>]...
+
+  Elastic Cloud helpers.
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  context  Show effective Elastic Cloud endpoint and auth context.
+  check    Check Elastic Cloud endpoint by calling GET /.
+  status   Show Elastic Cloud cluster health.
+```
+
+## `ktsearch cloud elastic context`
+
+```text
+Usage: ktsearch cloud elastic context [<options>]
+
+  Show effective Elastic Cloud endpoint and auth context.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch cloud elastic check`
+
+```text
+Usage: ktsearch cloud elastic check [<options>]
+
+  Check Elastic Cloud endpoint by calling GET /.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
+```
+
+## `ktsearch cloud elastic status`
+
+```text
+Usage: ktsearch cloud elastic status [<options>]
+
+  Show Elastic Cloud cluster health.
+
+Output:
+  --csv  Render output as CSV.
+
+Options:
+  -h, --help  Show this message and exit
 ```
 
 ## `ktsearch tasks`

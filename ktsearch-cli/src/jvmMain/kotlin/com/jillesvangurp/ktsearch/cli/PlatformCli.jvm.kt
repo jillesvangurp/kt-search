@@ -51,6 +51,8 @@ actual fun platformWriteUtf8File(path: String, content: String) {
     File(path).writeText(content, Charsets.UTF_8)
 }
 
+actual fun platformGetEnv(name: String): String? = System.getenv(name)
+
 private class JvmNdjsonGzipWriter(path: String) : NdjsonGzipWriter {
     private val writer = BufferedWriter(
         OutputStreamWriter(

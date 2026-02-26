@@ -5,10 +5,15 @@ data class ConnectionOptions(
     val host: String,
     val port: Int,
     val https: Boolean,
+    val cloudId: String?,
     val user: String?,
     val password: String?,
     val elasticApiKey: String?,
     val logging: Boolean,
+    val awsSigV4: Boolean,
+    val awsRegion: String?,
+    val awsService: String?,
+    val awsProfile: String?,
 )
 
 enum class CatVariant {
@@ -85,6 +90,9 @@ expect fun platformCreateGzipReader(path: String): NdjsonGzipReader
 expect fun platformReadUtf8File(path: String): String
 
 expect fun platformWriteUtf8File(path: String, content: String)
+
+/** Returns the value of environment variable [name] or null if absent. */
+expect fun platformGetEnv(name: String): String?
 
 interface NdjsonGzipWriter {
     fun writeLine(line: String)

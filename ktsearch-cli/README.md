@@ -36,12 +36,17 @@ flags, and more examples, see
 - `ktsearch cluster ...` for health, stats, state, and settings.
 - `ktsearch top` for live cluster/node vitals and admin panels.
 - `ktsearch cat ...` for table/csv operational views.
+- `ktsearch cloud elastic ...` for cloud context, check, and status helpers.
 - `ktsearch tasks status|wait ...` for task inspection and task polling.
 - `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
 - `ktsearch index mappings/settings/template ...` for schema and template management.
 - `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
 - `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.
 - `ktsearch index dump|restore ...` for NDJSON export/import.
+
+Example `ktsearch top` dashboard output:
+
+![ktsearch top](./images/ktsearch-top.webp)
 
 Commands that modify or delete data ask for confirmation
 by default. Use `--yes` in automation.
@@ -143,6 +148,7 @@ println("ktsearch cluster health")
 println("ktsearch top --samples 1")
 println("ktsearch info")
 println("ktsearch cat indices")
+println("ktsearch cloud elastic context")
 println("ktsearch index create products")
 println("ktsearch index wait-green products")
 ```
@@ -154,22 +160,80 @@ ktsearch cluster health
 ktsearch top --samples 1
 ktsearch info
 ktsearch cat indices
+ktsearch cloud elastic context
 ktsearch index create products
 ktsearch index wait-green products
 
 ```
 
+## Elastic Cloud quick start
+
+Use Cloud ID and API key directly:
+
+```bash
+println("ktsearch \\")
+println("  --cloud-id \"\$ELASTIC_CLOUD_ID\" \\")
+println("  --api-key \"\$ELASTIC_API_KEY\" \\")
+println("  cloud elastic status")
+```
+
+Captured Output:
+
+```
+ktsearch \
+  --cloud-id "$ELASTIC_CLOUD_ID" \
+  --api-key "$ELASTIC_API_KEY" \
+  cloud elastic status
+
+```
+
+- `--cloud-id` resolves host/port automatically and enforces HTTPS.
+- `--api-key` is a convenience alias for `--elastic-api-key`.
+- Use `cloud elastic context` to inspect effective endpoint/auth settings.
+
 ## Environment
 
 Configure connection defaults via environment variables:
 
+- `KTSEARCH_CLOUD_ID`
+- `ELASTIC_CLOUD_ID`
 - `KTSEARCH_HOST`
 - `KTSEARCH_PORT`
 - `KTSEARCH_HTTPS`
 - `KTSEARCH_USER`
 - `KTSEARCH_PASSWORD`
 - `KTSEARCH_ELASTIC_API_KEY`
+- `ELASTIC_API_KEY`
 - `KTSEARCH_LOGGING`
+- `KTSEARCH_AWS_SIGV4`
+- `KTSEARCH_AWS_REGION`
+- `KTSEARCH_AWS_SERVICE`
+- `KTSEARCH_AWS_PROFILE`
+
+## AWS OpenSearch auth
+
+Use SigV4 signing with AWS credential providers:
+
+```bash
+println("ktsearch \\")
+println("  --host my-domain.us-west-2.es.amazonaws.com \\")
+println("  --https --aws-sigv4 --aws-region us-west-2 \\")
+println("  cluster health")
+```
+
+Captured Output:
+
+```
+ktsearch \
+  --host my-domain.us-west-2.es.amazonaws.com \
+  --https --aws-sigv4 --aws-region us-west-2 \
+  cluster health
+
+```
+
+Credentials are resolved from the default AWS chain (env,
+shared profile, role-based providers) on JVM. You can force
+a profile with `--aws-profile`.
 
 ## Completion
 
@@ -242,4 +306,3 @@ The tools below are useful alternatives or complements.
  `elasticdump` | Data migration/export workflows. | Strong ETL focus, but not a general-purpose operational CLI for aliases/templates/snapshots/ILM in one tool. |
  `elasticsearch-curator` | Policy-style index housekeeping jobs. | Great for scheduled maintenance; less suited as an interactive daily CLI for both Elasticsearch and OpenSearch generations. |
  OpenSearch/Elastic Dev Tools consoles | Interactive request authoring in UI. | Excellent for ad hoc requests, but browser-based and not ideal for shell automation in CI/scripts. |
-

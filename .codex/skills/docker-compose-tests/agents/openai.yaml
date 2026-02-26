@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docker Compose Tests"
+  short_description: "Use Gradle composeUp/composeDown for test infrastructure"
+  default_prompt: "Prepare kt-search test infrastructure with ./gradlew composeUp, run the requested tests, and recover from container conflicts with ./gradlew composeDown then ./gradlew composeUp."

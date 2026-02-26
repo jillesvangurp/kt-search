@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     kotlin("multiplatform")
     id("com.gradleup.shadow")
+    id("com.avast.gradle.docker-compose")
 }
 
 repositories {
@@ -127,6 +128,9 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(kotlin("stdlib", "_"))
+                implementation("software.amazon.awssdk:auth:_")
+                implementation("software.amazon.awssdk:profiles:_")
+                implementation("software.amazon.awssdk:sts:_")
             }
         }
         jvmTest {

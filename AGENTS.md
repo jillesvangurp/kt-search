@@ -64,3 +64,9 @@ Documentation lives under the `docs` module and is produced by running the modul
 - ensure relevant documentation is updated (if needed)
 
 These steps keep the manual synchronized with the source snippets and ensure the GitHub Pages site stays up to date.
+
+## Skills
+
+- docker-compose-tests: Use `./gradlew composeUp` / `./gradlew composeDown`
+  before and after tests that need a local cluster. See
+  `.codex/skills/docker-compose-tests/SKILL.md`.

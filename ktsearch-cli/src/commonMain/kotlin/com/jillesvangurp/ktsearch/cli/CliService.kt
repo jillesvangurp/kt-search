@@ -1,6 +1,9 @@
 package com.jillesvangurp.ktsearch.cli
 
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.UsageError
+import com.jillesvangurp.ktsearch.AwsSigV4Config
+import com.jillesvangurp.ktsearch.AwsSigV4Signer
 import com.jillesvangurp.ktsearch.KtorRestClient
 import com.jillesvangurp.ktsearch.ClusterHealthResponse
 import com.jillesvangurp.ktsearch.Refresh
@@ -687,14 +690,36 @@ class DefaultCliService : CliService {
     }
 
     private fun createClient(connectionOptions: ConnectionOptions): SearchClient {
+        val requestSigner = if (connectionOptions.awsSigV4) {
+            AwsSigV4Signer(
+                AwsSigV4Config(
+                    region = resolveAwsRegion(connectionOptions),
+                    service = connectionOptions.awsService,
+                    credentialsProvider = platformAwsCredentialsProvider(
+                        connectionOptions.awsProfile,
+                    ),
+                ),
+            )
+        } else {
+            null
+        }
         return SearchClient(
             KtorRestClient(
                 host = connectionOptions.host,
                 port = connectionOptions.port,
                 https = connectionOptions.https,
-                user = connectionOptions.user,
-                password = connectionOptions.password,
-                elasticApiKey = connectionOptions.elasticApiKey,
+                user = if (connectionOptions.awsSigV4) null else connectionOptions.user,
+                password = if (connectionOptions.awsSigV4) {
+                    null
+                } else {
+                    connectionOptions.password
+                },
+                elasticApiKey = if (connectionOptions.awsSigV4) {
+                    null
+                } else {
+                    connectionOptions.elasticApiKey
+                },
+                requestSigner = requestSigner,
                 logging = connectionOptions.logging,
             ),
         )
@@ -815,6 +840,26 @@ private fun ConnectionOptions.baseUrl(): String {
 private class CliRequestError(
     message: String,
 ) : CliktError(message = message, statusCode = 1, printError = true)
+
+private fun resolveAwsRegion(connectionOptions: ConnectionOptions): String {
+    connectionOptions.awsRegion?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?.let { return it }
+    parseRegionFromAwsHost(connectionOptions.host)?.let { return it }
+    throw UsageError(
+        "Missing AWS region. Set --aws-region (or KTSEARCH_AWS_REGION/" +
+            "AWS_REGION/AWS_DEFAULT_REGION).",
+    )
+}
+
+private fun parseRegionFromAwsHost(host: String): String? {
+    val trimmedHost = host.trim().lowercase()
+    val suffixes = listOf(".es.amazonaws.com", ".aoss.amazonaws.com")
+    val suffix = suffixes.firstOrNull { trimmedHost.endsWith(it) } ?: return null
+    val withoutSuffix = trimmedHost.removeSuffix(suffix)
+    val region = withoutSuffix.substringAfterLast('.', missingDelimiterValue = "")
+    return region.takeIf { it.isNotBlank() }
+}
 
 private fun parseRefresh(value: String): Refresh {
     return when (value.lowercase()) {
