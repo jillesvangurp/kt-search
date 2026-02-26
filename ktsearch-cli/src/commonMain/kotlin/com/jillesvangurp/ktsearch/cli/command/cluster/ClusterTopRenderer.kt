@@ -4,6 +4,8 @@ import com.jillesvangurp.ktsearch.ClusterStatus
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
 import kotlin.math.roundToInt
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class ClusterTopRenderer(
     private val useColor: Boolean,
@@ -114,9 +116,12 @@ class ClusterTopRenderer(
         if (snapshot.offendingIndices.isNotEmpty()) {
             lines += ""
             lines += bold("offending indices")
-            lines += truncate(
-                "index                          docs     store   segmem  i/s   q/s",
-                width,
+            lines += bold(
+                truncate(
+                    "index                          docs     store   " +
+                        "segmem  i/s   q/s",
+                    width,
+                ),
             )
             snapshot.offendingIndices.take(6).forEach { idx ->
                 lines += truncate(
@@ -158,9 +163,12 @@ class ClusterTopRenderer(
         if (snapshot.threadPoolSaturation.isNotEmpty()) {
             lines += ""
             lines += bold("threadpool saturation")
-            lines += truncate(
-                "node                 pool             active queue rejected",
-                width,
+            lines += bold(
+                truncate(
+                    "node                 pool             active queue " +
+                        "rejected",
+                    width,
+                ),
             )
             snapshot.threadPoolSaturation.take(6).forEach { tp ->
                 lines += truncate(
@@ -185,14 +193,17 @@ class ClusterTopRenderer(
         if (snapshot.slowTasks.isNotEmpty()) {
             lines += ""
             lines += bold("slow task watcher")
-            lines += truncate(
-                "node                 sec   action                          desc",
-                width,
+            lines += bold(
+                truncate(
+                    "node                 sec   action                          " +
+                        "desc",
+                    width,
+                ),
             )
             snapshot.slowTasks.take(6).forEach { task ->
                 lines += truncate(
                     "${pad(task.node, 20)} " +
-                        "${pad(colorizedTaskSeconds(task.runningSeconds), 5)} " +
+                        "${pad(colorizedTaskSeconds(task.runningTime), 5)} " +
                         "${pad(task.action, 30)} " +
                         "${truncate(task.description ?: "-", 40)}",
                     width,
@@ -401,14 +412,14 @@ class ClusterTopRenderer(
         return colorizeLevel(fmtCount(rejected), level)
     }
 
-    private fun colorizedTaskSeconds(seconds: Long?): String {
+    private fun colorizedTaskSeconds(runningTime: Duration?): String {
         val level = when {
-            seconds == null -> null
-            seconds >= 300L -> ColorLevel.Critical
-            seconds >= 120L -> ColorLevel.Warning
+            runningTime == null -> null
+            runningTime >= 300.seconds -> ColorLevel.Critical
+            runningTime >= 120.seconds -> ColorLevel.Warning
             else -> ColorLevel.Good
         }
-        return colorizeLevel(fmtCount(seconds), level)
+        return colorizeLevel(fmtCount(runningTime?.inWholeSeconds), level)
     }
 }
 

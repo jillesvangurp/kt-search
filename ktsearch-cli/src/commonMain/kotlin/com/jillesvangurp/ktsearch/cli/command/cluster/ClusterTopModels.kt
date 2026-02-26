@@ -5,6 +5,7 @@ import com.jillesvangurp.ktsearch.ClusterHealthResponse
 import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.NodesStatsResponse
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.DurationUnit
 import kotlin.time.Instant
 import kotlinx.serialization.json.Json
@@ -115,7 +116,7 @@ data class WatermarkSnapshot(
 data class SlowTaskSnapshot(
     val node: String,
     val action: String,
-    val runningSeconds: Long?,
+    val runningTime: Duration?,
     val description: String?,
 )
 
@@ -413,15 +414,15 @@ private fun parseSlowTasks(raw: String?): List<SlowTaskSnapshot> {
         tasks.values.mapNotNull { task ->
             val taskObj = task.jsonObject
             val runningNanos = taskObj["running_time_in_nanos"].longOrNull()
-            val runningSeconds = runningNanos?.let { it / 1_000_000_000L }
+            val runningTime = runningNanos?.nanoseconds
             SlowTaskSnapshot(
                 node = nodeName,
                 action = taskObj["action"].stringOrNull() ?: return@mapNotNull null,
-                runningSeconds = runningSeconds,
+                runningTime = runningTime,
                 description = taskObj["description"].stringOrNull(),
             )
         }
-    }.sortedByDescending { it.runningSeconds ?: 0L }.take(8)
+    }.sortedByDescending { it.runningTime ?: Duration.ZERO }.take(8)
 }
 
 private fun String.parseObjectOrNull(): JsonObject? {

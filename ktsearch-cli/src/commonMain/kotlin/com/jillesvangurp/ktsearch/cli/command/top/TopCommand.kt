@@ -18,14 +18,12 @@ import com.jillesvangurp.ktsearch.cli.platformConsumeTopKey
 import com.jillesvangurp.ktsearch.cli.platformDisableSingleKeyInput
 import com.jillesvangurp.ktsearch.cli.platformEnableSingleKeyInput
 import com.jillesvangurp.ktsearch.cli.platformIsInteractiveInput
-import com.jillesvangurp.ktsearch.cli.platformReadLineFromStdin
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.Dispatchers
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 class TopCommand(
     private val service: CliService,
@@ -69,23 +67,6 @@ class TopCommand(
             if (interactive) {
                 platformEnableSingleKeyInput()
             }
-            val lineReader = if (interactive) {
-                launch(Dispatchers.Default) {
-                    while (isActive) {
-                        val line = platformReadLineFromStdin() ?: break
-                        when (line.trim().lowercase()) {
-                            "q" -> {
-                                quitRequested.value = true
-                                break
-                            }
-                            "h", "?" -> helpVisible.value = true
-                            "esc", "escape" -> helpVisible.value = false
-                        }
-                    }
-                }
-            } else {
-                null
-            }
             try {
                 while (samples == 0 || renderedSamples < samples) {
                     if (interactive) {
@@ -127,7 +108,6 @@ class TopCommand(
                     }
                 }
             } finally {
-                lineReader?.cancel()
                 if (interactive) {
                     platformDisableSingleKeyInput()
                 }
@@ -142,10 +122,10 @@ private suspend fun waitForNextRefreshOrQuit(
     quitRequested: MutableStateFlow<Boolean>,
     helpVisible: MutableStateFlow<Boolean>,
 ): Boolean {
-    val totalWaitMillis = intervalSeconds * 1000L
-    var waitedMillis = 0L
+    val totalWait: Duration = intervalSeconds.seconds
+    var waited: Duration = Duration.ZERO
     val initialHelpVisible = helpVisible.value
-    while (waitedMillis < totalWaitMillis) {
+    while (waited < totalWait) {
         if (interactive) {
             consumeTopKeys(quitRequested, helpVisible)
         }
@@ -155,10 +135,10 @@ private suspend fun waitForNextRefreshOrQuit(
         if (helpVisible.value != initialHelpVisible) {
             return false
         }
-        val remaining = totalWaitMillis - waitedMillis
-        val stepMillis = minOf(10L, remaining)
-        delay(stepMillis.milliseconds)
-        waitedMillis += stepMillis
+        val remaining = totalWait - waited
+        val step = minOf(2.milliseconds, remaining)
+        delay(step)
+        waited += step
     }
     return false
 }
