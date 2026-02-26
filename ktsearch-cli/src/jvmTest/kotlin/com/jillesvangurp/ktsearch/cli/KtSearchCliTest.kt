@@ -189,6 +189,102 @@ class KtSearchCliTest {
     }
 
     @Test
+    fun clusterHealthReadsApiKeyFromElasticApiKeyEnvVar() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(
+            service = service,
+            env = mapOf("ELASTIC_API_KEY" to "my-api-key"),
+        )
+
+        cmd.parse(
+            arrayOf(
+                "--host", "search.internal",
+                "--https",
+                "cluster",
+                "health",
+            ),
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9200,
+            https = true,
+            cloudId = null,
+            user = null,
+            password = null,
+            elasticApiKey = "my-api-key",
+            logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
+        )
+    }
+
+    @Test
+    fun clusterHealthReadsHostPortHttpsFromEnvVars() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(
+            service = service,
+            env = mapOf(
+                "KTSEARCH_HOST" to "search.internal",
+                "KTSEARCH_PORT" to "9443",
+                "KTSEARCH_HTTPS" to "true",
+            ),
+        )
+
+        cmd.parse(arrayOf("cluster", "health"))
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9443,
+            https = true,
+            cloudId = null,
+            user = null,
+            password = null,
+            elasticApiKey = null,
+            logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
+        )
+    }
+
+    @Test
+    fun clusterHealthUsesFlagApiKeyWhenProvidedAndEnvAlsoSet() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(
+            service = service,
+            env = mapOf("ELASTIC_API_KEY" to "env-key"),
+        )
+
+        cmd.parse(
+            arrayOf(
+                "--host", "search.internal",
+                "--api-key", "flag-key",
+                "cluster",
+                "health",
+            ),
+        )
+
+        service.lastConnectionOptions shouldBe ConnectionOptions(
+            host = "search.internal",
+            port = 9200,
+            https = false,
+            cloudId = null,
+            user = null,
+            password = null,
+            elasticApiKey = "flag-key",
+            logging = false,
+            awsSigV4 = false,
+            awsRegion = null,
+            awsService = null,
+            awsProfile = null,
+        )
+    }
+
+    @Test
     fun clusterHealthAcceptsAwsSigV4Options() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
@@ -849,8 +945,13 @@ class KtSearchCliTest {
     private fun newCommand(
         service: FakeService,
         platform: CliPlatform = FakePlatform(),
+        env: Map<String, String> = emptyMap(),
     ): KtSearchCommand {
-        return KtSearchCommand(service = service, platform = platform)
+        return KtSearchCommand(
+            service = service,
+            platform = platform,
+            envProvider = { key -> env[key] },
+        )
     }
 
     private fun readGzipLines(file: File): List<String> {

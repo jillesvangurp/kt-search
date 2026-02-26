@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.command.CoreSuspendingCliktCommand
 import com.github.ajalt.clikt.completion.SuspendingCompletionCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.default
@@ -16,6 +17,7 @@ import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.DefaultCliPlatform
 import com.jillesvangurp.ktsearch.cli.DefaultCliService
+import com.jillesvangurp.ktsearch.cli.platformGetEnv
 import com.jillesvangurp.ktsearch.cli.command.cat.CatCommand
 import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterCommand
 import com.jillesvangurp.ktsearch.cli.command.info.InfoCommand
@@ -29,6 +31,7 @@ import com.jillesvangurp.ktsearch.cli.command.top.TopCommand
 class KtSearchCommand(
     private val service: CliService = DefaultCliService(),
     private val platform: CliPlatform = DefaultCliPlatform,
+    private val envProvider: (String) -> String? = ::platformGetEnv,
 ) : CoreSuspendingCliktCommand(name = "ktsearch") {
     override fun help(context: Context): String =
         "Swiss-army CLI for Elasticsearch/OpenSearch operations."
@@ -158,6 +161,9 @@ class KtSearchCommand(
     )
 
     init {
+        context {
+            readEnvvar = envProvider
+        }
         subcommands(
             ClusterCommand(service),
             InfoCommand(service),
