@@ -35,7 +35,7 @@ flags, and more examples, see
 
 - `ktsearch cluster ...` for health, stats, state, and settings.
 - `ktsearch cat ...` for table/csv operational views.
-- `ktsearch index create|get|delete|search ...` for index-level operations.
+- `ktsearch index create|get|refresh|delete|search ...` for index-level operations.
 - `ktsearch index mappings/settings/template ...` for schema and template management.
 - `ktsearch index alias ...` and `ktsearch index data-stream ...` for routing/data stream tasks.
 - `ktsearch index snapshot ...`, `reindex ...`, and `ilm ...` for maintenance workflows.

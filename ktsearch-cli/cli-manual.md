@@ -1337,11 +1337,13 @@ Usage: ktsearch index reindex [<options>]
   Run _reindex.
 
 Options:
-  -d, --data=<text>       Raw reindex JSON body.
-  -f, --file=<text>       Read JSON body from file.
-  --wait=(true|false)     Wait for completion true|false (default true).
-  --pretty / --no-pretty  Pretty-print JSON output.
-  -h, --help              Show this message and exit
+  -d, --data=<text>           Raw reindex JSON body.
+  -f, --file=<text>           Read JSON body from file.
+  --wait=(true|false)         Wait for completion true|false (default false).
+  --disable-refresh-interval  Temporarily set destination refresh_interval to -1.
+  --set-replicas-zero         Temporarily set destination number_of_replicas to 0.
+  --pretty / --no-pretty      Pretty-print JSON output.
+  -h, --help                  Show this message and exit
 ```
 
 ## `ktsearch index reindex-task-status`
@@ -1533,6 +1535,8 @@ Options:
   --pipeline=<text>                 Ingest pipeline for restore indexing.
   --routing=<text>                  Routing value for all restored docs.
   --id-field=<text>                 Extract document id from this JSON field per line.
+  --disable-refresh-interval        Temporarily set index refresh_interval to -1.
+  --set-replicas-zero               Temporarily set index number_of_replicas to 0.
   -y, --yes                         Do not prompt for destructive actions.
   -h, --help                        Show this message and exit
 
