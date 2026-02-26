@@ -38,6 +38,7 @@ import com.jillesvangurp.ktsearch.refresh
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.ktsearch.searchAfter
 import com.jillesvangurp.ktsearch.updateAliases
+import com.jillesvangurp.ktsearch.withTemporaryIndexingSettings
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
@@ -483,6 +484,8 @@ class IndexRepository<T : Any>(
         bulkSize: Int = 100,
         pipeline: String? = null,
         refresh: Refresh? = Refresh.WaitFor,
+        disableRefreshInterval: Boolean = false,
+        setReplicasToZero: Boolean = false,
         routing: String? = null,
         timeout: Duration? = null,
         waitForActiveShards: String? = null,
@@ -523,13 +526,29 @@ class IndexRepository<T : Any>(
             target = indexNameOrWriteAlias
         )
 
-        try {
-            val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
-            block.invoke(updatingBulkSession)
-            session.flush()
-            retryCallback.awaitJobCompletion(refresh = session.refresh, timeout = retryTimeout)
-        } finally {
-            session.close()
+        suspend fun runBulk() {
+            try {
+                val updatingBulkSession = BulkUpdateSession(this, updateFunctions, session)
+                block.invoke(updatingBulkSession)
+                session.flush()
+                retryCallback.awaitJobCompletion(
+                    refresh = session.refresh,
+                    timeout = retryTimeout,
+                )
+            } finally {
+                session.close()
+            }
+        }
+        if (disableRefreshInterval || setReplicasToZero) {
+            client.withTemporaryIndexingSettings(
+                target = indexNameOrWriteAlias,
+                disableRefreshInterval = disableRefreshInterval,
+                setReplicasToZero = setReplicasToZero,
+            ) {
+                runBulk()
+            }
+        } else {
+            runBulk()
         }
     }
 

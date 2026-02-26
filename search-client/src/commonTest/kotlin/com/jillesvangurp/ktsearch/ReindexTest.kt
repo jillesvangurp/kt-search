@@ -8,7 +8,10 @@ import com.jillesvangurp.searchdsls.querydsl.term
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class ReindexTest : SearchTestBase() {
 
@@ -120,6 +123,30 @@ class ReindexTest : SearchTestBase() {
             response.shouldHave(total = 1, created = 1, batches = 1)
         }
     }
+
+    @Test
+    fun reindexShouldRestoreTemporaryIndexingSettings() = coRun {
+        withSourceAndDestination { sourceName, destinationName ->
+            client.indexDocument(sourceName, TestDocument(name = "t1"), refresh = WaitFor)
+            val before = indexSettingPair(client.getIndexSettings(destinationName), destinationName)
+
+            val response = client.reindex(
+                disableRefreshInterval = true,
+                setReplicasToZero = true,
+            ) {
+                source {
+                    index = sourceName
+                }
+                destination {
+                    index = destinationName
+                }
+            }
+
+            response.shouldHave(total = 1, created = 1, batches = 1)
+            val after = indexSettingPair(client.getIndexSettings(destinationName), destinationName)
+            after shouldBe before
+        }
+    }
 }
 
 private fun ReindexResponse.shouldHave(
@@ -148,4 +175,19 @@ private fun ReindexResponse.shouldHave(
         it.retries.search shouldBe retriesSearch
         it.failures shouldBe failures
     }
+}
+
+private fun indexSettingPair(settings: JsonObject, index: String): Pair<String?, String?> {
+    val indexObj = settings[index]?.jsonObject
+    val refreshInterval = indexObj
+        ?.get("settings")?.jsonObject
+        ?.get("index")?.jsonObject
+        ?.get("refresh_interval")?.jsonPrimitive
+        ?.contentOrNull
+    val replicas = indexObj
+        ?.get("settings")?.jsonObject
+        ?.get("index")?.jsonObject
+        ?.get("number_of_replicas")?.jsonPrimitive
+        ?.contentOrNull
+    return refreshInterval to replicas
 }

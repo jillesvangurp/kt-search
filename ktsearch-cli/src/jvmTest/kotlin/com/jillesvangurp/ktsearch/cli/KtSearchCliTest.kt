@@ -3,6 +3,7 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
+import com.jillesvangurp.ktsearch.cli.ReindexTaskProgress
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -472,8 +473,36 @@ class KtSearchCliTest {
             pipeline = null,
             routing = null,
             idField = null,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
             lines = listOf("""{"id":1}""", """{"id":2}"""),
         )
+    }
+
+    @Test
+    fun restoreForwardsTemporaryIndexingSettingsFlags() = runTest {
+        val service = FakeService()
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf("products.ndjson.gz"),
+        ).apply {
+            nextReaderLines = listOf("""{"id":1}""")
+        }
+        val cmd = newCommand(service = service, platform = platform)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "restore",
+                "products",
+                "--disable-refresh-interval",
+                "--set-replicas-zero",
+                "--yes",
+            ),
+        )
+
+        service.lastRestoreRequest?.disableRefreshInterval shouldBe true
+        service.lastRestoreRequest?.setReplicasToZero shouldBe true
     }
 
     @Test
@@ -507,9 +536,36 @@ class KtSearchCliTest {
             ),
         )
 
-        service.lastApiRequest?.path shouldBe listOf("_reindex")
-        service.lastApiRequest?.parameters shouldBe
-            mapOf("wait_for_completion" to "false")
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = false,
+            setReplicasToZero = false,
+        )
+    }
+
+    @Test
+    fun reindexForwardsTemporaryIndexingSettingsFlags() = runTest {
+        val service = FakeService()
+        val cmd = newCommand(service = service)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "reindex",
+                "--disable-refresh-interval",
+                "--set-replicas-zero",
+                "--data",
+                """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            ),
+        )
+
+        service.lastReindexRequest shouldBe ReindexRequest(
+            body = """{"source":{"index":"a"},"dest":{"index":"b"}}""",
+            waitForCompletion = false,
+            disableRefreshInterval = true,
+            setReplicasToZero = true,
+        )
     }
 
     @Test
@@ -563,6 +619,7 @@ private class FakeService(
     var lastCatRequest: CatServiceRequest? = null
     var lastApiRequest: ApiRequest? = null
     var lastRestoreRequest: RestoreRequest? = null
+    var lastReindexRequest: ReindexRequest? = null
 
     override suspend fun fetchRootInfo(connectionOptions: ConnectionOptions): String {
         rootInfoCalls++
@@ -677,6 +734,8 @@ private class FakeService(
         pipeline: String?,
         routing: String?,
         idField: String?,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
     ): Long {
         lastConnectionOptions = connectionOptions
         val lines = mutableListOf<String>()
@@ -693,9 +752,29 @@ private class FakeService(
             pipeline = pipeline,
             routing = routing,
             idField = idField,
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
             lines = lines,
         )
         return lines.size.toLong()
+    }
+
+    override suspend fun reindex(
+        connectionOptions: ConnectionOptions,
+        body: String,
+        waitForCompletion: Boolean,
+        disableRefreshInterval: Boolean,
+        setReplicasToZero: Boolean,
+        onTaskProgress: ((ReindexTaskProgress) -> Unit)?,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastReindexRequest = ReindexRequest(
+            body = body,
+            waitForCompletion = waitForCompletion,
+            disableRefreshInterval = disableRefreshInterval,
+            setReplicasToZero = setReplicasToZero,
+        )
+        return """{"acknowledged":true}"""
     }
 
     override suspend fun indexExists(
@@ -754,7 +833,16 @@ private data class RestoreRequest(
     val pipeline: String?,
     val routing: String?,
     val idField: String?,
+    val disableRefreshInterval: Boolean,
+    val setReplicasToZero: Boolean,
     val lines: List<String>,
+)
+
+private data class ReindexRequest(
+    val body: String,
+    val waitForCompletion: Boolean,
+    val disableRefreshInterval: Boolean,
+    val setReplicasToZero: Boolean,
 )
 
 private class FakePlatform(
