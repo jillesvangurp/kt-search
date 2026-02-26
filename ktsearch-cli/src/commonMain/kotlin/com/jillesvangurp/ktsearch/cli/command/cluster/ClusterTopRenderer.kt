@@ -4,10 +4,8 @@ import com.jillesvangurp.ktsearch.ClusterStatus
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
 import kotlin.math.roundToInt
-import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class ClusterTopRenderer(
     private val useColor: Boolean,
@@ -89,8 +87,7 @@ class ClusterTopRenderer(
                     ColorLevel.Good
                 },
             )
-        lines += "${bold("updated")}=${secondsAgo(snapshot.fetchedAt)}  " +
-            "${bold("idx/s")}=${colorizedRate(snapshot.indexRatePerSecond)}  " +
+        lines += "${bold("idx/s")}=${colorizedRate(snapshot.indexRatePerSecond)}  " +
             "${bold("qry/s")}=${colorizedRate(snapshot.queryRatePerSecond)}"
         lines += ""
         lines += joinBars(
@@ -243,12 +240,6 @@ class ClusterTopRenderer(
         val avgText = colorizedMetric(name, avg)
         val maxText = colorizedMetric(name, max)
         return "$name avg=$avgText max=$maxText [$bar]"
-    }
-
-    private fun secondsAgo(fetchedAt: Instant): String {
-        val elapsed = Clock.System.now() - fetchedAt
-        val seconds = elapsed.inWholeSeconds.coerceAtLeast(0)
-        return "${seconds}s ago"
     }
 
     private fun joinBars(
