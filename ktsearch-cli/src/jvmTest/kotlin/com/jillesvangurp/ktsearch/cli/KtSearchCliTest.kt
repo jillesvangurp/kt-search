@@ -209,24 +209,23 @@ class KtSearchCliTest {
     }
 
     @Test
-    fun clusterTopDefaultsToThreeSecondPolling() = runTest {
+    fun topDefaultsToThreeSecondPolling() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
 
-        cmd.parse(arrayOf("cluster", "top", "--samples", "1"))
+        cmd.parse(arrayOf("top", "--samples", "1"))
 
         service.clusterTopCalls shouldBe 1
     }
 
     @Test
-    fun clusterTopRejectsZeroInterval() = runTest {
+    fun topRejectsZeroInterval() = runTest {
         val service = FakeService()
         val cmd = newCommand(service = service)
 
         val result = runCatching {
             cmd.parse(
                 arrayOf(
-                    "cluster",
                     "top",
                     "--interval-seconds",
                     "0",

@@ -257,10 +257,111 @@ class DefaultCliService : CliService {
                 )
             }.getOrNull()
 
+            val indicesStatsRaw = runCatching {
+                client.restClient.get {
+                    path("_stats")
+                    parameter("level", "indices")
+                    parameter(
+                        "filter_path",
+                        listOf(
+                            "indices.*.total.docs.count",
+                            "indices.*.total.store.size_in_bytes",
+                            "indices.*.total.segments.memory_in_bytes",
+                            "indices.*.total.indexing.index_total",
+                            "indices.*.total.search.query_total",
+                        ).joinToString(","),
+                    )
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "indices stats request failed",
+                )
+            }.getOrNull()
+
+            val hotThreadsRaw = runCatching {
+                client.restClient.get {
+                    path("_nodes", "hot_threads")
+                    parameter("threads", 3)
+                    parameter("ignore_idle_threads", true)
+                    parameter("type", "cpu")
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "hot threads request failed",
+                )
+            }.getOrNull()
+
+            val threadPoolCatRaw = runCatching {
+                client.restClient.get {
+                    path("_cat", "thread_pool")
+                    parameter("format", "json")
+                    parameter("h", "node_name,name,active,queue,rejected")
+                    parameter("s", "queue:desc,rejected:desc")
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "thread pool request failed",
+                )
+            }.getOrNull()
+
+            val allocationCatRaw = runCatching {
+                client.restClient.get {
+                    path("_cat", "allocation")
+                    parameter("format", "json")
+                    parameter("h", "node,disk.percent,disk.avail,disk.total,shards")
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "allocation request failed",
+                )
+            }.getOrNull()
+
+            val clusterSettingsRaw = runCatching {
+                client.restClient.get {
+                    path("_cluster", "settings")
+                    parameter("include_defaults", true)
+                    parameter("flat_settings", true)
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "cluster settings request failed",
+                )
+            }.getOrNull()
+
+            val tasksRaw = runCatching {
+                client.restClient.get {
+                    path("_tasks")
+                    parameter("detailed", true)
+                    parameter("actions", "indices:*search*,*reindex*,*byquery*")
+                    parameter(
+                        "filter_path",
+                        "nodes.*.name,nodes.*.host,nodes.*.tasks.*.action," +
+                            "nodes.*.tasks.*.description," +
+                            "nodes.*.tasks.*.running_time_in_nanos",
+                    )
+                }.getOrThrow().text
+            }.onFailure { error ->
+                errors.add(
+                    mapCliException(error, connectionOptions).message
+                        ?: "tasks request failed",
+                )
+            }.getOrNull()
+
             ClusterTopApiSnapshot(
                 clusterStats = clusterStats,
                 clusterHealth = clusterHealth,
                 nodesStats = nodesStats,
+                indicesStatsRaw = indicesStatsRaw,
+                hotThreadsRaw = hotThreadsRaw,
+                threadPoolCatRaw = threadPoolCatRaw,
+                allocationCatRaw = allocationCatRaw,
+                clusterSettingsRaw = clusterSettingsRaw,
+                tasksRaw = tasksRaw,
                 errors = errors,
                 fetchedAt = Clock.System.now(),
             )

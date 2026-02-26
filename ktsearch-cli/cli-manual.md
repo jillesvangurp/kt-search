@@ -26,6 +26,7 @@ Commands:
   cat         Run cat APIs and render the output as a table.
   index       Index-related commands.
   tasks       Task API commands.
+  top         Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
   completion  Generate a tab-complete script for the given shell
 ```
 
@@ -45,7 +46,6 @@ Commands:
   state          Show cluster state from GET /_cluster/state.
   settings       Show cluster settings from GET /_cluster/settings.
   pending-tasks  Show pending tasks from GET /_cluster/pending_tasks.
-  top            Live cluster/node vitals dashboard. q quit, h help, Esc back.
 ```
 
 ## `ktsearch cluster health`
@@ -120,12 +120,12 @@ Options:
   -h, --help  Show this message and exit
 ```
 
-## `ktsearch cluster top`
+## `ktsearch top`
 
 ```text
-Usage: ktsearch cluster top [<options>]
+Usage: ktsearch top [<options>]
 
-  Live cluster/node vitals dashboard. q quit, h help, Esc back.
+  Live cluster/node vitals dashboard. q quit, h/? help, Esc back.
 
 Options:
   --interval-seconds=<int>  Polling interval seconds.

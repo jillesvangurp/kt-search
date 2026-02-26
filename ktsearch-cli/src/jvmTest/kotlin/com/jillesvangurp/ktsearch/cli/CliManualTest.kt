@@ -115,7 +115,7 @@ class CliManualTest {
             listOf("cluster", "state"),
             listOf("cluster", "settings"),
             listOf("cluster", "pending-tasks"),
-            listOf("cluster", "top"),
+            listOf("top"),
             listOf("info"),
             listOf("cat"),
             listOf("cat", "aliases"),

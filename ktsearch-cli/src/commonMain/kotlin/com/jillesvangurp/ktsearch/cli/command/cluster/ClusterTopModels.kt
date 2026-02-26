@@ -7,11 +7,24 @@ import com.jillesvangurp.ktsearch.NodesStatsResponse
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.Instant
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 data class ClusterTopApiSnapshot(
     val clusterStats: ClusterStatsResponse?,
     val clusterHealth: ClusterHealthResponse?,
     val nodesStats: NodesStatsResponse?,
+    val indicesStatsRaw: String? = null,
+    val hotThreadsRaw: String? = null,
+    val threadPoolCatRaw: String? = null,
+    val allocationCatRaw: String? = null,
+    val clusterSettingsRaw: String? = null,
+    val tasksRaw: String? = null,
     val errors: List<String> = emptyList(),
     val fetchedAt: Instant,
 )
@@ -39,6 +52,12 @@ data class ClusterTopSnapshot(
     val indexRatePerSecond: Double?,
     val queryRatePerSecond: Double?,
     val nodes: List<NodeTopSnapshot>,
+    val offendingIndices: List<IndexOffenderSnapshot>,
+    val hotThreads: List<String>,
+    val imbalance: NodeImbalanceSnapshot?,
+    val threadPoolSaturation: List<ThreadPoolSaturationSnapshot>,
+    val watermarks: WatermarkSnapshot?,
+    val slowTasks: List<SlowTaskSnapshot>,
     val errors: List<String> = emptyList(),
 )
 
@@ -60,12 +79,54 @@ data class NodeTopSnapshot(
     val queryRatePerSecond: Double?,
 )
 
+data class IndexOffenderSnapshot(
+    val index: String,
+    val docs: Long?,
+    val storeBytes: Long?,
+    val segmentMemoryBytes: Long?,
+    val indexingRatePerSecond: Double?,
+    val queryRatePerSecond: Double?,
+)
+
+data class NodeImbalanceSnapshot(
+    val maxDiskPercent: Double?,
+    val minDiskPercent: Double?,
+    val maxShards: Int?,
+    val minShards: Int?,
+    val worstDiskNode: String?,
+    val mostShardsNode: String?,
+)
+
+data class ThreadPoolSaturationSnapshot(
+    val node: String,
+    val pool: String,
+    val active: Int?,
+    val queue: Int?,
+    val rejected: Long?,
+)
+
+data class WatermarkSnapshot(
+    val low: String?,
+    val high: String?,
+    val floodStage: String?,
+    val maxDiskPercent: Double?,
+)
+
+data class SlowTaskSnapshot(
+    val node: String,
+    val action: String,
+    val runningSeconds: Long?,
+    val description: String?,
+)
+
 internal fun ClusterTopApiSnapshot.toTopSnapshot(
     previous: ClusterTopApiSnapshot?,
 ): ClusterTopSnapshot {
     val nodeStats = nodesStats?.nodes.orEmpty()
     val previousNodes = previous?.nodesStats?.nodes.orEmpty()
     val elapsed = previous?.let { fetchedAt - it.fetchedAt }
+    val indicesStats = indicesStatsRaw?.parseObjectOrNull()
+    val previousIndicesStats = previous?.indicesStatsRaw?.parseObjectOrNull()
 
     val nodes = nodeStats.map { (id, node) ->
         val totalDisk = node.fs?.total?.totalInBytes
@@ -145,6 +206,19 @@ internal fun ClusterTopApiSnapshot.toTopSnapshot(
         indexRatePerSecond = sumRates(nodes.mapNotNull { it.indexRatePerSecond }),
         queryRatePerSecond = sumRates(nodes.mapNotNull { it.queryRatePerSecond }),
         nodes = nodes,
+        offendingIndices = parseOffendingIndices(
+            current = indicesStats,
+            previous = previousIndicesStats,
+            elapsed = elapsed,
+        ),
+        hotThreads = parseHotThreads(hotThreadsRaw),
+        imbalance = parseImbalance(allocationCatRaw),
+        threadPoolSaturation = parseThreadPoolSaturation(threadPoolCatRaw),
+        watermarks = parseWatermarks(
+            clusterSettingsRaw = clusterSettingsRaw,
+            allocationCatRaw = allocationCatRaw,
+        ),
+        slowTasks = parseSlowTasks(tasksRaw),
         errors = errors,
     )
 }
@@ -189,4 +263,186 @@ private fun sumRates(values: List<Double>): Double? {
         return null
     }
     return values.sum()
+}
+
+private fun parseOffendingIndices(
+    current: JsonObject?,
+    previous: JsonObject?,
+    elapsed: Duration?,
+): List<IndexOffenderSnapshot> {
+    val currentIndices = current?.get("indices")?.jsonObject ?: return emptyList()
+    val previousIndices = previous?.get("indices")?.jsonObject.orEmpty()
+    return currentIndices.entries.map { (index, value) ->
+        val total = value.jsonObject["total"]?.jsonObject
+        val docs = total?.get("docs")?.jsonObject?.get("count").longOrNull()
+        val store = total?.get("store")?.jsonObject?.get("size_in_bytes").longOrNull()
+        val segMem = total?.get("segments")?.jsonObject
+            ?.get("memory_in_bytes").longOrNull()
+        val idxTotal = total?.get("indexing")?.jsonObject
+            ?.get("index_total").longOrNull()
+        val qryTotal = total?.get("search")?.jsonObject
+            ?.get("query_total").longOrNull()
+        val prevTotal = previousIndices[index]?.jsonObject?.get("total")?.jsonObject
+        val idxRate = deltaRate(
+            idxTotal,
+            prevTotal?.get("indexing")?.jsonObject?.get("index_total").longOrNull(),
+            elapsed,
+        )
+        val qryRate = deltaRate(
+            qryTotal,
+            prevTotal?.get("search")?.jsonObject?.get("query_total").longOrNull(),
+            elapsed,
+        )
+        IndexOffenderSnapshot(
+            index = index,
+            docs = docs,
+            storeBytes = store,
+            segmentMemoryBytes = segMem,
+            indexingRatePerSecond = idxRate,
+            queryRatePerSecond = qryRate,
+        )
+    }.sortedByDescending { offenderScore(it) }.take(8)
+}
+
+private fun offenderScore(value: IndexOffenderSnapshot): Double {
+    return (value.storeBytes ?: 0L) / (1024.0 * 1024.0 * 1024.0) +
+        (value.segmentMemoryBytes ?: 0L) / (1024.0 * 1024.0) +
+        (value.indexingRatePerSecond ?: 0.0) / 100.0 +
+        (value.queryRatePerSecond ?: 0.0) / 100.0
+}
+
+private fun parseHotThreads(raw: String?): List<String> {
+    if (raw.isNullOrBlank()) {
+        return emptyList()
+    }
+    return raw.lineSequence()
+        .map { it.trimEnd() }
+        .filter { it.isNotBlank() }
+        .filterNot { it.startsWith(":::") }
+        .filterNot { it.startsWith("Hot threads at") }
+        .take(8)
+        .toList()
+}
+
+private fun parseThreadPoolSaturation(
+    raw: String?,
+): List<ThreadPoolSaturationSnapshot> {
+    val array = raw?.parseArrayOrNull() ?: return emptyList()
+    return array.mapNotNull { item ->
+        val obj = item.jsonObject
+        ThreadPoolSaturationSnapshot(
+            node = obj["node_name"].stringOrNull() ?: return@mapNotNull null,
+            pool = obj["name"].stringOrNull() ?: return@mapNotNull null,
+            active = obj["active"].intOrNull(),
+            queue = obj["queue"].intOrNull(),
+            rejected = obj["rejected"].longOrNull(),
+        )
+    }.sortedWith(
+        compareByDescending<ThreadPoolSaturationSnapshot> { it.queue ?: 0 }
+            .thenByDescending { it.rejected ?: 0L },
+    ).take(8)
+}
+
+private fun parseImbalance(raw: String?): NodeImbalanceSnapshot? {
+    val array = raw?.parseArrayOrNull() ?: return null
+    val rows = array.mapNotNull { item ->
+        val obj = item.jsonObject
+        val node = obj["node"].stringOrNull() ?: return@mapNotNull null
+        AllocationRow(
+            node = node,
+            diskPercent = obj["disk.percent"].doubleOrNull(),
+            shards = obj["shards"].intOrNull(),
+        )
+    }
+    if (rows.isEmpty()) {
+        return null
+    }
+    val maxDisk = rows.maxByOrNull { it.diskPercent ?: Double.MIN_VALUE }
+    val minDisk = rows.minByOrNull { it.diskPercent ?: Double.MAX_VALUE }
+    val maxShards = rows.maxByOrNull { it.shards ?: Int.MIN_VALUE }
+    val minShards = rows.minByOrNull { it.shards ?: Int.MAX_VALUE }
+    return NodeImbalanceSnapshot(
+        maxDiskPercent = maxDisk?.diskPercent,
+        minDiskPercent = minDisk?.diskPercent,
+        maxShards = maxShards?.shards,
+        minShards = minShards?.shards,
+        worstDiskNode = maxDisk?.node,
+        mostShardsNode = maxShards?.node,
+    )
+}
+
+private data class AllocationRow(
+    val node: String,
+    val diskPercent: Double?,
+    val shards: Int?,
+)
+
+private fun parseWatermarks(
+    clusterSettingsRaw: String?,
+    allocationCatRaw: String?,
+): WatermarkSnapshot? {
+    val settings = clusterSettingsRaw?.parseObjectOrNull()
+    val persistent = settings?.get("persistent")?.jsonObject.orEmpty()
+    val transient = settings?.get("transient")?.jsonObject.orEmpty()
+    val defaults = settings?.get("defaults")?.jsonObject.orEmpty()
+    fun value(key: String): String? {
+        return transient[key].stringOrNull()
+            ?: persistent[key].stringOrNull()
+            ?: defaults[key].stringOrNull()
+    }
+    val maxDiskPercent = allocationCatRaw?.parseArrayOrNull()
+        ?.mapNotNull { it.jsonObject["disk.percent"].doubleOrNull() }
+        ?.maxOrNull()
+    return WatermarkSnapshot(
+        low = value("cluster.routing.allocation.disk.watermark.low"),
+        high = value("cluster.routing.allocation.disk.watermark.high"),
+        floodStage = value("cluster.routing.allocation.disk.watermark.flood_stage"),
+        maxDiskPercent = maxDiskPercent,
+    )
+}
+
+private fun parseSlowTasks(raw: String?): List<SlowTaskSnapshot> {
+    val root = raw?.parseObjectOrNull() ?: return emptyList()
+    val nodes = root["nodes"]?.jsonObject ?: return emptyList()
+    return nodes.values.flatMap { node ->
+        val nodeObj = node.jsonObject
+        val nodeName = nodeObj["name"].stringOrNull()
+            ?: nodeObj["host"].stringOrNull()
+            ?: "node"
+        val tasks = nodeObj["tasks"]?.jsonObject.orEmpty()
+        tasks.values.mapNotNull { task ->
+            val taskObj = task.jsonObject
+            val runningNanos = taskObj["running_time_in_nanos"].longOrNull()
+            val runningSeconds = runningNanos?.let { it / 1_000_000_000L }
+            SlowTaskSnapshot(
+                node = nodeName,
+                action = taskObj["action"].stringOrNull() ?: return@mapNotNull null,
+                runningSeconds = runningSeconds,
+                description = taskObj["description"].stringOrNull(),
+            )
+        }
+    }.sortedByDescending { it.runningSeconds ?: 0L }.take(8)
+}
+
+private fun String.parseObjectOrNull(): JsonObject? {
+    return runCatching {
+        Json.Default.parseToJsonElement(this).jsonObject
+    }.getOrNull()
+}
+
+private fun String.parseArrayOrNull() = runCatching {
+    Json.Default.parseToJsonElement(this).jsonArray
+}.getOrNull()
+
+private fun JsonElement?.stringOrNull(): String? =
+    (this as? JsonPrimitive)?.contentOrNull()
+
+private fun JsonElement?.longOrNull(): Long? = stringOrNull()?.toLongOrNull()
+
+private fun JsonElement?.intOrNull(): Int? = stringOrNull()?.toIntOrNull()
+
+private fun JsonElement?.doubleOrNull(): Double? = stringOrNull()?.toDoubleOrNull()
+
+private fun JsonPrimitive.contentOrNull(): String? {
+    return if (isString) content else content
 }

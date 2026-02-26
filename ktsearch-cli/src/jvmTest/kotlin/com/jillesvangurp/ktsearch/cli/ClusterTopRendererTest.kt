@@ -66,6 +66,12 @@ class ClusterTopRendererTest {
                     queryRatePerSecond = null,
                 ),
             ),
+            offendingIndices = emptyList(),
+            hotThreads = emptyList(),
+            imbalance = null,
+            threadPoolSaturation = emptyList(),
+            watermarks = null,
+            slowTasks = emptyList(),
             errors = listOf("nodes stats unavailable"),
         )
         val rendered = ClusterTopRenderer(useColor = false).render(

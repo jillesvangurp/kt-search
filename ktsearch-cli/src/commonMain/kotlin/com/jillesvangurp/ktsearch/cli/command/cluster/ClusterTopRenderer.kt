@@ -10,12 +10,12 @@ class ClusterTopRenderer(
 ) {
     fun renderHelp(): String {
         val lines = listOf(
-            bold("cluster top help"),
+            bold("top help"),
             "",
             "${bold("keys")}:",
             "  h/?   show this help",
             "  esc   close help",
-            "  q     quit cluster top",
+            "  q     quit top",
             "",
             "${bold("header")}:",
             "  status: cluster health (green/yellow/red)",
@@ -26,6 +26,14 @@ class ClusterTopRenderer(
             "  cpu%   green<70, yellow<90, red>=90",
             "  heap%  green<80, yellow<90, red>=90",
             "  disk%  green<75, yellow<90, red>=90",
+            "",
+            "${bold("admin panels")}:",
+            "  offending indices: highest resource/rate pressure indices",
+            "  hot threads: top stack snippets from _nodes/hot_threads",
+            "  imbalance: node disk/shard skew summary",
+            "  threadpool: queue/rejected pressure hotspots",
+            "  watermarks: configured low/high/flood + current max disk%",
+            "  slow tasks: long-running task watcher",
             "",
             "${bold("notes")}:",
             "  docs/segs/store are per-node totals.",
@@ -101,6 +109,103 @@ class ClusterTopRenderer(
         snapshot.nodes.forEach { node ->
             val line = formatNodeLine(node)
             lines += truncate(line, width)
+        }
+
+        if (snapshot.offendingIndices.isNotEmpty()) {
+            lines += ""
+            lines += bold("offending indices")
+            lines += truncate(
+                "index                          docs     store   segmem  i/s   q/s",
+                width,
+            )
+            snapshot.offendingIndices.take(6).forEach { idx ->
+                lines += truncate(
+                    "${pad(idx.index, 30)} " +
+                        "${pad(fmtCount(idx.docs), 8)} " +
+                        "${pad(fmtBytes(idx.storeBytes), 7)} " +
+                        "${pad(fmtBytes(idx.segmentMemoryBytes), 7)} " +
+                        "${pad(colorizedRate(idx.indexingRatePerSecond), 5)} " +
+                        "${pad(colorizedRate(idx.queryRatePerSecond), 5)}",
+                    width,
+                )
+            }
+        }
+
+        if (snapshot.imbalance != null) {
+            lines += ""
+            lines += bold("node imbalance")
+            val imbalance = snapshot.imbalance
+            val diskSpread = if (
+                imbalance.maxDiskPercent != null && imbalance.minDiskPercent != null
+            ) {
+                imbalance.maxDiskPercent - imbalance.minDiskPercent
+            } else {
+                null
+            }
+            val shardsSpread = if (
+                imbalance.maxShards != null && imbalance.minShards != null
+            ) {
+                imbalance.maxShards - imbalance.minShards
+            } else {
+                null
+            }
+            lines += "disk spread=${colorizedMetric("disk", diskSpread)}% " +
+                "worst=${imbalance.worstDiskNode ?: "-"} " +
+                "shard spread=${fmtCount(shardsSpread?.toLong())} " +
+                "most=${imbalance.mostShardsNode ?: "-"}"
+        }
+
+        if (snapshot.threadPoolSaturation.isNotEmpty()) {
+            lines += ""
+            lines += bold("threadpool saturation")
+            lines += truncate(
+                "node                 pool             active queue rejected",
+                width,
+            )
+            snapshot.threadPoolSaturation.take(6).forEach { tp ->
+                lines += truncate(
+                    "${pad(tp.node, 20)} ${pad(tp.pool, 16)} " +
+                        "${pad(fmtCount(tp.active?.toLong()), 6)} " +
+                        "${pad(colorizedQueue(tp.queue), 5)} " +
+                        "${pad(colorizedRejected(tp.rejected), 8)}",
+                    width,
+                )
+            }
+        }
+
+        if (snapshot.watermarks != null) {
+            lines += ""
+            lines += bold("watermarks and thresholds")
+            val wm = snapshot.watermarks
+            lines += "low=${wm.low ?: "-"} high=${wm.high ?: "-"} " +
+                "flood=${wm.floodStage ?: "-"} " +
+                "maxDisk=${colorizedMetric("disk", wm.maxDiskPercent)}%"
+        }
+
+        if (snapshot.slowTasks.isNotEmpty()) {
+            lines += ""
+            lines += bold("slow task watcher")
+            lines += truncate(
+                "node                 sec   action                          desc",
+                width,
+            )
+            snapshot.slowTasks.take(6).forEach { task ->
+                lines += truncate(
+                    "${pad(task.node, 20)} " +
+                        "${pad(colorizedTaskSeconds(task.runningSeconds), 5)} " +
+                        "${pad(task.action, 30)} " +
+                        "${truncate(task.description ?: "-", 40)}",
+                    width,
+                )
+            }
+        }
+
+        if (snapshot.hotThreads.isNotEmpty()) {
+            lines += ""
+            lines += bold("live hot threads")
+            snapshot.hotThreads.take(6).forEach { line ->
+                lines += truncate(line, width)
+            }
         }
 
         if (snapshot.errors.isNotEmpty()) {
@@ -274,6 +379,36 @@ class ClusterTopRenderer(
             else -> null
         }
         return colorizeLevel(fmtRate(value), level)
+    }
+
+    private fun colorizedQueue(queue: Int?): String {
+        val level = when {
+            queue == null -> null
+            queue >= 100 -> ColorLevel.Critical
+            queue >= 20 -> ColorLevel.Warning
+            queue > 0 -> ColorLevel.Good
+            else -> null
+        }
+        return colorizeLevel(fmtCount(queue?.toLong()), level)
+    }
+
+    private fun colorizedRejected(rejected: Long?): String {
+        val level = when {
+            rejected == null -> null
+            rejected > 0L -> ColorLevel.Critical
+            else -> null
+        }
+        return colorizeLevel(fmtCount(rejected), level)
+    }
+
+    private fun colorizedTaskSeconds(seconds: Long?): String {
+        val level = when {
+            seconds == null -> null
+            seconds >= 300L -> ColorLevel.Critical
+            seconds >= 120L -> ColorLevel.Warning
+            else -> ColorLevel.Good
+        }
+        return colorizeLevel(fmtCount(seconds), level)
     }
 }
 
