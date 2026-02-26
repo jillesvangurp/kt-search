@@ -67,7 +67,6 @@ class ClusterTopRendererTest {
                 ),
             ),
             offendingIndices = emptyList(),
-            hotThreads = emptyList(),
             imbalance = null,
             threadPoolSaturation = emptyList(),
             watermarks = null,

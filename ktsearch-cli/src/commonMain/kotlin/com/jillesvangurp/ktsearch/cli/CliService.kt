@@ -279,20 +279,6 @@ class DefaultCliService : CliService {
                 )
             }.getOrNull()
 
-            val hotThreadsRaw = runCatching {
-                client.restClient.get {
-                    path("_nodes", "hot_threads")
-                    parameter("threads", 3)
-                    parameter("ignore_idle_threads", true)
-                    parameter("type", "cpu")
-                }.getOrThrow().text
-            }.onFailure { error ->
-                errors.add(
-                    mapCliException(error, connectionOptions).message
-                        ?: "hot threads request failed",
-                )
-            }.getOrNull()
-
             val threadPoolCatRaw = runCatching {
                 client.restClient.get {
                     path("_cat", "thread_pool")
@@ -357,7 +343,6 @@ class DefaultCliService : CliService {
                 clusterHealth = clusterHealth,
                 nodesStats = nodesStats,
                 indicesStatsRaw = indicesStatsRaw,
-                hotThreadsRaw = hotThreadsRaw,
                 threadPoolCatRaw = threadPoolCatRaw,
                 allocationCatRaw = allocationCatRaw,
                 clusterSettingsRaw = clusterSettingsRaw,

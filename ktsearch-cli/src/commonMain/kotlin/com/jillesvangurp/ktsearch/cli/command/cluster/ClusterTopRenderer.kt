@@ -4,8 +4,10 @@ import com.jillesvangurp.ktsearch.ClusterStatus
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class ClusterTopRenderer(
     private val useColor: Boolean,
@@ -30,8 +32,7 @@ class ClusterTopRenderer(
             "  disk%  green<75, yellow<90, red>=90",
             "",
             "${bold("admin panels")}:",
-            "  offending indices: highest resource/rate pressure indices",
-            "  hot threads: top stack snippets from _nodes/hot_threads",
+            "  largest indices: highest resource/rate pressure indices",
             "  imbalance: node disk/shard skew summary",
             "  threadpool: queue/rejected pressure hotspots",
             "  watermarks: configured low/high/flood + current max disk%",
@@ -88,7 +89,7 @@ class ClusterTopRenderer(
                     ColorLevel.Good
                 },
             )
-        lines += "${bold("updated")}=${snapshot.fetchedAt}  " +
+        lines += "${bold("updated")}=${secondsAgo(snapshot.fetchedAt)}  " +
             "${bold("idx/s")}=${colorizedRate(snapshot.indexRatePerSecond)}  " +
             "${bold("qry/s")}=${colorizedRate(snapshot.queryRatePerSecond)}"
         lines += ""
@@ -115,7 +116,7 @@ class ClusterTopRenderer(
 
         if (snapshot.offendingIndices.isNotEmpty()) {
             lines += ""
-            lines += bold("offending indices")
+            lines += bold("largest indices")
             lines += bold(
                 truncate(
                     "index                          docs     store   " +
@@ -211,14 +212,6 @@ class ClusterTopRenderer(
             }
         }
 
-        if (snapshot.hotThreads.isNotEmpty()) {
-            lines += ""
-            lines += bold("live hot threads")
-            snapshot.hotThreads.take(6).forEach { line ->
-                lines += truncate(line, width)
-            }
-        }
-
         if (snapshot.errors.isNotEmpty()) {
             lines += ""
             snapshot.errors.forEach { err ->
@@ -250,6 +243,12 @@ class ClusterTopRenderer(
         val avgText = colorizedMetric(name, avg)
         val maxText = colorizedMetric(name, max)
         return "$name avg=$avgText max=$maxText [$bar]"
+    }
+
+    private fun secondsAgo(fetchedAt: Instant): String {
+        val elapsed = Clock.System.now() - fetchedAt
+        val seconds = elapsed.inWholeSeconds.coerceAtLeast(0)
+        return "${seconds}s ago"
     }
 
     private fun joinBars(

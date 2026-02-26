@@ -21,7 +21,6 @@ data class ClusterTopApiSnapshot(
     val clusterHealth: ClusterHealthResponse?,
     val nodesStats: NodesStatsResponse?,
     val indicesStatsRaw: String? = null,
-    val hotThreadsRaw: String? = null,
     val threadPoolCatRaw: String? = null,
     val allocationCatRaw: String? = null,
     val clusterSettingsRaw: String? = null,
@@ -54,7 +53,6 @@ data class ClusterTopSnapshot(
     val queryRatePerSecond: Double?,
     val nodes: List<NodeTopSnapshot>,
     val offendingIndices: List<IndexOffenderSnapshot>,
-    val hotThreads: List<String>,
     val imbalance: NodeImbalanceSnapshot?,
     val threadPoolSaturation: List<ThreadPoolSaturationSnapshot>,
     val watermarks: WatermarkSnapshot?,
@@ -212,7 +210,6 @@ internal fun ClusterTopApiSnapshot.toTopSnapshot(
             previous = previousIndicesStats,
             elapsed = elapsed,
         ),
-        hotThreads = parseHotThreads(hotThreadsRaw),
         imbalance = parseImbalance(allocationCatRaw),
         threadPoolSaturation = parseThreadPoolSaturation(threadPoolCatRaw),
         watermarks = parseWatermarks(
@@ -310,19 +307,6 @@ private fun offenderScore(value: IndexOffenderSnapshot): Double {
         (value.segmentMemoryBytes ?: 0L) / (1024.0 * 1024.0) +
         (value.indexingRatePerSecond ?: 0.0) / 100.0 +
         (value.queryRatePerSecond ?: 0.0) / 100.0
-}
-
-private fun parseHotThreads(raw: String?): List<String> {
-    if (raw.isNullOrBlank()) {
-        return emptyList()
-    }
-    return raw.lineSequence()
-        .map { it.trimEnd() }
-        .filter { it.isNotBlank() }
-        .filterNot { it.startsWith(":::") }
-        .filterNot { it.startsWith("Hot threads at") }
-        .take(8)
-        .toList()
 }
 
 private fun parseThreadPoolSaturation(
