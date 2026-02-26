@@ -501,6 +501,13 @@ class IndexRepository<T : Any>(
         block: suspend TypedDocumentIBulkSession<T>.() -> Unit
     ) {
 
+        val effectiveRefresh = if (
+            disableRefreshInterval && (refresh ?: defaultRefresh) == Refresh.WaitFor
+        ) {
+            Refresh.False
+        } else {
+            refresh ?: defaultRefresh
+        }
         val updateFunctions = mutableMapOf<String, suspend (T) -> T>()
         val retryCallback = RetryingBulkHandler(
             updateFunctions = updateFunctions,
@@ -515,7 +522,7 @@ class IndexRepository<T : Any>(
             callBack = retryCallback,
             bulkSize = bulkSize,
             pipeline = pipeline,
-            refresh = refresh ?: defaultRefresh,
+            refresh = effectiveRefresh,
             routing = routing,
             timeout = timeout ?: defaultTimeout,
             waitForActiveShards = waitForActiveShards,

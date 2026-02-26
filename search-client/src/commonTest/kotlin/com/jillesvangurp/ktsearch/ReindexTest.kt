@@ -144,7 +144,7 @@ class ReindexTest : SearchTestBase() {
 
             response.shouldHave(total = 1, created = 1, batches = 1)
             val after = indexSettingPair(client.getIndexSettings(destinationName), destinationName)
-            after shouldBe before
+            normalizeSettings(after) shouldBe normalizeSettings(before)
         }
     }
 }
@@ -190,4 +190,8 @@ private fun indexSettingPair(settings: JsonObject, index: String): Pair<String?,
         ?.get("number_of_replicas")?.jsonPrimitive
         ?.contentOrNull
     return refreshInterval to replicas
+}
+
+private fun normalizeSettings(pair: Pair<String?, String?>): Pair<String, String> {
+    return (pair.first ?: "1s") to (pair.second ?: "1")
 }

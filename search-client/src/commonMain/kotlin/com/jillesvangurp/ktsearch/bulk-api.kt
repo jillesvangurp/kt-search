@@ -599,12 +599,17 @@ suspend fun SearchClient.bulk(
                 "setReplicasToZero is enabled",
         )
     }
+    val effectiveRefresh = if (disableRefreshInterval && refresh == Refresh.WaitFor) {
+        Refresh.False
+    } else {
+        refresh
+    }
     val session = bulkSession(
         failOnFirstError = failOnFirstError,
         callBack = callBack,
         bulkSize = bulkSize,
         pipeline = pipeline,
-        refresh = refresh,
+        refresh = effectiveRefresh,
         routing = routing,
         timeout = timeout,
         waitForActiveShards = waitForActiveShards,

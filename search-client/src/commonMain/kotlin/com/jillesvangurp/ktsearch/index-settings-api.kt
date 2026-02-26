@@ -3,9 +3,9 @@
 package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettings
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -29,6 +29,8 @@ suspend fun SearchClient.putIndexSettings(
     target: String,
     refreshInterval: String? = null,
     numberOfReplicas: String? = null,
+    timeout: Duration? = null,
+    masterTimeOut: Duration? = null,
 ): JsonObject {
     if (refreshInterval == null && numberOfReplicas == null) {
         return buildJsonObject {}
@@ -37,36 +39,12 @@ suspend fun SearchClient.putIndexSettings(
         refreshInterval?.let { this["index.refresh_interval"] = it }
         numberOfReplicas?.let { this["index.number_of_replicas"] = it }
     }
-    return putIndexSettings(target = target, settings = settings)
-}
-
-private suspend fun SearchClient.putIndexSettingsRaw(
-    target: String,
-    refreshInterval: String? = null,
-    numberOfReplicas: String? = null,
-    resetRefreshInterval: Boolean = false,
-    resetNumberOfReplicas: Boolean = false,
-): JsonObject {
-    val indexSettings = buildJsonObject {
-        if (resetRefreshInterval) {
-            put("refresh_interval", JsonNull)
-        } else {
-            refreshInterval?.let { put("refresh_interval", JsonPrimitive(it)) }
-        }
-        if (resetNumberOfReplicas) {
-            put("number_of_replicas", JsonNull)
-        } else {
-            numberOfReplicas?.let { put("number_of_replicas", JsonPrimitive(it)) }
-        }
-    }
-    if (indexSettings.isEmpty()) {
-        return buildJsonObject {}
-    }
-    val body = buildJsonObject { put("index", indexSettings) }
-    return restClient.put {
-        path(target, "_settings")
-        rawBody(json.encodeToString(JsonObject.serializer(), body))
-    }.parseJsonObject()
+    return putIndexSettings(
+        target = target,
+        settings = settings,
+        timeout = timeout,
+        masterTimeOut = masterTimeOut,
+    )
 }
 
 /**
@@ -75,9 +53,13 @@ private suspend fun SearchClient.putIndexSettingsRaw(
 suspend fun SearchClient.putIndexSettings(
     target: String,
     settings: IndexSettings,
+    timeout: Duration? = null,
+    masterTimeOut: Duration? = null,
 ): JsonObject {
     return restClient.put {
         path(target, "_settings")
+        parameter("timeout", timeout)
+        parameter("master_timeout", masterTimeOut)
         json(settings)
     }.parseJsonObject()
 }
@@ -146,6 +128,8 @@ suspend fun <T> SearchClient.withTemporaryIndexingSettings(
             target = index,
             refreshInterval = if (disableRefreshInterval) "-1" else null,
             numberOfReplicas = if (setReplicasToZero) "0" else null,
+            timeout = 5.seconds,
+            masterTimeOut = 5.seconds,
         )
     }
     return try {
@@ -153,20 +137,20 @@ suspend fun <T> SearchClient.withTemporaryIndexingSettings(
     } finally {
         try {
             snapshots.forEach { (index, snapshot) ->
-                putIndexSettingsRaw(
+                putIndexSettings(
                     target = index,
                     refreshInterval = if (disableRefreshInterval) {
-                        snapshot.refreshInterval
+                        snapshot.refreshInterval ?: "1s"
                     } else {
                         null
                     },
                     numberOfReplicas = if (setReplicasToZero) {
-                        snapshot.numberOfReplicas
+                        snapshot.numberOfReplicas ?: "1"
                     } else {
                         null
                     },
-                    resetRefreshInterval = disableRefreshInterval && snapshot.refreshInterval == null,
-                    resetNumberOfReplicas = setReplicasToZero && snapshot.numberOfReplicas == null,
+                    timeout = 5.seconds,
+                    masterTimeOut = 5.seconds,
                 )
             }
         } finally {

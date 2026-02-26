@@ -146,7 +146,7 @@ class BulkTest : SearchTestBase() {
                 index(TestDocument(name = "optimized"), id = "optimized")
             }
             val after = indexSettingPair(client.getIndexSettings(index), index)
-            after shouldBe before
+            normalizeSettings(after) shouldBe normalizeSettings(before)
         }
     }
 }
@@ -164,4 +164,8 @@ private fun indexSettingPair(settings: JsonObject, index: String): Pair<String?,
         ?.get("number_of_replicas")?.jsonPrimitive
         ?.contentOrNull
     return refreshInterval to replicas
+}
+
+private fun normalizeSettings(pair: Pair<String?, String?>): Pair<String, String> {
+    return (pair.first ?: "1s") to (pair.second ?: "1")
 }
