@@ -1,19 +1,17 @@
 package com.jillesvangurp.ktsearch.cli
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.toKString
-import kotlinx.cinterop.usePinned
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
 import okio.gzip
 import platform.posix.fileno
+import platform.posix.clearerr
+import platform.posix.fgetc
 import platform.posix.getenv
 import platform.posix.isatty
-import platform.posix.read
 import platform.posix.stdin
 import platform.posix.system
 
@@ -52,15 +50,13 @@ actual fun platformConsumeTopKey(): TopKey? = memScoped {
     if (!singleKeyEnabled) {
         return@memScoped null
     }
-    val fd = fileno(stdin)
-    val oneByte = ByteArray(1)
-    val readCount = oneByte.usePinned { pinned ->
-        read(fd, pinned.addressOf(0), 1.convert())
-    }
-    if (readCount <= 0) {
+    // Reset stream state after previous nonblocking polls that returned no data.
+    clearerr(stdin)
+    val key = fgetc(stdin)
+    if (key < 0) {
         return@memScoped null
     }
-    when (oneByte[0].toInt()) {
+    when (key) {
         'q'.code, 'Q'.code -> TopKey.Quit
         'h'.code, 'H'.code, '?'.code -> TopKey.Help
         27 -> TopKey.Escape
