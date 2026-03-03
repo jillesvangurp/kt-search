@@ -2,6 +2,7 @@ package com.jillesvangurp.ktsearch.cli
 
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
@@ -75,5 +76,21 @@ class CliSchemaAliasSerializationTest {
         actions.contains("\"alias\":\"products-read\"") shouldBe true
         actions.contains("\"alias\":\"products-write\"") shouldBe true
         actions.contains("\"is_write_index\":true") shouldBe true
+    }
+
+    @Test
+    fun parseDumpLineAcceptsWrappedFormat() {
+        val parsed = parseDumpLine("""{"_id":"42","_source":{"f":"v"}}""", 1)
+        parsed.id shouldBe "42"
+        parsed.source shouldBe """{"f":"v"}"""
+    }
+
+    @Test
+    fun parseDumpLineRejectsOldSourceOnlyFormat() {
+        val failure = runCatching {
+            parseDumpLine("""{"f":"v"}""", 7)
+        }.exceptionOrNull()
+
+        assertTrue(failure is com.github.ajalt.clikt.core.UsageError)
     }
 }

@@ -804,7 +804,10 @@ class KtSearchCliTest {
             interactive = false,
             existingPaths = mutableSetOf("products.ndjson.gz"),
         ).apply {
-            nextReaderLines = listOf("""{"id":1}""", """{"id":2}""")
+            nextReaderLines = listOf(
+                """{"_id":"1","_source":{"id":1}}""",
+                """{"_id":"2","_source":{"id":2}}""",
+            )
         }
         val cmd = newCommand(service = service, platform = platform)
 
@@ -827,12 +830,14 @@ class KtSearchCliTest {
             refresh = "wait_for",
             pipeline = null,
             routing = null,
-            idField = null,
             disableRefreshInterval = false,
             setReplicasToZero = false,
             schemaJson = null,
             aliasesJson = null,
-            lines = listOf("""{"id":1}""", """{"id":2}"""),
+            lines = listOf(
+                """{"_id":"1","_source":{"id":1}}""",
+                """{"_id":"2","_source":{"id":2}}""",
+            ),
         )
     }
 
@@ -843,7 +848,7 @@ class KtSearchCliTest {
             interactive = false,
             existingPaths = mutableSetOf("products.ndjson.gz"),
         ).apply {
-            nextReaderLines = listOf("""{"id":1}""")
+            nextReaderLines = listOf("""{"_id":"1","_source":{"id":1}}""")
         }
         val cmd = newCommand(service = service, platform = platform)
 
@@ -882,7 +887,7 @@ class KtSearchCliTest {
                 aliasesPath.absolutePath,
             ),
         ).apply {
-            nextReaderLines = listOf("""{"id":1}""")
+            nextReaderLines = listOf("""{"_id":"1","_source":{"id":1}}""")
         }
         val cmd = newCommand(service = service, platform = platform)
 
@@ -917,7 +922,7 @@ class KtSearchCliTest {
             interactive = false,
             existingPaths = mutableSetOf(inputPath, schemaPath.absolutePath),
         ).apply {
-            nextReaderLines = listOf("""{"id":1}""")
+            nextReaderLines = listOf("""{"_id":"1","_source":{"id":1}}""")
         }
         val cmd = newCommand(service = service, platform = platform)
 
@@ -1089,6 +1094,7 @@ private class FakeService(
     private val clusterHealthResponse: String = """
         {"cluster_name":"cluster","status":"green","timed_out":false}
     """.trimIndent(),
+    private val dumpHitId: String = "1",
     val schemaExport: String = """{"settings":{},"mappings":{}}""",
     val aliasesExport: String = """{"products":{"aliases":{}}}""",
     private val failOnSchemaWithoutRecreate: Boolean = false,
@@ -1139,7 +1145,9 @@ private class FakeService(
     ): Long {
         lastConnectionOptions = connectionOptions
         lastDumpedIndex = index
-        dumpLines.forEach { writer.writeLine(it) }
+        dumpLines.forEach { sourceLine ->
+            writer.writeLine("""{"_id":"$dumpHitId","_source":$sourceLine}""")
+        }
         return dumpLines.size.toLong()
     }
 
@@ -1248,7 +1256,6 @@ private class FakeService(
         refresh: String,
         pipeline: String?,
         routing: String?,
-        idField: String?,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
         schemaJson: String?,
@@ -1274,7 +1281,6 @@ private class FakeService(
             refresh = refresh,
             pipeline = pipeline,
             routing = routing,
-            idField = idField,
             disableRefreshInterval = disableRefreshInterval,
             setReplicasToZero = setReplicasToZero,
             schemaJson = schemaJson,
@@ -1358,7 +1364,6 @@ private data class RestoreRequest(
     val refresh: String,
     val pipeline: String?,
     val routing: String?,
-    val idField: String?,
     val disableRefreshInterval: Boolean,
     val setReplicasToZero: Boolean,
     val schemaJson: String?,

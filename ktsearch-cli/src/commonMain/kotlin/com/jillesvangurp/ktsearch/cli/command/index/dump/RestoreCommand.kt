@@ -58,10 +58,6 @@ class RestoreCommand(
         help = "Routing value for all restored docs.",
     )
 
-    private val idField by option(
-        "--id-field",
-        help = "Extract document id from this JSON field per line.",
-    )
     private val disableRefreshInterval by option(
         "--disable-refresh-interval",
         help = "Temporarily set index refresh_interval to -1.",
@@ -141,7 +137,6 @@ class RestoreCommand(
                 refresh = refresh,
                 pipeline = pipeline,
                 routing = routing,
-                idField = idField,
                 disableRefreshInterval = disableRefreshInterval,
                 setReplicasToZero = setReplicasToZero,
                 schemaJson = schemaJson,

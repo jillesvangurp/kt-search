@@ -129,7 +129,6 @@ interface CliService {
         refresh: String = "wait_for",
         pipeline: String? = null,
         routing: String? = null,
-        idField: String? = null,
         disableRefreshInterval: Boolean = false,
         setReplicasToZero: Boolean = false,
         schemaJson: String? = null,
@@ -386,10 +385,10 @@ class DefaultCliService : CliService {
                 flow.collect { hit ->
                     val source = hit.source
                         ?: error("Hit ${hit.index}/${hit.id} has no _source")
-                    val line = client.json.encodeToString(
-                        JsonObject.serializer(),
-                        source,
-                    )
+                    val line = buildJsonObject {
+                        put("_id", JsonPrimitive(hit.id))
+                        put("_source", source)
+                    }.toString()
                     writer.writeLine(line)
                     lines++
                 }
@@ -586,7 +585,6 @@ class DefaultCliService : CliService {
         refresh: String,
         pipeline: String?,
         routing: String?,
-        idField: String?,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
         schemaJson: String?,
@@ -649,23 +647,8 @@ class DefaultCliService : CliService {
                             if (trimmed.isEmpty()) {
                                 continue
                             }
-                            val id = idField?.let { key ->
-                                runCatching {
-                                    Json.Default
-                                        .decodeFromString(
-                                            JsonObject.serializer(),
-                                            trimmed,
-                                        ).get(key)
-                                        ?.let { value ->
-                                            if (value is JsonPrimitive) {
-                                                value.content
-                                            } else {
-                                                value.toString()
-                                            }
-                                        }
-                                }.getOrNull()
-                            }
-                            session.index(source = trimmed, id = id)
+                            val parsed = parseDumpLine(trimmed, lines + 1)
+                            session.index(source = parsed.source, id = parsed.id)
                             lines++
                         }
                         session.flush()
@@ -1082,4 +1065,36 @@ internal fun composeAliasActions(index: String, aliasesRaw: String): String {
     return buildJsonObject {
         put("actions", actions)
     }.toString()
+}
+
+internal data class DumpLine(
+    val id: String,
+    val source: String,
+)
+
+internal fun parseDumpLine(
+    line: String,
+    lineNumber: Long,
+): DumpLine {
+    val parsed = runCatching {
+        Json.parseToJsonElement(line).jsonObject
+    }.getOrElse {
+        throw UsageError(
+            "Invalid dump format at line $lineNumber: expected JSON object " +
+                "with _id and _source.",
+        )
+    }
+    val id = parsed["_id"]?.jsonPrimitive?.contentOrNull
+    if (id.isNullOrBlank()) {
+        throw UsageError(
+            "Invalid dump format at line $lineNumber: _id is required.",
+        )
+    }
+    val source = parsed["_source"]?.jsonObject ?: throw UsageError(
+        "Invalid dump format at line $lineNumber: _source object is required.",
+    )
+    return DumpLine(
+        id = id,
+        source = source.toString(),
+    )
 }
