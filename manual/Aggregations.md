@@ -118,7 +118,7 @@ This prints:
 
 ```text
 {
-  "took": 17,
+  "took": 16,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -386,7 +386,7 @@ This prints:
 
 ```text
 {
-  "took": 20,
+  "took": 12,
   "_shards": {
     "total": 1,
     "successful": 1,
@@ -619,7 +619,7 @@ This prints:
 
 ```text
 {
-  "took": 9,
+  "took": 25,
   "_shards": {
     "total": 1,
     "successful": 1,
