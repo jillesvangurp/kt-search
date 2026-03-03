@@ -163,7 +163,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.register<ShadowJar>("jvmFatJar") {
+tasks.named<ShadowJar>("shadowJar") {
     group = "build"
     description = "Builds runnable JVM fat jar for ktsearch-cli"
     archiveBaseName.set("ktsearch-cli")
@@ -180,4 +180,10 @@ tasks.register<ShadowJar>("jvmFatJar") {
         attributes["Main-Class"] = "com.jillesvangurp.ktsearch.cli.MainKt"
     }
     dependsOn("jvmJar")
+}
+
+tasks.register("jvmFatJar") {
+    group = "build"
+    description = "Alias for shadowJar fat-jar packaging task"
+    dependsOn(tasks.named("shadowJar"))
 }
