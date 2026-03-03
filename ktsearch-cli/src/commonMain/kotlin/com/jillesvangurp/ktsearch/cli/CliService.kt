@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -74,6 +75,16 @@ interface CliService {
         index: String,
         writer: NdjsonGzipWriter,
     ): Long
+
+    suspend fun exportIndexSchema(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String
+
+    suspend fun exportIndexAliases(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String
 
     suspend fun searchIndexRaw(
         connectionOptions: ConnectionOptions,
@@ -118,9 +129,10 @@ interface CliService {
         refresh: String = "wait_for",
         pipeline: String? = null,
         routing: String? = null,
-        idField: String? = null,
         disableRefreshInterval: Boolean = false,
         setReplicasToZero: Boolean = false,
+        schemaJson: String? = null,
+        aliasesJson: String? = null,
     ): Long
 
     suspend fun reindex(
@@ -373,14 +385,54 @@ class DefaultCliService : CliService {
                 flow.collect { hit ->
                     val source = hit.source
                         ?: error("Hit ${hit.index}/${hit.id} has no _source")
-                    val line = client.json.encodeToString(
-                        JsonObject.serializer(),
-                        source,
-                    )
+                    val line = buildJsonObject {
+                        put("_id", JsonPrimitive(hit.id))
+                        put("_source", source)
+                    }.toString()
                     writer.writeLine(line)
                     lines++
                 }
                 lines
+            } finally {
+                client.close()
+            }
+        }
+    }
+
+    override suspend fun exportIndexSchema(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String {
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                val settingsRaw = client.restClient.get {
+                    path(index, "_settings")
+                }.getOrThrow().text
+                val mappingsRaw = client.restClient.get {
+                    path(index, "_mappings")
+                }.getOrThrow().text
+                composeSchemaJson(
+                    index = index,
+                    settingsRaw = settingsRaw,
+                    mappingsRaw = mappingsRaw,
+                )
+            } finally {
+                client.close()
+            }
+        }
+    }
+
+    override suspend fun exportIndexAliases(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String {
+        return runWithCliErrorMapping(connectionOptions) {
+            val client = createClient(connectionOptions)
+            try {
+                client.restClient.get {
+                    path(index, "_alias")
+                }.getOrThrow().text
             } finally {
                 client.close()
             }
@@ -533,19 +585,49 @@ class DefaultCliService : CliService {
         refresh: String,
         pipeline: String?,
         routing: String?,
-        idField: String?,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
+        schemaJson: String?,
+        aliasesJson: String?,
     ): Long {
         return runWithCliErrorMapping(connectionOptions) {
             val client = createClient(connectionOptions)
             try {
-                val indexExists = client.exists(index)
-                if (recreate && indexExists) {
-                    client.deleteIndex(index, ignoreUnavailable = true)
+                var indexExists = client.exists(index)
+                if (schemaJson != null) {
+                    if (indexExists && !recreate) {
+                        throw UsageError(
+                            "Target index '$index' already exists. " +
+                                "Use --recreate with --schema.",
+                        )
+                    }
+                    if (recreate && indexExists) {
+                        client.deleteIndex(index, ignoreUnavailable = true)
+                        indexExists = false
+                    }
+                    if (!indexExists) {
+                        client.restClient.put {
+                            path(index)
+                            rawBody(schemaJson)
+                        }.getOrThrow()
+                        indexExists = true
+                    }
+                } else {
+                    if (recreate && indexExists) {
+                        client.deleteIndex(index, ignoreUnavailable = true)
+                        indexExists = false
+                    }
+                    if (recreate || (createIfMissing && !indexExists)) {
+                        client.createIndex(index)
+                        indexExists = true
+                    }
                 }
-                if (recreate || (createIfMissing && !indexExists)) {
-                    client.createIndex(index)
+                if (aliasesJson != null) {
+                    val actionsBody = composeAliasActions(index, aliasesJson)
+                    client.restClient.post {
+                        path("_aliases")
+                        rawBody(actionsBody)
+                    }.getOrThrow()
                 }
 
                 suspend fun runRestore(): Long {
@@ -565,23 +647,8 @@ class DefaultCliService : CliService {
                             if (trimmed.isEmpty()) {
                                 continue
                             }
-                            val id = idField?.let { key ->
-                                runCatching {
-                                    Json.Default
-                                        .decodeFromString(
-                                            JsonObject.serializer(),
-                                            trimmed,
-                                        ).get(key)
-                                        ?.let { value ->
-                                            if (value is JsonPrimitive) {
-                                                value.content
-                                            } else {
-                                                value.toString()
-                                            }
-                                        }
-                                }.getOrNull()
-                            }
-                            session.index(source = trimmed, id = id)
+                            val parsed = parseDumpLine(trimmed, lines + 1)
+                            session.index(source = parsed.source, id = parsed.id)
                             lines++
                         }
                         session.flush()
@@ -924,4 +991,110 @@ private fun withExtraProfile(data: String, profile: Boolean): String {
     } catch (_: Exception) {
         data
     }
+}
+
+internal fun composeSchemaJson(
+    index: String,
+    settingsRaw: String,
+    mappingsRaw: String,
+): String {
+    val settingsRoot = Json.parseToJsonElement(settingsRaw).jsonObject
+    val mappingsRoot = Json.parseToJsonElement(mappingsRaw).jsonObject
+    val settingsForIndex = settingsRoot[index]?.jsonObject
+        ?.get("settings")?.jsonObject
+        ?.let { sanitizeIndexSettings(it) }
+    val mappingsForIndex = mappingsRoot[index]?.jsonObject
+        ?.get("mappings")?.jsonObject
+    return buildJsonObject {
+        settingsForIndex?.let { put("settings", it) }
+        mappingsForIndex?.let { put("mappings", it) }
+    }.toString()
+}
+
+internal fun sanitizeIndexSettings(settings: JsonObject): JsonObject {
+    val indexSettings = settings["index"]?.jsonObject ?: return settings
+    val ignoredIndexKeys = setOf(
+        "uuid",
+        "version",
+        "provided_name",
+        "creation_date",
+        "creation_date_string",
+    )
+    val sanitizedIndex = buildJsonObject {
+        indexSettings.forEach { (key, value) ->
+            if (key !in ignoredIndexKeys) {
+                put(key, value)
+            }
+        }
+    }
+    return buildJsonObject {
+        settings.forEach { (key, value) ->
+            if (key == "index") {
+                put(key, sanitizedIndex)
+            } else {
+                put(key, value)
+            }
+        }
+    }
+}
+
+internal fun composeAliasActions(index: String, aliasesRaw: String): String {
+    val aliasesRoot = Json.parseToJsonElement(aliasesRaw).jsonObject
+    val aliases = aliasesRoot[index]?.jsonObject?.get("aliases")?.jsonObject
+        ?: JsonObject(emptyMap())
+    val actions = buildJsonArray {
+        aliases.forEach { (aliasName, aliasDefinition) ->
+            add(
+                buildJsonObject {
+                    put(
+                        "add",
+                        buildJsonObject {
+                            put("index", JsonPrimitive(index))
+                            put("alias", JsonPrimitive(aliasName))
+                            if (aliasDefinition is JsonObject) {
+                                aliasDefinition.forEach { (key, value) ->
+                                    put(key, value)
+                                }
+                            }
+                        },
+                    )
+                },
+            )
+        }
+    }
+    return buildJsonObject {
+        put("actions", actions)
+    }.toString()
+}
+
+internal data class DumpLine(
+    val id: String,
+    val source: String,
+)
+
+internal fun parseDumpLine(
+    line: String,
+    lineNumber: Long,
+): DumpLine {
+    val parsed = runCatching {
+        Json.parseToJsonElement(line).jsonObject
+    }.getOrElse {
+        throw UsageError(
+            "Invalid dump format at line $lineNumber: expected JSON object " +
+                "with _id and _source.",
+        )
+    }
+    val id = parsed["_id"]?.jsonPrimitive?.contentOrNull
+    if (id.isNullOrBlank()) {
+        throw UsageError(
+            "Invalid dump format at line $lineNumber: _id is required.",
+        )
+    }
+    val source = parsed["_source"]?.jsonObject ?: throw UsageError(
+        "Invalid dump format at line $lineNumber: _source object is required.",
+    )
+    return DumpLine(
+        id = id,
+        source = source.toString(),
+    )
 }
