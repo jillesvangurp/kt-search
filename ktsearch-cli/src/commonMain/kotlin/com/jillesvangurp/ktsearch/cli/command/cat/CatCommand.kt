@@ -91,11 +91,12 @@ private abstract class BaseCatSubCommand(
     override suspend fun run() {
         val connectionOptions = currentContext.findObject<ConnectionOptions>()
             ?: error("Missing connection options in command context")
+        val sort = queryOptions.sort ?: defaultSortFor(variant)
         val request = CatRequest(
             variant = variant,
             target = target(),
             columns = queryOptions.columns,
-            sort = queryOptions.sort,
+            sort = sort,
             verbose = queryOptions.verbose,
             help = queryOptions.help,
             bytes = queryOptions.bytes,
@@ -109,6 +110,18 @@ private abstract class BaseCatSubCommand(
             preferredColumns = request.columns,
         )
         echo(output)
+    }
+}
+
+private fun defaultSortFor(variant: CatVariant): List<String>? {
+    return when (variant) {
+        CatVariant.Aliases -> listOf("i", "a")
+        CatVariant.Indices -> listOf("i")
+        CatVariant.Shards -> listOf("i", "s")
+        CatVariant.Recovery -> listOf("i", "s")
+        CatVariant.Repositories -> listOf("id")
+        CatVariant.Templates -> listOf("name")
+        else -> null
     }
 }
 

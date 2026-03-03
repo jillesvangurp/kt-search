@@ -4,9 +4,12 @@ import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
 import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterTopApiSnapshot
+import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterHealthSummary
+import com.jillesvangurp.ktsearch.cli.command.cluster.renderClusterHealthSummary
 import com.jillesvangurp.ktsearch.cli.command.root.KtSearchCommand
 import com.jillesvangurp.ktsearch.cli.command.tasks.TaskProgress
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
@@ -55,6 +58,21 @@ class KtSearchCliTest {
 
         (result is ProgramResult) shouldBe true
         (result as ProgramResult).statusCode shouldBe 2
+    }
+
+    @Test
+    fun clusterHealthSummaryHighlightsStatusWithColor() {
+        val rendered = renderClusterHealthSummary(
+            ClusterHealthSummary(
+                clusterName = "demo",
+                status = "yellow",
+                timedOut = false,
+            ),
+        )
+
+        rendered shouldContain "status="
+        rendered shouldContain "YELLOW"
+        rendered shouldContain "\u001B["
     }
 
     @Test
@@ -683,6 +701,50 @@ class KtSearchCliTest {
             target = null,
             columns = null,
             sort = null,
+            verbose = false,
+            help = false,
+            bytes = null,
+            time = null,
+            local = null,
+        )
+    }
+
+    @Test
+    fun catAliasesUsesDefaultSortColumns() = runTest {
+        val service = FakeService(
+            catResponse = """[{"alias":"products","index":"products-v1"}]""",
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cat", "aliases"))
+
+        service.lastCatRequest shouldBe CatServiceRequest(
+            variant = CatVariant.Aliases,
+            target = null,
+            columns = null,
+            sort = listOf("i", "a"),
+            verbose = false,
+            help = false,
+            bytes = null,
+            time = null,
+            local = null,
+        )
+    }
+
+    @Test
+    fun catIndicesUsesDefaultSortColumn() = runTest {
+        val service = FakeService(
+            catResponse = """[{"health":"green","index":"products"}]""",
+        )
+        val cmd = newCommand(service = service)
+
+        cmd.parse(arrayOf("cat", "indices"))
+
+        service.lastCatRequest shouldBe CatServiceRequest(
+            variant = CatVariant.Indices,
+            target = null,
+            columns = null,
+            sort = listOf("i"),
             verbose = false,
             help = false,
             bytes = null,

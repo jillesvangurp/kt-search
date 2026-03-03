@@ -8,14 +8,19 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.TextColors
+import com.github.ajalt.mordant.rendering.TextStyles
 import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
 import com.jillesvangurp.ktsearch.cli.output.JsonOutputRenderer
+import com.jillesvangurp.ktsearch.cli.output.OutputFormat
 import com.jillesvangurp.ktsearch.cli.output.OutputOptions
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 
 class ClusterCommand(
@@ -46,7 +51,7 @@ private abstract class BaseClusterReadCommand(
     protected val service: CliService,
     name: String,
 ) : CoreSuspendingCliktCommand(name = name) {
-    private val outputOptions by OutputOptions()
+    protected val outputOptions by OutputOptions()
 
     protected open suspend fun fetch(
         connectionOptions: ConnectionOptions,
@@ -87,21 +92,54 @@ private class ClusterHealthCommand(
 
     override suspend fun run() {
         val raw = fetch(requireConnectionOptions())
+        val summary = parseClusterHealthSummary(raw)
+        if (outputOptions.outputFormat == OutputFormat.Table) {
+            echo(renderClusterHealthSummary(summary))
+        }
         echo(render(raw))
 
-        val json = runCatching {
-            Json.Default.parseToJsonElement(raw).jsonObject
-        }.getOrNull()
-        val timedOut = (json?.get("timed_out") as? JsonPrimitive)?.content ==
-            "true"
-        val status = (json?.get("status") as? JsonPrimitive)
-            ?.content
-            ?.lowercase()
+        val timedOut = summary?.timedOut == true
+        val status = summary?.status
 
         if (timedOut || status == ClusterStatus.Red.name.lowercase()) {
             throw ProgramResult(2)
         }
     }
+}
+
+internal data class ClusterHealthSummary(
+    val clusterName: String?,
+    val status: String?,
+    val timedOut: Boolean,
+)
+
+internal fun parseClusterHealthSummary(raw: String): ClusterHealthSummary? {
+    val json = runCatching {
+        Json.Default.parseToJsonElement(raw).jsonObject
+    }.getOrNull() ?: return null
+
+    return ClusterHealthSummary(
+        clusterName = (json["cluster_name"] as? JsonPrimitive)?.contentOrNull,
+        status = (json["status"] as? JsonPrimitive)?.contentOrNull?.lowercase(),
+        timedOut = (json["timed_out"] as? JsonPrimitive)?.booleanOrNull == true,
+    )
+}
+
+internal fun renderClusterHealthSummary(summary: ClusterHealthSummary?): String {
+    if (summary == null) {
+        return "cluster health status=unknown timed_out=unknown"
+    }
+    val status = summary.status ?: "unknown"
+    val statusText = when (status) {
+        "green" -> TextColors.green(status.uppercase())
+        "yellow" -> TextColors.yellow(status.uppercase())
+        "red" -> TextColors.red(status.uppercase())
+        else -> status.uppercase()
+    }
+    val timedOut = if (summary.timedOut) TextColors.red("true") else "false"
+    val header = TextStyles.bold("cluster health")
+    val cluster = summary.clusterName ?: "-"
+    return "$header status=$statusText timed_out=$timedOut cluster=$cluster"
 }
 
 private class ClusterStatsCommand(
