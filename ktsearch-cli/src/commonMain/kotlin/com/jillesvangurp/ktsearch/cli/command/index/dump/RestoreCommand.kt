@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
+import com.jillesvangurp.ktsearch.cli.platformReadUtf8File
 
 class RestoreCommand(
     private val service: CliService,
@@ -71,6 +72,16 @@ class RestoreCommand(
         help = "Temporarily set index number_of_replicas to 0.",
     ).flag(default = false)
 
+    private val schema by option(
+        "--schema",
+        help = "Load <index>-schema.json and create target index from it.",
+    ).flag(default = false)
+
+    private val aliases by option(
+        "--aliases",
+        help = "Load <index>-aliases.json and apply aliases before restore.",
+    ).flag(default = false)
+
     private val yes by option(
         "-y",
         "--yes",
@@ -81,8 +92,28 @@ class RestoreCommand(
         val connectionOptions = currentContext.findObject<ConnectionOptions>()
             ?: error("Missing connection options in command context")
         val inputPath = input ?: "$index.ndjson.gz"
+        val inputDir = parentDir(inputPath)
+        val schemaPath = joinPath(inputDir, "$index-schema.json")
+        val aliasesPath = joinPath(inputDir, "$index-aliases.json")
+
         if (!platform.fileExists(inputPath)) {
             currentContext.fail("Input file does not exist: $inputPath")
+        }
+        val schemaJson = if (schema) {
+            if (!platform.fileExists(schemaPath)) {
+                currentContext.fail("Schema file does not exist: $schemaPath")
+            }
+            platformReadUtf8File(schemaPath)
+        } else {
+            null
+        }
+        val aliasesJson = if (aliases) {
+            if (!platform.fileExists(aliasesPath)) {
+                currentContext.fail("Aliases file does not exist: $aliasesPath")
+            }
+            platformReadUtf8File(aliasesPath)
+        } else {
+            null
         }
 
         if (recreate && !yes) {
@@ -113,6 +144,8 @@ class RestoreCommand(
                 idField = idField,
                 disableRefreshInterval = disableRefreshInterval,
                 setReplicasToZero = setReplicasToZero,
+                schemaJson = schemaJson,
+                aliasesJson = aliasesJson,
             )
         } finally {
             reader.close()

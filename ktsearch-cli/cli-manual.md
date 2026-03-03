@@ -1651,6 +1651,8 @@ Usage: ktsearch index dump [<options>] <index>
 Options:
   --output=<text>  Output file path. Defaults to <index>.ndjson.gz.
   -y, --yes        Overwrite without confirmation if file exists.
+  --schema         Also export <index>-schema.json with mappings and settings.
+  --aliases        Also export <index>-aliases.json with aliases for index.
   -h, --help       Show this message and exit
 
 Arguments:
@@ -1675,6 +1677,8 @@ Options:
   --id-field=<text>                 Extract document id from this JSON field per line.
   --disable-refresh-interval        Temporarily set index refresh_interval to -1.
   --set-replicas-zero               Temporarily set index number_of_replicas to 0.
+  --schema                          Load <index>-schema.json and create target index from it.
+  --aliases                         Load <index>-aliases.json and apply aliases before restore.
   -y, --yes                         Do not prompt for destructive actions.
   -h, --help                        Show this message and exit
 

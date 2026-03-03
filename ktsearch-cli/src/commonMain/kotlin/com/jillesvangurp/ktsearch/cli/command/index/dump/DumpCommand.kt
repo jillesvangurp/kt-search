@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.jillesvangurp.ktsearch.cli.CliPlatform
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
+import com.jillesvangurp.ktsearch.cli.platformWriteUtf8File
 
 class DumpCommand(
     private val service: CliService,
@@ -30,23 +31,31 @@ class DumpCommand(
         help = "Overwrite without confirmation if file exists.",
     ).flag(default = false)
 
+    private val schema by option(
+        "--schema",
+        help = "Also export <index>-schema.json with mappings and settings.",
+    ).flag(default = false)
+
+    private val aliases by option(
+        "--aliases",
+        help = "Also export <index>-aliases.json with aliases for index.",
+    ).flag(default = false)
+
     override suspend fun run() {
         val connectionOptions = currentContext.findObject<ConnectionOptions>()
             ?: error("Missing connection options in command context")
 
         val outputPath = output ?: "$index.ndjson.gz"
+        val outputDir = parentDir(outputPath)
+        val schemaPath = joinPath(outputDir, "$index-schema.json")
+        val aliasesPath = joinPath(outputDir, "$index-aliases.json")
 
-        if (platform.fileExists(outputPath) && !yes) {
-            if (!platform.isInteractiveInput()) {
-                currentContext.fail(
-                    "$outputPath exists; use --yes to overwrite in non-interactive mode",
-                )
-            }
-            echo("$outputPath exists. Overwrite? [y/N]")
-            val answer = platform.readLineFromStdin()?.trim().orEmpty()
-            if (!isYes(answer)) {
-                currentContext.fail("Aborted. File exists: $outputPath")
-            }
+        confirmOverwriteIfNeeded(path = outputPath)
+        if (schema) {
+            confirmOverwriteIfNeeded(path = schemaPath)
+        }
+        if (aliases) {
+            confirmOverwriteIfNeeded(path = aliasesPath)
         }
 
         val writer = platform.createGzipWriter(outputPath)
@@ -57,6 +66,32 @@ class DumpCommand(
         }
 
         echo("wrote $lines lines to $outputPath")
+        if (schema) {
+            val schemaJson = service.exportIndexSchema(connectionOptions, index)
+            platformWriteUtf8File(schemaPath, schemaJson)
+            echo("wrote schema to $schemaPath")
+        }
+        if (aliases) {
+            val aliasesJson = service.exportIndexAliases(connectionOptions, index)
+            platformWriteUtf8File(aliasesPath, aliasesJson)
+            echo("wrote aliases to $aliasesPath")
+        }
+    }
+
+    private fun confirmOverwriteIfNeeded(path: String) {
+        if (!platform.fileExists(path) || yes) {
+            return
+        }
+        if (!platform.isInteractiveInput()) {
+            currentContext.fail(
+                "$path exists; use --yes to overwrite in non-interactive mode",
+            )
+        }
+        echo("$path exists. Overwrite? [y/N]")
+        val answer = platform.readLineFromStdin()?.trim().orEmpty()
+        if (!isYes(answer)) {
+            currentContext.fail("Aborted. File exists: $path")
+        }
     }
 }
 

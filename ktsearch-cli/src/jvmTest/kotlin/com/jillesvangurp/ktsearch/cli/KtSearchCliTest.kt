@@ -11,6 +11,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
 import kotlin.test.Test
 import kotlin.time.Clock
@@ -121,6 +122,46 @@ class KtSearchCliTest {
 
         service.lastDumpedIndex shouldBe "products"
         platform.lastWriter.lines.size shouldBe 3
+    }
+
+    @Test
+    fun dumpExportsSchemaAndAliasesInOutputDirectory() = runTest {
+        val outputPath = createTempFile("ktsearch-dump-", ".ndjson.gz")
+            .absolutePathString()
+        File(outputPath).delete()
+        val outputDir = File(outputPath).parentFile
+        val schemaPath = File(outputDir, "products-schema.json")
+        val aliasesPath = File(outputDir, "products-aliases.json")
+        schemaPath.delete()
+        aliasesPath.delete()
+
+        val service = FakeService(
+            schemaExport = """{"settings":{"index":{"number_of_shards":"1"}}}""",
+            aliasesExport = """{"products":{"aliases":{"products-read":{}}}}""",
+        )
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf(outputPath),
+        )
+        val cmd = newCommand(service = service, platform = platform)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "dump",
+                "products",
+                "--output",
+                outputPath,
+                "--schema",
+                "--aliases",
+                "--yes",
+            ),
+        )
+
+        schemaPath.exists() shouldBe true
+        aliasesPath.exists() shouldBe true
+        schemaPath.readText() shouldBe service.schemaExport
+        aliasesPath.readText() shouldBe service.aliasesExport
     }
 
     @Test
@@ -789,6 +830,8 @@ class KtSearchCliTest {
             idField = null,
             disableRefreshInterval = false,
             setReplicasToZero = false,
+            schemaJson = null,
+            aliasesJson = null,
             lines = listOf("""{"id":1}""", """{"id":2}"""),
         )
     }
@@ -817,6 +860,82 @@ class KtSearchCliTest {
 
         service.lastRestoreRequest?.disableRefreshInterval shouldBe true
         service.lastRestoreRequest?.setReplicasToZero shouldBe true
+    }
+
+    @Test
+    fun restoreForwardsSchemaAndAliases() = runTest {
+        val inputPath = createTempFile("ktsearch-restore-", ".ndjson.gz")
+            .absolutePathString()
+        File(inputPath).delete()
+        val inputDir = File(inputPath).parentFile
+        val schemaPath = File(inputDir, "products-schema.json")
+        val aliasesPath = File(inputDir, "products-aliases.json")
+        schemaPath.writeText("""{"settings":{"index":{"number_of_shards":"1"}}}""")
+        aliasesPath.writeText("""{"products":{"aliases":{"products-read":{}}}}""")
+
+        val service = FakeService()
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf(
+                inputPath,
+                schemaPath.absolutePath,
+                aliasesPath.absolutePath,
+            ),
+        ).apply {
+            nextReaderLines = listOf("""{"id":1}""")
+        }
+        val cmd = newCommand(service = service, platform = platform)
+
+        cmd.parse(
+            arrayOf(
+                "index",
+                "restore",
+                "products",
+                "--input",
+                inputPath,
+                "--schema",
+                "--aliases",
+                "--yes",
+            ),
+        )
+
+        service.lastRestoreRequest?.schemaJson shouldBe schemaPath.readText()
+        service.lastRestoreRequest?.aliasesJson shouldBe aliasesPath.readText()
+    }
+
+    @Test
+    fun restoreSchemaFailsWhenIndexExistsAndRecreateMissing() = runTest {
+        val inputPath = createTempFile("ktsearch-restore-", ".ndjson.gz")
+            .absolutePathString()
+        File(inputPath).delete()
+        val inputDir = File(inputPath).parentFile
+        val schemaPath = File(inputDir, "products-schema.json")
+        schemaPath.writeText("""{"settings":{"index":{"number_of_shards":"1"}}}""")
+
+        val service = FakeService(failOnSchemaWithoutRecreate = true)
+        val platform = FakePlatform(
+            interactive = false,
+            existingPaths = mutableSetOf(inputPath, schemaPath.absolutePath),
+        ).apply {
+            nextReaderLines = listOf("""{"id":1}""")
+        }
+        val cmd = newCommand(service = service, platform = platform)
+
+        val result = runCatching {
+            cmd.parse(
+                arrayOf(
+                    "index",
+                    "restore",
+                    "products",
+                    "--input",
+                    inputPath,
+                    "--schema",
+                    "--yes",
+                ),
+            )
+        }.exceptionOrNull()
+
+        (result is UsageError) shouldBe true
     }
 
     @Test
@@ -970,6 +1089,9 @@ private class FakeService(
     private val clusterHealthResponse: String = """
         {"cluster_name":"cluster","status":"green","timed_out":false}
     """.trimIndent(),
+    val schemaExport: String = """{"settings":{},"mappings":{}}""",
+    val aliasesExport: String = """{"products":{"aliases":{}}}""",
+    private val failOnSchemaWithoutRecreate: Boolean = false,
 ) : CliService {
     var lastConnectionOptions: ConnectionOptions? = null
     var lastDumpedIndex: String? = null
@@ -1019,6 +1141,24 @@ private class FakeService(
         lastDumpedIndex = index
         dumpLines.forEach { writer.writeLine(it) }
         return dumpLines.size.toLong()
+    }
+
+    override suspend fun exportIndexSchema(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastDumpedIndex = index
+        return schemaExport
+    }
+
+    override suspend fun exportIndexAliases(
+        connectionOptions: ConnectionOptions,
+        index: String,
+    ): String {
+        lastConnectionOptions = connectionOptions
+        lastDumpedIndex = index
+        return aliasesExport
     }
 
     override suspend fun searchIndexRaw(
@@ -1111,8 +1251,16 @@ private class FakeService(
         idField: String?,
         disableRefreshInterval: Boolean,
         setReplicasToZero: Boolean,
+        schemaJson: String?,
+        aliasesJson: String?,
     ): Long {
         lastConnectionOptions = connectionOptions
+        if (failOnSchemaWithoutRecreate && schemaJson != null && !recreate) {
+            throw UsageError(
+                "Target index '$index' already exists. " +
+                    "Use --recreate with --schema.",
+            )
+        }
         val lines = mutableListOf<String>()
         while (true) {
             val line = reader.readLine() ?: break
@@ -1129,6 +1277,8 @@ private class FakeService(
             idField = idField,
             disableRefreshInterval = disableRefreshInterval,
             setReplicasToZero = setReplicasToZero,
+            schemaJson = schemaJson,
+            aliasesJson = aliasesJson,
             lines = lines,
         )
         return lines.size.toLong()
@@ -1211,6 +1361,8 @@ private data class RestoreRequest(
     val idField: String?,
     val disableRefreshInterval: Boolean,
     val setReplicasToZero: Boolean,
+    val schemaJson: String?,
+    val aliasesJson: String?,
     val lines: List<String>,
 )
 
