@@ -1,0 +1,4 @@
+interface:
+  display_name: "KT Search Release"
+  short_description: "Guarded kt-search release workflow"
+  default_prompt: "Confirm the exact release version with the user, verify the kt-search repo is fully pushed and GitHub Actions is green, use one explicit Gradle command to assemble the CLI and publish artifacts, tag and push tags explicitly, always package and attach the CLI binaries, draft release notes from the previous tag diff and merged PRs, confirm that release-note draft with the user, and only then create the GitHub release."

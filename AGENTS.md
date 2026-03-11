@@ -70,3 +70,8 @@ These steps keep the manual synchronized with the source snippets and ensure the
 - docker-compose-tests: Use `./gradlew composeUp` / `./gradlew composeDown`
   before and after tests that need a local cluster. See
   `.codex/skills/docker-compose-tests/SKILL.md`.
+- kt-search-release: Use this when cutting or publishing a kt-search
+  release, creating a GitHub release, checking that commits are pushed and
+  GitHub Actions is green, generating release notes from the previous tag,
+  or packaging/attaching CLI binaries for Homebrew-style install support.
+  See `.codex/skills/kt-search-release/SKILL.md`.
