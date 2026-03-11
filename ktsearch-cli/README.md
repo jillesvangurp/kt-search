@@ -69,37 +69,10 @@ future releases.
 - Main focus is reliable support for `macosArm64`, `macosX64`, and `linuxArm64`.
 - `linuxX64` is supported and cross-built on macOS by default; disable it with `-Pktsearch.disableLinuxTargetsOnMac=true`.
 - Direct host cross-builds for `linuxArm64` on macOS may still fail at link time due to `ktor-client-curl`/OpenSSL linker issues.
-- Use `./ktsearch-cli/build-linux-binaries-docker.sh` to build Linux `x86_64` and `arm64` binaries via Docker on macOS and Linux.
 - Building Apple final binaries on Linux CI is not supported by Kotlin/Native host restrictions.
 - Windows `mingwX64` binaries can be built, but Windows ARM64 is not available as a Kotlin/Native target today.
 - For now, the easiest way to get a native binary for your system is to run the build on that same system via `./ktsearch-cli/install.sh`.
 - Prebuilt packaging and CI-produced binaries may be added later if this stabilizes.
-
-## Linux Docker builds
-
-Build Linux native binaries for both `x86_64` and
-`arm64` with Docker:
-
-```bash
-println("./ktsearch-cli/build-linux-binaries-docker.sh")
-```
-
-Captured Output:
-
-```
-./ktsearch-cli/build-linux-binaries-docker.sh
-
-```
-
-The script creates per-architecture builder images with
-Java and native toolchain dependencies, runs Gradle in a
-Linux `amd64` container, cross-compiles both targets, and
-writes output binaries to:
-`ktsearch-cli/build/docker-linux-binaries/`
-
-- Override container platform with `KTSEARCH_DOCKER_PLATFORM` (default `linux/amd64`).
-- Override image name with `KTSEARCH_DOCKER_IMAGE`.
-- Override Gradle cache location with `KTSEARCH_DOCKER_GRADLE_CACHE`.
 
 ## Wasm builds (experimental)
 
