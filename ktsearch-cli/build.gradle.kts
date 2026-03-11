@@ -22,8 +22,8 @@ repositories {
 val enableNativeTargets = true
 val isLinuxHost = OperatingSystem.current().isLinux
 val isMacHost = OperatingSystem.current().isMacOsX
-val enableLinuxTargetsOnMac = providers
-    .gradleProperty("ktsearch.enableLinuxTargetsOnMac")
+val disableLinuxTargetsOnMac = providers
+    .gradleProperty("ktsearch.disableLinuxTargetsOnMac")
     .map(String::toBoolean)
     .orElse(false)
     .get()
@@ -37,7 +37,7 @@ val linuxOnlyNativeTargets = providers
     .map(String::toBoolean)
     .orElse(false)
     .get()
-val enableLinuxX64Target = isLinuxHost || (isMacHost && enableLinuxTargetsOnMac)
+val enableLinuxX64Target = isLinuxHost || (isMacHost && !disableLinuxTargetsOnMac)
 val enableLinuxArm64Target = isLinuxHost
 
 kotlin {

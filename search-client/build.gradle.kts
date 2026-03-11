@@ -51,9 +51,9 @@ fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toStri
 val enableNativeTargets = true
 val isLinuxHost = OperatingSystem.current().isLinux
 val isMacHost = OperatingSystem.current().isMacOsX
-val enableLinuxTargetsOnMac = getBooleanProperty("ktsearch.enableLinuxTargetsOnMac")
+val disableLinuxTargetsOnMac = getBooleanProperty("ktsearch.disableLinuxTargetsOnMac")
 val linuxOnlyNativeTargets = getBooleanProperty("ktsearch.linuxOnlyNativeTargets")
-val enableLinuxX64Target = isLinuxHost || (isMacHost && enableLinuxTargetsOnMac)
+val enableLinuxX64Target = isLinuxHost || (isMacHost && !disableLinuxTargetsOnMac)
 val enableLinuxArm64Target = isLinuxHost
 val enableLinuxTargets = enableLinuxX64Target || enableLinuxArm64Target
 

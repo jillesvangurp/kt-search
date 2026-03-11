@@ -126,9 +126,9 @@ class CliReadmeTest {
                 unorderedList(
                     "Main focus is reliable support for `macosArm64`, " +
                         "`macosX64`, and `linuxArm64`.",
-                    "`linuxX64` is supported and can be cross-built on " +
-                        "macOS with " +
-                        "`-Pktsearch.enableLinuxTargetsOnMac=true`.",
+                    "`linuxX64` is supported and cross-built on macOS by " +
+                        "default; disable it with " +
+                        "`-Pktsearch.disableLinuxTargetsOnMac=true`.",
                     "Direct host cross-builds for `linuxArm64` on macOS " +
                         "may still fail at link time due to " +
                         "`ktor-client-curl`/OpenSSL linker issues.",
