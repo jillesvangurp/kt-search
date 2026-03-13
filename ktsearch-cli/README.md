@@ -9,6 +9,18 @@ completion.
 The full command reference is generated in
 [`cli-manual.md`](./cli-manual.md).
 
+## Install with Homebrew
+
+Install the `ktsearch` command from the dedicated
+Homebrew tap:
+
+```bash
+brew tap jillesvangurp/tap https://github.com/jillesvangurp/homebrew-tap
+brew install ktsearch
+```
+
+Bash and Zsh completions are installed automatically.
+
 ## Why native binaries
 
 A key advantage of `kt-search` being multiplatform is that

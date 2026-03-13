@@ -39,6 +39,16 @@ This project is [licensed](LICENSE) under the MIT license and will always be.
 `ktsearch top` gives you a live dashboard view of cluster and node health:
 
 ![ktsearch top](ktsearch-cli/images/ktsearch-top.webp)
+
+Install the CLI with Homebrew:
+
+```bash
+brew tap jillesvangurp/tap https://github.com/jillesvangurp/homebrew-tap
+brew install ktsearch
+```
+
+Bash and Zsh completions are installed automatically.
+
 - You can also learn a lot by looking at the integration tests in the `search-client` module.
 - There's a [full stack Kotlin demo project](https://github.com/formation-res/kt-fullstack-demo) that we built to show off this library and a few other things.
 - The code sample below should help you figure out the basics.
