@@ -8,6 +8,22 @@
 To get started, simply add the dependency to your project and create a client. 
 The process is the same for both jvm and kotlin-js.
 
+## CLI installation
+
+The project also ships `ktsearch-cli`, a native command line tool
+for Elasticsearch and OpenSearch operations on macOS and Linux.
+Homebrew installs the `ktsearch` executable from the dedicated
+tap:
+
+```bash
+brew tap jillesvangurp/tap https://github.com/jillesvangurp/homebrew-tap
+brew install ktsearch
+```
+
+Bash and Zsh completions are installed automatically. For more
+details, see the
+[`ktsearch-cli` README](../../../ktsearch-cli/README.md).
+
 ## Gradle
 
 Kt-search is published to the FORMATION maven repository. 
