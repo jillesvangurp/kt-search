@@ -35,10 +35,7 @@ class PetStoreServiceTest {
 
     @Test
     fun `should create indices and load sample data`(): Unit = runBlocking {
-        petStoreService.ensureIndices()
-        resourceLoader.getResource("classpath:data/pets.json").inputStream.use { stream ->
-            petStoreService.loadSamplePetsIfEmpty(stream)
-        }
+        loadSamplePets()
 
         eventually(10.seconds) {
             val search = petStoreService.searchPets(
@@ -58,6 +55,7 @@ class PetStoreServiceTest {
 
     @Test
     fun `should reindex search index and index test pet`(): Unit = runBlocking {
+        loadSamplePets()
         petStoreService.rebuildSearchIndex()
 
         eventually(10.seconds) {
@@ -83,6 +81,13 @@ class PetStoreServiceTest {
 
         eventually(10.seconds) {
             created.wikipediaUrl shouldBe "https://en.wikipedia.org/wiki/Pug"
+        }
+    }
+
+    private suspend fun loadSamplePets() {
+        petStoreService.ensureIndices()
+        resourceLoader.getResource("classpath:data/pets.json").inputStream.use { stream ->
+            petStoreService.loadSamplePetsIfEmpty(stream)
         }
     }
 }
