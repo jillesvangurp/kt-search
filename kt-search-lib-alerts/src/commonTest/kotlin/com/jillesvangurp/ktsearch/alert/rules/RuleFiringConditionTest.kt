@@ -25,8 +25,8 @@ class RuleFiringConditionTest {
     }
 
     @Test
-    fun `legacy conditions still follow previous semantics`() {
-        RuleFiringCondition.AtMost(2).shouldTrigger(3) shouldBe true
-        RuleFiringCondition.AtLeast(3).shouldTrigger(2) shouldBe true
+    fun `replacement conditions follow legacy semantics`() {
+        RuleFiringCondition.GreaterThan(2).shouldTrigger(3) shouldBe true
+        RuleFiringCondition.LessThan(3).shouldTrigger(2) shouldBe true
     }
 }

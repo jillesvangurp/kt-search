@@ -33,7 +33,7 @@ actual fun platformEnableSingleKeyInput() {
 actual fun platformDisableSingleKeyInput() {
 }
 
-actual fun platformReadLineFromStdin(): String? = readLine()
+actual fun platformReadLineFromStdin(): String? = readlnOrNull()
 
 actual fun platformCreateGzipWriter(path: String): NdjsonGzipWriter {
     return JvmNdjsonGzipWriter(path)

@@ -3,7 +3,7 @@
 
 services:
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.3
     environment:
       discovery.type: "single-node"
       xpack.security.enabled: "false"
@@ -21,7 +21,7 @@ services:
       - data:/usr/share/elasticsearch/data
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:9.2.0
+    image: docker.elastic.co/kibana/kibana:9.4.3
     environment:
       ELASTICSEARCH_HOSTS: "http://es:9200"
       XPACK_SECURITY_ENABLED: "false"

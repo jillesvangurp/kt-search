@@ -86,7 +86,7 @@ class CliManualTest {
         return when {
             stdout.isNotBlank() -> stdout.trimEnd()
             stderr.isNotBlank() -> stderr.trimEnd()
-            !fallbackHelp.isNullOrBlank() -> fallbackHelp!!.trimEnd()
+            !fallbackHelp.isNullOrBlank() -> fallbackHelp.trimEnd()
             else -> ""
         }
     }

@@ -4,7 +4,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -20,8 +19,9 @@ repositories {
     mavenCentral()
 }
 
-val enableNativeTargets =
-    !(org.gradle.internal.os.OperatingSystem.current().isLinux && System.getProperty("os.arch") == "aarch64")
+val hostOsName = System.getProperty("os.name").lowercase()
+val isLinuxHost = hostOsName.contains("linux")
+val enableNativeTargets = !(isLinuxHost && System.getProperty("os.arch") == "aarch64")
 
 println("native is enabled $enableNativeTargets")
 
@@ -44,7 +44,7 @@ kotlin {
     }
 
     if (enableNativeTargets) {
-        if (DefaultNativePlatform.getCurrentOperatingSystem().isLinux) {
+        if (isLinuxHost) {
             fun KotlinNativeTarget.configureLinuxTarget() {
                 binaries {
                     all {
@@ -62,6 +62,7 @@ kotlin {
         }
 
         mingwX64()
+        @Suppress("DEPRECATION")
         macosX64()
         macosArm64()
         iosArm64()
@@ -127,8 +128,8 @@ kotlin {
                 optIn("kotlin.RequiresOptIn")
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
                 optIn("kotlin.time.ExperimentalTime")
-                languageVersion = "2.1"
-                apiVersion = "2.1"
+                languageVersion = "2.4"
+                apiVersion = "2.4"
             }
         }
     }

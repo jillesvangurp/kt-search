@@ -414,7 +414,7 @@ class AlertService(
                     val matchSummary = buildString {
                         append("${evaluation.matchCount} matches")
                         evaluation.totalMatchCount?.let { total ->
-                            if (total.toLong() != evaluation.matchCount.toLong()) {
+                            if (total != evaluation.matchCount.toLong()) {
                                 append(" ($total total)")
                             }
                         }

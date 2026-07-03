@@ -71,7 +71,7 @@ private fun parseIniSections(content: String): Map<String, Map<String, String>> 
         }
         if (line.startsWith("[") && line.endsWith("]")) {
             currentSection = line.substring(1, line.length - 1).trim()
-            sections.getOrPut(currentSection!!) { mutableMapOf() }
+            sections.getOrPut(currentSection) { mutableMapOf() }
             return@forEach
         }
         val section = currentSection ?: return@forEach

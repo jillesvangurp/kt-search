@@ -7,7 +7,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -41,7 +40,7 @@ val localProperties = Properties().apply {
 }
 
 fun getProperty(propertyName: String, defaultValue: Any? = null) =
-    (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+    (localProperties[propertyName] ?: findProperty(propertyName)) ?: defaultValue
 
 fun getStringProperty(propertyName: String, defaultValue: String) =
     getProperty(propertyName)?.toString() ?: defaultValue
@@ -49,8 +48,9 @@ fun getStringProperty(propertyName: String, defaultValue: String) =
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 
 val enableNativeTargets = true
-val isLinuxHost = OperatingSystem.current().isLinux
-val isMacHost = OperatingSystem.current().isMacOsX
+val hostOsName = System.getProperty("os.name").lowercase()
+val isLinuxHost = hostOsName.contains("linux")
+val isMacHost = hostOsName.contains("mac")
 val disableLinuxTargetsOnMac = getBooleanProperty("ktsearch.disableLinuxTargetsOnMac")
 val linuxOnlyNativeTargets = getBooleanProperty("ktsearch.linuxOnlyNativeTargets")
 val enableLinuxX64Target = isLinuxHost || (isMacHost && !disableLinuxTargetsOnMac)
@@ -80,7 +80,7 @@ kotlin {
             jvmTarget = JvmTarget.JVM_17
         }
     }
-    js(IR) {
+    js {
         browser {
             testTask {
                 useMocha {
@@ -121,6 +121,7 @@ kotlin {
         }
         if (!linuxOnlyNativeTargets) {
             mingwX64()
+            @Suppress("DEPRECATION")
             macosX64()
             macosArm64()
             // iOS targets
@@ -244,8 +245,8 @@ kotlin {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
                 optIn("kotlin.time.ExperimentalTime")
                 // expect-actual-classes
-                languageVersion = "2.1"
-                apiVersion = "2.1"
+                languageVersion = "2.4"
+                apiVersion = "2.4"
             }
         }
     }
@@ -279,13 +280,9 @@ disabledTestTargets.forEach { target ->
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    // run tests in parallel
-    systemProperties["junit.jupiter.execution.parallel.enabled"] = "true"
-    // executes test classes concurrently
-    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
-    // executes tests inside a class concurrently
-    systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
-    systemProperties["junit.jupiter.execution.parallel.config.strategy"] = "dynamic"
+    // Keep integration tests serial. Elasticsearch 9 needs more heap headroom,
+    // and parallel index-heavy tests can exhaust the local single-node cluster.
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = "false"
     // random order of test class execution
     systemProperties["junit.jupiter.testclass.order.default"] = "org.junit.jupiter.api.ClassOrderer\$Random"
 
