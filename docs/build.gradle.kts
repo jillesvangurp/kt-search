@@ -7,7 +7,7 @@ val localProperties = Properties().apply {
 }
 
 fun getProperty(propertyName: String, defaultValue: Any? = null) =
-    (localProperties[propertyName] ?: project.properties[propertyName]) ?: defaultValue
+    (localProperties[propertyName] ?: findProperty(propertyName)) ?: defaultValue
 
 fun getBooleanProperty(propertyName: String) = getProperty(propertyName)?.toString().toBoolean()
 

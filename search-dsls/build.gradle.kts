@@ -25,7 +25,7 @@ kotlin {
         }
     }
 
-    js(IR) {
+    js {
         browser()
         nodejs {
             testTask(Action {
@@ -40,6 +40,7 @@ kotlin {
         linuxX64()
         linuxArm64()
         mingwX64()
+        @Suppress("DEPRECATION")
         macosX64()
         macosArm64()
         iosArm64()
@@ -101,8 +102,8 @@ kotlin {
                 optIn("kotlin.RequiresOptIn")
                 optIn("kotlin.time.ExperimentalTime")
                 // expect-actual-classes
-                languageVersion = "2.1"
-                apiVersion = "2.1"
+                languageVersion = "2.4"
+                apiVersion = "2.4"
             }
 
             @OptIn(ExperimentalKotlinGradlePluginApi::class)

@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -20,8 +19,9 @@ repositories {
 }
 
 val enableNativeTargets = true
-val isLinuxHost = OperatingSystem.current().isLinux
-val isMacHost = OperatingSystem.current().isMacOsX
+val hostOsName = System.getProperty("os.name").lowercase()
+val isLinuxHost = hostOsName.contains("linux")
+val isMacHost = hostOsName.contains("mac")
 val disableLinuxTargetsOnMac = providers
     .gradleProperty("ktsearch.disableLinuxTargetsOnMac")
     .map(String::toBoolean)
@@ -80,6 +80,7 @@ kotlin {
             }
 
             if (isMacHost) {
+                @Suppress("DEPRECATION")
                 macosX64 {
                     binaries {
                         executable {
@@ -152,8 +153,8 @@ kotlin {
                 optIn("kotlin.RequiresOptIn")
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
                 optIn("kotlin.time.ExperimentalTime")
-                languageVersion = "2.1"
-                apiVersion = "2.1"
+                languageVersion = "2.4"
+                apiVersion = "2.4"
             }
         }
     }

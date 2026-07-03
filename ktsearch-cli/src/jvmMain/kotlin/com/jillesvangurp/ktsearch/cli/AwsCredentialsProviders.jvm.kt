@@ -8,7 +8,7 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 
 actual fun platformAwsCredentialsProvider(profile: String?): AwsCredentialsProvider {
     val provider = if (profile.isNullOrBlank()) {
-        DefaultCredentialsProvider.create()
+        DefaultCredentialsProvider.builder().build()
     } else {
         ProfileCredentialsProvider.builder().profileName(profile).build()
     }

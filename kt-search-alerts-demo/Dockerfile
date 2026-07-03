@@ -1,4 +1,4 @@
-FROM amazoncorretto:25
+FROM amazoncorretto:26
 WORKDIR /app
 
 ENV ELASTIC_HOST=localhost

@@ -62,8 +62,9 @@ class SearchTest : SearchTestBase() {
                     matchAll(boost = 3.5)
                 }
             }
-            result.hits!!.hits shouldHaveSize 3
-            result.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(3.5, 3.5, 3.5)
+            val hits = requireNotNull(result.hits)
+            hits.hits shouldHaveSize 3
+            hits.hits.map(SearchResponse.Hit::score) shouldBe listOf(3.5, 3.5, 3.5)
         }
     }
 
@@ -276,9 +277,10 @@ class SearchTest : SearchTestBase() {
                 )
             }
 
-            response.hits!!.hits shouldHaveSize 3
+            val hits = requireNotNull(response.hits)
+            hits.hits shouldHaveSize 3
             response.parseHits<TestDocument>().map(TestDocument::name) shouldBe listOf("doc 1", "doc 3", "doc 2")
-            response.hits!!.hits.map(SearchResponse.Hit::score) shouldBe listOf(22.0, 10.0, 2.0)
+            hits.hits.map(SearchResponse.Hit::score) shouldBe listOf(22.0, 10.0, 2.0)
         }
     }
 
@@ -349,8 +351,9 @@ class SearchTest : SearchTestBase() {
                     put("_name", "name_filter")
                 }
             }
-            result.hits!!.hits shouldHaveSize 2
-            result.hits!!.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf("name_filter"), listOf("name_filter"))
+            val hits = requireNotNull(result.hits)
+            hits.hits shouldHaveSize 2
+            hits.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf("name_filter"), listOf("name_filter"))
         }
     }
 
@@ -375,8 +378,9 @@ class SearchTest : SearchTestBase() {
                             put("_name", "name_filter")
                         }
                     }
-                result.hits!!.hits shouldHaveSize 2
-                val scoreByQueryName = result.hits!!.hits.first().matchedQueries.scoreByName()
+                val hits = requireNotNull(result.hits)
+                hits.hits shouldHaveSize 2
+                val scoreByQueryName = hits.hits.first().matchedQueries.scoreByName()
                 scoreByQueryName.size shouldBe 1
                 scoreByQueryName.containsKey("name_filter") shouldBe true
             }
@@ -394,9 +398,10 @@ class SearchTest : SearchTestBase() {
             val result = client.search("$index,$index") {
                 query = match(TestDocument::name, "bar")
             }
-            result.hits!!.hits shouldHaveSize 2
-            result.hits!!.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf(), listOf())
-            result.hits!!.hits.map { it.matchedQueries.scoreByName() } shouldBe listOf(mapOf(), mapOf())
+            val hits = requireNotNull(result.hits)
+            hits.hits shouldHaveSize 2
+            hits.hits.map { it.matchedQueries.names() } shouldBe listOf(listOf(), listOf())
+            hits.hits.map { it.matchedQueries.scoreByName() } shouldBe listOf(mapOf(), mapOf())
         }
     }
 }

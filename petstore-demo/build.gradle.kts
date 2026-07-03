@@ -1,6 +1,6 @@
 plugins {
-    id("org.springframework.boot") version "4.0.0"
-    id("io.spring.dependency-management") version "1.1.6"
+    id("org.springframework.boot") version "4.1.0"
+    id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm")
     kotlin("plugin.spring")
     kotlin("plugin.serialization")
@@ -29,19 +29,29 @@ repositories {
     }
 }
 
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlinx" &&
+            requested.name.startsWith("kotlinx-coroutines")
+        ) {
+            useVersion("1.11.0")
+        }
+    }
+}
+
 dependencies {
     implementation(project(":search-client"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation(KotlinX.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:_")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:_")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation(Testing.kotest.assertions.core)
     testImplementation("com.github.jillesvangurp:kotlin4example:_")
 }
 
