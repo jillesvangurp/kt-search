@@ -53,8 +53,7 @@ the sort values of the last value you have processed as the `search_after`.
 Because you can sort on multiple fields, this has to be an array. To guarantee consistency, `search_after`
 is generally used in combination with the Point in Time API. Kt-search adds a sort on "_shard_doc" for you.
 
-If you want to add your own sort, you have to opt-in to this and deal with any issues yourself as you can
-easily break search_after this way.            
+The `client.searchAfter` helper requires `optInToCustomSort = true` when you supply a custom sort.
 
 ```kotlin
 val (resp,hitsFlow) = client.searchAfter(
@@ -81,6 +80,37 @@ This prints:
 reported result set size 3
 results in the hits flow: 3
 ```
+
+## Resume from a saved cursor
+
+To fetch one page after a known position, use `client.search` and set the DSL's `searchAfter` property.
+Supply one value per sort field in the same order and keep each value's type. Here the timestamp is
+a number, and the unique ID is a string that breaks ties between equal timestamps.
+
+```kotlin
+val cursorTimestamp = 1778072804403L
+val cursorId = "1"
+val page = client.search(indexName) {
+  resultSize = 1
+  query = matchAll()
+  sort {
+    add(TestDoc::timestamp, SortOrder.ASC)
+    add(TestDoc::id, SortOrder.ASC)
+  }
+  searchAfter = listOf(cursorTimestamp, cursorId)
+}
+println("Next document: ${page.hits?.hits?.single()?.id}")
+```
+
+This prints:
+
+```text
+Next document: 2
+```
+
+For the next request, use the last hit's `sort` values as the cursor and repeat the same query and sort.
+When paging through a changing index, use a point in time and keep the complete returned `sort` array,
+including its tie-breaker.
 
 ## Reindexing using search_after and bulk
 
@@ -163,7 +193,7 @@ var resp = client.search(null, q)
 var results=resp.hits?.hits?.size ?:0
 // specify from where to continue searching
 resp.hits?.hits?.last()?.sort?.let { sort ->
-  q["search_after"] = sort
+  q.searchAfter = sort
 }
 // the response will include a pit id
 resp.pitId?.let { pid ->
