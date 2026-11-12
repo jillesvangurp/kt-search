@@ -659,7 +659,7 @@ class PetStoreService(
         val timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             .withZone(ZoneOffset.UTC)
             .format(Instant.now())
-        return "$base-v$timestamp"
+        return "$base-v$timestamp-${UUID.randomUUID()}"
     }
 
     @Serializable

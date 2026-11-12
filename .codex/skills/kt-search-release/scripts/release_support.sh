@@ -80,12 +80,13 @@ check_release_readiness() {
     --limit 50 \
     --json databaseId,headSha,status,conclusion,name,workflowName,url)"
 
-  python3 - "$LOCAL_HEAD" <<'PY' <<<"$RUNS_JSON"
+  RUNS_JSON="$RUNS_JSON" python3 - "$LOCAL_HEAD" <<'PY'
 import json
+import os
 import sys
 
 head = sys.argv[1]
-runs = json.load(sys.stdin)
+runs = json.loads(os.environ["RUNS_JSON"])
 matching = [r for r in runs if r.get("headSha") == head]
 if not matching:
     print("ERROR: no GitHub Actions runs found for HEAD", file=sys.stderr)

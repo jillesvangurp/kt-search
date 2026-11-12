@@ -2,7 +2,11 @@ package com.jillesvangurp.ktsearch
 
 import com.jillesvangurp.ktsearch.repository.repository
 import com.jillesvangurp.searchdsls.mappingdsl.IndexSettingsAndMappingsDSL
+import com.jillesvangurp.searchdsls.querydsl.NestedAgg
+import com.jillesvangurp.searchdsls.querydsl.ReverseNestedAgg
 import com.jillesvangurp.searchdsls.querydsl.ScoreMode
+import com.jillesvangurp.searchdsls.querydsl.SumAgg
+import com.jillesvangurp.searchdsls.querydsl.agg
 import com.jillesvangurp.searchdsls.querydsl.nested
 import com.jillesvangurp.searchdsls.querydsl.range
 import com.jillesvangurp.serializationext.DEFAULT_JSON
@@ -45,6 +49,18 @@ class NestedQueryTest : SearchTestBase() {
             }
         }
         r1.total shouldBe 1
+
+        val response = repo.search {
+            resultSize = 0
+            agg("children", NestedAgg("test_docs")) {
+                agg("total", SumAgg("test_docs.number"))
+                agg("parents", ReverseNestedAgg())
+            }
+        }
+        val children = requireNotNull(response.aggregations.filterResult("children"))
+        children.docCount shouldBe 5L
+        children.bucket.sumAggregationResult("total").value shouldBe 13.0
+        children.bucket.getAggResult<FilterAggregationResult>("parents").docCount shouldBe 2L
     }
 }
 

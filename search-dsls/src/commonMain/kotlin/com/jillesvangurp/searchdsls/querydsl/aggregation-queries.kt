@@ -785,6 +785,12 @@ class TopHitsAgg(block: (TopHitsAggConfig.() -> Unit)? = null) : AggQuery("top_h
 }
 
 class FilterConfig : JsonDsl() {
+    /** Includes a bucket for documents that match none of the named filters. */
+    var otherBucket by property<Boolean>("other_bucket")
+
+    /** Names the unmatched bucket and enables it unless [otherBucket] is false. */
+    var otherBucketKey by property<String>("other_bucket_key")
+
     var query: ESQuery
         get() {
             @Suppress("UNCHECKED_CAST") // somehow needed
@@ -814,6 +820,24 @@ class FiltersAgg(
 class FilterAgg(filter: ESQuery) : AggQuery("filter") {
     init {
         this[name] = filter.wrapWithName()
+    }
+}
+
+/**
+ * Runs sub-aggregations over nested documents at [path].
+ */
+class NestedAgg(path: String) : AggQuery("nested") {
+    init {
+        this[name] = withJsonDsl { this["path"] = path }
+    }
+}
+
+/**
+ * Returns from a nested aggregation to [path], or to the root document when omitted.
+ */
+class ReverseNestedAgg(path: String? = null) : AggQuery("reverse_nested") {
+    init {
+        this[name] = withJsonDsl { path?.let { this["path"] = it } }
     }
 }
 

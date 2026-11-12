@@ -41,6 +41,9 @@ import com.jillesvangurp.searchdsls.querydsl.DerivativeAgg
 import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsAgg
 import com.jillesvangurp.searchdsls.querydsl.ExtendedStatsBucketAgg
 import com.jillesvangurp.searchdsls.querydsl.FilterAgg
+import com.jillesvangurp.searchdsls.querydsl.NestedAgg
+import com.jillesvangurp.searchdsls.querydsl.ReverseNestedAgg
+import com.jillesvangurp.searchdsls.querydsl.SumAgg
 import com.jillesvangurp.searchdsls.querydsl.FiltersAgg
 import com.jillesvangurp.searchdsls.querydsl.GeoCentroidAgg
 import com.jillesvangurp.searchdsls.querydsl.GeoTileGridAgg
@@ -694,6 +697,22 @@ val aggregationsMd = sourceGitRepository.md {
     }
 
 
+    section("Nested aggregations") {
+        +"Use a nested aggregation to collect values from a field mapped as nested."
+        +"Reverse nested returns to the parent documents for the matched nested rows."
+
+        example {
+            val stockQuery = SearchDSL().apply {
+                resultSize = 0
+                agg("stock", NestedAgg("inventory")) {
+                    agg("quantity", SumAgg("inventory.quantity"))
+                    agg("products", ReverseNestedAgg())
+                }
+            }
+            println(stockQuery.json(true))
+        }.printStdOut(this)
+    }
+
     section("Metric aggregations") {
         +"""
             We also provide typed helpers for the metric aggregations that operate on a single field. They
@@ -750,6 +769,7 @@ val aggregationsMd = sourceGitRepository.md {
                     agg("filtered", FiltersAgg {
                         namedFilter("foo", this@search.term(MockDoc::tags, "foo"))
                         namedFilter("bat", this@search.term(MockDoc::tags, "bar"))
+                        otherBucketKey = "other"
                     }) {
                         agg("colors", TermsAgg(MockDoc::color))
                     }
