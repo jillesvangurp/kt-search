@@ -8,11 +8,11 @@ import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ResourceLoader
 
 @SpringBootTest(
     properties = [
@@ -30,13 +30,11 @@ class PetStoreServiceTest {
     @Autowired
     private lateinit var petSearchRepository: IndexRepository<PetSearchDocument>
 
-    @Autowired
-    private lateinit var resourceLoader: ResourceLoader
+    @BeforeAll
+    fun awaitStartup(): Unit = runBlocking { awaitSamplePets() }
 
     @Test
     fun `should create indices and load sample data`(): Unit = runBlocking {
-        loadSamplePets()
-
         eventually(10.seconds) {
             val search = petStoreService.searchPets(
                 searchText = null,
@@ -55,15 +53,8 @@ class PetStoreServiceTest {
 
     @Test
     fun `should reindex search index and index test pet`(): Unit = runBlocking {
-        loadSamplePets()
         petStoreService.rebuildSearchIndex()
-
-        eventually(10.seconds) {
-            petSearchRepository.search {
-                query = matchAll()
-                trackTotalHits = "true"
-            }.total shouldBeGreaterThan 20
-        }
+        awaitSamplePets()
 
         val created = petStoreService.createPet(
             Pet(
@@ -84,10 +75,13 @@ class PetStoreServiceTest {
         }
     }
 
-    private suspend fun loadSamplePets() {
-        petStoreService.ensureIndices()
-        resourceLoader.getResource("classpath:data/pets.json").inputStream.use { stream ->
-            petStoreService.loadSamplePetsIfEmpty(stream)
+    private suspend fun awaitSamplePets() {
+        eventually(10.seconds) {
+            petSearchRepository.search(ignoreUnavailable = true) {
+                query = matchAll()
+                resultSize = 0
+                trackTotalHits = "true"
+            }.total shouldBeGreaterThan 20
         }
     }
 }
