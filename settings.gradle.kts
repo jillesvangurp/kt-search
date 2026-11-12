@@ -18,6 +18,7 @@ include("search-client")
 include("ktsearch-cli")
 include("docs")
 include("kt-search-lib-alerts")
+include("kt-search-lib-logback")
 include("kt-search-alerts-demo")
 include("petstore-demo")
 rootProject.name = "kt-search"

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<configuration debug="false">
+    <contextName>test-loggers</contextName>
+
+    <!-- will get added to the context and logged along with everything-->
+    <variable scope="context" name="environment" value="tests" />
+    <variable scope="context" name="host" value="${HOSTNAME}" />
+    <variable scope="context" name="exclude" value="no!" />
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%boldBlue(%date{dd-MM-yyyy'T'HH:mm:ssZ}) %highlight(%.-1level %logger{0} - %msg) %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="es-out" class="com.jillesvangurp.ktsearchlogback.KtSearchLogBackAppender">
+        <verbose>true</verbose>
+        <logElasticSearchCalls>false</logElasticSearchCalls>
+        <host>localhost</host>
+        <port>9990</port>
+        <dataStreamName>applogs</dataStreamName>
+        <contextVariableFilterRe>(environment|host)</contextVariableFilterRe>
+        <coerceMdcFieldsToLong>duration_ms,amount_processed</coerceMdcFieldsToLong>
+        <coerceMdcFieldsToDouble>improbability_level</coerceMdcFieldsToDouble>
+    </appender>
+
+    <appender name="ASYNC-STDOUT" class="ch.qos.logback.classic.AsyncAppender" queueSize="2048">
+        <appender-ref ref="STDOUT"/>
+    </appender>
+
+    <logger name="org.elasticsearch" level="DEBUG"/>
+    <logger name="org.apache" level="ERROR"/>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC-STDOUT"/>
+        <appender-ref ref="es-out"/>
+    </root>
+</configuration>
