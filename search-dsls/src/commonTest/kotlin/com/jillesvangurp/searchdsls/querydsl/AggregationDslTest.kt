@@ -1,11 +1,63 @@
 package com.jillesvangurp.searchdsls.querydsl
 
 import com.jillesvangurp.jsondsl.JsonDsl
+import com.jillesvangurp.jsondsl.json
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class AggregationDslTest {
+    @Test
+    fun rendersNestedAndReverseNestedAggregations() {
+        val query = SearchDSL().apply {
+            agg("stock", NestedAgg("inventory.items")) {
+                agg("quantity", SumAgg("inventory.items.quantity"))
+                agg("containers", ReverseNestedAgg("inventory"))
+                agg("products", ReverseNestedAgg())
+            }
+        }
+        query.json().filterNot(Char::isWhitespace) shouldBe
+            """
+            {
+              "aggs": {
+                "stock": {
+                  "nested": {"path": "inventory.items"},
+                  "aggs": {
+                    "quantity": {"sum": {"field": "inventory.items.quantity"}},
+                    "containers": {"reverse_nested": {"path": "inventory"}},
+                    "products": {"reverse_nested": {}}
+                  }
+                }
+              }
+            }
+            """.filterNot(Char::isWhitespace)
+    }
+
+    @Test
+    fun rendersNamedFiltersWithOtherBucketOptions() {
+        val query = SearchDSL().apply {
+            agg("status", FiltersAgg {
+                namedFilter("available", this@apply.term("status", "available"))
+                otherBucket = true
+                otherBucketKey = "unclassified"
+            })
+        }
+        query.json().filterNot(Char::isWhitespace) shouldBe
+            """
+            {
+              "aggs": {
+                "status": {
+                  "filters": {
+                    "filters": {"available": {"term": {"status": {"value": "available"}}}},
+                    "other_bucket": true,
+                    "other_bucket_key": "unclassified"
+                  }
+                }
+              }
+            }
+            """.filterNot(Char::isWhitespace)
+    }
+
     @Test
     fun `should render terms aggregation options`() {
         val agg = TermsAgg("color") {
