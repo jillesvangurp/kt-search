@@ -244,15 +244,13 @@ val response = rawSearch<PetSearchDocument>(
 
 ## Seeding demo data
 
-On startup we lazily create the indices and load the bundled
-JSON dataset so the UI always has something to show.
+Startup creates any missing indices and loads the bundled JSON
+dataset if the search index is empty. Spring waits for this to
+finish before the demo serves requests.
 
 ```kotlin
-// Run the startup tasks on a background coroutine so Spring can finish
-// its lifecycle hooks without blocking the main thread.
-scope.launch {
-  // Create indices if needed and then seed the demo dataset exactly
-  // once (unless the user explicitly resets).
+// Complete initialization before Spring starts serving requests.
+runBlocking {
   petStoreService.ensureIndices()
   val resource = resourceLoader.getResource(properties.sampleData)
   resource.inputStream.use { stream ->

@@ -125,8 +125,9 @@ class PetstoreReadmeTest {
 
             section("Seeding demo data") {
                 +"""
-                    On startup we lazily create the indices and load the bundled
-                    JSON dataset so the UI always has something to show.
+                    Startup creates any missing indices and loads the bundled JSON
+                    dataset if the search index is empty. Spring waits for this to
+                    finish before the demo serves requests.
                 """.trimIndent()
                 exampleFromSnippet(
                     "src/main/kotlin/com/jillesvangurp/ktsearch/petstore/StartupRunner.kt",

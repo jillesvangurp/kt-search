@@ -8,7 +8,6 @@ import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,31 +29,30 @@ class PetStoreServiceTest {
     @Autowired
     private lateinit var petSearchRepository: IndexRepository<PetSearchDocument>
 
-    @BeforeAll
-    fun awaitStartup(): Unit = runBlocking { awaitSamplePets() }
-
     @Test
     fun `should create indices and load sample data`(): Unit = runBlocking {
-        eventually(10.seconds) {
-            val search = petStoreService.searchPets(
-                searchText = null,
-                animal = null,
-                breed = null,
-                sex = null,
-                ageRange = null,
-                priceRange = null
-            )
-            search.total.shouldBeGreaterThan(10)
-            search.total.shouldBeGreaterThan(0)
-            val dogCount = search.facets.animals["dog"] ?: 0L
-            dogCount.shouldBeGreaterThan(0)
-        }
+        val search = petStoreService.searchPets(
+            searchText = null,
+            animal = null,
+            breed = null,
+            sex = null,
+            ageRange = null,
+            priceRange = null
+        )
+        search.total.shouldBeGreaterThan(10)
+        val dogCount = search.facets.animals["dog"] ?: 0L
+        dogCount.shouldBeGreaterThan(0)
     }
 
     @Test
     fun `should reindex search index and index test pet`(): Unit = runBlocking {
         petStoreService.rebuildSearchIndex()
-        awaitSamplePets()
+
+        petSearchRepository.search {
+            query = matchAll()
+            resultSize = 0
+            trackTotalHits = "true"
+        }.total shouldBeGreaterThan 20
 
         val created = petStoreService.createPet(
             Pet(
@@ -72,16 +70,6 @@ class PetStoreServiceTest {
 
         eventually(10.seconds) {
             created.wikipediaUrl shouldBe "https://en.wikipedia.org/wiki/Pug"
-        }
-    }
-
-    private suspend fun awaitSamplePets() {
-        eventually(10.seconds) {
-            petSearchRepository.search(ignoreUnavailable = true) {
-                query = matchAll()
-                resultSize = 0
-                trackTotalHits = "true"
-            }.total shouldBeGreaterThan 20
         }
     }
 }
