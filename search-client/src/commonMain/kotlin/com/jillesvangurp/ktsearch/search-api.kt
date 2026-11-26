@@ -9,7 +9,9 @@ import com.jillesvangurp.searchdsls.SearchEngineFamily
 import com.jillesvangurp.searchdsls.SearchEngineVariant
 import com.jillesvangurp.searchdsls.VariantRestriction
 import com.jillesvangurp.searchdsls.querydsl.*
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -580,6 +582,10 @@ suspend fun SearchClient.deletePointInTime(id: String): JsonObject {
  *
  * Creates a point in time and then uses it to deep page through search results using
  * search after. Note, this modifies the query via the search dsl.
+ * Collect the returned flow once, even for an empty result. Collection closes the
+ * latest PIT on completion, early termination, failure or cancellation. An
+ * uncollected flow retains its PIT until expiry. Use a normal search when only
+ * the first response is needed.
  *
  * Note, if you specify a sort, be sure to include _shard_doc as a tie breaker.
  *
@@ -604,9 +610,12 @@ suspend fun SearchClient.searchAfter(
         SearchEngineVariant.OS2,
         SearchEngineVariant.OS3,
     )
-    var pitId = createPointInTime(target, keepAlive)
-    query["pit"] = withJsonDsl {
-        this["id"] = pitId
+    if (query.containsKey("sort") && !optInToCustomSort) {
+        error(
+            """Adding a custom sort with search_after can break in a few ways and is probably
+            |not what you want. If you know what you are doing, you can disable this error by setting
+            |optInToCustomSort to true.""".trimMargin()
+        )
     }
     if (!query.containsKey("sort")) {
         query.apply {
@@ -624,23 +633,27 @@ suspend fun SearchClient.searchAfter(
                 }
             }
         }
-    } else {
-        if (!optInToCustomSort) {
-            error(
-                """Adding a custom sort with search_after can break in a few ways and is probably
-                |not what you want. If you know what you are doing, you can disable this error by setting
-                |optInToCustomSort to true.""".trimMargin()
-            )
+    }
+    var pitId = createPointInTime(target, keepAlive)
+    suspend fun closePit(failure: Throwable?) {
+        try {
+            withContext(NonCancellable) { deletePointInTime(pitId) }
+        } catch (cleanupFailure: Throwable) {
+            // Expired or already-released snapshots need no further cleanup.
+            if (cleanupFailure is RestException && cleanupFailure.response is RestResponse.Status4XX.NotFound) return
+            if (failure == null) throw cleanupFailure
+            if (cleanupFailure !== failure) failure.addSuppressed(cleanupFailure)
         }
     }
-
-    val response =
-        search(
-            null,
-            query.json(),
-            retries = retries,
-            retryDelay = retryDelay
-        )
+    query["pit"] = withJsonDsl { this["id"] = pitId }
+    val response = try {
+        search(null, query.json(), retries = retries, retryDelay = retryDelay).also {
+            pitId = it.pitId ?: it.pointInTimeId ?: pitId
+        }
+    } catch (failure: Throwable) {
+        closePit(failure)
+        throw failure
+    }
     val hitFlow = flow {
         var resp: SearchResponse = response
         emit(resp)
@@ -648,7 +661,7 @@ suspend fun SearchClient.searchAfter(
             resp.hits?.hits?.last()?.sort?.let { sort ->
                 query["search_after"] = sort.map { it.jsonPrimitive.content }
             }
-            pitId = resp.pitId ?: error("no pit_id")
+            pitId = resp.pitId ?: resp.pointInTimeId ?: pitId
 
 
             query["pit"] = withJsonDsl {
@@ -661,10 +674,11 @@ suspend fun SearchClient.searchAfter(
                 retries = retries,
                 retryDelay = retryDelay
             )
-
+            // Cancellation can happen while emitting hits, so retain the new ID first.
+            pitId = resp.pitId ?: resp.pointInTimeId ?: pitId
             emit(resp)
         }
-    }.flatMapConcat { it.searchHits.asFlow() }
+    }.flatMapConcat { it.searchHits.asFlow() }.onCompletion { failure -> closePit(failure) }
     return response to hitFlow
 }
 
