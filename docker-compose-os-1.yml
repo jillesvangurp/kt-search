@@ -6,7 +6,7 @@ services:
       - cluster.name=docker-test-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - "OPENSEARCH_JAVA_OPTS=-Xms1024m -Xmx1024m"
       - cluster.routing.allocation.disk.threshold_enabled=true
       # make sure it works on nearly full disk
       - cluster.routing.allocation.disk.watermark.low=3gb

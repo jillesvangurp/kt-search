@@ -188,3 +188,8 @@ tasks.register("jvmFatJar") {
     description = "Alias for shadowJar fat-jar packaging task"
     dependsOn(tasks.named("shadowJar"))
 }
+
+// Release assembly includes the supported JVM distribution as well as native binaries.
+tasks.named("assemble") {
+    dependsOn("jvmFatJar")
+}

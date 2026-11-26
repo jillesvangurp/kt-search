@@ -12,6 +12,57 @@ import kotlin.test.Test
 
 class LogMessageTest {
     @Test
+    fun nonFiniteAndInvalidNumericMdcValuesBecomeNull() {
+        val context = LoggerContext()
+        try {
+            val event = LoggingEvent(
+                "test", context.getLogger("example"), Level.INFO, "test", null, null
+            ).apply { mdcPropertyMap = mapOf("ratio" to "NaN", "count" to "invalid") }
+            val message = event.toLogMessage(null, setOf("count"), setOf("ratio"))
+            message.mdc shouldBe mapOf("ratio" to kotlinx.serialization.json.JsonNull,
+                "count" to kotlinx.serialization.json.JsonNull)
+            DEFAULT_JSON.decodeFromString<LogMessage>(DEFAULT_JSON.encodeToString(message)) shouldBe message
+        } finally {
+            context.stop()
+        }
+    }
+
+    @Test
+    fun preservesFormattedMessageOriginalTimeAndCauseMessages() {
+        val context = LoggerContext()
+        try {
+            val event = LoggingEvent(
+                "test", context.getLogger("example"), Level.ERROR,
+                "Processed {} records", IllegalStateException("outer", IllegalArgumentException("inner")),
+                arrayOf(42)
+            ).apply {
+                timeStamp = 1234567890000L
+                mdcPropertyMap = emptyMap()
+            }
+            val converted = event.toLogMessage(null, emptySet(), emptySet())
+            converted.message shouldBe "Processed 42 records"
+            converted.timestamp.toEpochMilliseconds() shouldBe 1234567890000L
+            converted.exceptionList?.map { it.message } shouldBe listOf("outer", "inner")
+        } finally {
+            context.stop()
+        }
+    }
+
+    @Test
+    fun handlesExceptionsWithNullMessages() {
+        val context = LoggerContext()
+        try {
+            val event = LoggingEvent(
+                "test", context.getLogger("example"), Level.ERROR,
+                "failed", RuntimeException(null as String?), null
+            ).apply { mdcPropertyMap = emptyMap() }
+            event.toLogMessage(null, emptySet(), emptySet()).exceptionList?.first()?.message shouldBe ""
+        } finally {
+            context.stop()
+        }
+    }
+
+    @Test
     fun preservesContextAndCoercesMdcFields() {
         val context = LoggerContext().apply {
             name = "appender-test"

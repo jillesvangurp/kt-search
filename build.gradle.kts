@@ -178,6 +178,8 @@ subprojects {
         }
 
         tasks.withType<Test>().configureEach {
+            // A different engine must execute tests, even with identical bytecode.
+            inputs.property("searchEngine", searchEngine)
             if (dockerAvailable) {
                 dependsOn("composeUp")
             } else if (composeSkipTestsWithoutDocker()) {

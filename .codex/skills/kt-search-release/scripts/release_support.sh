@@ -153,12 +153,18 @@ package_cli_assets() {
   tar -C "$STAGE_DIR/linux-x64" -czf \
     "$OUT_DIR/ktsearch-${VERSION}-linux-x64.tar.gz" .
 
+  local jvm_jar="$ROOT_DIR/ktsearch-cli/build/libs/ktsearch-cli-${VERSION}-all.jar"
+  [[ -f "$jvm_jar" ]] || die "missing versioned JVM distribution: $jvm_jar"
+  cp "$jvm_jar" "$OUT_DIR/ktsearch-cli-all.jar"
+
   (
     cd "$OUT_DIR"
+    shasum -a 256 ktsearch-cli-all.jar > ktsearch-cli-all.jar.sha256
     shasum -a 256 \
       "ktsearch-${VERSION}-darwin-arm64.tar.gz" \
       "ktsearch-${VERSION}-darwin-x64.tar.gz" \
       "ktsearch-${VERSION}-linux-x64.tar.gz" \
+      "ktsearch-cli-all.jar" \
       > checksums.txt
   )
 

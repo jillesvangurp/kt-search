@@ -27,11 +27,20 @@ kotlin {
 dependencies {
     api(project(":search-client"))
     api("ch.qos.logback:logback-classic:_")
+    // Compile against the API's baseline; Spring supplies its managed runtime.
+    compileOnly("io.micrometer:micrometer-core:_")
+    testImplementation("io.micrometer:micrometer-core:_")
 
     testImplementation(kotlin("test-junit5", "_"))
     testImplementation(Testing.junit.jupiter.api)
     testRuntimeOnly(Testing.junit.jupiter.engine)
     testImplementation(Testing.kotest.assertions.core)
+}
+
+tasks.test {
+    doFirst {
+        systemProperty("logbackTestRuntimeClasspath", classpath.asPath)
+    }
 }
 
 publishing {

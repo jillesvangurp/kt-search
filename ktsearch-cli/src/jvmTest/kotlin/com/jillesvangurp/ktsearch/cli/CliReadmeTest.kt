@@ -154,8 +154,8 @@ class CliReadmeTest {
                     "For now, the easiest way to get a native binary for " +
                         "your system is to run the build on that same " +
                         "system via `./ktsearch-cli/install.sh`.",
-                    "Prebuilt packaging and CI-produced binaries may be " +
-                        "added later if this stabilizes.",
+                    "Release assets include native bundles and a JVM " +
+                        "distribution; build locally for other targets.",
                 )
             }
 
@@ -293,7 +293,29 @@ class CliReadmeTest {
                 unorderedList(
                     "Native executable: `ktsearch`",
                     "JVM fat jar: `./gradlew :ktsearch-cli:jvmFatJar`",
+                    "Releases include `ktsearch-cli-all.jar`, its SHA-256 " +
+                        "sidecar and the release checksum manifest.",
                 )
+                +"""
+                    ```bash
+                    shasum -a 256 -c ktsearch-cli-all.jar.sha256
+                    java -jar ktsearch-cli-all.jar --help
+                    ```
+                """.trimIndent()
+                +"""
+                    The JVM distribution supports normal Java TLS truststores
+                    for private CAs, with certificate and hostname validation.
+                    Supply authentication through `KTSEARCH_USER` and
+                    `KTSEARCH_PASSWORD`; the CLI does not need a trust bypass.
+                """.trimIndent()
+                +"""
+                    ```bash
+                    java -Djavax.net.ssl.trustStore=/run/search/ca.p12 \
+                      -Djavax.net.ssl.trustStoreType=PKCS12 \
+                      -jar ktsearch-cli-all.jar --https \
+                      --host search.internal --port 9200 cluster health
+                    ```
+                """.trimIndent()
             }
 
             section("Scriptability and agentic workflows") {

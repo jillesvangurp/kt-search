@@ -62,5 +62,9 @@ jobs:
         run: ./gradlew :search-client:composeUp -PsearchEngine=${{ matrix.version }}
       - name: Gradle Build
         run: ./gradlew :search-client:jvmTest -PsearchEngine=${{ matrix.version }}
+      - name: Test Logback against current OpenSearch
+        if: matrix.version == 'os-3'
+        run: ./gradlew :kt-search-lib-logback:test -PsearchEngine=os-3
       - name: Compose down
+        if: always()
         run: ./gradlew :search-client:composeDown -PsearchEngine=${{ matrix.version }}
