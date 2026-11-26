@@ -1,16 +1,17 @@
 package com.jillesvangurp.ktsearchlogback
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.core.status.InfoStatus
+import ch.qos.logback.core.status.WarnStatus
+import org.slf4j.LoggerFactory
 
-
-private val logger = KotlinLogging.logger("kt-search_logback-appender")
-
-internal fun log(message: String) {
-    logger.info { message }
-    println("INFO kt-search_logback-appender: $message")
+// Logback status messages bypass appenders and cannot feed back into this indexer.
+internal fun diagnostic(message: String, cause: Throwable? = null) {
+    (LoggerFactory.getILoggerFactory() as? LoggerContext)?.statusManager
+        ?.add(WarnStatus(message, "kt-search-logback", cause))
 }
 
-internal fun warn(e: Exception, message: String = e.message ?: "warning") {
-    logger.warn(e) { message }
-    println("WARNING kt-search_logback-appender: $message")
+internal fun log(message: String) {
+    (LoggerFactory.getILoggerFactory() as? LoggerContext)?.statusManager
+        ?.add(InfoStatus(message, "kt-search-logback"))
 }

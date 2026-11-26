@@ -475,37 +475,62 @@ data class CreatePointInTimeResponse(val id: String)
     SearchEngineVariant.OS2,
     SearchEngineVariant.OS3
 )
-suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String {
+suspend fun SearchClient.createPointInTime(name: String, keepAlive: Duration): String =
+    createPointInTime(name, keepAlive, allowPartialCreation = null)
+
+/**
+ * Creates a PIT, optionally rejecting unavailable shards with
+ * [allowPartialCreation] set to false. Null preserves the engine default.
+ * Elasticsearch before 8.16 always requires every shard; requesting partial
+ * creation on those versions is rejected. Older versions omit creation shard metadata.
+ */
+@VariantRestriction(
+    SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9,
+    SearchEngineVariant.OS2, SearchEngineVariant.OS3,
+)
+suspend fun SearchClient.createPointInTime(
+    name: String,
+    keepAlive: Duration,
+    allowPartialCreation: Boolean?,
+): String {
+    require(name.isNotBlank()) { "A PIT target is required" }
+    require(keepAlive.isPositive() && keepAlive.isFinite()) { "A finite positive PIT lifetime is required" }
     validateEngine(
         "PIT-api is not supported by OS1",
-        SearchEngineVariant.ES7,
-        SearchEngineVariant.ES8,
-        SearchEngineVariant.ES9,
-        SearchEngineVariant.OS2,
-        SearchEngineVariant.OS3,
+        SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9,
+        SearchEngineVariant.OS2, SearchEngineVariant.OS3,
     )
-    val keepAliveParam = "${keepAlive.inWholeSeconds}s"
-    val id = when (engineInfo().variantInfo.variant) {
-
-        SearchEngineVariant.ES7, SearchEngineVariant.ES8, SearchEngineVariant.ES9 ->
-            restClient.post {
-                path(name, "_pit")
-                parameter("keep_alive", keepAliveParam)
-            }.parse(CreatePointInTimeResponse.serializer(), json).id
-
-        SearchEngineVariant.OS2, SearchEngineVariant.OS3 -> {
-            val result = restClient.post {
-                path(name, "_search", "point_in_time")
-                parameter("keep_alive", keepAliveParam)
-            }
-            val id = json.parseToJsonElement(result.getOrThrow().text).jsonObject["pit_id"]?.jsonPrimitive?.content
-            require(
-                id != null,
-                lazyMessage = { "opensearch API did not contain pit id?. Payload was ${result.getOrNull()}" })
-            id
+    val variant = engineInfo().variantInfo
+    val openSearch = variant.variant.family == SearchEngineFamily.Opensearch
+    // Elasticsearch added this parameter in 8.16; older PIT creation was always strict.
+    val supportsPartialCreation = openSearch || variant.variant == SearchEngineVariant.ES9 ||
+        (variant.variant == SearchEngineVariant.ES8 && (variant.minorVersion ?: 0) >= 16)
+    require(supportsPartialCreation || allowPartialCreation != true) {
+        "Partial PIT creation requires Elasticsearch 8.16+ or OpenSearch"
+    }
+    val result = restClient.post {
+        if (openSearch) path(name, "_search", "point_in_time") else path(name, "_pit")
+        parameter("keep_alive", "${keepAlive.inWholeMilliseconds}ms")
+        if (supportsPartialCreation) {
+            parameter(if (openSearch) "allow_partial_pit_creation" else "allow_partial_search_results", allowPartialCreation)
         }
-
-        else -> throw IllegalStateException("Unknown variant: ${engineInfo().variantInfo.variant}")
+    }.parseJsonObject()
+    val id = result[if (openSearch) "pit_id" else "id"]?.jsonPrimitive?.content
+    require(!id.isNullOrBlank()) { "PIT creation did not return an ID" }
+    if (allowPartialCreation == false) {
+        val shards = result["_shards"]?.jsonObject
+        if (shards != null) {
+            val total = shards["total"]?.jsonPrimitive?.content?.toIntOrNull()
+            val successful = shards["successful"]?.jsonPrimitive?.content?.toIntOrNull()
+            val complete = total != null && total > 0 && successful == total &&
+                shards["failed"]?.jsonPrimitive?.content?.toIntOrNull() == 0
+            if (!complete) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                    runCatching { deletePointInTime(id) }
+                }
+                error("PIT creation did not include every shard")
+            }
+        }
     }
     return id
 }

@@ -6,18 +6,19 @@ usage() {
 Usage: create-ds-and-template.sh [options]
 
 Options:
-  --es-url URL                         Elasticsearch base URL (default: http://localhost:9200)
+  --es-url URL                         Elasticsearch/OpenSearch base URL (default: http://localhost:9200)
   --prefix NAME                        Data stream/template prefix (alias for --data-stream-name)
   --data-stream-name NAME              Data stream name (default: applogs)
   --manage-data-stream-and-templates   true|false (default: true)
-  --configure-ilm                      true|false (default: true)
-  --hot-roll-over-gb N                 ILM hot rollover primary shard size in GB
-  --hot-max-age VALUE                  ILM hot max age (e.g. 1d)
+  --configure-lifecycle                true|false (default: true; ILM or ISM)
+  --configure-ilm                      Alias for --configure-lifecycle
+  --hot-roll-over-gb N                 Rollover primary shard size in GB
+  --hot-max-age VALUE                  Rollover max age (e.g. 1d)
   --number-of-replicas N               index.number_of_replicas
   --number-of-shards N                 index.number_of_shards
   --warm-min-age-days N                Warm phase min age in days (e.g. 3 -> 3d)
   --delete-min-age-days N              Delete phase min age in days (e.g. 30 -> 30d)
-  --warm-shrink-shards N               Warm phase shrink target shards
+  --warm-shrink-shards N               Elasticsearch-only warm shrink target shards
   --warm-segments N                    Warm phase forcemerge max segments
   --warm-min-age VALUE                 Warm phase min age (raw, e.g. 1d)
   --delete-min-age VALUE               Delete phase min age (raw, e.g. 14d)
@@ -58,7 +59,7 @@ while [[ $# -gt 0 ]]; do
     --es-url) ES_URL="$2"; shift 2 ;;
     --prefix|--data-stream-name) DATA_STREAM_NAME="$2"; shift 2 ;;
     --manage-data-stream-and-templates) MANAGE_DATA_STREAM_AND_TEMPLATES="$2"; shift 2 ;;
-    --configure-ilm) CONFIGURE_ILM="$2"; shift 2 ;;
+    --configure-lifecycle|--configure-ilm) CONFIGURE_ILM="$2"; shift 2 ;;
     --hot-roll-over-gb) HOT_ROLLOVER_GB="$2"; shift 2 ;;
     --hot-max-age) HOT_MAX_AGE="$2"; shift 2 ;;
     --number-of-replicas) NUMBER_OF_REPLICAS="$2"; shift 2 ;;
@@ -80,18 +81,70 @@ if ! truthy "$MANAGE_DATA_STREAM_AND_TEMPLATES"; then
 fi
 
 PREFIX="$DATA_STREAM_NAME"
-ILM_POLICY="${PREFIX}-ilm-policy"
+# Detect the server before choosing lifecycle APIs/settings.
+ROOT_JSON="$(curl -fsS "$ES_URL/")"
+ENGINE="$(jq -r '.version.distribution // "elasticsearch"' <<< "$ROOT_JSON")"
+if [[ "$ENGINE" == "opensearch" ]]; then
+  VERSION="$(jq -r '.version.number' <<< "$ROOT_JSON")"
+  [[ "$VERSION" == 3.* ]] || {
+    echo "Lifecycle provisioning requires OpenSearch 3" >&2
+    exit 1
+  }
+  POLICY="${PREFIX}-ism-policy"
+  POLICY_URL="$ES_URL/_plugins/_ism/policies/$POLICY"
+  LIFECYCLE=ISM
+else
+  POLICY="${PREFIX}-ilm-policy"
+  POLICY_URL="$ES_URL/_ilm/policy/$POLICY"
+  LIFECYCLE=ILM
+fi
 TEMPLATE_SETTINGS="${PREFIX}-template-settings"
 TEMPLATE_MAPPINGS="${PREFIX}-template-mappings"
 INDEX_TEMPLATE="${PREFIX}-template"
+RESPONSE_FILE="$(mktemp)"
+trap 'rm -f "$RESPONSE_FILE"' EXIT
 
 curl_put() {
   curl -fsS -X PUT "$1" -H "Content-Type: application/json" -d "$2"
 }
 
-if truthy "$CONFIGURE_ILM"; then
-  echo "Creating ILM policy $ILM_POLICY ..."
-  curl_put "$ES_URL/_ilm/policy/$ILM_POLICY" "{
+if truthy "$CONFIGURE_ILM" && [[ "$ENGINE" == "opensearch" ]]; then
+  echo "Creating/updating ISM policy $POLICY (no data stream shrink) ..."
+  # ISM updates require optimistic concurrency parameters. Only a 404 is absent.
+  STATUS="$(curl -sS -o "$RESPONSE_FILE" -w '%{http_code}' "$POLICY_URL")"
+  POLICY_WRITE_URL="$POLICY_URL"
+  case "$STATUS" in
+    200)
+      SEQ_NO="$(jq -er '._seq_no' "$RESPONSE_FILE")"
+      PRIMARY_TERM="$(jq -er '._primary_term' "$RESPONSE_FILE")"
+      POLICY_WRITE_URL+="?if_seq_no=$SEQ_NO&if_primary_term=$PRIMARY_TERM"
+      ;;
+    404) ;;
+    *) cat "$RESPONSE_FILE" >&2; exit 1 ;;
+  esac
+  POLICY_JSON="$(jq -n \
+    --arg prefix "$PREFIX" --arg size "${HOT_ROLLOVER_GB}gb" \
+    --arg hot "$HOT_MAX_AGE" --arg warm "$WARM_MIN_AGE" \
+    --arg delete "$DELETE_MIN_AGE" --argjson segments "$WARM_SEGMENTS" '
+    {policy: {
+      description: ("Logback rollover and retention for " + $prefix),
+      default_state: "hot",
+      ism_template: [{index_patterns: [($prefix + "*"), (".ds-" + $prefix + "-*")], priority: 300}],
+      states: [
+        {name: "hot",
+         actions: [{rollover: {min_primary_shard_size: $size,
+                              min_index_age: $hot, prevent_empty_rollover: true}}],
+         transitions: [{state_name: "warm", conditions: {min_rollover_age: $warm}}]},
+        {name: "warm",
+         actions: [{force_merge: {max_num_segments: $segments}}],
+         transitions: [{state_name: "delete", conditions: {min_rollover_age: $delete}}]},
+        {name: "delete", actions: [{delete: {}}], transitions: []}
+      ]
+    }}')"
+  curl_put "$POLICY_WRITE_URL" "$POLICY_JSON"
+elif truthy "$CONFIGURE_ILM"; then
+  echo "Creating ILM policy $POLICY ..."
+  curl_put "$POLICY_URL" "{
     \"policy\": {
       \"phases\": {
         \"hot\": {
@@ -117,14 +170,14 @@ if truthy "$CONFIGURE_ILM"; then
     }
   }"
 else
-  echo "configureIlm=false: skipping ILM policy creation"
+  echo "Lifecycle configuration disabled: skipping policy creation"
 fi
 
 echo "Creating component template $TEMPLATE_SETTINGS ..."
-if truthy "$CONFIGURE_ILM"; then
+if truthy "$CONFIGURE_ILM" && [[ "$ENGINE" != "opensearch" ]]; then
   SETTINGS_JSON="\"number_of_shards\": $NUMBER_OF_SHARDS,
       \"number_of_replicas\": $NUMBER_OF_REPLICAS,
-      \"index.lifecycle.name\": \"$ILM_POLICY\""
+      \"index.lifecycle.name\": \"$POLICY\""
 else
   SETTINGS_JSON="\"number_of_shards\": $NUMBER_OF_SHARDS,
       \"number_of_replicas\": $NUMBER_OF_REPLICAS"
@@ -186,7 +239,17 @@ curl_put "$ES_URL/_index_template/$INDEX_TEMPLATE" "{
 }"
 
 echo "Creating data stream $PREFIX ..."
-curl -fsS -X PUT "$ES_URL/_data_stream/$PREFIX"
+STATUS="$(curl -sS -o "$RESPONSE_FILE" -w '%{http_code}' "$ES_URL/_data_stream/$PREFIX")"
+if [[ "$STATUS" == 200 ]] && \
+    jq -e --arg name "$PREFIX" '.data_streams | any(.name == $name)' "$RESPONSE_FILE" > /dev/null; then
+  echo "Data stream already exists"
+elif [[ "$STATUS" == 404 || "$STATUS" == 200 ]]; then
+  curl -fsS -X PUT "$ES_URL/_data_stream/$PREFIX"
+else
+  echo "Data stream lookup failed: HTTP $STATUS" >&2
+  cat "$RESPONSE_FILE" >&2
+  exit 1
+fi
 
 echo "Done. Data stream '$PREFIX' created successfully."
 
@@ -195,8 +258,8 @@ echo "=== VERIFYING DEPLOYED RESOURCES ==="
 
 if truthy "$CONFIGURE_ILM"; then
   echo
-  echo "--- ILM Policy ($ILM_POLICY) ---"
-  curl -s "$ES_URL/_ilm/policy/$ILM_POLICY?pretty" | jq .
+  echo "--- $LIFECYCLE Policy ($POLICY) ---"
+  curl -s "$POLICY_URL?pretty" | jq .
 fi
 
 echo
@@ -224,11 +287,10 @@ echo "Created index template: $INDEX_TEMPLATE"
 echo "Created component template (settings): $TEMPLATE_SETTINGS"
 echo "Created component template (mappings): $TEMPLATE_MAPPINGS"
 if truthy "$CONFIGURE_ILM"; then
-  echo "Created ILM policy: $ILM_POLICY"
+  echo "Configured $LIFECYCLE policy: $POLICY"
 else
-  echo "ILM policy: skipped (--configure-ilm false)"
+  echo "Lifecycle policy: skipped (--configure-lifecycle false)"
 fi
 echo "Settings: shards=$NUMBER_OF_SHARDS replicas=$NUMBER_OF_REPLICAS hot_max_age=$HOT_MAX_AGE hot_rollover_gb=${HOT_ROLLOVER_GB} warm_min_age=$WARM_MIN_AGE delete_min_age=$DELETE_MIN_AGE"
 echo
-echo "Recommended next step: trigger a rollover once to initialize backing index generation."
-echo "curl -X POST \"$ES_URL/$PREFIX/_rollover?pretty\" -H \"Content-Type: application/json\" -d '{}'"
+echo "The data stream is ready for bulk create operations."

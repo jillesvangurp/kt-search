@@ -5,6 +5,8 @@ import com.jillesvangurp.ktsearch.SearchClient
 import com.jillesvangurp.ktsearch.deleteByQuery
 import com.jillesvangurp.ktsearch.getIndexMappings
 import com.jillesvangurp.ktsearch.parseHits
+import com.jillesvangurp.ktsearch.parseJsonObject
+import com.jillesvangurp.ktsearch.post
 import com.jillesvangurp.ktsearch.search
 import com.jillesvangurp.ktsearch.total
 import com.jillesvangurp.searchdsls.querydsl.matchAll
@@ -23,6 +25,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import org.slf4j.MDC
 
@@ -31,18 +34,26 @@ val logger = KotlinLogging.logger {}
 class AppenderTest {
     @Test
     fun shouldLogSomeStuff() = runBlocking {
-        repeat(2) {
-            logSomeStuff()
-        }
-    }
-
-    private suspend fun logSomeStuff() {
         val client = SearchClient(
             KtorRestClient(
                 host = "localhost",
                 port = 9990,
             )
         )
+        try {
+            logSomeStuff(client)
+            val rollover = client.restClient.post {
+                path("applogs", "_rollover")
+                rawBody("{}")
+            }.parseJsonObject()
+            rollover["rolled_over"]?.jsonPrimitive?.content shouldBe "true"
+            logSomeStuff(client, rollover.getValue("new_index").jsonPrimitive.content)
+        } finally {
+            client.close()
+        }
+    }
+
+    private suspend fun logSomeStuff(client: SearchClient, expectedIndex: String? = null) {
         client.manageDataStream(
             prefix = "applogs",
             hotRollOverGb = 1,
@@ -89,6 +100,9 @@ class AppenderTest {
                 query = term("context.environment", "tests")
             }
             resp.total shouldBeGreaterThan 2
+            if (expectedIndex != null) {
+                resp.hits?.hits?.all { it.index == expectedIndex } shouldBe true
+            }
             val hits = resp.parseHits<LogMessage>(DEFAULT_JSON)
             hits.first().let { m ->
                 (m.context?.keys ?: setOf()) shouldContain "host"

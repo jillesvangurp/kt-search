@@ -33,34 +33,27 @@ data class LogException(val className: String, val message: String, val stackTra
 
 /** Converts an exception and its cause chain to indexable details. */
 fun IThrowableProxy?.toLogException(): List<LogException>? {
-    return this?.let {
-        val l = mutableListOf(
-            LogException(
-                it.className,
-                it.message,
-                it.stackTraceElementProxyArray.map { st -> st.stackTraceElement.toString() })
-        )
-        var c = it.cause
-        val seen = mutableSetOf<IThrowableProxy>()
-        while (c != null && !seen.contains(c)) {
-            l.add(
-                LogException(
-                    c.className,
-                    c.className,
-                    c.stackTraceElementProxyArray.map { st -> st.stackTraceElement.toString() })
-            )
-            // prevent cycles
-            seen.add(c)
-            c = c.cause
-        }
-        l
+    val result = mutableListOf<LogException>()
+    val seen = java.util.Collections.newSetFromMap(
+        java.util.IdentityHashMap<IThrowableProxy, Boolean>()
+    )
+    var current = this
+    while (current != null && seen.add(current)) {
+        result.add(LogException(
+            current.className,
+            current.message.orEmpty(),
+            current.stackTraceElementProxyArray?.map { it.stackTraceElement.toString() }
+        ))
+        current = current.cause
     }
+    return result.takeIf { it.isNotEmpty() }
 }
 
 /** Converts this event, filtering context and coercing the selected MDC fields. */
 fun ILoggingEvent.toLogMessage(variableFilter: Regex?, coerceLongFields: Set<String>, coerceDoubleFields: Set<String>): LogMessage {
     return LogMessage(
-        message = message,
+        message = formattedMessage.orEmpty(),
+        timestamp = Instant.fromEpochMilliseconds(timeStamp),
         logger = loggerName,
         thread = threadName,
         level = level.levelStr,
@@ -73,7 +66,7 @@ fun ILoggingEvent.toLogMessage(variableFilter: Regex?, coerceLongFields: Set<Str
                         k to JsonPrimitive(v.toLongOrNull())
                     }
                     in coerceDoubleFields -> {
-                        k to JsonPrimitive(v.toDoubleOrNull())
+                        k to JsonPrimitive(v.toDoubleOrNull()?.takeIf { it.isFinite() })
                     }
                     else -> k to JsonPrimitive(v)
                 }

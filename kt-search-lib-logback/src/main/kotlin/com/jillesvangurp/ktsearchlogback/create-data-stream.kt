@@ -2,13 +2,16 @@ package com.jillesvangurp.ktsearchlogback
 
 import com.jillesvangurp.jsondsl.withJsonDsl
 import com.jillesvangurp.ktsearch.*
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.time.Clock
 import kotlin.time.Duration
 
-/** Checks whether [name] exists, returning false for a missing resource. */
+/** Checks whether data stream [name] exists, returning false for a regular index. */
 suspend fun SearchClient.dataStreamExists(name: String): Boolean {
     val response = restClient.get {
-        path(name)
+        path("_data_stream", name)
     }
     val e = response.exceptionOrNull()
     return if(e!=null) {
@@ -22,12 +25,20 @@ suspend fun SearchClient.dataStreamExists(name: String): Boolean {
             throw e
         }
     } else {
-        println(response.getOrNull()?.text)
-        true
+        // OpenSearch can return 200 with an empty list for a regular index.
+        val streams = json.parseToJsonElement(response.getOrThrow().text)
+            .jsonObject.getValue("data_streams").jsonArray
+        streams.any { it.jsonObject["name"]?.jsonPrimitive?.content == name }
     }
 }
 
-/** Provisions templates and a data stream, optionally configuring Elasticsearch ILM. */
+/**
+ * Provisions templates and a data stream. [configureIlm] enables Elasticsearch
+ * ILM or OpenSearch 3 ISM, detected from the cluster. Ages are measured from
+ * rollover. [warmShrinkShards] applies only to Elasticsearch: OpenSearch shrink
+ * does not preserve data stream membership, so its warm state only force merges.
+ * Disabling lifecycle configuration leaves existing backing indexes unchanged.
+ */
 suspend fun SearchClient.manageDataStream(
     prefix: String,
     hotRollOverGb:Int,
@@ -40,7 +51,16 @@ suspend fun SearchClient.manageDataStream(
     warmSegments: Int,
     configureIlm: Boolean,
 ): Boolean {
-    if(configureIlm) {
+    val openSearch = engineInfo().version.distribution == "opensearch"
+    if (configureIlm && openSearch) {
+        require(engineInfo().version.number.startsWith("3.")) {
+            "Logback lifecycle provisioning requires OpenSearch 3 or Elasticsearch"
+        }
+        configureLogIsmPolicy(
+            prefix, hotRollOverGb, hotMaxAge, warmMinAge,
+            deleteMinAge, warmSegments
+        )
+    } else if (configureIlm) {
         setIlmPolicy("$prefix-ilm-policy") {
             hot {
                 actions {
@@ -72,7 +92,9 @@ suspend fun SearchClient.manageDataStream(
         settings {
             replicas = numberOfReplicas
             shards = numberOfShards
-            put("index.lifecycle.name", "$prefix-ilm-policy")
+            if (configureIlm && !openSearch) {
+                put("index.lifecycle.name", "$prefix-ilm-policy")
+            }
         }
         meta {
             put("created_by","kt-search-lib-logback")
