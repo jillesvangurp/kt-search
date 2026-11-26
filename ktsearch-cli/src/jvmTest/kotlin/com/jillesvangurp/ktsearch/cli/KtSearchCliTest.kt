@@ -3,6 +3,8 @@ package com.jillesvangurp.ktsearch.cli
 import com.github.ajalt.clikt.command.parse
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.UsageError
+import com.jillesvangurp.ktsearch.RestException
+import com.jillesvangurp.ktsearch.RestResponse
 import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterTopApiSnapshot
 import com.jillesvangurp.ktsearch.cli.command.cluster.ClusterHealthSummary
 import com.jillesvangurp.ktsearch.cli.command.cluster.renderClusterHealthSummary
@@ -21,6 +23,50 @@ import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 
 class KtSearchCliTest {
+    @Test
+    fun entrypointPropagatesHealthExitCodes() = runTest {
+        for ((status, timedOut, expected) in listOf(
+            Triple("green", false, 0), Triple("yellow", false, 0),
+            Triple("red", false, 2), Triple("green", true, 2),
+        )) {
+            val command = newCommand(service = FakeService(
+                clusterHealthResponse = """{"status":"$status","timed_out":$timedOut}""",
+            ))
+            runKtSearchCommand(arrayOf("cluster", "health"), command) shouldBe expected
+        }
+    }
+
+    @Test
+    fun entrypointRejectsMalformedAndUnknownHealth() = runTest {
+        for (body in listOf(
+            "{}", """{"status":"green"}""", """{"timed_out":false}""",
+            """{"status":"unknown","timed_out":false}""",
+            """{"status":"green","timed_out":"false"}""",
+        )) {
+            val command = newCommand(service = FakeService(clusterHealthResponse = body))
+            runKtSearchCommand(arrayOf("cluster", "health"), command) shouldBe 2
+        }
+    }
+
+    @Test
+    fun entrypointPropagatesAuthenticationAndNetworkFailures() = runTest {
+        val failures = listOf(
+            RestException(RestResponse.Status4XX.UnAuthorized(byteArrayOf(), "/_cluster/health", null)),
+            RestException(RestResponse.Status4XX.Forbidden(byteArrayOf(), "/_cluster/health", null)),
+            java.net.ConnectException("Connection refused"),
+        )
+        for (failure in failures) {
+            val command = newCommand(service = FakeService(clusterHealthFailure = failure))
+            runKtSearchCommand(arrayOf("cluster", "health"), command) shouldBe 1
+        }
+    }
+
+    @Test
+    fun entrypointPreservesHelpAndUsageExitCodes() = runTest {
+        runKtSearchCommand(arrayOf("--help"), newCommand(service = FakeService())) shouldBe 0
+        runKtSearchCommand(arrayOf("--no-such-option"), newCommand(service = FakeService())) shouldBe 1
+    }
+
     @Test
     fun clusterHealthReturnsZeroForYellowCluster() = runTest {
         val service = FakeService(
@@ -1156,6 +1202,7 @@ private class FakeService(
     private val clusterHealthResponse: String = """
         {"cluster_name":"cluster","status":"green","timed_out":false}
     """.trimIndent(),
+    private val clusterHealthFailure: Throwable? = null,
     private val dumpHitId: String = "1",
     val schemaExport: String = """{"settings":{},"mappings":{}}""",
     val aliasesExport: String = """{"products":{"aliases":{}}}""",
@@ -1183,6 +1230,7 @@ private class FakeService(
     ): String {
         clusterHealthCalls++
         lastConnectionOptions = connectionOptions
+        clusterHealthFailure?.let { throw mapCliException(it, connectionOptions) }
         return clusterHealthResponse
     }
 

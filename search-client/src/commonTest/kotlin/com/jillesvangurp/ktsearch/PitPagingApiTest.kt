@@ -135,7 +135,7 @@ private class PitRecordingClient(private val openSearch: Boolean, private val ve
                 creationShards?.let { put("_shards", DEFAULT_JSON.parseToJsonElement(it)) }
             }.toString()
             path.last() == "_stats" -> """{"indices":{"source":{"uuid":"uuid-1","shards":{"0":[{"routing":{"primary":true},"seq_no":{"max_seq_no":922337203685477580}},{"routing":{"primary":false}}]}}}}"""
-            path.last() == "_search" -> """{"timed_out":${failure == "timeout"},"_shards":{"total":2,"successful":${if(failure=="shards") 1 else 2},"failed":${if(failure=="shards") 1 else 0}},"pit_id":"snapshot","hits":{"total":{"value":1,"relation":"${if(failure=="total") "gte" else "eq"}"},"hits":[{"_index":"source","_id":"storage-id","_source":{"id":"payload-id"},"sort":${if(failure == "sort") "[]" else if(openSearch) "[\"source\",\"storage-id\"]" else "[42]"}}]}}"""
+            path.last() == "_search" -> """{"timed_out":${failure == "timeout"},"_shards":{"total":2,"successful":${if(failure=="shards") 1 else 2},"failed":${if(failure=="shards") 1 else 0}},"${if(failure == "sort") "point_in_time_id" else "pit_id"}":"snapshot","hits":{"total":{"value":1,"relation":"${if(failure=="total") "gte" else "eq"}"},"hits":[{"_index":"source","_id":"storage-id","_source":{"id":"payload-id"},"sort":${if(failure == "sort") "[]" else if(openSearch) "[\"source\",\"storage-id\"]" else "[42]"}}]}}"""
             else -> error("Unexpected request")
         }
         return RestResponse.Status2XX.OK(text.encodeToByteArray())

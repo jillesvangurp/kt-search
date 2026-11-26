@@ -94,10 +94,10 @@ suspend fun SearchClient.searchPointInTimePage(
     if (response.timedOut != false || shards == null || shards.failed != 0 ||
         shards.successful != shards.total ||
         response.hits?.total?.relation != SearchResponse.Hits.TotalRelation.Eq) {
-        throw IncompletePitPageException("PIT search did not return a complete page with an exact total", response.pitId)
+        throw IncompletePitPageException("PIT search did not return a complete page with an exact total", response.pitId ?: response.pointInTimeId)
     }
     if (response.searchHits.any { it.sort?.size != sortSize }) {
-        throw IncompletePitPageException("PIT search did not return stable sort values", response.pitId)
+        throw IncompletePitPageException("PIT search did not return stable sort values", response.pitId ?: response.pointInTimeId)
     }
     return response
 }

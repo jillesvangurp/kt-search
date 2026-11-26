@@ -10,7 +10,6 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
-import com.jillesvangurp.ktsearch.ClusterStatus
 import com.jillesvangurp.ktsearch.cli.ApiMethod
 import com.jillesvangurp.ktsearch.cli.CliService
 import com.jillesvangurp.ktsearch.cli.ConnectionOptions
@@ -98,10 +97,8 @@ private class ClusterHealthCommand(
         }
         echo(render(raw))
 
-        val timedOut = summary?.timedOut == true
-        val status = summary?.status
-
-        if (timedOut || status == ClusterStatus.Red.name.lowercase()) {
+        if (summary == null || summary.timedOut ||
+            summary.status !in setOf("green", "yellow")) {
             throw ProgramResult(2)
         }
     }
@@ -118,10 +115,14 @@ internal fun parseClusterHealthSummary(raw: String): ClusterHealthSummary? {
         Json.Default.parseToJsonElement(raw).jsonObject
     }.getOrNull() ?: return null
 
+    val status = (json["status"] as? JsonPrimitive)?.contentOrNull?.lowercase()
+        ?.takeIf { it in setOf("green", "yellow", "red") } ?: return null
+    val timedOut = (json["timed_out"] as? JsonPrimitive)?.takeUnless { it.isString }
+        ?.booleanOrNull ?: return null
     return ClusterHealthSummary(
         clusterName = (json["cluster_name"] as? JsonPrimitive)?.contentOrNull,
-        status = (json["status"] as? JsonPrimitive)?.contentOrNull?.lowercase(),
-        timedOut = (json["timed_out"] as? JsonPrimitive)?.booleanOrNull == true,
+        status = status,
+        timedOut = timedOut,
     )
 }
 
