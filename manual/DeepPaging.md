@@ -81,6 +81,46 @@ reported result set size 3
 results in the hits flow: 3
 ```
 
+## Independently requested PIT pages
+
+For separate requests, keep the PIT ID and last hit's sort array in
+your own cursor. `searchPointInTimePage` rejects partial searches
+and uses an engine-appropriate stable sort. On OpenSearch, supply
+a single-valued keyword field with doc values, unique within each
+index. The index name breaks ties across indexes. Returned storage
+IDs remain independent of IDs inside document payloads.
+
+Keep sort values as JSON, including numeric values. Bind cursors
+to the caller and query in your application, and close the latest
+PIT ID when finished. Use scroll for legacy documents without a
+suitable unique sortable field.
+
+```kotlin
+var pit = client.createPointInTime(
+  indexName, 1.minutes, allowPartialCreation = false,
+)
+try {
+  val first = client.searchPointInTimePage(
+    pit, 1.minutes, uniqueKeyField = "id",
+  ) { resultSize = 1 }
+  pit = first.pitId ?: first.pointInTimeId ?: pit
+  val next = client.searchPointInTimePage(
+    pit, 1.minutes, uniqueKeyField = "id",
+    searchAfter = first.searchHits.last().sort,
+  ) { resultSize = 1 }
+  pit = next.pitId ?: next.pointInTimeId ?: pit
+  println("Second page storage ID: ${next.searchHits.single().id}")
+} finally {
+  client.deletePointInTime(pit)
+}
+```
+
+This prints:
+
+```text
+Second page storage ID: 2
+```
+
 ## Resume from a saved cursor
 
 To fetch one page after a known position, use `client.search` and set the DSL's `searchAfter` property.
